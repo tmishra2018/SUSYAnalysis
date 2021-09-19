@@ -29,3 +29,5 @@ https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedPhotonIdentificationRun2
 
 https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPOG
 
+https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2
+
