@@ -1,0 +1,38 @@
+
+Processing pred_rareBkg.C++...
+ bin 1 rare 15.2233 error 1.68247 rel 0.11052 control 0.0362977
+ jesup 0.190872 jesdo 0.3541 jerup 0.71343 jerdo 0.455145
+ bin 2 rare 59.3649 error 2.9688 rel 0.0500093 control 0.0162564
+ jesup 1.82741 jesdo 1.76991 jerup 2.18495 jerdo 0.738527
+ bin 3 rare 20.6058 error 1.76337 rel 0.0855763 control 0.0270073
+ jesup 0.740913 jesdo 0.298837 jerup 0.147171 jerdo 1.47308
+ bin 4 rare 1.79457 error 0.401167 rel 0.223545 control 0.0816497
+ jesup 0.0285232 jesdo 0.00817792 jerup 0.0182715 jerdo 0.0234593
+ bin 5 rare 17.7247 error 1.8095 rel 0.102089 control 0.0326164
+ jesup 0.421202 jesdo 0.158258 jerup 0.224878 jerdo 0.115701
+ bin 6 rare 10.7182 error 1.32203 rel 0.123344 control 0.038097
+ jesup 0.252775 jesdo 0.186444 jerup 0.510846 jerdo 0.492264
+ bin 7 rare 0.0229258 error 0.0134925 rel 0.588527 control 0.5
+ jesup 7.53087e-11 jesdo 7.53087e-11 jerup 7.53087e-11 jerdo 7.53087e-11
+ bin 8 rare 0.159887 error 0.0380764 rel 0.238145 control 0.213201
+ jesup 1.19799e-11 jesdo 0.00162914 jerup 1.19799e-11 jerdo 0.00774722
+ bin 9 rare 0.730399 error 0.197569 rel 0.270494 control 0.119523
+ jesup 0.00859704 jesdo 0.0211946 jerup 0.0171005 jerdo 0.0109093
+ bin 10 rare 0.895455 error 0.345969 rel 0.386361 control 0.120386
+ jesup 0.0414321 jesdo 0.0275753 jerup 0.347301 jerdo 0.000642722
+ bin 11 rare 5.30787 error 0.444 rel 0.0836494 control 0.0411693
+ jesup 0.00541071 jesdo 0.0196488 jerup 0.101811 jerdo 0.0244914
+ bin 12 rare 2.64246 error 0.253229 rel 0.0958309 control 0.0578315
+ jesup 0.0626727 jesdo 0.114097 jerup 0.0701928 jerdo 0.00476387
+ bin 13 rare 0.464682 error 0.0652584 rel 0.140437 control 0.133631
+ jesup 0.0524091 jesdo 0.00353343 jerup 0.338384 jerdo 0.000603088
+ bin 14 rare 3.99471 error 0.430928 rel 0.107875 control 0.0485071
+ jesup 0.0339728 jesdo 0.0785389 jerup 0.0523059 jerdo 0.0057583
+ bin 15 rare 2.04751 error 0.216438 rel 0.105708 control 0.0681994
+ jesup 0.0607256 jesdo 0.0288062 jerup 0.0199925 jerdo 0.0106051
+ bin 16 rare 0.0137786 error 0.00974341 rel 0.70714 control 0.707107
+ jesup 4.62224e-10 jesdo 4.62224e-10 jerup 4.62224e-10 jerdo 4.62224e-10
+ bin 17 rare 0.249776 error 0.049131 rel 0.196701 control 0.185695
+ jesup 0.00821522 jesdo 0.0137283 jerup 4.08385e-09 jerdo 0.00991436
+ bin 18 rare 0.184257 error 0.0410976 rel 0.223045 control 0.208514
+ jesup 0.00821522 jesdo 0.0113184 jerup 0.00592374 jerdo 5.27564e-09

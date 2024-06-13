@@ -36,15 +36,15 @@
 void analysis_elefakepho(int RunYear, const char *Era){//main
 
   ofstream logfile;
-  logfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/logs/plot_elefakepho_DYTnP_dR05_DY_%d.log",RunYear),ios::trunc);
+  logfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/logs/plot_elefakepho_DYTnP_dR05_DY_%d%s.log",RunYear,Era),ios::trunc);
 
   logfile << "analysis_elefakepho()" << std::endl;
 
   RunType datatype(MC);                              // Run Type
-  TFile *f = TFile::Open(Form("/eos/uscms/store/group/lpcsusyhad/Tribeni/DYJetsToLL/DYJetsToLL_%d.root",RunYear));
+  TFile *f = TFile::Open(Form("/eos/uscms/store/group/lpcsusyphotons/Tribeni/DYJetsToLL/DYJetsToLL_%d%s.root",RunYear,Era));
   TTree *es =(TTree*)f->Get("ggNtuplizer/EventTree");
 
-  TFile *output = TFile::Open(Form("/eos/uscms/store/user/tmishra/elefakepho/files/plot_elefakepho_DYTnP_dR05_%d.root",RunYear),"RECREATE");
+  TFile *output = TFile::Open(Form("/eos/uscms/store/user/tmishra/elefakepho/files/plot_elefakepho_DYTnP_dR05_%d%s.root",RunYear,Era),"RECREATE");
   output->cd();
 
   int   tracks(0);
@@ -140,7 +140,7 @@ void analysis_elefakepho(int RunYear, const char *Era){//main
   const unsigned nEvts = es->GetEntries();
   std::cout << "Total event: " << nEvts << std::endl;
   logfile << "Total event: " << nEvts << std::endl;
-  logfile << "Output file: " << "/eos/uscms/store/user/tmishra/elefakepho/files/plot_elefakepho_DYTnP_dR05_"<<RunYear<<".root"<< std::endl;
+  logfile << "Output file: " << "/eos/uscms/store/user/tmishra/elefakepho/files/plot_elefakepho_DYTnP_dR05_"<<RunYear<<Era<<".root"<< std::endl;
   
   rawData raw(es, datatype);
   std::vector<mcData>  MCData;
@@ -153,12 +153,16 @@ void analysis_elefakepho(int RunYear, const char *Era){//main
   int   nvtx(0);
 
   TRandom3 ran(0);
+  int pTcut = 0;
+  if (RunYear==2016) pTcut = 30;
+  if (RunYear==2017) pTcut = 38;
+  if (RunYear==2018) pTcut = 35;
 
-    std::cout << "total: " << nEvts << std::endl;
-    for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
+  int passPixelIssue(0);
+  std::cout << "total: " << nEvts << std::endl;
+  for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
   
         if (ievt%1000000==0) std::cout << " -- Processing event " << ievt << std::endl;
-
         raw.GetData(es, ievt);
         MCData.clear();
         Photon.clear();
@@ -174,7 +178,13 @@ void analysis_elefakepho(int RunYear, const char *Era){//main
 
         tracks = ntrks;
         nVertex = nvtx;
+	
+	if(RunYear==2017 && !passPixelIssue17(raw)) continue;
+        if(RunYear==2018 && !passPixelIssue18(raw)) continue;
+        passPixelIssue++;
+
         if(MET > 70.0)continue;
+        if(MET < 40.0)continue; // added temporarily
         //if(!raw.passHLT())continue;
 				if(RunYear==2016 && ((raw.HLTEleMuX >> 4) &1) ==0)continue;  //HLT_Ele27_WPTight_Gsf_v
 				if(RunYear==2017 && ((raw.HLTEleMuX >> 3) &1) ==0)continue;  //HLT_Ele35_WPTight_Gsf_v
@@ -182,8 +192,7 @@ void analysis_elefakepho(int RunYear, const char *Era){//main
         std::vector<std::vector<recoEle>::iterator> ElectronCollection;
         ElectronCollection.clear();
         for(std::vector<recoEle>::iterator itEle = Ele.begin(); itEle != Ele.end(); itEle++){
-	   // common trigger threshold starts from 35 GeV
-           if(itEle->getCalibEt() < 38 || fabs(itEle->getEta())>2.1)continue;                              // Tag electron selection
+           if(itEle->getCalibEt() < pTcut || fabs(itEle->getEta())>2.1)continue;                              // Tag electron selection
            //if(!itEle->passHLTSelection())continue;
 					 if(RunYear==2016 && !itEle->fireTrgs(12))continue;  //HLT_Ele27_WPTight_Gsf_v
 					 if(RunYear==2017 && !itEle->fireTrgs(46))continue;  //HLT_Ele35_WPTight_Gsf_v
@@ -328,6 +337,9 @@ logfile << "FakeRateRandomTree events: " << rantree->GetEntries() <<"; "<<percen
 logfile << "FakeRateTree events: " << etree->GetEntries() <<"; "<<percent2<<"\%"<<std::endl;
 cout<< "FakeRateRandomTree events: " << rantree->GetEntries() <<"; "<<percent1<<"\%"<<std::endl;
 cout<< "FakeRateTree events: " << etree->GetEntries() <<"; "<<percent2<<"\%"<<std::endl;
+if(RunYear==2018) logfile << "pass Pixel veto " << passPixelIssue*100/nEvts<<endl;
+if(RunYear==2017) logfile << "pass Pixel veto " << passPixelIssue*100/nEvts<<endl;
+
 
 output->Write();
 output->Close();

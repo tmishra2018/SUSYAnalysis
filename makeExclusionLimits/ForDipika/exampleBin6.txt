@@ -1,0 +1,55 @@
+Combination of b.txt
+imax 1 number of bins
+jmax 5 number of processes minus 1
+kmax 27 number of nuisance parameters
+----------------------------------------------------------------------------------------------------------------------------------
+bin          ch1        
+observation  6.0        
+----------------------------------------------------------------------------------------------------------------------------------
+bin                                   ch1          ch1          ch1          ch1          ch1          ch1        
+process                               bZgbin6      LEle_bin6    ZG_bin6      LMuTau_bin6  Fake_bin6    MultiJ_bin6
+process                               0            1            2            3            4            5          
+rate                                  0.1021       1e-06        2.6759       1.2287       0.7928       0.4130     
+----------------------------------------------------------------------------------------------------------------------------------
+Nuisance Type          Model          Nuisance
+-----------------------------------------------------------------
+FakeRate_ISR_b          lnN           1.02
+FakeRate_PU_b           lnN           1.06
+FakeRate_SF_b           lnN           1.1 
+FakeRateStatMCdata_b6   lnN           1.17955
+
+
+Nuisance Type          Model          Nuisance
+-----------------------------------------------------------------
+LEleDR_b                lnN           1.12         -            -            -            -          
+LEleJEC_b               lnN           1.02         -            -            -            -          
+LEleLeptSF_bM7          lnN           1.02         -            -            -            -          
+LEleTFUnc_b6            lnN           1.09248      -            -            -            -          
+LEleCS_b6               gmN  0        0.384939     -            -            -            -          
+
+LLeptPDF_b              lnN           1.05         1.015        -            -          
+
+LMuLeptSF_bM7           lnN           -            1.03         -            -          
+LMuTauTFUnc_b6          lnN           -            1.06265      -            -          
+LMuTauCS_b6             gmN  1        -            1.22868      -            -          
+
+Nuisance Type          Model          Nuisance
+----------------------------------------------------
+MultiJ_b6               gmN  2        0.206479   
+MultiJEW_b6             lnN           0.338/0.441
+MultiJHL_bR1            lnN           1.02382    
+MultiJdR_bR1            lnN           1.17059    
+
+Nuisance Type          Model          Nuisance
+----------------------------------------------------
+ZG_mcStat_b6            lnN           1.05279      -            -            -          
+ZG_EWCorr_bR1           lnN           1.4          -            -            -          
+ZGNorm_bA               gmN  31       0.0863201    -            -            -          
+ZGTFpurity_bA           lnN           1.02532      -            -            -          
+
+sigGenMET_bM7           lnN           1.07679      -            -            -            -            -          
+sigISR_bLJ              lnN           1.05808      -            -            -            -            -          
+sigLumiTrig             lnN           1.032        -            -            -            -            -          
+sigOther_b6             lnN           1.058        -            -            -            -            -          
+sigStat_b6              lnN           1.09843      -            -            -            -            -          
+sigbTag_bA              lnN           1.15934      -            -            -            -            -          

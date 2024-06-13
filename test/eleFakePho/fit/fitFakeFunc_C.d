@@ -226,6 +226,10 @@
 ./fitFakeFunc_C.so: ../../../include/RooDCBShape.h
 ./fitFakeFunc_C.so: ../../../include/RooUserPoly.h
 ./fitFakeFunc_C.so: ../../../include/analysis_fakes.h
+./fitFakeFunc_C.so: /eos/uscms/store/user/tmishra/elefakepho/DataResult2016preVFP/result_eta_dependence_Data.txt
+./fitFakeFunc_C.so: /eos/uscms/store/user/tmishra/elefakepho/DataResult2016postVFP/result_eta_dependence_Data.txt
+./fitFakeFunc_C.so: /eos/uscms/store/user/tmishra/elefakepho/DataResult2017/result_eta_dependence_Data.txt
+./fitFakeFunc_C.so: /eos/uscms/store/user/tmishra/elefakepho/DataResult2018/result_eta_dependence_Data.txt
 ./fitFakeFunc_C.so: ../../../include/analysis_rawData.h
 ./fitFakeFunc_C.so: ../../../include/analysis_photon.h
 ./fitFakeFunc_C.so: /cvmfs/cms.cern.ch/slc7_amd64_gcc700/lcg/root/6.12.07-gnimlf7/include/TLorentzVector.h

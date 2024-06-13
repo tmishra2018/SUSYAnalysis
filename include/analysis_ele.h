@@ -35,8 +35,13 @@
     elePFPUIso_ = (*raw.elePFPUIso)[iele];
     elePFMiniIso_ = (*raw.elePFMiniIso)[iele];
 
+    float energy = fabs((*raw.eleSCEn)[iele]);
     float eta = fabs((*raw.eleSCEta)[iele]);
     float rho = raw.rho;
+
+    if(eta <= 1.479) HoverEcut_= 0.0460 +(1.16/energy)+(0.0324*rho)/energy;
+    if(eta >  1.479) HoverEcut_= 0.0275 +(2.52/energy)+(0.183*rho)/energy;
+
     if(eta<=1.0){
       eleCombIso_ = (elePFChIso_ + std::max(0.0, elePFNeuIso_+elePFPhoIso_-rho*0.1440))/(*raw.elePt)[iele];
       eleCalibCombIso_ = (elePFChIso_ + std::max(0.0, elePFNeuIso_+elePFPhoIso_-rho*0.1440))/(*raw.eleCalibPt)[iele];
@@ -73,14 +78,11 @@
     eledEtaAtVtx_ = (*raw.eledEtaAtVtx)[iele];
     eledPhiAtVtx_ = (*raw.eledPhiAtVtx)[iele];
     eleTrkdxy_ = (*raw.eleTrkdxy)[iele];
+	// Only comment these for signal files T5WG, as triggers are not stored in ntuples
 	eleFiredSingleTrgs_ = (*raw.eleFiredSingleTrgs)[iele];
 	eleFiredDoubleTrgs_ = (*raw.eleFiredDoubleTrgs)[iele];
 	eleFiredL1Trgs_ = (*raw.eleFiredL1Trgs)[iele];
     eleIDbit_ = (*raw.eleIDbit)[iele];
-
-    float energy = fabs((*raw.eleSCEn)[iele]);
-    if(eta <= 1.479) HoverEcut_= 0.0460 +(1.16/energy)+(0.0324*rho)/energy;
-    if(eta >  1.479) HoverEcut_= 0.0275 +(2.52/energy)+(0.183*rho)/energy;
  }
 
   ~recoEle(){
@@ -159,6 +161,7 @@ bool isMiniMedium();
 bool isMiniLoose();
 bool passBasicID();
 bool isFakeProxy();
+bool isFakeProxyOLD();
 bool isLooseFakeProxy();
 
 private:

@@ -187,23 +187,23 @@ void pred_qcdBkg(){
 
 	for(unsigned ievt(0); ievt < fakeEtree->GetEntries(); ievt++){
 		fakeEtree->GetEntry(ievt);
-		if(ievt%1000 ==0)std::cout <<"event " << ievt << std::endl;
+		//if(ievt%1000 ==0)std::cout <<"event " << ievt << std::endl;
 
-		double w_qcd = 0; 
-		double w_qcd_up = 0; 
-		double w_qcd_unweight = 0;
+		double w_qcd = 1.; 
+		double w_qcd_up = 1.; 
+		double w_qcd_unweight = 1.;
 
 		// Corrections on electron proxy sample, not on muon proxy sample as described in Section 5.3.3 in AN
-		if(channelType == 1){ // eg channel
-			w_qcd = factorQCD*p_scale->GetBinContent(p_scale->FindBin(lepPt));
-			w_qcd_up = factorQCDUP*p_scale->GetBinContent(p_scale->FindBin(lepPt));
-			w_qcd_unweight = factorQCD;
-		}
-		else{
-			w_qcd = factorQCD;
-			w_qcd_up = factorQCDUP;
-			w_qcd_unweight = factorQCD;
-		}
+		//if(channelType == 1){ // eg channel
+		//	w_qcd = factorQCD*p_scale->GetBinContent(p_scale->FindBin(lepPt));
+		//	w_qcd_up = factorQCDUP*p_scale->GetBinContent(p_scale->FindBin(lepPt));
+		//	w_qcd_unweight = factorQCD;
+		//}
+		//else{
+		//	w_qcd = factorQCD;
+		//	w_qcd_up = factorQCDUP;
+		//	w_qcd_unweight = factorQCD;
+		//}
 	
 		p_PU->Fill(nVertex);
 		/** cut flow *****/
@@ -378,9 +378,13 @@ void pred_qcdBkg(){
 	h_qcdfakelep_syserr_lumi->Write();      
 	h_qcdfakelep_syserr_isr->Write();     
 
-	for(int ibin(1); ibin < h_qcdfakelep_controlsample->GetSize(); ibin++)std::cout <<"bin " << ibin << " " <<  h_qcdfakelep_controlsample->GetBinContent(ibin) << std::endl; 
+	float binSum=0;
+        for(int ibin(1); ibin < h_qcdfakelep_controlsample->GetSize(); ibin++) binSum= binSum+h_qcdfakelep_norm->GetBinContent(ibin);
+
+	//for(int ibin(1); ibin < h_qcdfakelep_controlsample->GetSize(); ibin++)std::cout <<"bin " << ibin << " " <<  h_qcdfakelep_controlsample->GetBinContent(ibin) << std::endl; 
 	std::sort(sig_runV.begin(), sig_runV.end(), compareByRun);
-	for(unsigned i=0; i < sig_runV.size(); i++)std::cout <<  sig_runV[i].binN+NBIN << " " <<  sig_runV[i].runN << " " << sig_runV[i].lumiN << " " << sig_runV[i].eventN << std::endl;	
+//	for(unsigned i=0; i < sig_runV.size(); i++)std::cout <<  sig_runV[i].binN+NBIN << " " <<  sig_runV[i].runN << " " << sig_runV[i].lumiN << " " << sig_runV[i].eventN << std::endl;	
+	cout<<"total entries : "<<binSum<<endl;
 	outputfile->Write();
 	outputfile->Close();
 }

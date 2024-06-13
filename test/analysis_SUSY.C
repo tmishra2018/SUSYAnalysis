@@ -16,19 +16,23 @@ struct decayChain{
 	std::vector<mcData>::iterator iter; 
   std::vector< std::vector<mcData>::iterator > daughter;
 };
+//int RunYear = 2016;
 
 void analysis_SUSY(){//main  
 
 	gSystem->Load("../lib/libAnaClasses.so");
 
 	TChain* es = new TChain("ggNtuplizer/EventTree");
-	es->Add("/eos/uscms/store/user/msun/Signal/T6WG_TuneCUETP8M1_RunIISummer16MiniAOD.root");
-	//es->Add("root://cmseos.fnal.gov///store/user/msun/Signal/SMS-T5WG_TuneCUETP8M1_RunIISummer16MiniAOD.root");
+	//es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/Tribeni/T5WG/T5Wg_%d.root",RunYear));
+	//es->Add("/eos/uscms/store/user/tmishra/InputFilesMC/T5WG/T5WG_2016.root");
+	//es->Add("/eos/uscms/store/user/msun/Signal/T6WG_TuneCUETP8M1_RunIISummer16MiniAOD.root");
+	es->Add("root://cmseos.fnal.gov///store/user/msun/Signal/SMS-T5WG_TuneCUETP8M1_RunIISummer16MiniAOD.root");
 	//es->Add("/eos/uscms/store/user/msun/Signal/SMS-TChiWG_TuneCUETP8M1_RunIISummer16MiniAODv2.root");
 
 	RunType datatype(MC); 
 	std::ostringstream outputname;
-	outputname << "/uscms/home/tmishra/nobackup/signal_trees/resTree_T6WG_2016_march.root";
+	outputname << "/uscms/home/tmishra/nobackup/signal_trees/resTree_T5WG_2016_may.root";
+	//outputname << "/uscms/home/tmishra/nobackup/signal_trees/resTree_T6WG_2016_march.root";
 	//outputname << "/uscms/home/tmishra/nobackup/signal_trees/resTree_T5WG_2016.root";
 	//outputname << "/uscms/home/tmishra/nobackup/signal_trees/resTree_TChiWG_2016_march.root";
 
@@ -317,8 +321,8 @@ void analysis_SUSY(){//main
 	int nVtx(0);
 	int jetNumber(0);
 
-	//const unsigned nEvts = 355160; 
-	const unsigned nEvts = es->GetEntries(); 
+	const unsigned nEvts = 355160; 
+	//const unsigned nEvts = es->GetEntries(); 
 	std::cout << "total event : " << nEvts << std::endl;
 
 	for(unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
@@ -377,7 +381,7 @@ void analysis_SUSY(){//main
 		Ele.clear();
 		JetCollection.clear();
 		if(datatype == MC)for(int iMC(0); iMC < raw.nMC; iMC++){MCData.push_back(mcData(raw, iMC));}
-		for(int iPho(0); iPho < raw.nPho; iPho++){Photon.push_back(recoPhoton(raw, iPho));}
+		for(int iPho(0); iPho < raw.nPho; iPho++){Photon.push_back(recoPhoton(raw, iPho));}  // here breaking
 		for(int iMu(0); iMu < raw.nMu; iMu++){Muon.push_back(recoMuon(raw, iMu));}
 		for(int iEle(0); iEle < raw.nEle; iEle++){Ele.push_back(recoEle(raw, iEle));}
 		for(int iJet(0); iJet < raw.nJet; iJet++){JetCollection.push_back(recoJet(raw, iJet));}

@@ -52,9 +52,8 @@
 #include "../../../include/analysis_tools.h"
 #include "../../../include/analysis_fakes.h"
 
-int  RunYear = 2016;
-#define NTOY 10000
-#define NBIN 18
+#define NTOY 1000
+#define NBIN 9
 #define REBINSIZE 1
 
 Double_t tmpjetfake_func(Double_t *x, Double_t *par)
@@ -72,28 +71,42 @@ Double_t tmpjetfake_func(Double_t *x, Double_t *par)
 	//return (jetfakes_highedge + jetfakes_lowedge)/2.0*REBINSIZE;
 	return (jetfakes_highedge - jetfakes_lowedge);
 }
-
-void fitJetFunc(int detType){
-	int channel = 1; // 1 = eg; 2 = mg; 3 = egloose; 4 = mgloose;
-
+// root -l -q "fitJetFunc.C(1,2016,1)"
+void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
+	int detType = 1;
+	int channel = ichannel;
+	gROOT->SetBatch(kTRUE);
 	setTDRStyle();
 	gStyle->SetOptStat(0);
 	gStyle->SetOptFit(0);
 	gStyle->SetErrorX(0.5);
 	gStyle->SetTitleX(0.5);
+	
+	std::string whichVFP;
+	if(RunYear==2016 and ISpreVFP == true) whichVFP = "preVFP";
+	if(RunYear==2016 and ISpreVFP == false) whichVFP = "postVFP";
+	if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
+
+	cout<< " RunYear " << RunYear <<  "  "<< whichVFP << "  channel "<< channel <<endl;
 
 	TChain *sigtree = new TChain("signalTree");
-	if(channel == 1)sigtree->Add(Form("/eos/uscms/store/group/lpcsusyhad/Tribeni/eg_mg_trees/resTree_egsignal_DoubleEG_%d.root",RunYear));
-	else if(channel ==2)sigtree->Add(Form("/eos/uscms/store/group/lpcsusyhad/Tribeni/eg_mg_trees/resTree_mgsignal_MuonEG_%d.root",RunYear));
+	//if(channel == 1)sigtree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_egsignal_DoubleEG_ReMiniAOD_FullEcal_newEta.root");
+	if(channel == 1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
+	else if(channel ==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
 
 	TChain *controltree = new TChain("jetTree");
-	if(channel == 1)controltree->Add(Form("/eos/uscms/store/group/lpcsusyhad/Tribeni/eg_mg_trees/resTree_egsignal_DoubleEG_%d.root",RunYear));
-	else if(channel ==2)controltree->Add(Form("/eos/uscms/store/group/lpcsusyhad/Tribeni/eg_mg_trees/resTree_mgsignal_MuonEG_%d.root",RunYear));
+	//if(channel == 1)controltree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_egsignal_DoubleEG_ReMiniAOD_FullEcal_newEta.root");
+	if(channel == 1)controltree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
+	else if(channel ==2)controltree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
 
 	std::stringstream fakerate_filename;
 	fakerate_filename.str("");
-        if(channel == 1) fakerate_filename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<"/JetFakeRate-DoubleEG-";
-        if(channel == 2) fakerate_filename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<"/JetFakeRate-MuonEG-";
+	//if(channel == 1) fakerate_filename << "/uscms_data/d3/mengleis/SUSYAnalysis/test/jetFakePho/result/JetFakeRate-DoubleEG-";
+	//if(channel == 2) fakerate_filename << "/uscms_data/d3/mengleis/SUSYAnalysis/test/jetFakePho/result/JetFakeRate-MuonEG-";
+	//if(channel == 1) fakerate_filename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<whichVFP<<"/JetFakeRate-DoubleEG-";  // some issue here
+        //if(channel == 2) fakerate_filename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<whichVFP<<"/JetFakeRate-MuonEG-";
+	if(channel == 1) fakerate_filename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<whichVFP<<"/Upto-170-JetFakeRate-DoubleEG-";  // some issue here
+        if(channel == 2) fakerate_filename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<whichVFP<<"/Upto-170-JetFakeRate-MuonEG-";
 
 	if(detType == 1)fakerate_filename << "EB.txt";
 	else if(detType == 2)fakerate_filename << "EE.txt";
@@ -118,8 +131,10 @@ void fitJetFunc(int detType){
 
 	std::ostringstream elefake_config;
 	elefake_config.str("");
-	if(detType == 1)elefake_config << "/eos/uscms/store/user/tmishra/elefakepho/DataResult"<<RunYear<<"/EleFakeRate-ByPtVtx-EB_"<<RunYear<<".txt";
-	else if(detType == 2)elefake_config << "/eos/uscms/store/user/tmishra/elefakepho/DataResult"<<RunYear<<"/EleFakeRate-ByPtVtx-EE_"<<RunYear<<".txt";
+	//if(detType == 1) elefake_config << "/uscms_data/d3/mengleis/SUSYAnalysis/test/eleFakePho/DataResult/EleFakeRate-ByPtVtx-EB.txt";
+	if(detType == 1) elefake_config << "/eos/uscms/store/user/tmishra/elefakepho/DataResult"<<RunYear<<whichVFP<<"/EleFakeRate-Data-ByPtVtx-EB.txt";
+	else if(detType == 2) elefake_config << "/eos/uscms/store/user/tmishra/elefakepho/DataResult"<<RunYear<<whichVFP<<"/EleFakeRate-Data-ByPtVtx-EE.txt";
+	
 	std::ifstream elefake_file(elefake_config.str().c_str());
 	double scalefactor(0);
 	double ptslope(0);
@@ -168,8 +183,8 @@ void fitJetFunc(int detType){
 	if(detType == 1){
 		sigtree->Draw("phoEt >> p_sigPhoEt", " phoEt >35 && sigMET < 70 && fabs(phoEta) < 1.4442");
 		std::cout << "signal " << p_sigPhoEt->GetEntries() << std::endl;
-		controltree->Draw("phoEt >> p_controlPhoEt", "phoEt > 35 && sigMET < 70 && fabs(phoEta) < 1.4442 && phoChIso < 1.29");
-		controltree->Draw("phoEt >> p_checkEt",  "phoEt > 35 && sigMET < 70 && fabs(phoEta) < 1.4442 && phoChIso < 1.29");
+		controltree->Draw("phoEt >> p_controlPhoEt", "phoEt > 35 && sigMET < 70 && fabs(phoEta) < 1.4442");
+		controltree->Draw("phoEt >> p_checkEt",  "phoEt > 35 && sigMET < 70 && fabs(phoEta) < 1.4442 && phoChIso < 1.694");
 	}
 	if(detType == 2){
 		sigtree->Draw("phoEt >> p_sigPhoEt", " phoEt >35 && sigMET < 70 && fabs(phoEta) > 1.56 && fabs(phoEta) < 2.1");
@@ -182,9 +197,11 @@ void fitJetFunc(int detType){
 
 
 	//************ Proxy Tree **********************//
+	//e fake photon background events
 	TChain *proxytree = new TChain("proxyTree");
-	if(channel == 1)proxytree->Add(Form("/eos/uscms/store/group/lpcsusyhad/Tribeni/eg_mg_trees/resTree_egsignal_DoubleEG_%d.root",RunYear));
-        else if(channel ==2)proxytree->Add(Form("/eos/uscms/store/group/lpcsusyhad/Tribeni/eg_mg_trees/resTree_mgsignal_MuonEG_%d.root",RunYear));
+	//if(channel == 1)proxytree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_egsignal_DoubleEG_ReMiniAOD_FullEcal_newEta.root");
+	if(channel == 1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
+	else if(channel ==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
 
 	float proxyphoEt(0);
 	float proxyphoEta(0);
@@ -205,15 +222,14 @@ void fitJetFunc(int detType){
 		else if(detType == 2 && (fabs(proxyphoEta) < 1.56 || fabs(proxyphoEta) > 2.1))continue;
 		if(proxyphoEt < 35)continue;
 		double w_ele = 1;
-		//w_ele = f3(proxyphoEt, proxynVertex, fabs(proxyphoEta));
+		w_ele = f3(proxyphoEt, proxynVertex, fabs(proxyphoEta));
 		p_elebkgPhoEt->Fill(proxyphoEt,w_ele);
 	}
 	p_elebkgPhoEt->Sumw2();
-	// ele fake pho should be subtracted, it is giving net -ve events, check it. 
-	//p_sigPhoEt->Add(p_elebkgPhoEt, -1);  // need to uncomment later.
+	p_sigPhoEt->Add(p_elebkgPhoEt, -1);
 	// subtracted the fake contribution
 	p_sigPhoEt->Sumw2();
-	for(unsigned ibin(1); ibin < p_sigPhoEt->GetSize()-1; ibin++){
+	for(int ibin(1); ibin < p_sigPhoEt->GetSize()-1; ibin++){
 		double xvalue = p_sigPhoEt->GetBinCenter(ibin);
 		double frac(0),fracerror(0);
 		for(unsigned i(0); i< NBIN-1; i++) 
@@ -243,13 +259,15 @@ void fitJetFunc(int detType){
 
 	TGraphAsymmErrors *new_controlPhoEt = new TGraphAsymmErrors(95);
 	TGraphAsymmErrors *new_fakesPhoEt   = new TGraphAsymmErrors(95);
+	// bins 1-75, bin width 1, pt 35-110
 	for(unsigned ibin(1); ibin <= 75; ibin++){
 		double new_control_value = p_controlPhoEt->GetBinContent(ibin); 
 		double new_fakes_value = p_fakesPhoEt->GetBinContent(ibin);
 		double new_control_error = p_controlPhoEt->GetBinError(ibin); 
 		double new_fakes_error = p_fakesPhoEt->GetBinError(ibin);
 		double staterror = sqrt(p_fakesPhoEt_stat->GetBinContent(ibin))/p_fakesPhoEt_stat->GetBinContent(ibin)*new_fakes_value;
-		std::cout << ibin << " " << sqrt(p_fakesPhoEt_stat->GetBinContent(ibin))/p_fakesPhoEt_stat->GetBinContent(ibin) << std::endl;
+		//std::cout << ibin << " " << sqrt(p_fakesPhoEt_stat->GetBinContent(ibin))/p_fakesPhoEt_stat->GetBinContent(ibin) << std::endl;
+		cout<<p_fakesPhoEt->GetBinCenter(ibin) <<"  "<< new_fakes_value << "  "<<new_fakes_error<<endl;
 		new_fakes_error = sqrt(new_fakes_error*new_fakes_error + staterror);
 		new_controlPhoEt->SetPoint(ibin,p_controlPhoEt->GetBinCenter(ibin),  new_control_value);
 		//new_controlPhoEt->SetPointError(ibin, 0.5, 0.5, min(new_control_error, new_control_value-0.001), new_control_error);
@@ -258,6 +276,7 @@ void fitJetFunc(int detType){
 		//new_fakesPhoEt->SetPointError(ibin,0.5, 0.5, min(new_fakes_error, new_fakes_value - 0.001), new_fakes_error);
 		new_fakesPhoEt->SetPointError(ibin,0.5, 0.5, new_fakes_error, new_fakes_error);
 	}
+	// bins 76-94, bin width =  10, pt 110-300
 	for(unsigned ibin(76); ibin <= 94; ibin++){
 		double new_control_value = 0;
 		double new_fakes_value = 0;
@@ -275,7 +294,7 @@ void fitJetFunc(int detType){
 		new_control_error  = new_control_value*sqrt(new_control_error)/new_control_error; 
 		new_fakes_value  /=10.0;
 		new_fakes_error   /= 10.0;
-		std::cout << ibin << " " << sqrt(staterror)/staterror << std::endl;
+		//std::cout << ibin << " " << sqrt(staterror)/staterror << std::endl;
 		//staterror = sqrt(staterror)/staterror*new_fakes_value;
 		staterror = 0;
 		new_fakes_error = sqrt(new_fakes_error*new_fakes_error + staterror*staterror);
@@ -285,6 +304,7 @@ void fitJetFunc(int detType){
 		new_fakesPhoEt->SetPoint(ibin, p_fakesPhoEt->GetBinCenter(80+(ibin-76)*10),  new_fakes_value);
 		//new_fakesPhoEt->SetPointError(ibin,0, 0, min(new_fakes_error, new_fakes_value - 0.001), new_fakes_error);
 		new_fakesPhoEt->SetPointError(ibin,5, 5, new_fakes_error, new_fakes_error);
+		cout<<p_fakesPhoEt->GetBinCenter(80+(ibin-76)*10) <<"  "<< new_fakes_value << "  "<<new_fakes_error<<endl;
 	}
 	{ // overflow bin
 		double new_control_value = p_controlPhoEt->GetBinContent(266); 
@@ -338,19 +358,25 @@ void fitJetFunc(int detType){
 	//double iniLambda_den2 = (log(new_controlPhoEt->GetBinContent(38)- 2*iniCoeff_den*exp(iniLambda_den1*new_controlPhoEt->GetBinCenter(38))) - log(new_controlPhoEt->GetBinContent(56)- 2*iniCoeff_den*exp(iniLambda_den1*new_controlPhoEt->GetBinCenter(56))) )/(new_controlPhoEt->GetBinCenter(38)-new_controlPhoEt->GetBinCenter(56));
 	double iniLambda_den2 = (log(new_controlPhoEt->Eval(111)- 2*iniCoeff_den*exp(iniLambda_den1*111.0)) - log(new_controlPhoEt->Eval(250)- 2*iniCoeff_den*exp(iniLambda_den1*250.0)) )/( 111.0-250.0);
 
+	cout<<"iniLambda_den2  : "<<iniLambda_den2<<endl; 
 	// Denominator fitting function
 	TF1 *fitfunc_den= new TF1("fitfunc_den", tmpjetfake_func, 35, 300, 4);
-	if(iniLambda_den2 > 0 && iniLambda_den2 < 1e6)fitfunc_den->SetParameters(iniCoeff_den, iniCoeff_den/10, iniLambda_den1, iniLambda_den2);
-	else fitfunc_den->SetParameters(iniCoeff_den, iniCoeff_den/10, iniLambda_den1, iniLambda_den1);
+	fitfunc_den->SetParameters(iniCoeff_den, iniCoeff_den/10, iniLambda_den1, iniLambda_den1);
+	//fitfunc_den->SetParameters(iniCoeff_den, iniCoeff_den/10, iniLambda_den1, iniLambda_den2);
+	//if(iniLambda_den2 > 0 && iniLambda_den2 < 1e6)fitfunc_den->SetParameters(iniCoeff_den, iniCoeff_den/10, iniLambda_den1, iniLambda_den2);
+	//else fitfunc_den->SetParameters(iniCoeff_den, iniCoeff_den/10, iniLambda_den1, iniLambda_den1);
 	new_controlPhoEt->Fit("fitfunc_den","S");
 	TF1 *fitden = new_controlPhoEt->GetFunction("fitfunc_den");
 
 	ofstream myfile;
-	if(detType == 1)myfile.open(Form("/eos/uscms/store/user/tmishra/jetfakepho/txt%d/JetFakeRate-transferfactor-DoubleEG-EB.txt",RunYear), std::ios_base::app | std::ios_base::out);
-	if(detType == 2)myfile.open(Form("/eos/uscms/store/user/tmishra/jetfakepho/txt%d/JetFakeRate-transferfactor-DoubleEG-EE.txt",RunYear), std::ios_base::app | std::ios_base::out);
+	if(channel == 1 and detType == 1)myfile.open(Form("/eos/uscms/store/user/tmishra/jetfakepho/txt%d%s/JetFakeRate-transferfactor-DoubleEG-EB.txt",RunYear,whichVFP.c_str()), std::ios_base::ate | std::ios_base::out);
+	if(channel == 1 and detType == 2)myfile.open(Form("/eos/uscms/store/user/tmishra/jetfakepho/txt%d%s/JetFakeRate-transferfactor-DoubleEG-EE.txt",RunYear,whichVFP.c_str()), std::ios_base::ate | std::ios_base::out);
 
+	if(channel == 2 and detType == 1)myfile.open(Form("/eos/uscms/store/user/tmishra/jetfakepho/txt%d%s/JetFakeRate-transferfactor-MuonEG-EB.txt",RunYear,whichVFP.c_str()), std::ios_base::ate | std::ios_base::out);
+	if(channel == 2 and detType == 2)myfile.open(Form("/eos/uscms/store/user/tmishra/jetfakepho/txt%d%s/JetFakeRate-transferfactor-MuonEG-EE.txt",RunYear,whichVFP.c_str()), std::ios_base::ate | std::ios_base::out);
+	
 	TH1D *ratio = new TH1D("transfer fraction","",int(p_fakesPhoEt->GetXaxis()->GetNbins()/REBINSIZE),35,300);
-	for(unsigned ibin(1); ibin < int(p_fakesPhoEt->GetXaxis()->GetNbins()/REBINSIZE); ibin++){
+	for(int ibin(1); ibin < int(p_fakesPhoEt->GetXaxis()->GetNbins()/REBINSIZE); ibin++){
 		ratio->SetBinContent(ibin, new_fakesPhoEt->Eval(35+(ibin-1)*2 +1)/new_controlPhoEt->Eval(35+(ibin-1)*2 +1));
 	}
  
@@ -358,6 +384,13 @@ void fitJetFunc(int detType){
 	myfile << "den_coeff2 " << fitden->GetParameter(1) << std::endl;
 	myfile << "den_lambd1 " << fitden->GetParameter(2) << std::endl;
 	myfile << "den_lambd2 " << fitden->GetParameter(3) << std::endl;
+
+	cout << "den_coeff1 " << fitden->GetParameter(0) << std::endl;
+	cout << "den_coeff2 " << fitden->GetParameter(1) << std::endl;
+	cout << "den_lambd1 " << fitden->GetParameter(2) << std::endl;
+	cout << "den_lambd2 " << fitden->GetParameter(3) << std::endl;
+	cout << "chiSquare/ndf:  " << fitden->GetChisquare()/fitden->GetNDF() << std::endl;
+	cout << "chiSquare:  " << fitden->GetChisquare() << std::endl;
 
 	TFitResultPtr rden = new_controlPhoEt->Fit("fitfunc_den","S");
 	// covariance matrix
@@ -400,8 +433,8 @@ void fitJetFunc(int detType){
 		}
 	}
 	
-	//den_upper->Draw("L same");
-	//den_lower->Draw("L same");
+	den_upper->Draw("L same");
+	den_lower->Draw("L same");
 // *************************  Numerator ******************************************************************//
  
 new_fakesPhoEt->Fit("expo");
@@ -410,14 +443,19 @@ double iniLambda_num1 = inifit->GetParameter(1);
 double iniCoeff_num  	= exp(inifit->GetParameter(0))/2;
 //double iniLambda_num2 = (log(new_fakesPhoEt->GetBinContent(38)- 2*iniCoeff_num*exp(iniLambda_num1*new_fakesPhoEt->GetBinCenter(38))) - log(new_fakesPhoEt->GetBinContent(56)- 2*iniCoeff_num*exp(iniLambda_num1*new_fakesPhoEt->GetBinCenter(56))) )/(new_fakesPhoEt->GetBinCenter(38)-new_fakesPhoEt->GetBinCenter(56));
 double iniLambda_num2 = (log(new_fakesPhoEt->Eval(111)- 2*iniCoeff_num*exp(iniLambda_num1*111.0)) - log(new_fakesPhoEt->Eval(200)- 2*iniCoeff_num*exp(iniLambda_num1*200.0)) )/(111.0-200.0);
+
+
+
 std::cout << "log(new_fakesPhoEt->Eval(111)- 2*iniCoeff_num*exp(iniLambda_num1*111.0)) = " << log(new_fakesPhoEt->Eval(111)- 2*iniCoeff_num*exp(iniLambda_num1*111.0)) << "  log(new_fakesPhoEt->Eval(200)- 2*iniCoeff_num*exp(iniLambda_num1*200.0)) = " << log(new_fakesPhoEt->Eval(200)- 2*iniCoeff_num*exp(iniLambda_num1*200.0))  << "  lambda2 = " << iniLambda_num2 << std::endl;
 
 TF1 *fitfunc_num= new TF1("fitfunc_num", tmpjetfake_func, 35, 300, 4);
 // Eqn 6, 7 AN
-//fitfunc_num->SetParameters(iniCoeff_num, iniCoeff_num/10, iniLambda_num1, iniLambda_num2);
-if(channel == 1)fitfunc_num->SetParameters(14300, 300, -0.070, -0.04);
+cout<<iniCoeff_num<<"\t"<<iniCoeff_num/10<<"\t"<<iniLambda_num1<<"\t"<<iniLambda_num2<<endl;
+//if(channel == 1)fitfunc_num->SetParameters(iniCoeff_num, iniCoeff_num/10, iniLambda_num1, iniLambda_num2);
+if(channel == 1)fitfunc_num->SetParameters(31140, 2199.48, -0.0862613, -0.0402501);
+//if(channel == 1)fitfunc_num->SetParameters(14300, 300, -0.070, -0.04);
 //else if(channel == 2)fitfunc_num->SetParameters(iniCoeff_num, iniCoeff_num/10, iniLambda_num1, iniLambda_num2);
-else if(channel == 2)fitfunc_num->SetParameters(23900, 300, -0.082, -0.01);
+else if(channel == 2) fitfunc_num->SetParameters(23900, 300, -0.082, -0.01);
 
 TVirtualFitter::SetMaxIterations(1000000);
 TFitResultPtr r = new_fakesPhoEt->Fit("fitfunc_num","R S");
@@ -426,7 +464,14 @@ myfile << "num_coeff1 " << fit->GetParameter(0) << std::endl;
 myfile << "num_coeff2 " << fit->GetParameter(1) << std::endl;
 myfile << "num_lambd1 " << fit->GetParameter(2) << std::endl;
 myfile << "num_lambd2 " << fit->GetParameter(3) << std::endl;
- 
+
+cout << "num_coeff1 " << fit->GetParameter(0) << std::endl;
+cout << "num_coeff2 " << fit->GetParameter(1) << std::endl;
+cout << "num_lambd1 " << fit->GetParameter(2) << std::endl;
+cout << "num_lambd2 " << fit->GetParameter(3) << std::endl;
+cout << "chiSquare/ndf:  " << fit->GetChisquare()/fit->GetNDF() << std::endl;
+cout << "chiSquare:  " << fit->GetChisquare() << std::endl;
+
 //std::ostringstream testname;
 //TF1 *test_num[200][200];
 //for(unsigned i(0); i < 200; i++){
@@ -512,10 +557,16 @@ myfile << "num_lambd2 " << fit->GetParameter(3) << std::endl;
 	}
 	
 	can_pad1->cd();          
-	//num_upper->Draw("L same");
-	//num_lower->Draw("L same");
+	num_upper->Draw("L same");
+	num_lower->Draw("L same");
 	new_controlPhoEt->Draw("EP same");
 	new_fakesPhoEt->Draw("EP same");
+	
+        if(RunYear==2016 and ISpreVFP == 1)       CMS_lumi( can_pad1, 1, 11 );
+        else if(RunYear==2016 and ISpreVFP == 0)  CMS_lumi( can_pad1, 2, 11 );
+        else if(RunYear==2017)                    CMS_lumi( can_pad1, 3, 11 );
+        else if(RunYear==2018)                    CMS_lumi( can_pad1, 4, 11 );
+	
 	
 	
 	for(unsigned ii(1); ii <= 265; ii++){
@@ -526,15 +577,13 @@ myfile << "num_lambd2 " << fit->GetParameter(3) << std::endl;
 	}
 	
 	std::cout << std::endl; 
-	for(unsigned ibin(1); ibin < ratio->GetSize(); ibin++){
+	for(int ibin(1); ibin < ratio->GetSize(); ibin++){
 		myfile << "ratio " << ibin << " = " << ratio->GetBinContent(ibin) << "  est=" << fitfunc_num->Eval(ratio->GetBinCenter(ibin))/fitfunc_den->Eval(ratio->GetBinCenter(ibin)) << std::endl;
 	}
 	myfile.close();
 	       
-	if(channel == 1 and detType == 1)c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Plots%d/JetFakeRate_transfer_DoubleEG_EB.png",RunYear));
-	else if(channel == 1 and detType == 2)c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Plots%d/JetFakeRate_transfer_DoubleEG_EE.png",RunYear));
-	else if(channel == 2 and detType == 1)c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Plots%d/JetFakeRate_transfer_MuonEG_EB.png",RunYear));
-	else if(channel == 2 and detType == 2)c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Plots%d/JetFakeRate_transfer_MuonEG_EE.png",RunYear));
+	if(channel == 1 and detType == 1)c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Plots%d%s/DoubleEG/JetFakeRate_transfer_DoubleEG_EB_%d%s.png", RunYear,whichVFP.c_str(),RunYear,whichVFP.c_str()));
+	else if(channel == 1 and detType == 2)c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Plots%d%s/DoubleEG/JetFakeRate_transfer_DoubleEG_EE_%d%s.png", RunYear,whichVFP.c_str(),RunYear,whichVFP.c_str()));
+	else if(channel == 2 and detType == 1)c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Plots%d%s/MuonEG/JetFakeRate_transfer_MuonEG_EB_%d%s.png", RunYear,whichVFP.c_str(),RunYear,whichVFP.c_str()));
+	else if(channel == 2 and detType == 2)c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Plots%d%s/MuonEG/JetFakeRate_transfer_MuonEG_EE_%d%s.png", RunYear,whichVFP.c_str(),RunYear,whichVFP.c_str()));
 }
-
-

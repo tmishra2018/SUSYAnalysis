@@ -1,15 +1,21 @@
+#include<string>
 #include "../../include/analysis_commoncode.h"
-int RunYear = 2018;
 #define NTOY 1000
-bool useGaussFit, channelType=true;
+bool useGaussFit;
 
 void analysis_jetBkg(){
-
+	gROOT->SetBatch(kTRUE);
 	SetRunConfig();
 	setTDRStyle();
  
 	gSystem->Load("../../lib/libAnaClasses.so");
-  int channelType = ichannel; // eg = 1; mg =2;
+  	int channelType = ichannel; // eg = 1; mg =2;
+
+	std::string whichVFP;
+        if(RunYear==2016 and preVFP == 1) whichVFP = "preVFP";
+        if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
+        if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
+
 
 	gRandom = new TRandom3(0);
 	gRandom->SetSeed(0);
@@ -24,13 +30,10 @@ void analysis_jetBkg(){
 	double jetfake_denerror[264];
 	
 	std::stringstream JetFakeRateFile;
-  JetFakeRateFile.str();
-	//if(channelType==1)JetFakeRateFile << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<"/JetFakeRate-transferfactor-DoubleEG-EB.txt";
-	//if(channelType==2)JetFakeRateFile << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<"/JetFakeRate-transferfactor-MuonEG-EB.txt";
-	// fake rate as input
-	//if(channelType==1)JetFakeRateFile << "/uscms_data/d3/mengleis/SUSYAnalysis/test/jetFakePho/result/JetFakeRate-transferfactor-DoubleEG-EB-5.txt";
-	if(channelType==1)JetFakeRateFile << "../script/JetFakeRate-transferfactor-DoubleEG-EB.txt";
-        if(channelType==2)JetFakeRateFile << "../script/JetFakeRate-transferfactor-MuonEG-EB.txt";
+  	JetFakeRateFile.str();
+
+	if(channelType==1)JetFakeRateFile << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<whichVFP<<"/JetFakeRate-transferfactor-DoubleEG-EB.txt";
+	if(channelType==2)JetFakeRateFile << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<whichVFP<<"/JetFakeRate-transferfactor-MuonEG-EB.txt";
 
 	std::ifstream jetfakefile(JetFakeRateFile.str().c_str());
 	std::string paratype;
@@ -115,17 +118,16 @@ void analysis_jetBkg(){
 	}
 
 	/************ jet tree **************************/ 
-		TChain *jettree = new TChain("jetTree");
 		// Background derived from data, as it is fake, jetTree
-	//	if(channelType==1)jettree->Add(Form("/eos/uscms/store/group/lpcsusyhad/Tribeni/eg_mg_trees/resTree_egsignal_DoubleEG_%d.root",RunYear));
-	//	if(channelType==2)jettree->Add(Form("/eos/uscms/store/group/lpcsusyhad/Tribeni/eg_mg_trees/resTree_mgsignal_MuonEG_%d.root",RunYear));
-         	if(channelType==1)jettree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_egsignal_DoubleEG_ReMiniAOD_FullEcal_newEta.root");
-                if(channelType==2)jettree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_mgsignal_MuonEG_FullEcal.root");
+		TChain *jettree = new TChain("jetTree");
 
+                if(channelType==1)jettree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
+                if(channelType==2)jettree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
+	
 		float phoEt(0);
 		float phoEta(0);
 		float phoPhi(0);
-    float phoChIso(0);
+    		float phoChIso(0);
 		float lepPt(0);
 		float lepEta(0);
 		float lepPhi(0);
@@ -142,7 +144,7 @@ void analysis_jetBkg(){
 		jettree->SetBranchAddress("phoEt",     &phoEt);
 		jettree->SetBranchAddress("phoEta",    &phoEta);
 		jettree->SetBranchAddress("phoPhi",    &phoPhi);
-    jettree->SetBranchAddress("phoChIso",  &phoChIso);
+    		jettree->SetBranchAddress("phoChIso",  &phoChIso);
 		jettree->SetBranchAddress("lepPt",     &lepPt);
 		jettree->SetBranchAddress("lepEta",    &lepEta);
 		jettree->SetBranchAddress("lepPhi",    &lepPhi);
@@ -220,7 +222,8 @@ void analysis_jetBkg(){
 	for(int ibin(1); ibin < p_PhoEt->GetSize(); ibin++){
 		toyvec.clear();
 		toyvec.push_back(p_PhoEt->GetBinContent(ibin));
-		for(unsigned it(0); it < NTOY; it++)toyvec.push_back(toy_PhoEt[it]->GetBinContent(ibin));
+		for(unsigned it(0); it < NTOY; it++)
+			toyvec.push_back(toy_PhoEt[it]->GetBinContent(ibin));
 		double syserr = calcToyError( toyvec, useGaussFit, channelType); 
 		double totalerror = sqrt(syserr*syserr + p_PhoEt->GetBinError(ibin)*p_PhoEt->GetBinError(ibin));
 		p_PhoEt->SetBinError(ibin, totalerror);
@@ -229,7 +232,8 @@ void analysis_jetBkg(){
 	for(int ibin(1); ibin < p_LepPt->GetSize(); ibin++){
 		toyvec.clear();
 		toyvec.push_back(p_LepPt->GetBinContent(ibin));
-		for(unsigned it(0); it < NTOY; it++)toyvec.push_back(toy_LepPt[it]->GetBinContent(ibin));
+		for(unsigned it(0); it < NTOY; it++)
+			toyvec.push_back(toy_LepPt[it]->GetBinContent(ibin));
 		double syserr = calcToyError( toyvec, useGaussFit, channelType); 
 		double totalerror = sqrt(syserr*syserr + p_LepPt->GetBinError(ibin)*p_LepPt->GetBinError(ibin));
 		p_LepPt->SetBinError(ibin, totalerror);
@@ -237,7 +241,8 @@ void analysis_jetBkg(){
 	for(int ibin(1); ibin < p_MET->GetSize(); ibin++){
 		toyvec.clear();
 		toyvec.push_back(p_MET->GetBinContent(ibin));
-		for(unsigned it(0); it < NTOY; it++)toyvec.push_back(toy_MET[it]->GetBinContent(ibin));
+		for(unsigned it(0); it < NTOY; it++)
+			toyvec.push_back(toy_MET[it]->GetBinContent(ibin));
 		double syserr = calcToyError( toyvec, useGaussFit, channelType); 
 		double totalerror = sqrt(syserr*syserr + p_MET->GetBinError(ibin)*p_MET->GetBinError(ibin));
 		p_MET->SetBinError(ibin, totalerror);
@@ -245,7 +250,8 @@ void analysis_jetBkg(){
 	for(int ibin(1); ibin < p_Mt->GetSize(); ibin++){
 		toyvec.clear();
 		toyvec.push_back(p_Mt->GetBinContent(ibin));
-		for(unsigned it(0); it < NTOY; it++)toyvec.push_back(toy_Mt[it]->GetBinContent(ibin));
+		for(unsigned it(0); it < NTOY; it++)
+			toyvec.push_back(toy_Mt[it]->GetBinContent(ibin));
 		double syserr = calcToyError( toyvec, useGaussFit, channelType); 
 		double totalerror = sqrt(syserr*syserr + p_Mt->GetBinError(ibin)*p_Mt->GetBinError(ibin));
 		p_Mt->SetBinError(ibin, totalerror);
@@ -253,7 +259,8 @@ void analysis_jetBkg(){
 	for(int ibin(1); ibin < p_HT->GetSize(); ibin++){
 		toyvec.clear();
 		toyvec.push_back(p_HT->GetBinContent(ibin));
-		for(unsigned it(0); it < NTOY; it++)toyvec.push_back(toy_HT[it]->GetBinContent(ibin));
+		for(unsigned it(0); it < NTOY; it++)
+			toyvec.push_back(toy_HT[it]->GetBinContent(ibin));
 		double syserr = calcToyError( toyvec, useGaussFit, channelType); 
 		double totalerror = sqrt(syserr*syserr + p_HT->GetBinError(ibin)*p_HT->GetBinError(ibin));
 		p_HT->SetBinError(ibin, totalerror);
@@ -262,7 +269,8 @@ void analysis_jetBkg(){
 	for(int ibin(1); ibin < p_PhoEt_TT->GetSize(); ibin++){
 		toyvec.clear();
 		toyvec.push_back(p_PhoEt_TT->GetBinContent(ibin));
-		for(unsigned it(0); it < NTOY; it++)toyvec.push_back(toy_PhoEt_TT[it]->GetBinContent(ibin));
+		for(unsigned it(0); it < NTOY; it++)
+			toyvec.push_back(toy_PhoEt_TT[it]->GetBinContent(ibin));
 		double syserr = calcToyError( toyvec, useGaussFit, channelType); 
 		double totalerror = sqrt(syserr*syserr + p_PhoEt_TT->GetBinError(ibin)*p_PhoEt_TT->GetBinError(ibin));
 		p_PhoEt_TT->SetBinError(ibin, totalerror);
@@ -270,7 +278,8 @@ void analysis_jetBkg(){
 	for(int ibin(1); ibin < p_MET_TT->GetSize(); ibin++){
 		toyvec.clear();
 		toyvec.push_back(p_MET_TT->GetBinContent(ibin));
-		for(unsigned it(0); it < NTOY; it++)toyvec.push_back(toy_MET_TT[it]->GetBinContent(ibin));
+		for(unsigned it(0); it < NTOY; it++)
+			toyvec.push_back(toy_MET_TT[it]->GetBinContent(ibin));
 		double syserr = calcToyError( toyvec, useGaussFit, channelType); 
 		double totalerror = sqrt(syserr*syserr + p_MET_TT->GetBinError(ibin)*p_MET_TT->GetBinError(ibin));
 		p_MET_TT->SetBinError(ibin, totalerror);
@@ -278,7 +287,8 @@ void analysis_jetBkg(){
 	for(int ibin(1); ibin < p_HT_TT->GetSize(); ibin++){
 		toyvec.clear();
 		toyvec.push_back(p_HT_TT->GetBinContent(ibin));
-		for(unsigned it(0); it < NTOY; it++)toyvec.push_back(toy_HT_TT[it]->GetBinContent(ibin));
+		for(unsigned it(0); it < NTOY; it++)
+			toyvec.push_back(toy_HT_TT[it]->GetBinContent(ibin));
 		double syserr = calcToyError( toyvec, useGaussFit, channelType); 
 		double totalerror = sqrt(syserr*syserr + p_HT_TT->GetBinError(ibin)*p_HT_TT->GetBinError(ibin));
 		p_HT_TT->SetBinError(ibin, totalerror);
@@ -286,7 +296,8 @@ void analysis_jetBkg(){
 	for(int ibin(1); ibin < p_Mt_TT->GetSize(); ibin++){
 		toyvec.clear();
 		toyvec.push_back(p_Mt_TT->GetBinContent(ibin));
-		for(unsigned it(0); it < NTOY; it++)toyvec.push_back(toy_Mt_TT[it]->GetBinContent(ibin));
+		for(unsigned it(0); it < NTOY; it++)
+			toyvec.push_back(toy_Mt_TT[it]->GetBinContent(ibin));
 		double syserr = calcToyError( toyvec, useGaussFit, channelType); 
 		double totalerror = sqrt(syserr*syserr + p_Mt_TT->GetBinError(ibin)*p_Mt_TT->GetBinError(ibin));
 		p_Mt_TT->SetBinError(ibin, totalerror);
@@ -301,8 +312,9 @@ void analysis_jetBkg(){
 	}
 	if(channelType==1)outputname << "egamma_jetbkg";
 	else if(channelType==2)outputname << "mg_jetbkg";
-	if(anatype ==0)outputname << "_met" << lowMET <<"_" << highMET << "_pt" << lowPt << "_" << highPt;
-	outputname << ".root";
+	if(anatype==0 or anatype==1) outputname << "_met" << lowMET <<"_" << highMET << "_pt" << lowPt << "_" << highPt;
+	outputname <<"_" << RunYear<<whichVFP <<".root";
+
 	TFile *outputfile = TFile::Open(outputname.str().c_str(),"RECREATE");
 	outputfile->cd();
 	p_PhoEt->Write();

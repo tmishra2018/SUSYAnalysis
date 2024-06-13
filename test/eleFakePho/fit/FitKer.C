@@ -50,14 +50,17 @@
 #include "../../../include/analysis_jet.h"
 #include "../../../include/analysis_tools.h"
 #include "../../../include/analysis_mcData.h"
-#include "../../../include/tdrstyle.C"
+//#include "../../../include/tdrstyle.C"
 //#include "../include/RooCBExGaussShape.h"
-#define NTOY 10000
+#define NTOY 1000
+//#define NTOY 10000
 using namespace RooFit ;
-int RunYear = 2018;
+int RunYear = 2016;
+bool ISpreVFP = false;
+
 bool doEB = true;
-const char*processName ="DY";
 //const char*processName ="Data";
+const char*processName ="DY";
 
 enum BinType{
   byPt = 0,
@@ -89,12 +92,18 @@ bool isElectron(int PID, int momID){
 void FitKer(int fitFunc, int inputbintype, int inputfittype, float lowercut, float uppercut, int fitrangelow, int fitrangehigh){
    gSystem->Load("../../../lib/libAnaClasses.so");
    gSystem->Load("../../../lib/libRooFitClasses.so");
-	setTDRStyle();
-        bool useCMSShape;
+	
+	std::string whichVFP;
+        if(RunYear==2016 and ISpreVFP == true) whichVFP = "preVFP";
+        if(RunYear==2016 and ISpreVFP == false) whichVFP = "postVFP";
+        if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
+	
+	//setTDRStyle();
+        //bool useCMSShape;
 	bool useExpo;
 	bool useKer;
 	bool useDY;
-	bool SaveOutput;
+	//bool SaveOutput;
         ifstream configfile;
         if(fitFunc==1)
 		configfile.open ("configFit_Bw_ker.txt");
@@ -107,11 +116,9 @@ void FitKer(int fitFunc, int inputbintype, int inputfittype, float lowercut, flo
 	if(configfile.is_open()){
   	for(int i(0); i<=4; i++){ 
 			configfile >> variabletype >> variablevalue; 
-			if(variabletype.find("CMSShape")!=std::string::npos)useCMSShape = variablevalue;
-			else if(variabletype.find("Expo")!=std::string::npos)useExpo = variablevalue;
+			if(variabletype.find("Expo")!=std::string::npos)useExpo = variablevalue;
 			else if(variabletype.find("Ker")!=std::string::npos)useKer = variablevalue;
 			else if(variabletype.find("DY")!=std::string::npos)useDY = variablevalue;
-			else if(variabletype.find("Output")!=std::string::npos)SaveOutput = variablevalue;
 	  }
 	}
 	configfile.close();
@@ -119,11 +126,11 @@ void FitKer(int fitFunc, int inputbintype, int inputfittype, float lowercut, flo
   BinType bintype = (BinType)inputbintype;
 
 	char lowername[5];
-	if(bintype == byEta)sprintf(lowername, "%dp%02d", (int)lowercut, (int)((lowercut-(int)lowercut)*100));	
+	if(bintype == byEta)sprintf(lowername, "%d.%02d", (int)lowercut, (int)((lowercut-(int)lowercut)*100));	
 	else sprintf(lowername, "%d", (int)lowercut);	
   char uppername[5];
 	if(uppercut < 1000){
-		if(bintype == byEta)sprintf(uppername, "%dp%02d", (int)uppercut, (int)((uppercut-(int)uppercut)*100));	
+		if(bintype == byEta)sprintf(uppername, "%d.%02d", (int)uppercut, (int)((uppercut-(int)uppercut)*100));	
 		else sprintf(uppername, "%d", (int)uppercut);
 	}
 	else sprintf(uppername, "Inf");	
@@ -135,7 +142,7 @@ void FitKer(int fitFunc, int inputbintype, int inputfittype, float lowercut, flo
 
 //************** Process Z->ee Tree ********************************************************//   
   TChain *etree = new TChain("FakeRateTree");
-  etree->Add(Form("root://cmseos.fnal.gov//store/user/tmishra/elefakepho/files/plot_elefakepho_%sTnP_dR05_%d_new.root",processName,RunYear));
+  etree->Add(Form("root://cmseos.fnal.gov//store/user/tmishra/elefakepho/files/plot_elefakepho_%sTnP_dR05_%d%s.root",processName,RunYear,whichVFP.c_str()));
   float invmass=0; 
   float probePt=0; 
   float probeEta=0;
@@ -154,6 +161,14 @@ void FitKer(int fitFunc, int inputbintype, int inputfittype, float lowercut, flo
 	double invmass_newetree(0);
 	newetree->Branch("invmass", &invmass_newetree); 
 
+  TH1F *his = new TH1F("his","",100,0,100);
+  etree->Draw("nVertex>>his");
+  cout<< "range to consider ....   "<< his->GetMean()-his->GetRMS() << "-"<< his->GetMean()+his->GetRMS()<<endl;
+  
+  TH1F *hisPt = new TH1F("hisPt","",220,0,1100);
+  etree->Draw("probePt>>hisPt");
+  cout<< "range to consider ....   "<< hisPt->GetMean()-hisPt->GetRMS() << "-"<< hisPt->GetMean()+hisPt->GetRMS()<<endl;
+  
   for(unsigned iEvt(0); iEvt < etree->GetEntries(); iEvt++){
     etree->GetEntry(iEvt);
 		if(doEB && fabs(probeEta) > 1.4442)continue;
@@ -163,6 +178,10 @@ void FitKer(int fitFunc, int inputbintype, int inputfittype, float lowercut, flo
     if(bintype == byPt)keyvariable = probePt;
     else if(bintype == byEta)keyvariable = fabs(probeEta);
     else if(bintype == byVtx)keyvariable = nVertex;
+
+    if(bintype == byPt and (nVertex < his->GetMean()-his->GetRMS() or nVertex > his->GetMean()+his->GetRMS() )) continue; // consider pT when 10<nVtx<25
+    if(bintype == byVtx and (probePt < hisPt->GetMean()-hisPt->GetRMS() or probePt > hisPt->GetMean()+hisPt->GetRMS() )) continue; // consider nVtx when 
+    
     if(keyvariable >= lowercut && keyvariable < uppercut){ 
 			if(inputfittype == 0 && vetovalue== false){p_invmass->Fill(invmass); invmass_newetree = invmass; newetree->Fill(); } 
 			else if(inputfittype == 1 && vetovalue== true && FSRveto == true){p_invmass->Fill(invmass); invmass_newetree = invmass; newetree->Fill(); }
@@ -176,7 +195,7 @@ void FitKer(int fitFunc, int inputbintype, int inputfittype, float lowercut, flo
   newbgtree->Branch("invmass", &invmass_fordataset);
 
   TChain *bgtree = new TChain("BGTree");
-  bgtree->Add(Form("root://cmseos.fnal.gov//store/user/tmishra/elefakepho/files/plot_bgtemplate_FullEcal_%d_new.root",RunYear));
+  bgtree->Add(Form("root://cmseos.fnal.gov//store/user/tmishra/elefakepho/files/plot_bgtemplate_FullEcal_%d%s.root",RunYear,whichVFP.c_str()));
   
   float invmass_bg=0; 
   float probePt_bg=0; 
@@ -203,6 +222,10 @@ void FitKer(int fitFunc, int inputbintype, int inputfittype, float lowercut, flo
     if(bintype == byPt)keyvariable = probePt_bg;
     else if(bintype == byEta)keyvariable = fabs(probeEta_bg);
     else if(bintype == byVtx)keyvariable = nVertex_bg;
+
+    if(bintype == byPt and (nVertex_bg < his->GetMean()-his->GetRMS()  or nVertex_bg > his->GetMean()+his->GetRMS() )) continue; // consider pT when 10<nVtx<25
+    if(bintype == byVtx and (probePt_bg < hisPt->GetMean()-hisPt->GetRMS() or probePt_bg > hisPt->GetMean()+hisPt->GetRMS() )) continue; // consider nVtx when 
+
     if(keyvariable >= lowercut && keyvariable < uppercut){ 
 			if(inputfittype == 0 && vetovalue_bg== false){ bg_pt->Fill(invmass_bg); invmass_fordataset=invmass_bg; newbgtree->Fill();}
 			else if(inputfittype == 1 && vetovalue_bg== true && FSRveto_bg==true){bg_pt->Fill(invmass_bg); invmass_fordataset=invmass_bg; newbgtree->Fill();}
@@ -217,7 +240,7 @@ void FitKer(int fitFunc, int inputbintype, int inputfittype, float lowercut, flo
 
 	if(useDY){
 		TChain *DYtree = new TChain("FakeRateTree");
-		DYtree->Add(Form("root://cmseos.fnal.gov//store/user/tmishra/elefakepho/files/plot_elefakepho_DYTnP_dR05_%d_new.root",RunYear));
+		DYtree->Add(Form("root://cmseos.fnal.gov//store/user/tmishra/elefakepho/files/plot_elefakepho_DYTnP_dR05_%d%s.root",RunYear,whichVFP.c_str()));
 
 		float DY_invmass=0; 
 		float DY_tagPt=0; 
@@ -274,6 +297,10 @@ void FitKer(int fitFunc, int inputbintype, int inputfittype, float lowercut, flo
 			if(bintype == byPt)keyvariable = DY_probePt;
 			else if(bintype == byEta)keyvariable = fabs(DY_probeEta);
 			else if(bintype == byVtx)keyvariable = DY_nVertex;
+
+    			if(bintype == byPt and (DY_nVertex < his->GetMean()-his->GetRMS()  or DY_nVertex > his->GetMean()+his->GetRMS())) continue; // consider pT when 10<nVtx<25
+    			if(bintype == byVtx and (DY_probePt < hisPt->GetMean()-hisPt->GetRMS() or DY_probePt > hisPt->GetMean()+hisPt->GetRMS() )) continue; // consider nVtx when 
+
 	//		int tagbin_x = h_elescale->GetXaxis()->FindBin(DY_tagPt);
 	//		int tagbin_y = h_elescale->GetYaxis()->FindBin(fabs(DY_tagEta));
 	//		int probebin_x=h_phoscale->GetXaxis()->FindBin(DY_probeEta);
@@ -281,9 +308,10 @@ void FitKer(int fitFunc, int inputbintype, int inputfittype, float lowercut, flo
 	//		double eventweight = h_elescale->GetBinContent(h_elescale->GetBin(tagbin_x, tagbin_y))*h_eleiso->GetBinContent(h_eleiso->GetBin(tagbin_x, tagbin_y))*h_phoscale->GetBinContent(h_phoscale->GetBin(probebin_x, probebin_y));
 			if(keyvariable >= lowercut && keyvariable < uppercut){
 				double mcPUweight;
-				if(RunYear==2016) mcPUweight = getPUESF16(DY_nVertex);
-				if(RunYear==2017) mcPUweight = getPUESF17(DY_nVertex);
-				if(RunYear==2018) mcPUweight = getPUESF18(DY_nVertex);
+				if(RunYear==2016 and ISpreVFP==true) mcPUweight = getPUESF16preVFP(DY_nVertex);
+				else if(RunYear==2016 and ISpreVFP==false) mcPUweight = getPUESF16(DY_nVertex);
+				else if(RunYear==2017) mcPUweight = getPUESF17(DY_nVertex);
+				else if(RunYear==2018) mcPUweight = getPUESF18(DY_nVertex);
 				DY_PU->Fill(DY_nVertex, mcPUweight);
 				if(isZee){invmass_DYsignal = DY_invmass; h_DYinvmass->Fill(DY_invmass, mcPUweight); }
 			//  if(inputfittype == 0 && DY_vetovalue== false){invmass_DYsignal = DY_invmass; h_DYinvmass->Fill(DY_invmass, eventweight); }
@@ -296,8 +324,8 @@ void FitKer(int fitFunc, int inputbintype, int inputfittype, float lowercut, flo
 
   //************* Construct RooFit Models *********************************************************//
   RooRealVar mass_axis("invmass","M_{tag-probe}",fitrangelow, fitrangehigh);
-	RooDataSet *TnPDataSet;
-	if(newetree->GetEntries() < 50000) TnPDataSet = new RooDataSet("TnPDataSet","TnPDataSet",RooArgSet(mass_axis),RooFit::Import(*newetree));
+  //	RooDataSet *TnPDataSet;
+  //	if(newetree->GetEntries() < 50000) TnPDataSet = new RooDataSet("TnPDataSet","TnPDataSet",RooArgSet(mass_axis),RooFit::Import(*newetree));
   RooDataSet BkgDataSet("BkgDataSet","BkgDataSet",RooArgSet(mass_axis),RooFit::Import(*newbgtree));
   RooKeysPdf BkgKer("BkgKer","BkgKer",mass_axis,BkgDataSet,RooKeysPdf::MirrorBoth, 2);
 	RooDataSet *DYDataSet;
@@ -350,17 +378,18 @@ void FitKer(int fitFunc, int inputbintype, int inputfittype, float lowercut, flo
   double inislope = (p_invmass->GetBinContent(50) - p_invmass->GetBinContent(10))/40.0;
   RooRealVar slope("slope","slope",inislope,slopelower,slopeupper);
   double inilambda = (log(p_invmass->GetBinContent(1)) - log(p_invmass->GetBinContent(40)))/(p_invmass->GetBinCenter(1) - p_invmass->GetBinCenter(40));
-  RooRealVar lambda("lambda", "slope", inilambda, -2., 2.);
+  RooRealVar lambda("lambda", "slope", inilambda, -10., 10.);
   RooExponential *expo = new RooExponential("expo", "exponential PDF", mass_axis, lambda);                     // Exponential pdf.
 
-  RooRealVar m0( "m0", "m0", 91.188, 80,120);
-  RooRealVar width( "width", "width", 2.495, 0, 15);
-  RooBreitWigner bw("bw", "", mass_axis, m0, width);               // Breit Wigner
-
-  RooRealVar mean("mean", "" ,0.,-1,1);
+  //RooRealVar m0( "m0", "m0", 91.188);
+  RooRealVar m0( "m0", "m0", 91.188, 80,100);
+  RooRealVar width( "width", "width", 2.495, 0.0, 15);
+  RooRealVar mean("mean", "" ,0.,-3,3);
   RooRealVar sigma("sigma", "",2.4 , 0.0, 15.0);
+  RooBreitWigner bw("bw", "", mass_axis, m0, width);               // Breit Wigner
+  
   RooRealVar alpha("alpha", "", 1.0, 0.0, 20.0);
-  RooRealVar n("n","", 1.0, 0.0, 20.0);
+  RooRealVar n("n","", 10.0, 0.0, 100.0);
   RooRealVar alpha2("2ndalpha","", 1.0, 0.0, 20.0);
   RooRealVar n2("2ndn", "", 1.0, 0.0, 20.0);
   RooDCBShape *cb;                                                 // Double-sided crystal ball
@@ -386,7 +415,6 @@ void FitKer(int fitFunc, int inputbintype, int inputfittype, float lowercut, flo
   double iniSig = p_invmass->Integral(bin80GeV,bin100GeV);
   double iniBkg = p_invmass->Integral(1,bin80GeV) + p_invmass->Integral(bin100GeV,p_invmass->GetSize()); 
 	if(iniBkg > p_invmass->GetEntries()/2)iniBkg = p_invmass->GetEntries()/2;
-  //RooRealVar nSig("nSig", "", 0.5*iniSig, 0, p_invmass->GetEntries()*1.2);
   RooRealVar nSig("nSig", "", 0.5*iniSig, 0, p_invmass->GetEntries()*1.2);
   RooRealVar nBkg("nBkg", "", iniBkg, p_invmass->Integral(1,bin60GeV)+p_invmass->Integral(bin120GeV,p_invmass->GetSize()), p_invmass->GetEntries());
   RooAddPdf *model;
@@ -404,9 +432,16 @@ void FitKer(int fitFunc, int inputbintype, int inputfittype, float lowercut, flo
   else if(inputbintype == 2)histname << "nvtx <";
   histname << uppername;
   RooPlot* mass_Frame = mass_axis.frame(RooFit::Title(histname.str().c_str()),RooFit::Bins(60));
-  mass_Frame->SetStats(1);
-  if(newetree->GetEntries() < 50000)model->fitTo(*TnPDataSet);
-  else model->fitTo(datahist_data);
+  mass_Frame->SetStats(0);
+  
+  //if(newetree->GetEntries() < 50000){
+  //	cout<<"fitting TnPDataSet"<<endl;
+  //	model->fitTo(*TnPDataSet);
+  //	}
+  //else {
+  	model->fitTo(datahist_data);
+  //	cout<<"fitting datahist_data"<<endl;}
+	
   //if(useCMSShape)model->plotOn(mass_Frame, RooFit::Components(CMSShape),
 	//			 RooFit::LineStyle(kDashed),
 	//			 RooFit::Normalization(1.0, RooAbsReal::RelativeExpected));
@@ -424,11 +459,17 @@ void FitKer(int fitFunc, int inputbintype, int inputfittype, float lowercut, flo
 				 RooFit::Components(RooArgSet(BkgKer, *signalRes)),
 				 RooFit::LineStyle(kSolid),
 				 RooFit::Normalization(1.0, RooAbsReal::RelativeExpected));
-  if(newetree->GetEntries() < 50000)TnPDataSet->plotOn(mass_Frame);                               ///  plot data
-  else datahist_data.plotOn(mass_Frame);
+  //if(newetree->GetEntries() < 50000)
+  //TnPDataSet->plotOn(mass_Frame);                               ///  plot data
+  //else datahist_data.plotOn(mass_Frame);
+  datahist_data.plotOn(mass_Frame);
+
   //mass_Frame->SetMaximum(2E6);
+  //mass_Frame->SetTitleSize(0.01);
   mass_Frame->SetYTitle("Events");
   mass_Frame->SetXTitle("M_{tag-probe}");
+  mass_Frame->SetTitleSize(0.05,"X");
+  mass_Frame->SetTitleOffset(1.1,"X");
   mass_Frame->Draw();
 
   double chi2 = mass_Frame->chiSquare();
@@ -473,7 +514,6 @@ void FitKer(int fitFunc, int inputbintype, int inputfittype, float lowercut, flo
 for(int i(0); i<mcstudy->fitParDataSet().sumEntries(); i++){
 	double toynSig = mcstudy->fitParDataSet().get(i)->getRealValue("nSig",0,kFALSE);
         cout<<"toynSig : "<<toynSig<<endl;
-		RooFFTConvPdf *toysignalRes;
 		if(useDY){
 			double v_toymean = mcstudy->fitParDataSet().get(i)->getRealValue("mean");
 			double v_toysigma = mcstudy->fitParDataSet().get(i)->getRealValue("sigma");
@@ -564,11 +604,12 @@ for(int i(0); i<mcstudy->fitParDataSet().sumEntries(); i++){
  
  // if(SaveOutput){
 		ofstream myfile;
-		myfile.open(textfilename.str().c_str(), std::ios_base::app | std::ios_base::out);
+		myfile.open(textfilename.str().c_str(), std::ios_base::ate | std::ios_base::out);
 		myfile << histname.str();
 		myfile.close();
 //  }
 //  else std::cout << histname.str();
+  cout<<"chi2 per ndf"<<chi2str<<endl;
 
 }
 

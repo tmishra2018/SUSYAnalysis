@@ -1,2 +1,0 @@
-g++ -fPIC -g -Wall -Wno-maybe-uninitialized ../../../lib/RooDCBShape.o ../../../lib/RooUserPoly.o ../../../lib/libAnaClasses.so ../../../lib/libRooFitClasses.so -L$ROOTSYS -lRooFit -lHtml -lMinuit -lRooFitCore -lRooStats -lHistFactory `root-config --cflags` FitKerNoToy.C -o FitKerNoToy.exe `root-config --libs` -L$ROOTSYS/lib -lGui -lCore -lImt -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lTreePlayer -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lMultiProc -pthread -lm -ldl -rdynamic
-

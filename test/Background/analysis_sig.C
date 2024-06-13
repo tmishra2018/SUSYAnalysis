@@ -1,3 +1,4 @@
+#include<string>
 #include "../../include/analysis_commoncode.h"
 
 void analysis_sig(){
@@ -6,6 +7,11 @@ void analysis_sig(){
 	setTDRStyle();
 
   gSystem->Load("../../lib/libAnaClasses.so");
+	std::string whichVFP;
+        if(RunYear==2016 and preVFP == 1) whichVFP = "preVFP";
+        if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
+        if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
+
   int channelType = ichannel; // eg = 1; mg =2;
 	//*********** histo list **********************//
 	TH1D *p_PhoEt = new TH1D("p_PhoEt","#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
@@ -26,10 +32,9 @@ void analysis_sig(){
 	//************ Signal Tree **********************//
 	TChain *sigtree = new TChain("signalTree");
 	// signatree from data
-	//if(channelType==1)sigtree->Add("/eos/uscms/store/group/lpcsusyhad/Tribeni/eg_mg_trees/resTree_egsignal_DoubleEG_2016.root");
-	//if(channelType==2)sigtree->Add("/eos/uscms/store/group/lpcsusyhad/Tribeni/eg_mg_trees/resTree_mgsignal_MuonEG_2016.root");
-	if(channelType==1)sigtree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_egsignal_DoubleEG_ReMiniAOD_FullEcal.root");
-        if(channelType==2)sigtree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_mgsignal_MuonEG_FullEcal.root");
+                if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
+                //if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s_isFakeProxyOLD.root",RunYear,whichVFP.c_str()));
+                if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
 
 	float phoEt(0);
 	float phoEta(0);
@@ -91,7 +96,10 @@ void analysis_sig(){
 			p_Mt_TT->Fill(sigMT);
 			p_HT_TT->Fill(HT);
 		}
-	}        
+	} 
+//	for (int ibin=0;ibin<p_MET->GetNbinsX();++ibin){
+//		cout<<"Bin "<<ibin <<" "<<p_MET->GetBinContent(ibin)<<endl;
+//	}       
 
 	std::ostringstream outputname;
 	outputname << "/eos/uscms/store/user/tmishra/Background/";
@@ -103,8 +111,8 @@ void analysis_sig(){
 	}
 	if(channelType==1)outputname << "egamma_signal";
 	else if(channelType==2)outputname << "mg_signal";
-	if(anatype ==0)outputname << "_met" << lowMET <<"_" << highMET << "_pt" << lowPt << "_" << highPt;
-	outputname << ".root";
+	if(anatype==0 or anatype==1)	outputname << "_met" << lowMET <<"_" << highMET << "_pt" << lowPt << "_" << highPt;
+	outputname <<"_" << RunYear<<whichVFP <<".root";	
 
 	TFile *outputfile = TFile::Open(outputname.str().c_str(),"RECREATE");
 	outputfile->cd();

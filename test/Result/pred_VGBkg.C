@@ -1,6 +1,5 @@
 #include "../../include/analysis_commoncode.h"
 #include "TProfile2D.h"
-int RunYear = 2016;
 
 void pred_VGBkg(){
 	bool toDeriveScale(false);
@@ -287,12 +286,16 @@ void pred_VGBkg(){
 		
 		
 		float XS_weight = 35.87*1000*crosssection/ntotalevent;
-		//float XS_weight = getEvtWeight(RunYear,crosssection,ntotalevent);
-		float weight = PUweight*XS_weight*scalefactor*ISRWeight*factorMC;
-		float weight_scaleup = PUweight*XS_weight*scalefactorup*ISRWeight*factorMC;
-		float weight_normup = PUweight*XS_weight*scalefactor*ISRWeight*factorMCUP;
-		float weight_noisr = PUweight*XS_weight*scalefactor*factorMC;
+		
+		float weight = PUweight*XS_weight*ISRWeight*factorMC;
+		float weight_scaleup = PUweight*XS_weight*ISRWeight*factorMC;
+		float weight_normup = PUweight*XS_weight*ISRWeight*factorMCUP;
+		float weight_noisr = PUweight*XS_weight*factorMC;
 
+		//float weight = PUweight*XS_weight*scalefactor*ISRWeight*factorMC;
+		//float weight_scaleup = PUweight*XS_weight*scalefactorup*ISRWeight*factorMC;
+		//float weight_normup = PUweight*XS_weight*scalefactor*ISRWeight*factorMCUP;
+		//float weight_noisr = PUweight*XS_weight*scalefactor*factorMC;
 		/** cut flow *****/
 		if(phoEt < 35 || fabs(phoEta) > 1.4442)continue;
 		// Mt and lepton pT cuts
@@ -448,7 +451,9 @@ void pred_VGBkg(){
 		p_dPhiEleMET->SetBinError(ibin,sqrt(syserror));
 	}	
 	cout<<"each bin VGammma content"<<endl;
+	float totalContent = 0;
 	for(int contbin(1); contbin <=NBIN; contbin++){
+		totalContent = totalContent + h_VGamma_norm->GetBinContent(contbin);
 		float nominalsig = h_VGamma_norm->GetBinContent(contbin); 
 		cout<<contbin <<" "<< nominalsig<<endl;
 		float jesuperror = fabs(h_VGamma_jesUp->GetBinContent(contbin)- nominalsig);
@@ -470,6 +475,7 @@ void pred_VGBkg(){
 		h_VGamma_syserr_lumi->SetBinContent(contbin, -1);      
 		h_VGamma_syserr_isr->SetBinContent(contbin, isrerror);      
 	}
+	cout<<"Total BinContent : "<<totalContent<<endl;
 
 	outputfile->Write();
 	outputfile->Close();

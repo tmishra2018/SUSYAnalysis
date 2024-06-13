@@ -29,33 +29,54 @@
 #include "../../include/analysis_mcData.h"
 #include "../../include/analysis_tools.h"
 
+bool isQCD = true;
+bool isGJet = false;
+int RunYear = 2016;
+bool preVFP = true;
+
 void analysis_mgMC(){//main  
 
   gSystem->Load("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/lib/libAnaClasses.so");
 
-  char outputname[100] = "/eos/uscms/store/user/tmishra/fakeLep/fakelep_mgsignal_QCD.root";
+  std::string whichVFP;
+  if(RunYear==2016 and preVFP == true) whichVFP = "preVFP";
+  else whichVFP = "";
+
   ofstream logfile;
-  logfile.open("/eos/uscms/store/user/tmishra/fakeLep/fakelep_mgsignal_QCD.log"); 
+  if(isQCD ==true)  logfile.open(Form("/eos/uscms/store/user/tmishra/fakeLep/fakelep_mgsignal_QCD_%d%s.log",RunYear,whichVFP.c_str()));
+  if(isGJet ==true)  logfile.open(Form("/eos/uscms/store/user/tmishra/fakeLep/fakelep_mgsignal_GJet_%d%s.log",RunYear,whichVFP.c_str()));
 
   logfile << "analysis_mg()" << std::endl;
   logfile << "miniIso; one lepton for fakephoton background" << std::endl;
+
+
 	
-  RunType datatype(MCMuonEG2016);
-	bool  isMC(false);
-	if(datatype == MC || datatype == MCDoubleEG2016 || datatype == MCMuonEG2016||  datatype == MCSingleElectron2016 || datatype == MCSingleMuon2016||  datatype == MCDoubleMuon2016 || datatype == MCMET2016)isMC=true;
+  RunType datatype;
+  if(RunYear==2016) datatype = MCMuonEG2016;
+  if(RunYear==2017) datatype = MCMuonEG2017;
+  if(RunYear==2018) datatype = MCMuonEG2018;
+	
+  bool  isMC(false);
+
+  if(datatype == MC || datatype == MCDoubleEG2016 || datatype == MCMuonEG2016||  datatype == MCSingleElectron2016 || datatype == MCSingleMuon2016||  datatype == MCDoubleMuon2016 || datatype == MCMET2016)isMC=true;
+  if(datatype == MC || datatype == MCDoubleEG2017 || datatype == MCMuonEG2017||  datatype == MCSingleElectron2017 || datatype == MCSingleMuon2017||  datatype == MCDoubleMuon2017 || datatype == MCMET2017)isMC=true;
+  if(datatype == MC || datatype == MCDoubleEG2018 || datatype == MCMuonEG2018||  datatype == MCSingleElectron2018 || datatype == MCSingleMuon2018||  datatype == MCDoubleMuon2018 || datatype == MCMET2018)isMC=true;
+
   TChain* es = new TChain("ggNtuplizer/EventTree");
-	es->Add("/eos/uscms/store/user/tmishra/InputFilesMC/QCDMuEnriched/QCDMuEnriched_2016.root");
-	//es->Add("root://cmseos.fnal.gov//store/user/mengleis/copied/QCD_Pt-20toInf_MuEnrichedPt15_pythia8.root");
+  if(isQCD ==true)  es->Add(Form("/eos/uscms/store/user/tmishra/InputFilesMC/QCDMuEnriched/QCDMuEnriched_%d%s.root",RunYear,whichVFP.c_str()));
+  if(isGJet ==true)  es->Add(Form("/eos/uscms/store/user/tmishra/InputFilesMC/GJets/GJets_DoubleEM_%d%s.root",RunYear,whichVFP.c_str()));
 
   const unsigned nEvts = es->GetEntries(); 
   //const unsigned nEvts = 10000; 
   logfile << "Total event: " << nEvts << std::endl;
   std::cout << "Total event: " << nEvts << std::endl;
-  logfile << "Output file: " << outputname << std::endl;
+  logfile << "Output file: /eos/uscms/store/user/tmishra/fakeLep/fakelep_mgsignal_QCD_" << RunYear << whichVFP <<".root" << std::endl;
 
 	int nTotal(0),npassHLT(0), npassPho(0), npassLep(0), npassdR(0), npassZ(0), npassMETFilter(0);
 
-  TFile *outputfile = TFile::Open(outputname,"RECREATE");
+  TFile *outputfile=0;
+  if(isQCD ==true)  outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/fakeLep/fakelep_mgsignal_QCD_%d%s.root",RunYear,whichVFP.c_str()),"RECREATE");
+  if(isGJet ==true)  outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/fakeLep/fakelep_mgsignal_GJet_%d%s.root",RunYear,whichVFP.c_str()),"RECREATE");
   outputfile->cd();
 
 	int nBJet(0);
@@ -163,23 +184,22 @@ void analysis_mgMC(){//main
   fakeLeptree->Branch("sigMET",    &fakeLepsigMET);
   fakeLeptree->Branch("sigMETPhi", &fakeLepsigMETPhi);
   fakeLeptree->Branch("dPhiLepMET",&fakeLepdPhiLepMET);
-	fakeLeptree->Branch("threeMass", &fakethreeMass);
+  fakeLeptree->Branch("threeMass", &fakethreeMass);
   fakeLeptree->Branch("nVertex",   &fakeLepnVertex);
   fakeLeptree->Branch("dRPhoLep",  &fakeLepdRPhoLep);
   fakeLeptree->Branch("HT",        &fakeLepHT);
   fakeLeptree->Branch("nJet",      &fakeLepnJet);
   fakeLeptree->Branch("nBJet",     &nBJet);
-	fakeLeptree->Branch("JetPt",     &fakeLep_JetPt);
-	fakeLeptree->Branch("JetEta",    &fakeLep_JetEta);
-	fakeLeptree->Branch("JetPhi",    &fakeLep_JetPhi);
-	if(isMC){
+  fakeLeptree->Branch("JetPt",     &fakeLep_JetPt);
+  fakeLeptree->Branch("JetEta",    &fakeLep_JetEta);
+  fakeLeptree->Branch("JetPhi",    &fakeLep_JetPhi);
+  if(isMC){
   	fakeLeptree->Branch("mcPID",     &fakeLep_mcPID);
   	fakeLeptree->Branch("mcEta",     &fakeLep_mcEta);
   	fakeLeptree->Branch("mcPhi",     &fakeLep_mcPhi);
   	fakeLeptree->Branch("mcPt",      &fakeLep_mcPt);
   	fakeLeptree->Branch("mcMomPID",  &fakeLep_mcMomPID);
-  	fakeLeptree->Branch("mcGMomPID", &fakeLep_mcGMomPID);
-	}
+  	fakeLeptree->Branch("mcGMomPID", &fakeLep_mcGMomPID);	}
 
 //*********** histo list **********************//
   TH1F *p_eventcount = new TH1F("p_eventcount","p_eventcount",7,0,7);
@@ -414,7 +434,7 @@ void analysis_mgMC(){//main
           		 	   fakeLep_mcPt.push_back(itMC->getEt());
           		 	 }
 								}
-						fakeLeptree->Fill();
+								fakeLeptree->Fill();
 					}//MET Filter
 					}//dR filter
 				} // loop on pho collection
@@ -423,16 +443,23 @@ void analysis_mgMC(){//main
  
 	}//loop on  events
 
-p_eventcount->Fill("Total",nTotal);
-p_eventcount->Fill("passHLT",npassHLT);
-p_eventcount->Fill("passPho",npassPho);
-p_eventcount->Fill("passMuon",npassLep);
-p_eventcount->Fill("passdR",npassdR);
-p_eventcount->Fill("passMETFilter",npassMETFilter);
-p_eventcount->Fill("passZ",npassZ);
+  p_eventcount->GetXaxis()->SetBinLabel(1,"nTotal");
+  p_eventcount->GetXaxis()->SetBinLabel(2,"npassHLT");
+  p_eventcount->GetXaxis()->SetBinLabel(3,"npassPho");
+  p_eventcount->GetXaxis()->SetBinLabel(4,"npassLep");
+  p_eventcount->GetXaxis()->SetBinLabel(5,"npassdR");
+  p_eventcount->GetXaxis()->SetBinLabel(6,"npassZ");
+  p_eventcount->GetXaxis()->SetBinLabel(7,"npassMETFilter");
 
-outputfile->Write();
-logfile.close();
+  p_eventcount->Fill("Total",nTotal);
+  p_eventcount->Fill("passHLT",npassHLT);
+  p_eventcount->Fill("passPho",npassPho);
+  p_eventcount->Fill("passMuon",npassLep);
+  p_eventcount->Fill("passdR",npassdR);
+  p_eventcount->Fill("passMETFilter",npassMETFilter);
+  p_eventcount->Fill("passZ",npassZ);
+
+  outputfile->Write();
+  outputfile->Close();
+  logfile.close();
 }
-
-

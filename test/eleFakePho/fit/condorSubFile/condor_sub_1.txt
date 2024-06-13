@@ -10,9 +10,6 @@ Transfer_Input_Files  = files.tar.gz
 #Requirements = OpSys == "LINUX" && (Arch != "DUMMY" )
 Should_Transfer_Files = YES
 x509userproxy = $ENV(X509_USER_PROXY)
-Output    = logs/job1_$(Cluster)_$(Process).stdout
-error     = logs/job1_$(Cluster)_$(Process).stderr
-Log       = logs/job1_$(Cluster)_$(Process).log
-Arguments = 2 0 1 40.0 45.0 60 120
+Arguments = 1 0 0 30.0 35.0 60 120
 Queue 
  

@@ -1,0 +1,1 @@
+root://cmseos.fnal.gov//store/user/vhegde/GMSB_skims_ST_RA2b_TreesV12/SignalRegion_v1/skimmed_SortedSignal/T5bbbbZg_1600_150_SkimmedSorted.root

@@ -49,37 +49,44 @@
 #include "../../../include/analysis_tools.h"
 #include "../../../include/tdrstyle.C"
 
-int
-Fitfractionmg(int ih,int metlow, int methigh, int leplow, int lephigh, int isocut){
+int RunYear = 2017;
+bool preVFP = false;
+std::string whichVFP;
+
+int Fitfractionmg(int ih,int metlow, int methigh, int leplow, int lephigh, int isocut){
+	gROOT->SetBatch(kTRUE);
 	gStyle->SetOptStat(0);
 	setTDRStyle();
 	gStyle->SetErrorX(0);
 	gStyle->SetTitleXOffset(2.5);
-  RooAbsReal::defaultIntegratorConfig()->getConfigSection("RooIntegrator1D").setRealValue("maxSteps",50000); 
+  	RooAbsReal::defaultIntegratorConfig()->getConfigSection("RooIntegrator1D").setRealValue("maxSteps",50000); 
 	std::ostringstream histname;
-	ofstream myfile;
-	myfile.open("VGamma_scalefactor_mg.txt", std::ios_base::app | std::ios_base::out);
+	if(RunYear==2016 and preVFP == true) whichVFP = "preVFP";
+	else if(RunYear==2016 and preVFP == false) whichVFP = "postVFP";
+        else whichVFP = "";
 
+	ofstream myfile;
+	myfile.open(Form("/eos/uscms/store/user/tmishra/VGamma/VGamma_scalefactor_mg_%d%s.txt",RunYear,whichVFP.c_str()), std::ios_base::app | std::ios_base::out);
 	TString filepath = "/eos/uscms/store/user/tmishra/Background/";
 	std::ostringstream filename;
 	filename.str("");
 	// // data in the control region
-	filename << filepath << "controlTree_mg_signal_" << "met" << metlow << "_" << methigh << "_pt" << leplow << "_" << lephigh << ".root";
+	filename << filepath << "controlTree_mg_signal_" << "met" << metlow << "_" << methigh << "_pt" << leplow << "_" << lephigh << "_" << RunYear << whichVFP <<".root";
 	TFile *file_sig = TFile::Open(filename.str().c_str());
 	filename.str("");
-	filename << filepath << "controlTree_mg_eleBkg_" << "met" << metlow << "_" << methigh << "_pt" << leplow << "_" << lephigh << ".root";
+	filename << filepath << "controlTree_mg_eleBkg_" << "met" << metlow << "_" << methigh << "_pt" << leplow << "_" << lephigh << "_" << RunYear << whichVFP <<".root";
 	TFile *file_ele = TFile::Open(filename.str().c_str());
 	filename.str("");
-	filename << filepath << "controlTree_mg_jetbkg_" << "met" << metlow << "_" << methigh << "_pt" << leplow << "_" << lephigh << ".root";
+	filename << filepath << "controlTree_mg_jetbkg_" << "met" << metlow << "_" << methigh << "_pt" << leplow << "_" << lephigh << "_" << RunYear << whichVFP <<".root";
 	TFile *file_jet = TFile::Open(filename.str().c_str());
 	filename.str("");
-	filename << filepath << "controlTree_mg_rareBkg_" << "met" << metlow << "_" << methigh << "_pt" << leplow << "_" << lephigh << ".root";
+	filename << filepath << "controlTree_mg_rareBkg_" << "met" << metlow << "_" << methigh << "_pt" << leplow << "_" << lephigh << "_" << RunYear << whichVFP <<".root";
 	TFile *file_rare = TFile::Open(filename.str().c_str());
 	filename.str("");
-	filename << filepath << "controlTree_mg_qcd_" << "met" << metlow << "_" << methigh << "_pt" << leplow << "_" << lephigh << "_iso" << isocut << ".root";
+	filename << filepath << "controlTree_mg_qcd_" << "met" << metlow << "_" << methigh << "_pt" << leplow << "_" << lephigh <<  "_" << RunYear << whichVFP <<".root";
 	TFile *file_qcd = TFile::Open(filename.str().c_str());
 	filename.str("");
-	filename << filepath << "controlTree_mg_VGBkg_" << "met" << metlow << "_" << methigh << "_pt" << leplow << "_" << lephigh << ".root";
+	filename << filepath << "controlTree_mg_VGBkg_" << "met" << metlow << "_" << methigh << "_pt" << leplow << "_" << lephigh << "_" << RunYear << whichVFP <<".root";
 	TFile *file_VG = TFile::Open(filename.str().c_str());
 
 	TH1D  *p_sig = (TH1D*)file_sig->Get("p_dPhiEleMET");
@@ -92,6 +99,10 @@ Fitfractionmg(int ih,int metlow, int methigh, int leplow, int lephigh, int isocu
 
 	TH1D *p_rawsig = (TH1D*)p_sig->Clone("p_rawsig");
 	TH1D *p_target = (TH1D*)p_sig->Clone("fit_target");
+	//  CHECK !!!!
+	//  JetFakePhoton is thrice for menglei compare to me in the Control region
+	cout<< "\tRare : "<< p_rare->Integral()/p_target->Integral() <<"\t efakePho : "<<p_ele->Integral()/p_target->Integral() <<"\t jetfakePho : "<<p_jet->Integral()/p_target->Integral() << "\n";
+
 	//  Target distribution is deltaPhi shape of the data in the CR, with jet fake photon, ele fake photon, rare EWK backgrounds subtracted.
 	p_target->Add(p_rare, -1);
 	p_target->Add(p_ele, -1);
@@ -155,8 +166,8 @@ Fitfractionmg(int ih,int metlow, int methigh, int leplow, int lephigh, int isocu
   frame->Draw();
 	std::ostringstream figurename;
   figurename.str("");
-  figurename << "/eos/uscms/store/user/tmishra/VGamma/fit_lepPt_mg_met" << metlow << "_" << methigh << "_pt" <<  leplow << "_" << lephigh <<  "_iso" << isocut << ".png";
-  can->SaveAs(figurename.str().c_str());
+  figurename << "/eos/uscms/store/user/tmishra/VGamma/"<<RunYear<<whichVFP <<"/fit_dPhi_mg_met" << metlow << "_" << methigh << "_pt" <<  leplow << "_" << lephigh <<  "_iso" << isocut << ".png";
+  //can->SaveAs(figurename.str().c_str());
 
 	TH1D *p_combine = new TH1D("p_combine","",32,0,3.2);
 	TH1D *p_qcd  = new TH1D("p_qcd","",32,0,3.2);
@@ -194,6 +205,7 @@ Fitfractionmg(int ih,int metlow, int methigh, int leplow, int lephigh, int isocu
 	setTopPad(canpt_pad1); 
 	canpt_pad1->Draw();          
 	canpt_pad1->cd();  
+	p_target->GetYaxis()->SetTitleOffset(1.4);
 	p_target->GetYaxis()->SetTitle("Events / 0.1 radians");
 	p_target->SetTitle(""); 
 	p_target->SetMaximum(1.5*p_target->GetBinContent(p_target->GetMaximumBin()));
@@ -233,7 +245,10 @@ Fitfractionmg(int ih,int metlow, int methigh, int leplow, int lephigh, int isocu
 	leg->AddEntry(p_combine_error, "Fit uncertainty");
 	leg->Draw("same");
  	gPad->RedrawAxis();
-  CMS_lumi( canpt_pad1, 11 );
+	if(RunYear==2016 and preVFP == 1)       CMS_lumi( canpt_pad1,1, 11 );
+        else if(RunYear==2016 and preVFP == 0)  CMS_lumi( canpt_pad1,2, 11 );
+        else if(RunYear==2017)                  CMS_lumi( canpt_pad1,3, 11 );
+        else if(RunYear==2018)                  CMS_lumi( canpt_pad1,4, 11 );
 
   TLatex chantex;
   chantex.SetNDC();
@@ -260,7 +275,7 @@ Fitfractionmg(int ih,int metlow, int methigh, int leplow, int lephigh, int isocu
 	fitratio_error->SetFillStyle(3345);
 	fitratio_error->Draw("E2 same");	
 
-	if(ih == 0)canres->SaveAs("/eos/uscms/store/user/tmishra/VGamma/fit_dPhi_mg.png");	
+	if(ih == 0 and leplow==0 and lephigh==1000) canres->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/%d%s/fit_dPhi_mg_%d%s.png",RunYear,whichVFP.c_str(),RunYear,whichVFP.c_str()));	
 	//else{
 	//	std::ostringstream savename;
 	//	savename.str("");
@@ -279,6 +294,7 @@ Fitfractionmg(int ih,int metlow, int methigh, int leplow, int lephigh, int isocu
 	float vgammascale = (1-fakefrac.getVal())*p_target->Integral(1, p_target->GetSize())/p_MC->Integral(1, p_MC->GetSize());
 	float vgammascaleerror = fakefrac.getError()*p_target->Integral(1, p_target->GetSize())/p_MC->Integral(1, p_MC->GetSize()); 
 	myfile << leplow << " " << lephigh << " " << fakescale << " " << fakescaleerror  << " " << vgammascale << " " << vgammascaleerror << std::endl; 
+	cout << leplow << " " << lephigh << " " << fakescale << " " << fakescaleerror  << " " << vgammascale << " " << vgammascaleerror << std::endl;
 	myfile.close();
 
   return 1;

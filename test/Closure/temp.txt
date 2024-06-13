@@ -1,0 +1,8 @@
+den_coeff1 17471
+den_coeff2 477.497
+den_lambd1 -0.0597717
+den_lambd2 -0.0230458
+num_coeff1 2132.41
+num_coeff2 66.9298
+num_lambd1 -0.0543718
+num_lambd2 -0.0533082

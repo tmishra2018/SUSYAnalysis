@@ -2,26 +2,26 @@ imax 1 number of channels
 jmax 5  number of backgrounds
 kmax *  number of nuisance parameters
 ------------
-bin  1  
+bin  bin1  
 observation   6.538000
 ------------
-bin                                  1            1            1            1            1            1 
+bin                               bin1         bin1         bin1         bin1         bin1         bin1 
 process                           SUSY   elefakepho   jetfakepho   qcdfakelep       VGamma         rare 
 process                              0            1            2            3            4            5 
-rate                             NSC10        0.248        0.128        0.000        4.294        1.673 
+rate                             NSC10        0.248        0.096        0.000        4.294        1.673 
 ------------
 jes             lnN             JESS10            -            -            -        1.074        1.033 
 jer             lnN             JERS10            -            -            -        1.027        1.022 
 esf             lnN              ESF10            -            -            -        1.061        1.050 
 scale           lnN                  -            -            -        0.800        1.200            - 
 e_to_pho_syst   lnN                  -        1.319            -            -            -            - 
-j_to_pho_syst   lnN                  -            -        1.000            -            -            - 
+j_to_pho_syst   lnN                  -            -        1.344            -            -            - 
 fakelep_shape   lnN                  -            -            -            -            -            - 
 xs              lnN                  -            -            -            -            -        1.500 
 lumi            lnN              1.026            -            -            -            -        1.026 
 isr             lnN                  -            -            -            -        1.463            - 
 SUSY_stat10     lnN             STSC10            -            -            -            -            - 
 e_to_pho_stat10 gmN     27           -      0.00918            -            -            -            - 
-j_to_pho_stat10 gmN      1           -            -      0.12810            -            -            - 
+j_to_pho_stat10 gmN      2           -            -      0.04825            -            -            - 
 j_to_lep_stat10 gmN      0           -            -            -      0.62000            -            - 
 rare_stat10     lnN                  -            -            -            -            -        1.114 

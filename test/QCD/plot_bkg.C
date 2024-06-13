@@ -1,3 +1,4 @@
+// inputs from analysis_qcdBkg.C  and analysis_sig.C
 #include<string>
 #include<iostream>
 #include<fstream>
@@ -42,6 +43,7 @@ void plot_bkg(){//main
 
 // ******** LepPt ************************//
 	gStyle->SetOptStat(0);
+	gROOT->SetBatch(1);
 	TCanvas *c_leppt = new TCanvas("LepPt", "LepPt",600,600);
 	c_leppt->cd();
 	//gPad->SetLogy();
@@ -49,16 +51,18 @@ void plot_bkg(){//main
 	p_allLepPt->SetLineColor(1);
 	p_allLepPt->SetMarkerStyle(20);
 	p_allLepPt->Draw("P");
+
 	p_qcdLepPt->Scale(p_allLepPt->GetEntries()/p_qcdLepPt->GetEntries());
 	p_qcdLepPt->SetFillStyle(1001);
 	p_qcdLepPt->SetLineColor(kBlue);
 	p_qcdLepPt->SetFillColor(kBlue);
 	p_qcdLepPt->Draw("same");
+
 //	p_qcdLepPt_2->Scale(p_allLepPt->GetEntries()/p_qcdLepPt_2->GetEntries());
 //	p_qcdLepPt_2->SetLineColor(kRed);	
 //	p_qcdLepPt_2->Draw("hist same");
 	p_allLepPt->Draw("P same");
-
+	c_leppt->SaveAs("dPhiEleMET_2016.pdf");
 
 	TFile *outputfile = TFile::Open("qcd_eg_scale.root","RECREATE");
 	outputfile->cd();
@@ -68,5 +72,3 @@ void plot_bkg(){//main
 	outputfile->Write();
 	outputfile->Close(); 
 }
-
-

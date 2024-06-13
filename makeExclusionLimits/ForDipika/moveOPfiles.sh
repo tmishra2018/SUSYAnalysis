@@ -1,0 +1,4 @@
+#!/bin/sh    
+mv higgsCombineT5bbbbZg_*.root hists_datacards_limitTree_T5bbbbZg_SbinV4_mT100
+mv FastSim_T5bbbbZg*.root hists_datacards_limitTree_T5bbbbZg_SbinV4_mT100
+mv dataCard_FastSim_T5bbbbZg_*.txt hists_datacards_limitTree_T5bbbbZg_SbinV4_mT100

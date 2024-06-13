@@ -1,3 +1,4 @@
+#include<string>
 #include "../../include/analysis_commoncode.h"
 
 void analysis_rareBkg(){
@@ -6,6 +7,11 @@ void analysis_rareBkg(){
 	setTDRStyle();
 
   gSystem->Load("../../lib/libAnaClasses.so");
+	std::string whichVFP;
+        if(RunYear==2016 and preVFP == 1) whichVFP = "preVFP";
+        if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
+        if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
+
 	esfScaleFactor  objectESF;
 
   int channelType = ichannel; // eg = 1; mg =2;
@@ -20,8 +26,9 @@ void analysis_rareBkg(){
 	}
 	if(channelType==1)outputname << "egamma_rareBkg";
 	else if(channelType==2)outputname << "mg_rareBkg";
-	if(anatype ==0)outputname << "_met" << lowMET <<"_" << highMET << "_pt" << lowPt << "_" << highPt;
-	outputname << ".root";
+	if(anatype ==0 or anatype ==1)	outputname << "_met" << lowMET <<"_" << highMET << "_pt" << lowPt << "_" << highPt;
+	outputname <<"_" << RunYear<<whichVFP <<".root";
+
 	TFile *outputfile = TFile::Open(outputname.str().c_str(),"RECREATE");
 	outputfile->cd();
 	std::ostringstream histname;
@@ -75,13 +82,14 @@ void analysis_rareBkg(){
 	if(channelType == 1)chainname << "egTree";
 	else if(channelType == 2)chainname << "mgTree";
 	// background from directly simulations, mctree
-  TChain *mctree = new TChain(chainname.str().c_str(), chainname.str().c_str());
-  mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_VGamma_TTG_VetoEle.root");
-  mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_VGamma_WWG_VetoEle.root");
-  mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_VGamma_WZG_VetoEle.root");
-  mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_VGamma_WW_VetoEle.root");
-  mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_VGamma_WZ_VetoEle.root");
-  mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_VGamma_TT_VetoEle.root");
+  	TChain *mctree = new TChain(chainname.str().c_str(), chainname.str().c_str());
+
+		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_TTGJets_%d%s.root",RunYear,whichVFP.c_str()));
+  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WWG_%d%s.root",RunYear,whichVFP.c_str()));
+  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WZG_%d%s.root",RunYear,whichVFP.c_str()));
+  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WW_%d%s.root",RunYear,whichVFP.c_str()));
+  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WZ_%d%s.root",RunYear,whichVFP.c_str()));
+  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_TTJets_%d%s.root",RunYear,whichVFP.c_str()));
 	float crosssection(0);
 	float ntotalevent(0);
 	float PUweight(1);
@@ -179,19 +187,30 @@ void analysis_rareBkg(){
 			double s_eletrg_error = objectESF.getElectronTRGESFError(lepPt,lepEta)*objectESF.getElectronESF(lepPt,lepEta)*objectESF.getPhotonESF(phoEt,phoEta)*objectESF.getegPhotonTRGESF(phoEt,phoEta);
 			double s_photrg_error = objectESF.getegPhotonTRGESFError(phoEt,phoEta)*objectESF.getElectronESF(lepPt,lepEta)*objectESF.getPhotonESF(phoEt,phoEta)*objectESF.getElectronTRGESF(lepPt,lepEta);
 			double s_error = sqrt(pow(s_ele_error,2) + pow(s_pho_error,2) + pow(s_eletrg_error,2) + pow(s_photrg_error, 2)); 
-			//scalefactorup = scalefactor + s_error; 
-			scalefactorup = objectESF.getElectronESF(lepPt,lepEta)*objectESF.getPhotonESF(phoEt,phoEta)*objectESF.getegPhotonTRGESF(phoEt,phoEta)*objectESF.getElectronTRGESF(lepPt,lepEta)*objectESF.getR9ESF(lepPt,lepEta); 
+			scalefactorup = scalefactor + s_error; 
 		}
 		if(channelType == 2){
 			scalefactor = objectESF.getMuonESF(lepPt,lepEta)*objectESF.getPhotonESF(phoEt,phoEta)*objectESF.getMuonEGTRGESF(phoEt, lepPt);
 			double s_mu_error = objectESF.getMuonESFError(lepPt,lepEta)*objectESF.getPhotonESF(phoEt,phoEta)*objectESF.getMuonEGTRGESF(phoEt, lepPt);
-      double s_pho_error = objectESF.getPhotonESFError(phoEt,phoEta)*objectESF.getMuonESF(lepPt,lepEta)*objectESF.getMuonEGTRGESF(phoEt, lepPt);
-      double s_trg_error = objectESF.getMuonEGTRGESFError(phoEt, lepPt)*objectESF.getMuonESF(lepPt,lepEta)*objectESF.getPhotonESF(phoEt,phoEta);
+      			double s_pho_error = objectESF.getPhotonESFError(phoEt,phoEta)*objectESF.getMuonESF(lepPt,lepEta)*objectESF.getMuonEGTRGESF(phoEt, lepPt);
+      			double s_trg_error = objectESF.getMuonEGTRGESFError(phoEt, lepPt)*objectESF.getMuonESF(lepPt,lepEta)*objectESF.getPhotonESF(phoEt,phoEta);
 			double s_error = sqrt(pow(s_mu_error,2) + pow(s_pho_error,2) + pow(s_trg_error,2));
 			scalefactorup = scalefactor + s_error; 
 		}
-		float XS_weight = 35.87*1000*crosssection/ntotalevent;
-		//float XS_weight = getEvtWeight(RunYear,crosssection, ntotalevent);
+	
+		float XS_weight = 1;
+               if(channelType == 1){
+                        if(RunYear == 2016 and preVFP == 1)             XS_weight = lumi_2016preVFP_DoubleEG*1000*crosssection/ntotalevent;
+                        else if(RunYear == 2016 and preVFP == 0)        XS_weight = lumi_2016postVFP_DoubleEG*1000*crosssection/ntotalevent;
+                        else if(RunYear == 2017)                        XS_weight = lumi_2017_DoubleEG*1000*crosssection/ntotalevent;
+                        else if(RunYear == 2018)                        XS_weight = lumi_2018_DoubleEG*1000*crosssection/ntotalevent;}
+
+                else if(channelType == 2){
+                        if(RunYear == 2016 and preVFP == 1)             XS_weight = lumi_2016preVFP_MuonEG*1000*crosssection/ntotalevent;
+                        else if(RunYear == 2016 and preVFP == 0)        XS_weight = lumi_2016postVFP_MuonEG*1000*crosssection/ntotalevent;
+                        else if(RunYear == 2017)                        XS_weight = lumi_2017_MuonEG*1000*crosssection/ntotalevent;
+                        else if(RunYear == 2018)                        XS_weight = lumi_2018_MuonEG*1000*crosssection/ntotalevent;}
+
 		float weight = PUweight*XS_weight*scalefactor;
 		float weight_scaleup = PUweight*XS_weight*scalefactorup;
 		/** cut flow *****/

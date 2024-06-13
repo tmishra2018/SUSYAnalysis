@@ -1,4 +1,4 @@
-// g++ `root-config --cflags` ../lib/libAnaClasses.so analysis_mg.C -o analysis_mg.exe `oot-config --libs`
+// g++ `root-config --cflags` ../lib/libAnaClasses.so analysis_mg.C -o analysis_mg.exe `root-config --libs`
 #include<string>
 #include<iostream>
 #include<fstream>
@@ -29,6 +29,7 @@
 #include "../include/analysis_jet.h"
 #include "../include/analysis_mcData.h"
 #include "../include/analysis_tools.h"
+bool apply_HEMveto=false;
 
 void analysis_mg(int RunYear, const char *Era){//main
 
@@ -44,8 +45,9 @@ void analysis_mg(int RunYear, const char *Era){//main
 	bool  isMC(false);
 	if(datatype == MC || datatype == MCDoubleEG2016 || datatype == MCMuonEG2016||  datatype == MCSingleElectron2016 || datatype == MCSingleMuon2016||  datatype == MCDoubleMuon2016 || datatype == MCMET2016)isMC=true;
   TChain* es = new TChain("ggNtuplizer/EventTree");
-	es->Add(Form("/eos/uscms/store/user/tmishra/InputFilesDATA/MuonEG/MuonEG_%d%s.root",RunYear,Era));
+	es->Add(Form("/eos/uscms/store/user/lpcsusyphotons/Tribeni/MuonEG/MuonEG_%d%s.root",RunYear,Era));
 
+  if(RunYear==2018) apply_HEMveto=true;
   const unsigned nEvts = es->GetEntries(); 
   logfile << "Total event: " << nEvts << std::endl;
   std::cout << "Total event: " << nEvts << std::endl;
@@ -318,12 +320,13 @@ void analysis_mg(int RunYear, const char *Era){//main
   int METFilter(0);
   logfile << "RunType: " << datatype << std::endl;
 
+  int passHEM(0);
   std::cout << "Total evetns : " << nEvts << std::endl;
   logfile << "Total evetns : " << nEvts << std::endl;
 	for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
 
-		if (ievt%100000==0) std::cout << " -- Processing event " << ievt << std::endl;
-		if (ievt%100000==0) logfile  << " -- Processing event " << ievt << std::endl;
+		if (ievt%1000000==0) logfile  << " -- Processing event " << ievt << std::endl;
+		if (ievt%1000000==0) cout  << " -- Processing event " << ievt << std::endl;
 
 			raw.GetData(es, ievt);
 			MCData.clear();
@@ -343,6 +346,9 @@ void analysis_mg(int RunYear, const char *Era){//main
 			run=raw.run;
 			event=raw.event;
 			lumis=raw.lumis;
+
+			if(RunYear==2018 && !passHEMVeto(0,raw)) continue;
+                        passHEM++;
 
 			nTotal+=1;
 			if(!raw.passHLT())continue;
@@ -384,7 +390,7 @@ void analysis_mg(int RunYear, const char *Era){//main
 
 			for(std::vector<recoPhoton>::iterator itpho = Photon.begin() ; itpho != Photon.end(); ++itpho){
 				if(itpho->getR9() < 0.5)continue;
-				//if(!itpho->passHLTSelection())continue;
+				//if(!itpho->passHLTSelection())continue; // was commented earlier
 				if(!itpho->passBasicSelection())continue;
 				bool passSigma = itpho->passSigma(1);
 				bool passChIso = itpho->passChIso(1);
@@ -792,12 +798,12 @@ logfile << "hadrontree events: " << hadrontree->GetEntries() <<"; "<<100*hadront
 
 p_eventcount->Fill("Total",nTotal);
 p_eventcount->Fill("passHLT",npassHLT);
-p_eventcount->Fill("passPho",npassPho);
-p_eventcount->Fill("passMuon",npassLep);
+p_eventcount->Fill("passPho",npassPho);	  // decrease by 2%
+p_eventcount->Fill("passMuon",npassLep); // increase by 4%
 p_eventcount->Fill("passdR",npassdR);
 p_eventcount->Fill("passMETFilter",npassMETFilter);
 p_eventcount->Fill("passZ",npassZ);
-
+	if(RunYear==2018) logfile << "pass HEM cut:  " << passHEM*100/nEvts<<endl;
 outputfile->Write();
 logfile.close();
 }

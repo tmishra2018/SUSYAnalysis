@@ -1,25 +1,35 @@
+#include<string>
 #include "../../include/analysis_commoncode.h"
 
 #define NTOY 1000
-bool useGaussFit, channelType=true;
+bool useGaussFit;
 
 void analysis_eleBkg(){
 
 	SetRunConfig();
 	setTDRStyle();
 
-  gSystem->Load("../../lib/libAnaClasses.so");
-  int channelType = ichannel; // eg = 1; mg =2;
-  /**********************************/
+  	gSystem->Load("../../lib/libAnaClasses.so");
+  	int channelType = ichannel; // eg = 1; mg =2;
+
+  	std::string whichVFP;
+  	if(RunYear==2016 and preVFP == 1) whichVFP = "preVFP";
+  	if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
+  	if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
+	
+
+  	/**********************************/
 	/*	double normfactor = par[0]; 	*/  
-  /*	double slope = par[1];				*/
-  /*	double constant = par[2];			*/
-  /*	double index = par[3];				*/
-  /*	double coeff = par[4]; 				*/
+  	/*	double slope = par[1];		*/
+  	/*	double constant = par[2];	*/
+  	/*	double index = par[3];		*/
+  	/*	double coeff = par[4]; 		*/
 	/*	double vtx_constant = par[5];	*/
-	/*	double vtx_slope = par[6];		*/
-  /**********************************/
-	std::ifstream elefake_file("../script/EleFakeRate-ByPtVtx-EB.txt");
+	/*	double vtx_slope = par[6];	*/
+  	/**********************************/
+	
+	std::ifstream elefake_file;
+	elefake_file.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-ByPtVtx-EB.txt",RunYear,whichVFP.c_str()));
 	// fake rate as input
 	double scalefactor(0);
 	double ptslope(0);
@@ -48,7 +58,8 @@ void analysis_eleBkg(){
 
 	TF3 *h_toymc_fakerate[NTOY];
 	std::ostringstream funcname;
-	std::ifstream elefake_toyfile("../script/ToyFakeRate_Data_EB.txt");
+	std::ifstream elefake_toyfile;
+	elefake_toyfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/ToyFakeRate_Data_EB.txt",RunYear,whichVFP.c_str()));
 	// toy fake rate as input
 	if(elefake_toyfile.is_open()){
   	for(int i(0); i<NTOY; i++){ 
@@ -124,11 +135,9 @@ void analysis_eleBkg(){
 	//************ Proxy Tree **********************//
 	// background estimated from data, with proxyTree
 	TChain *proxytree = new TChain("proxyTree");
-	//if(channelType==1)proxytree->Add("/eos/uscms/store/group/lpcsusyhad/Tribeni/eg_mg_trees/resTree_egsignal_DoubleEG_2016.root");
-	//if(channelType==2)proxytree->Add("/eos/uscms/store/group/lpcsusyhad/Tribeni/eg_mg_trees/resTree_mgsignal_MuonEG_2016.root");
-
-	if(channelType==1)proxytree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_egsignal_DoubleEG_ReMiniAOD_FullEcal.root");
-	if(channelType==2)proxytree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_mgsignal_MuonEG_FullEcal.root");
+                if(channelType==1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
+                //if(channelType==1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s_isFakeProxyOLD.root",RunYear,whichVFP.c_str()));
+                if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
 	float phoEt(0);
 	float phoEta(0);
 	float phoPhi(0);
@@ -296,8 +305,8 @@ void analysis_eleBkg(){
 	}
 	if(channelType==1)outputname << "egamma_eleBkg";
 	else if(channelType==2)outputname << "mg_eleBkg";
-	if(anatype ==0)outputname << "_met" << lowMET <<"_" << highMET << "_pt" << lowPt << "_" << highPt;
-	outputname << ".root";
+	if(anatype ==0 or anatype ==1)	outputname << "_met" << lowMET <<"_" << highMET << "_pt" << lowPt << "_" << highPt;
+	outputname <<"_" << RunYear<<whichVFP <<".root";
 
 	TFile *outputfile = TFile::Open(outputname.str().c_str(),"RECREATE");
 	outputfile->cd();
@@ -322,5 +331,3 @@ void analysis_eleBkg(){
 	outputfile->Write();
 	outputfile->Close();
 }
-
-

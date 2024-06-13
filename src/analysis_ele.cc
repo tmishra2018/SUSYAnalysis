@@ -19,11 +19,9 @@ bool recoEle::passHLTSelection(){
     case MC: passHLT = true; break;
     case DoubleEG2015: case MuonEG2015: case SingleMuon2015: case DoubleMuon2015: case SingleElectron2015:
       passHLT = false; break;
-    // HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90
-    case DoubleEG2016:  if(fireTrgs(21) || fireTrgs(22))passHLT = true; break;
-    // HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v13
-    case DoubleEG2017:  if(fireTrgs(43) || fireTrgs(44))passHLT = true; break;
-    case DoubleEG2018:  if(fireTrgs(43) || fireTrgs(44))passHLT = true; break;
+    case DoubleEG2016:  if(fireTrgs(21) || fireTrgs(22))passHLT = true; break; // HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90
+    case DoubleEG2017:  if(fireTrgs(43) || fireTrgs(44))passHLT = true; break; // HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v13
+    case DoubleEG2018:  if(fireTrgs(43) || fireTrgs(44))passHLT = true; break; // HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v13
 
     case MCDoubleEG2016: if(fireTrgs(21) || fireTrgs(22))passHLT = true; break;
     case MCDoubleEG2017: if(fireTrgs(43) || fireTrgs(44))passHLT = true; break;
@@ -33,15 +31,29 @@ bool recoEle::passHLTSelection(){
     case MuonEG2017: passHLT = true; break;
     case MuonEG2018: passHLT = true; break;
    
+    case MCMuonEG2016: passHLT = true; break;
+    case MCMuonEG2017: passHLT = true; break;
+    case MCMuonEG2018: passHLT = true; break;
+    
     case SingleElectron2016: if(fireTrgs(12))passHLT = true; break; // HLT_Ele27_WPTight_Gsf
     case SingleElectron2017: if(fireTrgs(46))passHLT = true; break; // HLT_Ele35_WPTight_Gsf
-    case SingleElectron2018: if(fireTrgs(13))passHLT = true; break; // HLT_Ele32_WPTight_Gsf
-    case SingleMuon2016: passHLT = true; break;
-    case DoubleMuon2016: passHLT = true; break;
-    case MCMuonEG2016:  passHLT = true; break;
+    case SingleElectron2018: if(fireTrgs(13))passHLT = true; break; // HLT_Ele32_WPTight_Gsf  
+    //case SingleElectron2017: if(fireTrgs(12))passHLT = true; break; // HLT_Ele27_WPTight_Gsf
+
+    case MCSingleElectron2016: if(fireTrgs(12))passHLT = true; break; // HLT_Ele27_WPTight_Gsf
+    case MCSingleElectron2017: if(fireTrgs(46))passHLT = true; break; // HLT_Ele35_WPTight_Gsf
+    case MCSingleElectron2018: if(fireTrgs(13))passHLT = true; break; // HLT_Ele32_WPTight_Gsf  
+    //case MCSingleElectron2017: if(fireTrgs(12))passHLT = true; break; // HLT_Ele27_WPTight_Gsf
+
+/*  case SingleElectron2016: if(fireTrgs(10))passHLT = true; break; // HLT_Ele27_eta2p1_WPLoose_Gsf
+    case SingleElectron2017: if(fireTrgs(42))passHLT = true; break; // HLT_Ele20_eta2p1_WPLoose_Gsf
+    case SingleElectron2018: if(fireTrgs(42))passHLT = true; break; // HLT_Ele20_eta2p1_WPLoose_Gsf
     case MCSingleElectron2016: if(fireTrgs(10))passHLT = true; break;
     case MCSingleElectron2017: if(fireTrgs(42))passHLT = true; break;
     case MCSingleElectron2018: if(fireTrgs(42))passHLT = true; break;
+*/
+    case SingleMuon2016: passHLT = true; break;
+    case DoubleMuon2016: passHLT = true; break;
     case MCSingleMuon2016: passHLT = true; break;
     case MCDoubleMuon2016: passHLT = true; break;
     case MCMET2016: passHLT = true; break;
@@ -69,6 +81,7 @@ bool recoEle::passBasicID(){
   }
   return passBasic;
 }
+
 
 bool recoEle::isMiniMedium(){
   bool passMiniMedium(true);
@@ -101,7 +114,6 @@ bool recoEle::isMiniMedium(){
   return passMiniMedium;
 }
 
-
 bool recoEle::isMiniLoose(){
   bool passMiniLoose(true);
  
@@ -133,19 +145,60 @@ bool recoEle::isMiniLoose(){
   return passMiniLoose;
 }
 
+// mengleis
+bool recoEle::isFakeProxyOLD(){
+        bool passFakeProxy(true);
+
+  if(!isEB() && !isEE()) {passFakeProxy=false; return passFakeProxy; }
+  if(isEB()){
+        if(getHoverE() > 0.253){passFakeProxy=false; return passFakeProxy;}
+        if(fabs(getEoverPInv()) > 0.134){passFakeProxy=false; return passFakeProxy;}
+        if(getMissHits() > 1){passFakeProxy=false; return passFakeProxy;}
+        if(!getConvVeto()){passFakeProxy=false; return passFakeProxy;}
+  }
+  else if(isEE()){
+        if(getHoverE() > 0.0878){passFakeProxy=false; return passFakeProxy;}
+        if(fabs(getEoverPInv()) > 0.13){passFakeProxy=false; return passFakeProxy;}
+        if(getMissHits() > 1){passFakeProxy=false; return passFakeProxy;}
+        if(!getConvVeto()){passFakeProxy=false; return passFakeProxy;}
+  }
+
+  if(isEB()){
+        if(getSigma() > 0.00998 || fabs(getdEtaIn()) > 0.00311 || fabs(getdPhiIn()) > 0.103 || getMiniIso() > 0.1)passFakeProxy=true;
+        else passFakeProxy=false;
+  }
+  else if(isEE()){
+        if(getSigma() > 0.0298 || fabs(getdEtaIn()) > 0.00609 || fabs(getdPhiIn()) > 0.045 || getMiniIso() > 0.1)passFakeProxy=true;
+        else passFakeProxy=false;
+  }
+//Upper bound:  Veto
+  if(isEB()){
+        if(getSigma() > 0.0115 || fabs(getdEtaIn()) > 0.00749 || fabs(getdPhiIn()) > 0.228)passFakeProxy=false;
+  }
+  else if(isEE()){
+        if(getSigma() > 0.037  || fabs(getdEtaIn()) > 0.00895 || fabs(getdPhiIn()) > 0.213)passFakeProxy=false;
+  }
+        return passFakeProxy;
+}
+
+// from https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
 bool recoEle::isFakeProxy(){
 	bool passFakeProxy(true);
 
   if(!isEB() && !isEE()) {passFakeProxy=false; return passFakeProxy; }
   if(isEB()){
-	if(getHoverE() > getCutValueHoverE()){passFakeProxy=false; return passFakeProxy;}
+	if(getHoverE() > getCutValueHoverE()){passFakeProxy=false; return passFakeProxy;}  // this cut reduces, ele-fake-photon by 30% wrt 80X old cut 
 	if(fabs(getEoverPInv()) > 0.184){passFakeProxy=false; return passFakeProxy;}
+        //if(getHoverE() > 0.253){passFakeProxy=false; return passFakeProxy;}
+	//if(fabs(getEoverPInv()) > 0.134){passFakeProxy=false; return passFakeProxy;}
 	if(getMissHits() > 1){passFakeProxy=false; return passFakeProxy;}
 	if(!getConvVeto()){passFakeProxy=false; return passFakeProxy;}
   }
   else if(isEE()){
 	if(getHoverE() > getCutValueHoverE()){passFakeProxy=false; return passFakeProxy;}
 	if(fabs(getEoverPInv()) > 0.0721){passFakeProxy=false; return passFakeProxy;}
+        //if(getHoverE() > 0.0878){passFakeProxy=false; return passFakeProxy;}
+	//if(fabs(getEoverPInv()) > 0.13){passFakeProxy=false; return passFakeProxy;}
 	if(getMissHits() > 1){passFakeProxy=false; return passFakeProxy;}
 	if(!getConvVeto()){passFakeProxy=false; return passFakeProxy;}
   }
@@ -159,7 +212,7 @@ bool recoEle::isFakeProxy(){
   	else passFakeProxy=false;
   }
 
-//Upper bound:  Veto
+//Upper bound:  Veto cuts
   if(isEB()){
 	if(getSigma() > 0.0126 || fabs(getdEtaIn()) > 0.00463 || fabs(getdPhiIn()) > 0.148)passFakeProxy=false;
   }
@@ -168,7 +221,6 @@ bool recoEle::isFakeProxy(){
   }
 	return passFakeProxy;
 }
-
 
 bool recoEle::isLooseFakeProxy(){
 	bool passFakeProxy(true);

@@ -26,45 +26,42 @@
 #include "../../include/analysis_photon.h"
 #include "../../include/analysis_muon.h"
 #include "../../include/analysis_ele.h"
+#include "../../include/analysis_jet.h"
 #include "../../include/analysis_tools.h"
+#include "../../include/analysis_mcData.h"
+#include "../../src/analysis_rawData.cc"
+#include "../../src/analysis_ele.cc"
+#include "../../src/analysis_muon.cc"
+#include "../../src/analysis_photon.cc"
 
-int RunYear = 2016;
-void analysis_mgTrigger(){//main  
+
+bool useData = true;
+int RunYear= 2016;
+
+void analysis_mgTrigger(int RunYear, const char *Era){//main  
 
 	gSystem->Load("../../lib/libAnaClasses.so");
 
-	ofstream logfile;
-	logfile.open(Form("/eos/uscms/store/user/tmishra/Trigger/plot_MuonTrigger_ReMiniAOD_%d.log",RunYear));
 
+//	std::string whichVFP;
+//  	if(RunYear==2016 and preVFP == 1) whichVFP = "preVFP";
+//  	if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
+//  	if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
+
+	ofstream logfile;
+	logfile.open(Form("/eos/uscms/store/user/tmishra/Trigger/logs/plot_MuonTrigger_Data_%d%s.log",RunYear,Era));
 	logfile << "analysis_mgTrigger()" << std::endl;
 
 	RunType datatype;
-	TChain* es = new TChain("ggNtuplizer/EventTree");
-	
-	if (RunYear==2016){
-		datatype = SingleMuon2016;
-		es->Add("/eos/uscms/store/user/tmishra/InputFilesDATA/2016/SingleMuon/SingleMuon_2016B.root");
-		es->Add("/eos/uscms/store/user/tmishra/InputFilesDATA/2016/SingleMuon/SingleMuon_2016C.root");
-		es->Add("/eos/uscms/store/user/tmishra/InputFilesDATA/2016/SingleMuon/SingleMuon_2016D.root");
-		es->Add("/eos/uscms/store/user/tmishra/InputFilesDATA/2016/SingleMuon/SingleMuon_2016E.root");
-		es->Add("/eos/uscms/store/user/tmishra/InputFilesDATA/2016/SingleMuon/SingleMuon_2016F.root");
-		es->Add("/eos/uscms/store/user/tmishra/InputFilesDATA/2016/SingleMuon/SingleMuon_2016G.root");
-		es->Add("/eos/uscms/store/user/tmishra/InputFilesDATA/2016/SingleMuon/SingleMuon_2016H.root"); }
-	if (RunYear==2017){
-		datatype = SingleMuon2017;
-		es->Add("/eos/uscms/store/user/tmishra/InputFilesDATA/2017/SingleMuon/SingleMuon_2017B.root");
-		es->Add("/eos/uscms/store/user/tmishra/InputFilesDATA/2017/SingleMuon/SingleMuon_2017C.root");
-		es->Add("/eos/uscms/store/user/tmishra/InputFilesDATA/2017/SingleMuon/SingleMuon_2017D.root");
-		es->Add("/eos/uscms/store/user/tmishra/InputFilesDATA/2017/SingleMuon/SingleMuon_2017E.root");
-		es->Add("/eos/uscms/store/user/tmishra/InputFilesDATA/2017/SingleMuon/SingleMuon_2017F.root");}
-	if (RunYear==2018){
-		datatype = SingleMuon2018;
-		es->Add("/eos/uscms/store/user/tmishra/InputFilesDATA/2018/SingleMuon/SingleMuon_2018A.root");
-		es->Add("/eos/uscms/store/user/tmishra/InputFilesDATA/2018/SingleMuon/SingleMuon_2018B.root");
-		es->Add("/eos/uscms/store/user/tmishra/InputFilesDATA/2018/SingleMuon/SingleMuon_2018C.root");
-		es->Add("/eos/uscms/store/user/tmishra/InputFilesDATA/2018/SingleMuon/SingleMuon_2018D.root");}
+        if(!useData)     datatype = MC;
 
-	TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/Trigger/plot_MuonTrigger_ReMiniAOD_%d.root",RunYear),"RECREATE");
+        if(useData && RunYear==2016)    datatype = SingleMuon2016;
+        if(useData && RunYear==2017)    datatype = SingleMuon2017;
+        if(useData && RunYear==2018)    datatype = SingleMuon2018;
+	TChain* es = new TChain("ggNtuplizer/EventTree");
+	es->Add(Form("/eos/uscms/store/user/tmishra/InputFilesDATA/%d/SingleMuon/SingleMuon_%d%s.root",RunYear,RunYear,Era));
+
+	TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/Trigger/files/plot_MuonTrigger_Data_%d%s.root",RunYear,Era),"RECREATE");
 	outputfile->cd();
 
 	TTree *Ztree = new TTree("ZTree","ZTree");
@@ -147,7 +144,7 @@ void analysis_mgTrigger(){//main
 	TH1F *p_invmass = new TH1F("p_invmass","mu#mu#gamma invmass; #mu#mu#gamma mass(GeV);",60,60,120);
 
 	const unsigned nEvts = es->GetEntries(); 
-	std::cout << "total=" << es->GetEntries() << std::endl;
+	std::cout << "total events = " << es->GetEntries() << std::endl;
 
 	rawData raw(es, datatype);
 	std::vector<recoPhoton> Photon;
@@ -157,7 +154,7 @@ void analysis_mgTrigger(){//main
 
 	for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
   
-		if(ievt%10000==0) std::cout << " -- Processing event " << ievt << std::endl;
+		if(ievt%1000000==0) std::cout << " -- Processing event " << ievt << std::endl;
 
 			raw.GetData(es, ievt);
 			Photon.clear();
@@ -191,7 +188,7 @@ void analysis_mgTrigger(){//main
 				tagMuVec.push_back(itLeadMu);
 			}
 
-			for(int iT(0); iT < tagMuVec.size(); iT++){
+			for(unsigned iT(0); iT < tagMuVec.size(); iT++){
 				for(std::vector<recoMuon>::iterator itMu = Muon.begin(); itMu!= Muon.end(); itMu++){
 
 					if( itMu == tagMuVec[iT] )continue;
@@ -222,8 +219,8 @@ void analysis_mgTrigger(){//main
 
 
 
-			for(int iDiMu(0); iDiMu < DiMuVec.size(); iDiMu++){
-				for(int ipho(0); ipho < probePhoVec.size(); ipho++){
+			for(unsigned iDiMu(0); iDiMu < DiMuVec.size(); iDiMu++){
+				for(unsigned ipho(0); ipho < probePhoVec.size(); ipho++){
 
 					std::vector<recoMuon>::iterator tagMu = DiMuVec[iDiMu].first;
 					std::vector<recoMuon>::iterator probeMu = DiMuVec[iDiMu].second;
@@ -266,25 +263,25 @@ void analysis_mgTrigger(){//main
 						if(probeMu->fireL1Trg(29))Z_mufireL1_2=29;
 						else Z_mufireL1_2=0;
 
-            if(probePho->fireDoubleTrg(28) || probePho->fireDoubleTrg(29))Z_phofireHLT=1;
+            					if(probePho->fireDoubleTrg(28) || probePho->fireDoubleTrg(29))Z_phofireHLT=1;
 						else Z_phofireHLT=0;
 
 						if(probeMu->fireSingleTrg(2) || probeMu->fireSingleTrg(21))Z_mufireHLT=1;
 						else Z_mufireHLT=0;
 
-            if(probePho->fireDoubleTrg(30))Z_phofireHLT2=1;
+            					if(probePho->fireDoubleTrg(30))Z_phofireHLT2=1;
 						else Z_phofireHLT2=0;
 
 						if(probeMu->fireSingleTrg(22))Z_mufireHLT2=1;
 						else Z_mufireHLT2=0;
 
-            Ztree->Fill();
+            					Ztree->Fill();
 					}
 				}
 			}
 
 			if(hasMu){
-				for(int ipho(0); ipho < probePhoVec.size(); ipho++){
+				for(unsigned ipho(0); ipho < probePhoVec.size(); ipho++){
 					std::vector<recoPhoton>::iterator itIsoPho = probePhoVec[ipho];
 					float dR = DeltaR(itIsoPho->getEta(), itIsoPho->getPhi(),itIsoMu->getEta(), itIsoMu->getPhi());
 					if(dR > 0.8){ 
@@ -327,7 +324,14 @@ void analysis_mgTrigger(){//main
 			}
 
 
-    }
+    	}
+	outputfile->Write();
+}
 
-outputfile->Write();
+int main(int argc, char** argv)
+{
+    if(argc < 3)
+      cout << "You have to provide two arguments!!\n";
+    analysis_mgTrigger(atoi(argv[1]), argv[2]);
+    return 0;
 }

@@ -21,9 +21,9 @@ for ij in files:
     cols = ij.strip().split(' ')
     fileParts = [submitFileTT]
     count += 1
- #  fileParts.append("Output    = logs/job{}_$(Cluster)_$(Process).stdout\n".format(count))
- #  fileParts.append("error     = logs/job{}_$(Cluster)_$(Process).stderr\n".format(count))
- #  fileParts.append("Log       = logs/job{}_$(Cluster)_$(Process).log\n".format(count))
+#    fileParts.append("Output    = logs/job{}_$(Cluster)_$(Process).stdout\n".format(count))
+#    fileParts.append("error     = logs/job{}_$(Cluster)_$(Process).stderr\n".format(count))
+ #   fileParts.append("Log       = logs/job{}_$(Cluster)_$(Process).log\n".format(count))
     fileParts.append("Arguments = {} {} {} {} {} {} {}\n".format(int(cols[0]),int(cols[1]),int(cols[2]),float(cols[3]),float(cols[4]),int(cols[5]),int(cols[6])))
     fileParts.append("Queue \n \n")
     fout = open("condorSubFile/condor_sub_{}.txt".format(count),"w")

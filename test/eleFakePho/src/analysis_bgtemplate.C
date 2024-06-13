@@ -99,8 +99,13 @@ void analysis_bgtemplate(int RunYear, const char *Era){//main
   float METPhi(0);
   int   ntrks(0);
   int   nvtx(0);
-  int passHEM(0);
+  int passHEM(0), passPixelIssue(0);
   cout<<"Total entries: "<<nEvts<<endl;
+	int pTcut = 0;
+        if (RunYear==2016) pTcut = 30;
+        if (RunYear==2017) pTcut = 38;
+        if (RunYear==2018) pTcut = 35;
+
 
     for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
   
@@ -121,14 +126,20 @@ void analysis_bgtemplate(int RunYear, const char *Era){//main
         nVertex = nvtx;
 	if(RunYear==2018 && !passHEMVeto(0,raw)) continue;
 	passHEM++;
+
+	if(RunYear==2017 && !passPixelIssue17(raw)) continue;
+        if(RunYear==2018 && !passPixelIssue18(raw)) continue;
+        passPixelIssue++;
+
         if(MET > 70.0)continue;
+	if(MET < 40.0)continue; // added temporarily
         if(!raw.passHLT())continue;
 
         std::vector< std::vector<recoMuon>::iterator > bgMuCollection;
         bgMuCollection.clear();
 				// Tag : muon pt > 30, eta < 2.1, medium ID, miniIso < 0.2, d0<0.05, dz< 0.1
 				for(std::vector<recoMuon>::iterator itMu = Muon.begin(); itMu != Muon.end(); itMu++){
-					if(itMu->getPt() < 38)continue;
+					if(itMu->getPt() < pTcut)continue;
 					if(fabs(itMu->getEta() > 2.1))continue;
 					if(itMu->passSignalSelection()){
 						bgMuCollection.push_back(itMu);
@@ -178,6 +189,10 @@ void analysis_bgtemplate(int RunYear, const char *Era){//main
   }//loop on  events
 float percent=100*mtree->GetEntries()/nEvts;
 logfile << "BGTree events: " << mtree->GetEntries() <<"; "<<percent<<"\%"<<std::endl;
+if(RunYear==2018) logfile << "pass HEM cut:  " << passHEM*100/nEvts<<endl;
+if(RunYear==2018) logfile << "pass Pixel veto and HEM veto " << passPixelIssue*100/nEvts<<endl;
+if(RunYear==2017) logfile << "pass Pixel veto " << passPixelIssue*100/nEvts<<endl;
+
 if(RunYear==2018) cout<< "pass HEM cut:  " << passHEM<<endl;
 output->Write();
 output->Close();

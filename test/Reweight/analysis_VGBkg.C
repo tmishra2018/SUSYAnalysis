@@ -5,7 +5,7 @@ void analysis_VGBkg(){
 	SetRunConfig();
 	setTDRStyle();
 
-  gSystem->Load("/uscms/home/mengleis/work/SUSY2016/SUSYAnalysis/lib/libAnaClasses.so");
+  gSystem->Load("../../lib/libAnaClasses.so");
 	
 	esfScaleFactor  objectESF;
 	bool toDeriveScale(false);
@@ -194,7 +194,7 @@ void analysis_VGBkg(){
 			scalefactorup = scalefactor + s_error; 
 		}
 
-		float XS_weight = getEvtWeight(RunYear,crosssection,ntotalevent);
+		float XS_weight = 35.87*1000*crosssection/ntotalevent;
 		XS_weight = XS_weight*385.41*0.985719;
 	//	if(ievt <= 62202 && phoEt > 140)continue;  // 117233=mg, 62202=eg
 	//	else if(ievt >  62202 && phoEt <= 140)continue;

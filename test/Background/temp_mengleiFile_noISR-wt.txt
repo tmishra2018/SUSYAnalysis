@@ -1,0 +1,152 @@
+
+Processing plot_bkg.C(1,2016,0)...
+
+
+
+==========================================================
+
+2016  postVFP	channel : egamma	Control region	
+
+
+
+MET, 		data/MC = 1.01212
+MT, 		data/MC = 1.01212
+HT, 		data/MC = 1.01179
+Photon Pt, 	data/MC = 1.0121
+Lepton Pt, 	data/MC = 1.01239
+dPhi, 		data/MC = 1.01212
+
+==========================================================
+
+Processing plot_bkg.C(2,2016,0)...
+
+
+
+==========================================================
+
+2016  postVFP	channel : mgamma	Control region	
+
+
+
+MET, 		data/MC = 0.996676
+MT, 		data/MC = 0.996676
+HT, 		data/MC = 0.996836
+Photon Pt, 	data/MC = 0.996683
+Lepton Pt, 	data/MC = 0.996688
+dPhi, 		data/MC = 0.996676
+
+==========================================================
+
+Processing plot_bkg.C(1,2016,1)...
+
+
+
+==========================================================
+
+2016  preVFP	channel : egamma	Control region	
+
+
+
+MET, 		data/MC = 0.999849
+MT, 		data/MC = 0.999849
+HT, 		data/MC = 1.00027
+Photon Pt, 	data/MC = 0.999839
+Lepton Pt, 	data/MC = 1.00017
+dPhi, 		data/MC = 0.999849
+
+==========================================================
+
+Processing plot_bkg.C(2,2016,1)...
+
+
+
+==========================================================
+
+2016  preVFP	channel : mgamma	Control region	
+
+
+
+MET, 		data/MC = 1.00498
+MT, 		data/MC = 1.00498
+HT, 		data/MC = 1.00494
+Photon Pt, 	data/MC = 1.00504
+Lepton Pt, 	data/MC = 1.005
+dPhi, 		data/MC = 1.00498
+
+==========================================================
+
+Processing plot_bkg.C(1,2016,0)...
+
+
+
+==========================================================
+
+2016  postVFP	channel : egamma	Validation region	
+
+
+
+MET, 		data/MC = 1.02612
+MT, 		data/MC = 1.02612
+HT, 		data/MC = 1.02618
+Photon Pt, 	data/MC = 1.02611
+Lepton Pt, 	data/MC = 1.02638
+dPhi, 		data/MC = 1.02612
+
+==========================================================
+
+Processing plot_bkg.C(2,2016,0)...
+
+
+
+==========================================================
+
+2016  postVFP	channel : mgamma	Validation region	
+
+
+
+MET, 		data/MC = 0.962056
+MT, 		data/MC = 0.962054
+HT, 		data/MC = 0.962321
+Photon Pt, 	data/MC = 0.962088
+Lepton Pt, 	data/MC = 0.962059
+dPhi, 		data/MC = 0.962054
+
+==========================================================
+
+Processing plot_bkg.C(1,2016,1)...
+
+
+
+==========================================================
+
+2016  preVFP	channel : egamma	Validation region	
+
+
+
+MET, 		data/MC = 1.0424
+MT, 		data/MC = 1.0424
+HT, 		data/MC = 1.04261
+Photon Pt, 	data/MC = 1.0424
+Lepton Pt, 	data/MC = 1.04267
+dPhi, 		data/MC = 1.0424
+
+==========================================================
+
+Processing plot_bkg.C(2,2016,1)...
+
+
+
+==========================================================
+
+2016  preVFP	channel : mgamma	Validation region	
+
+
+
+MET, 		data/MC = 1.00655
+MT, 		data/MC = 1.00656
+HT, 		data/MC = 1.00685
+Photon Pt, 	data/MC = 1.00659
+Lepton Pt, 	data/MC = 1.00656
+dPhi, 		data/MC = 1.00656
+
+==========================================================

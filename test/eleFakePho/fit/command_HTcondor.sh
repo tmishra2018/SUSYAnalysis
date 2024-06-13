@@ -7,7 +7,8 @@ export ARG5=$5
 export ARG6=$6
 export ARG7=$7
 
-export year=2018
+export year=2016
+export preVFP=0
 export isData=0
 
 cd ${_CONDOR_SCRATCH_DIR}
@@ -30,10 +31,14 @@ voms-proxy-init --voms cms --valid 168:00 -out ~/.globus/gridproxy.cert
 
 ./FitKer.exe ${ARG1} ${ARG2} ${ARG3} ${ARG4} ${ARG5} ${ARG6} ${ARG7}
 
-if [ ${year} == 2016 -a ${isData} == 1 ]
+if [ ${year} == 2016 -a ${isData} == 1 -a ${preVFP} == 1 ]
 then
-	xrdcp -f *.png         root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataFitting16
-	xrdcp -f Ele*.txt      root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataResult16
+        xrdcp -f *.png         root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataFitting16preVFP
+        xrdcp -f Ele*.txt      root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataResult16preVFP
+elif [ ${year} == 2016 -a ${isData} == 1 -a ${preVFP} == 0 ]
+then
+        xrdcp -f *.png         root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataFitting16postVFP
+        xrdcp -f Ele*.txt      root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataResult16postVFP
 elif [ ${year} == 2017 -a ${isData} == 1 ]
 then
 	xrdcp -f *.png        root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataFitting17
@@ -44,10 +49,14 @@ then
 	xrdcp -f Ele*.txt     root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataResult18
 fi
 
-if [ ${year} == 2016 -a ${isData} == 0 ]
+if [ ${year} == 2016 -a ${isData} == 0 -a ${preVFP} == 1 ]
 then
-	xrdcp -f *.png        root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DYFitting16
-	xrdcp -f Ele*.txt     root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DYResult16
+	xrdcp -f *.png        root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DYFitting16preVFP
+	xrdcp -f Ele*.txt     root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DYResult16preVFP
+elif [ ${year} == 2016 -a ${isData} == 0 -a ${preVFP} == 0 ]
+then
+	xrdcp -f *.png        root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DYFitting16postVFP
+	xrdcp -f Ele*.txt     root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DYResult16postVFP
 elif [ ${year} == 2017 -a ${isData} == 0 ]
 then
 	xrdcp -f *.png        root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DYFitting17

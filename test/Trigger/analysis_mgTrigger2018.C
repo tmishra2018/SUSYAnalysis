@@ -1,3 +1,5 @@
+// g++ `root-config --cflags` analysis_mgTrigger2018.C -o analysis_mgTrigger2018.exe `root-config --libs`
+
 #include<string>
 #include<iostream>
 #include<fstream>
@@ -25,24 +27,30 @@
 #include "../../include/analysis_photon.h"
 #include "../../include/analysis_muon.h"
 #include "../../include/analysis_ele.h"
+#include "../../include/analysis_jet.h"
 #include "../../include/analysis_tools.h"
+#include "../../include/analysis_mcData.h"
+#include "../../src/analysis_rawData.cc"
+#include "../../src/analysis_ele.cc"
+#include "../../src/analysis_muon.cc"
+#include "../../src/analysis_photon.cc"
 
-void analysis_mgTrigger2018(){//main  
 
-	gSystem->Load("/uscms/home/mengleis/work/SUSY2016/SUSYAnalysis/lib/libAnaClasses.so");
+void analysis_mgTrigger2018(int RunYear, const char *Era){//main  
 
-	char outputname[100] = "plot_MuonTrigger2018.root";
+	gSystem->Load("../../lib/libAnaClasses.so");
+
 	ofstream logfile;
-	logfile.open("plot_MuonTrigger2018.log"); 
+	logfile.open(Form("/eos/uscms/store/user/tmishra/Trigger/logs/plot_MuonTrigger_Data_%d%s.log",RunYear,Era)); 
 
 	logfile << "analysis_mgTrigger()" << std::endl;
 
 	RunType datatype(SingleMuon2016); 
 
 	TChain* es = new TChain("ggNtuplizer/EventTree");
-	es->Add("/uscmst1b_scratch/lpc1/3DayLifetime/mengleis/SingleMuon_Run2018_v1.root");
+	es->Add(Form("/eos/uscms/store/user/tmishra/InputFilesDATA/%d/SingleMuon/SingleMuon_%d%s.root",RunYear,RunYear,Era));
 
-	TFile *outputfile = TFile::Open(outputname,"RECREATE");
+	TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/Trigger/files/plot_MuonTrigger_Data_%d%s.root",RunYear,Era),"RECREATE");
 	outputfile->cd();
 
 	TTree *Ztree = new TTree("ZTree","ZTree");
@@ -127,7 +135,7 @@ void analysis_mgTrigger2018(){//main
 
 	for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
   
-		if(ievt%10000==0) std::cout << " -- Processing event " << ievt << " finish " << 1.0*ievt/nEvts*100 << "%" << std::endl;
+		if(ievt%100000==0) std::cout << " -- Processing event " << ievt << " finish " << 1.0*ievt/nEvts*100 << "%" << std::endl;
 
 			raw.GetData(es, ievt);
 			Photon.clear();
@@ -273,4 +281,11 @@ void analysis_mgTrigger2018(){//main
 outputfile->Write();
 }
 
+int main(int argc, char** argv)
+{
+    if(argc < 3)
+      cout << "You have to provide two arguments!!\n";
+    analysis_mgTrigger2018(atoi(argv[1]), argv[2]);
+    return 0;
+}
 

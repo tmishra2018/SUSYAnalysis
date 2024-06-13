@@ -1,6 +1,7 @@
 // g++ `root-config --cflags` ../lib/libAnaClasses.so analysis_eg.C -o analysis_eg.exe `root-config --libs`
 #include "../include/analysis_commoncode.h"
 #include "../include/analysis_cuts.h"
+bool apply_HEMveto=false;
 
 void analysis_eg(int RunYear, const char *Era){//main
 
@@ -16,25 +17,28 @@ void analysis_eg(int RunYear, const char *Era){//main
   if(RunYear==2016) datatype = DoubleEG2016;
   if(RunYear==2017) datatype = DoubleEG2017;
   if(RunYear==2018) datatype = DoubleEG2018;
-	bool  isMC(false);
-	if(datatype == MC || datatype == MCDoubleEG2016 || datatype == MCMuonEG2016||  datatype == MCSingleElectron2016 || datatype == MCSingleMuon2016||  datatype == MCDoubleMuon2016 || datatype == MCMET2016)isMC=true;
+  bool  isMC(false);
+  if(datatype == MC || datatype == MCDoubleEG2016 || datatype == MCMuonEG2016||  datatype == MCSingleElectron2016 || datatype == MCSingleMuon2016||  datatype == MCDoubleMuon2016 || datatype == MCMET2016)isMC=true;
   TChain* es = new TChain("ggNtuplizer/EventTree");
-	es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/Tribeni/DoubleEG/DoubleEG_%d%s.root",RunYear,Era));
+  es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/Tribeni/DoubleEG/DoubleEG_%d%s.root",RunYear,Era));
 
-  const unsigned nEvts = es->GetEntries();
+  if(RunYear==2018) apply_HEMveto=true; 
+  
+  const unsigned nEvts = es->GetEntries()/10.;
+  //const unsigned nEvts = es->GetEntries();
   logfile << "Total event: " << nEvts << std::endl;
   std::cout << "Total event: " << nEvts << std::endl;
   logfile << "Output file: " << "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_"<<RunYear<<Era<<".root" << std::endl;
 
-	int nTotal(0),npassHLT(0), npassPho(0), npassLep(0), npassdR(0), npassZ(0), npassMETFilter(0);
+  int nTotal(0),npassHLT(0), npassPho(0), npassLep(0), npassdR(0), npassZ(0), npassMETFilter(0);
 
   TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,Era),"RECREATE");
   outputfile->cd();
-	TH1D *p_METFilter = new TH1D("p_METFilter","",12,-2,10);	
-	TH1D *p_invmass = new TH1D("p_invmass","",200,0,200);	
+  TH1D *p_METFilter = new TH1D("p_METFilter","",12,-2,10);	
+  TH1D *p_invmass = new TH1D("p_invmass","",200,0,200);	
 
-	int nBJet(0);
-//************ Signal Tree **********************//
+  int nBJet(0);
+  //************ Signal Tree **********************//
   TTree *sigtree = new TTree("signalTree","signalTree");
   int   run(0);
   Long64_t  event(0);
@@ -53,9 +57,9 @@ void analysis_eg(int RunYear, const char *Era){//main
   float dRPhoLep(0);
   float HT(0);
   float nJet(0);
-	float trailPt(0);
-	float trailEta(0);
-	float trailPhi(0);
+  float trailPt(0);
+  float trailEta(0);
+  float trailPhi(0);
   std::vector<int>   mcPID;
   std::vector<float> mcEta;
   std::vector<float> mcPhi;
@@ -81,17 +85,17 @@ void analysis_eg(int RunYear, const char *Era){//main
   sigtree->Branch("HT",        &HT);
   sigtree->Branch("nJet",      &nJet);
   sigtree->Branch("nBJet",     &nBJet);
-	sigtree->Branch("trailPt",   &trailPt);
-	sigtree->Branch("trailEta",  &trailEta);
-	sigtree->Branch("trailPhi",  &trailPhi);
-	if(isMC){
+  sigtree->Branch("trailPt",   &trailPt);
+  sigtree->Branch("trailEta",  &trailEta);
+  sigtree->Branch("trailPhi",  &trailPhi);
+  if(isMC){
   	sigtree->Branch("mcPID",     &mcPID);
   	sigtree->Branch("mcEta",     &mcEta);
   	sigtree->Branch("mcPhi",     &mcPhi);
   	sigtree->Branch("mcPt",      &mcPt);
   	sigtree->Branch("mcMomPID",  &mcMomPID);
   	sigtree->Branch("mcGMomPID", &mcGMomPID);
-	}
+  }
 
 //************ Signal Tree **********************//
   TTree *proxytree = new TTree("proxyTree","proxyTree");
@@ -105,15 +109,15 @@ void analysis_eg(int RunYear, const char *Era){//main
   float proxysigMET(0);
   float proxysigMETPhi(0);
   float proxydPhiLepMET(0);
-	float proxythreeMass(0);
+  float proxythreeMass(0);
   int   proxynVertex(0);
   float proxydRPhoLep(0);
   float proxyHT(0);
   float proxynJet(0);
-	int   proxyFSRVeto(0);
-	float proxytrailPt(0);
-	float proxytrailEta(0);
-	float proxytrailPhi(0);
+  int   proxyFSRVeto(0);
+  float proxytrailPt(0);
+  float proxytrailEta(0);
+  float proxytrailPhi(0);
   
   proxytree->Branch("run",       &run);
   proxytree->Branch("event",     &event);
@@ -128,24 +132,24 @@ void analysis_eg(int RunYear, const char *Era){//main
   proxytree->Branch("sigMET",    &proxysigMET);
   proxytree->Branch("sigMETPhi", &proxysigMETPhi);
   proxytree->Branch("dPhiLepMET",&proxydPhiLepMET);
-	proxytree->Branch("threeMass", &proxythreeMass);
+  proxytree->Branch("threeMass", &proxythreeMass);
   proxytree->Branch("nVertex",   &proxynVertex);
   proxytree->Branch("dRPhoLep",  &proxydRPhoLep);
   proxytree->Branch("HT",        &proxyHT);
   proxytree->Branch("nJet",      &proxynJet);
   proxytree->Branch("nBJet",     &nBJet);
-	proxytree->Branch("FSRVeto",   &proxyFSRVeto);
-	proxytree->Branch("trailPt",   &proxytrailPt);
-	proxytree->Branch("trailEta",  &proxytrailEta);
-	proxytree->Branch("trailPhi",  &proxytrailPhi);
+  proxytree->Branch("FSRVeto",   &proxyFSRVeto);
+  proxytree->Branch("trailPt",   &proxytrailPt);
+  proxytree->Branch("trailEta",  &proxytrailEta);
+  proxytree->Branch("trailPhi",  &proxytrailPhi);
 
 //************ Signal Tree **********************//
   TTree *jettree = new TTree("jetTree","jetTree");
   float jetphoEt(0);
   float jetphoEta(0);
   float jetphoPhi(0);	
-	float jetphoChIso(0);
-	float jetphoSigma(0);
+  float jetphoChIso(0);
+  float jetphoSigma(0);
   float jetlepPt(0);
   float jetlepEta(0);
   float jetlepPhi(0);
@@ -157,9 +161,9 @@ void analysis_eg(int RunYear, const char *Era){//main
   float jetdRPhoLep(0);
   float jetHT(0);
   float jetnJet(0);
-	float jettrailPt(0);
-	float jettrailEta(0);
-	float jettrailPhi(0);
+  float jettrailPt(0);
+  float jettrailEta(0);
+  float jettrailPhi(0);
   
   jettree->Branch("run",       &run);
   jettree->Branch("event",     &event);
@@ -167,8 +171,8 @@ void analysis_eg(int RunYear, const char *Era){//main
   jettree->Branch("phoEt",     &jetphoEt);
   jettree->Branch("phoEta",    &jetphoEta);
   jettree->Branch("phoPhi",    &jetphoPhi);
-	jettree->Branch("phoChIso",  &jetphoChIso);
-	jettree->Branch("phoSigma",  &jetphoSigma);
+  jettree->Branch("phoChIso",  &jetphoChIso);
+  jettree->Branch("phoSigma",  &jetphoSigma);
   jettree->Branch("lepPt",     &jetlepPt);
   jettree->Branch("lepEta",    &jetlepEta);
   jettree->Branch("lepPhi",    &jetlepPhi);
@@ -181,9 +185,9 @@ void analysis_eg(int RunYear, const char *Era){//main
   jettree->Branch("HT",        &jetHT);
   jettree->Branch("nJet",      &jetnJet);
   jettree->Branch("nBJet",     &nBJet);
-	jettree->Branch("trailPt",   &jettrailPt);
-	jettree->Branch("trailEta",  &jettrailEta);
-	jettree->Branch("trailPhi",  &jettrailPhi);
+  jettree->Branch("trailPt",   &jettrailPt);
+  jettree->Branch("trailEta",  &jettrailEta);
+  jettree->Branch("trailPhi",  &jettrailPhi);
   
 //*********** fake lepton *********************//
   TTree *fakeLeptree = new TTree("fakeLepTree","fakeLepTree");
@@ -193,12 +197,12 @@ void analysis_eg(int RunYear, const char *Era){//main
   float fakeLepPt(0);
   float fakeLepEta(0);
   float fakeLepPhi(0);
-	float fakeLepMiniIso(0);
-	int   fakeLepIsStandardProxy(0);
-	float fakeLepSigma(0);
-	float fakeLepdEta(0);
-	float fakeLepdPhi(0);
-	unsigned fakeLepIndex(0);
+  float fakeLepMiniIso(0);
+  int   fakeLepIsStandardProxy(0);
+  float fakeLepSigma(0);
+  float fakeLepdEta(0);
+  float fakeLepdPhi(0);
+  unsigned fakeLepIndex(0);
   float fakeLepsigMT(0);
   float fakeLepsigMET(0);
   float fakeLepsigMETPhi(0);
@@ -207,9 +211,9 @@ void analysis_eg(int RunYear, const char *Era){//main
   float fakeLepdRPhoLep(0);
   float fakeLepHT(0);
   float fakeLepnJet(0);
-	float fakeLeptrailPt(0);
-	float fakeLeptrailEta(0);
-	float fakeLeptrailPhi(0);
+  float fakeLeptrailPt(0);
+  float fakeLeptrailEta(0);
+  float fakeLeptrailPhi(0);
   
   
   fakeLeptree->Branch("run",       &run);
@@ -223,10 +227,10 @@ void analysis_eg(int RunYear, const char *Era){//main
   fakeLeptree->Branch("lepPhi",    &fakeLepPhi);
   fakeLeptree->Branch("fakeLepMiniIso",&fakeLepMiniIso);
   fakeLeptree->Branch("fakeLepIsStandardProxy", &fakeLepIsStandardProxy);
-	fakeLeptree->Branch("fakeLepSigma",&fakeLepSigma);
-	fakeLeptree->Branch("fakeLepdEta", &fakeLepdEta);
-	fakeLeptree->Branch("fakeLepdPhi", &fakeLepdPhi);
-	fakeLeptree->Branch("fakeLepIndex",&fakeLepIndex);
+  fakeLeptree->Branch("fakeLepSigma",&fakeLepSigma);
+  fakeLeptree->Branch("fakeLepdEta", &fakeLepdEta);
+  fakeLeptree->Branch("fakeLepdPhi", &fakeLepdPhi);
+  fakeLeptree->Branch("fakeLepIndex",&fakeLepIndex);
   fakeLeptree->Branch("sigMT",     &fakeLepsigMT);
   fakeLeptree->Branch("sigMET",    &fakeLepsigMET);
   fakeLeptree->Branch("sigMETPhi", &fakeLepsigMETPhi);
@@ -236,9 +240,9 @@ void analysis_eg(int RunYear, const char *Era){//main
   fakeLeptree->Branch("HT",        &fakeLepHT);
   fakeLeptree->Branch("nJet",      &fakeLepnJet);
   fakeLeptree->Branch("nBJet",     &nBJet);
-	fakeLeptree->Branch("trailPt",   &fakeLeptrailPt);
-	fakeLeptree->Branch("trailEta",  &fakeLeptrailEta);
-	fakeLeptree->Branch("trailPhi",  &fakeLeptrailPhi);
+  fakeLeptree->Branch("trailPt",   &fakeLeptrailPt);
+  fakeLeptree->Branch("trailEta",  &fakeLeptrailEta);
+  fakeLeptree->Branch("trailPhi",  &fakeLeptrailPhi);
 
 //*************** for jet-photon fake rate ***********************//
 	TTree *hadrontree = new TTree("hadronTree","hadronTree");
@@ -247,7 +251,7 @@ void analysis_eg(int RunYear, const char *Era){//main
 	float hadron_phoPhi(0);
 	float hadron_phoSigma(0);
 	float hadron_phoChIso(0);
-  std::vector<float> hadron_eleproxyEt;
+  	std::vector<float> hadron_eleproxyEt;
 	std::vector<float> hadron_eleproxyEta;
 	std::vector<float> hadron_eleproxyPhi;
 	std::vector<float> hadron_eleproxySigma;
@@ -307,17 +311,14 @@ void analysis_eg(int RunYear, const char *Era){//main
   int METFilter(0);
   logfile << "RunType: " << datatype << std::endl;
 
-  TFile *skimfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/select_DoubleEG_signal_%d%s.root",RunYear,Era),"RECREATE");
-  TDirectory *dir_out = skimfile->mkdir("ggNtuplizer");
-  dir_out->cd();
-  TTree *tree_out = es->CloneTree(0);
+  int passHEM(0);
 
   std::cout << "Total evetns : " << nEvts << std::endl;
   logfile << "Total evetns : " << nEvts << std::endl;
 	for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
 
-		if (ievt%100000==0) std::cout << " -- Processing event " << ievt << std::endl;
-		if (ievt%100000==0) logfile  << " -- Processing event " << ievt << std::endl;
+		if (ievt%1000000==0) std::cout << " -- Processing event " << ievt << std::endl;
+		if (ievt%1000000==0) logfile  << " -- Processing event " << ievt << std::endl;
 
 			raw.GetData(es, ievt);
 			MCData.clear();
@@ -337,6 +338,9 @@ void analysis_eg(int RunYear, const char *Era){//main
 			run=raw.run;
 			event=raw.event;
 			lumis=raw.lumis;
+
+			if(RunYear==2018 && !passHEMVeto(0,raw)) continue;
+        		passHEM++;
 
 			nTotal+=1;
 			if(!raw.passHLT())continue;
@@ -383,17 +387,17 @@ void analysis_eg(int RunYear, const char *Era){//main
 				if(itpho->getR9() < R9EBCut)continue;
 				if(!itpho->passHLTSelection())continue;
 				if(!itpho->passBasicSelection())continue;
-				bool passSigma = itpho->passSigmaOLD(1);
-				bool passChIso = itpho->passChIsoOLD(1);
-				//bool passSigma = itpho->passSigma(1);
-				//bool passChIso = itpho->passChIso(1);
+				//bool passSigma = itpho->passSigmaOLD(1);
+				//bool passChIso = itpho->passChIsoOLD(1);
+				bool passSigma = itpho->passSigma(1);
+				bool passChIso = itpho->passChIso(1);
 				bool PixelVeto = itpho->PixelSeed()==0? true: false;
 				bool GSFveto(true);
 				bool photonFSRVeto(true);
 				bool eleFSRVeto(true);
 				for(std::vector<recoEle>::iterator ie = Ele.begin(); ie != Ele.end(); ie++){
-					if(DeltaR(itpho->getEta(), itpho->getPhi(), ie->getEta(), ie->getPhi()) <= ElectronVetoCone)GSFveto = false;
-					if(DeltaR(itpho->getEta(), itpho->getPhi(), ie->getEta(), ie->getPhi()) < GeneralCone && ie->getEt()>2.0)photonFSRVeto=false;
+					if(DeltaR(itpho->getEta(), itpho->getPhi(), ie->getEta(), ie->getPhi()) <= ElectronVetoCone/* 0.02 */)GSFveto = false;
+					if(DeltaR(itpho->getEta(), itpho->getPhi(), ie->getEta(), ie->getPhi()) < GeneralCone /* 0.3 */ && ie->getEt()>2.0)photonFSRVeto=false;
 					if(DeltaR(itpho->getEta(), itpho->getPhi(), ie->getEta(), ie->getPhi()) < GeneralCone && DeltaR(itpho->getEta(), itpho->getPhi(), ie->getEta(), ie->getPhi()) > ElectronVetoCone)eleFSRVeto=false;
 				}
 				for(std::vector<recoMuon>::iterator im = Muon.begin(); im != Muon.end(); im++){
@@ -446,12 +450,13 @@ void analysis_eg(int RunYear, const char *Era){//main
 
 				if(itEle->getCalibPt() < 25)continue;
 				//  collection for jets->Lep fake
-				if(itEle->isFakeProxy())fakeLepCollection.push_back(itEle);	
+				//if(itEle->isFakeProxy())fakeLepCollection.push_back(itEle);	
+				//if(itEle->isFakeProxyOLD())fakeLepCollection.push_back(itEle);	
 				if((itEle->isEB() && itEle->getR9() < R9EBCut) || (itEle->isEE() && itEle->getR9() < R9EECut))continue;
 
 				if(!itEle->passHLTSelection())continue;
 				//if(itEle->isFakeProxy())fakeLepCollection.push_back(itEle);	
-				//if(itEle->isLooseFakeProxy())fakeLepCollection.push_back(itEle);//Loose the proxy definition	
+				if(itEle->isLooseFakeProxy())fakeLepCollection.push_back(itEle);//Loose the proxy definition	
 				if(itEle->passSignalSelection()){
 					proxyLepCollection.push_back(itEle);
 					if(!hasLep){
@@ -547,7 +552,6 @@ void analysis_eg(int RunYear, const char *Era){//main
           	 	 }
 							}
 							sigtree->Fill();
-							tree_out->Fill();
 						}//MET Filter
 					}// Z mass Filter
 				}//dR filter
@@ -808,7 +812,6 @@ void analysis_eg(int RunYear, const char *Era){//main
 	
 	}//loop on  events
   cout<< sigtree->GetEntries()<<endl;
-  cout<< tree_out->GetEntries()<<endl;
   cout<< proxytree->GetEntries()<<endl;
   cout<< jettree->GetEntries()<<endl;
   cout<< fakeLeptree->GetEntries()<<endl;
@@ -828,11 +831,10 @@ void analysis_eg(int RunYear, const char *Era){//main
   p_eventcount->Fill(4.5, npassdR);
   p_eventcount->Fill(5.5, npassZ);
   p_eventcount->Fill(6.5, npassMETFilter);
-
+	if(RunYear==2018) logfile << "pass HEM cut:  " << passHEM*100/nEvts<<endl;
+	
 	outputfile->Write();
 	outputfile->Close();
-	skimfile->Write();
-	skimfile->Close();
 	logfile.close();
 }
 int main(int argc, char** argv)

@@ -26,6 +26,7 @@ class recoMuon{
     muPFPUIso_ = (*raw.muPFPUIso)[imu];
 		muD0_ = (*raw.muD0)[imu];
 		muDz_ = (*raw.muDz)[imu];
+	// Only comment these for signal files T5WG, as triggers are not stored in ntuples
     muFiredTrgs_ = (*raw.muFiredTrgs)[imu];
     muFiredL1Trgs_ = (*raw.muFiredL1Trgs)[imu]; 
     muCombIso_ = (muPFChIso_ + std::max(0.0, muPFNeuIso_+muPFPhoIso_- 0.5*muPFPUIso_))/(*raw.muPt)[imu];

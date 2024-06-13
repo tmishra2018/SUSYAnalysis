@@ -1,0 +1,6 @@
+NBIN 18
+METbin1 200
+METbin2 400
+HTbin1 100
+HTbin2 400
+PHOETbin 200

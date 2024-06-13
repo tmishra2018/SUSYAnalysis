@@ -31,11 +31,18 @@
 #include "../../../include/analysis_mcData.h"
 #include "../../../include/analysis_tools.h"
 
+bool preVFP = true;
+
 
 void analysis_egMC(int RunYear, const char *Sample){//main 
 
+  std::string whichVFP;
+  if(RunYear==2016 and preVFP == 1) whichVFP = "preVFP";
+  if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
+  if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
+
   ofstream logfile;
-  logfile.open(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_%s_%d.log",Sample,RunYear)); 
+  logfile.open(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_%s_%d%s.log",Sample,RunYear,whichVFP.c_str())); 
 
   logfile << "analysis_eg()" << std::endl;
   logfile << "medium eleID+miniIso" << std::endl;
@@ -45,19 +52,17 @@ void analysis_egMC(int RunYear, const char *Sample){//main
   if(RunYear==2016) datatype = MCDoubleEG2016;
   if(RunYear==2017) datatype = MCDoubleEG2017;
   if(RunYear==2018) datatype = MCDoubleEG2018;
-	bool  isMC(false);
-	if(datatype == MC || datatype == MCDoubleEG2016 || datatype == MCMuonEG2016||  datatype == MCSingleElectron2016 || datatype == MCSingleMuon2016||  datatype == MCDoubleMuon2016 || datatype == MCMET2016)isMC=true;
-	if(datatype == MC || datatype == MCDoubleEG2017 || datatype == MCMuonEG2017||  datatype == MCSingleElectron2017 || datatype == MCSingleMuon2017||  datatype == MCDoubleMuon2017 || datatype == MCMET2017)isMC=true;
-	if(datatype == MC || datatype == MCDoubleEG2018 || datatype == MCMuonEG2018||  datatype == MCSingleElectron2018 || datatype == MCSingleMuon2018||  datatype == MCDoubleMuon2018 || datatype == MCMET2018)isMC=true;
+  bool  isMC(true);
 
   TChain* es = new TChain("ggNtuplizer/EventTree");
 	
-	char* inputfile = new char[300];
-  	if (strstr(Sample, "DYJetsToLL") != NULL or strstr(Sample, "TTJets") != NULL or strstr(Sample, "WJetsToLNu"))
-  		sprintf(inputfile,"/eos/uscms/store/group/lpcsusyphotons/Tribeni/%s/%s_%d.root",Sample,Sample,RunYear);
-  	else
-  		sprintf(inputfile,"/eos/uscms/store/user/tmishra/InputFilesMC/%s/%s_%d.root",Sample,Sample,RunYear);
-  	es->Add(inputfile);
+  char* inputfile = new char[300];
+
+  if (strstr(Sample, "DYJetsToLL") != NULL or strstr(Sample, "TTJets") != NULL or strstr(Sample, "WJetsToLNu"))
+        sprintf(inputfile,"/eos/uscms/store/group/lpcsusyphotons/Tribeni/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());
+  else
+        sprintf(inputfile,"/eos/uscms/store/user/tmishra/InputFilesMC/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());
+  es->Add(inputfile);
 
   const unsigned nEvts = es->GetEntries(); 
   logfile << "Total event: " << nEvts << std::endl;
@@ -65,16 +70,11 @@ void analysis_egMC(int RunYear, const char *Sample){//main
 
   int nTotal(0),npassHLT(0), npassPho(0), npassLep(0), npassdR(0), npassZ(0), npassMETFilter(0);
 
-  TFile* outputfile = new TFile(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_%s_%d.root",Sample,RunYear),"RECREATE");
+  TFile* outputfile = new TFile(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_%s_%d%s.root",Sample,RunYear,whichVFP.c_str()),"RECREATE");
   outputfile->cd();
   
   int mcType;
-  float crosssection;
 
-  if(strstr(inputfile, "WJetsToLNu") != NULL){
-                std::cout << "WJetsToLNu sample !" << std::endl;
-		crosssection = 53870.0;
-  }
   if(strstr(inputfile, "WGToLNuG") != NULL){
                 std::cout << "WGToLNuG sample !" << std::endl;
                 mcType = MCType::WGJetInclusive;
@@ -95,7 +95,7 @@ void analysis_egMC(int RunYear, const char *Sample){//main
                 std::cout << "DYJetsToLL sample !" << std::endl;
                 mcType = MCType::DYLL50;
   }
-  else if(strstr(inputfile, "TTGJets") != NULL){
+  else  if(strstr(inputfile, "TTGJets") != NULL){
                 std::cout << "TTGJets sample !" << std::endl;
                 mcType = MCType::TTG;
   }
@@ -119,6 +119,12 @@ void analysis_egMC(int RunYear, const char *Sample){//main
                 std::cout << "WZ sample !" << std::endl;
                 mcType = MCType::WZ;
   }
+
+
+  else if(strstr(inputfile, "WJetsToLNu") != NULL){
+                std::cout << "WJetsToLNu sample !" << std::endl;
+		mcType = MCType::W;
+  }
   else if(strstr(inputfile, "GJet") != NULL){
                 std::cout << "GJet sample !" << std::endl;
                 mcType = MCType::GJet;
@@ -131,9 +137,11 @@ void analysis_egMC(int RunYear, const char *Sample){//main
                 std::cout << "not specific MC !" << std::endl;
                 mcType = MCType::NOMC;
   }
-  Double_t  L1ECALPrefire;
-  crosssection  = MC_XS[mcType];
+
+  float crosssection = MC_XS[mcType];
   float ntotalevent = es->GetEntries();
+ 
+  Double_t  L1ECALPrefire;
   float lumiWeight = getEvtWeight(RunYear,crosssection, ntotalevent);
 
   cout<<"crosssection = "<<crosssection<<endl;

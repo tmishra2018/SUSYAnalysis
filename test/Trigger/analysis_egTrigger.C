@@ -34,68 +34,35 @@
 #include "../../src/analysis_ele.cc"
 #include "../../src/analysis_photon.cc"
 
-
 bool useData = false;
 
 void analysis_egTrigger(int RunYear, const char *Era){//main  
 	
-	//gSystem->Load("../../lib/libAnaClasses.so");
 	
 	ofstream logfile;
-	//if (useData) logfile.open(Form("/eos/uscms/store/user/tmishra/Trigger/plot_egTrigger_ReMiniAOD_%d.log",RunYear));
-	if (useData) logfile.open(Form("/eos/uscms/store/user/tmishra/Trigger/plot_egTrigger_ReMiniAOD_%d%s.log",RunYear,Era));
-	else logfile.open(Form("/eos/uscms/store/user/tmishra/Trigger/plot_egTrigger_DY_%d.log",RunYear));
+	if (useData) logfile.open(Form("/eos/uscms/store/user/tmishra/Trigger/logs/plot_egTrigger_Data_%d%s.log",RunYear,Era));
+	else logfile.open(Form("/eos/uscms/store/user/tmishra/Trigger/logs/plot_egTrigger_DY_%d%s.log",RunYear,Era));
 
 	logfile << "analysis_egTrigger()" << std::endl;
 
 	RunType datatype;
-	TChain* es = new TChain("ggNtuplizer/EventTree");
-	if(!useData) {
-		 datatype = MC;
-		 es->Add(Form("/eos/uscms/store/group/lpcsusyhad/Tribeni/DYJetsToLL/DYJetsToLL_%d.root",RunYear));
-	}
+	if(!useData) 	 datatype = MC;
 	
-	if(useData && RunYear==2016)datatype = SingleElectron2016;
-	if(useData && RunYear==2017)datatype = SingleElectron2017;
-	if(useData && RunYear==2018)datatype = SingleElectron2018;
+	if(useData && RunYear==2016)	datatype = SingleElectron2016;
+	if(useData && RunYear==2017)	datatype = SingleElectron2017;
+	if(useData && RunYear==2018)	datatype = SingleElectron2018;
 
-	if(!useData) es->Add(Form("/eos/uscms/store/group/lpcsusyhad/Tribeni/DYJetsToLL/DYJetsToLL_%d.root",RunYear));
-	//es->Add(Form("/eos/uscms/store/group/lpcsusyhad/Tribeni/SingleElectron/SingleElectron_%d%s.root",RunYear,Era));
-	else es->Add(Form("/eos/uscms/store/group/lpcsusyhad/Tribeni/DoubleEG/DoubleEG_%d%s.root",RunYear,Era));
-	/*
-	if(useData && RunYear==2016){
-		 datatype = SingleElectron2016;
-		 es->Add("/eos/uscms/store/group/lpcsusyhad/Tribeni/SingleElectron/SingleElectron_2016B.root");
-		 es->Add("/eos/uscms/store/group/lpcsusyhad/Tribeni/SingleElectron/SingleElectron_2016C.root");
-		 es->Add("/eos/uscms/store/group/lpcsusyhad/Tribeni/SingleElectron/SingleElectron_2016D.root");
-		 es->Add("/eos/uscms/store/group/lpcsusyhad/Tribeni/SingleElectron/SingleElectron_2016E.root");
-		 es->Add("/eos/uscms/store/group/lpcsusyhad/Tribeni/SingleElectron/SingleElectron_2016F.root");
-		 es->Add("/eos/uscms/store/group/lpcsusyhad/Tribeni/SingleElectron/SingleElectron_2016G.root");
-		 es->Add("/eos/uscms/store/group/lpcsusyhad/Tribeni/SingleElectron/SingleElectron_2016H.root");
-	}
-  	if(useData && RunYear==2017){
-		 datatype = SingleElectron2017;
-		 es->Add("/eos/uscms/store/group/lpcsusyhad/Tribeni/SingleElectron/SingleElectron_2017B.root");
-		 es->Add("/eos/uscms/store/group/lpcsusyhad/Tribeni/SingleElectron/SingleElectron_2017C.root");
-		 es->Add("/eos/uscms/store/group/lpcsusyhad/Tribeni/SingleElectron/SingleElectron_2017D.root");
-		 es->Add("/eos/uscms/store/group/lpcsusyhad/Tribeni/SingleElectron/SingleElectron_2017E.root");
-		 es->Add("/eos/uscms/store/group/lpcsusyhad/Tribeni/SingleElectron/SingleElectron_2017F.root");
-	}
- 	if(useData && RunYear==2018){
-		 datatype = SingleElectron2018;
-		 es->Add("/eos/uscms/store/group/lpcsusyhad/Tribeni/DoubleEG/DoubleEG_2018A.root");
-		 es->Add("/eos/uscms/store/group/lpcsusyhad/Tribeni/DoubleEG/DoubleEG_2018B.root");
-		 es->Add("/eos/uscms/store/group/lpcsusyhad/Tribeni/DoubleEG/DoubleEG_2018C.root");
-		 es->Add("/eos/uscms/store/group/lpcsusyhad/Tribeni/DoubleEG/DoubleEG_2018D.root");
-	}*/
+	TChain* es = new TChain("ggNtuplizer/EventTree");
+	if(!useData) es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/Tribeni/DYJetsToLL/DYJetsToLL_%d%s.root",RunYear,Era));
+	else if(RunYear==2016 || RunYear==2017)  es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/Tribeni/SingleElectron/SingleElectron_%d%s.root",RunYear,Era));
+	else if(RunYear==2018)	es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/Tribeni/DoubleEG/DoubleEG_%d%s.root",RunYear,Era));
 
 	//TFileCollection fc("dum","","SingelEle16B.txt");
 	//es->AddFileInfoList((TCollection*)fc.GetList());
 	
 	TFile *outputfile;
-	//if (useData) outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/Trigger/plot_egTrigger_ReMiniAOD_%d.root",RunYear),"RECREATE");
-	if (useData) outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/Trigger/plot_egTrigger_ReMiniAOD_%d%s.root",RunYear,Era),"RECREATE");
-	else outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/Trigger/plot_egTrigger_DY_%d.root",RunYear),"RECREATE");
+	if (useData) outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/Trigger/files/plot_egTrigger_Data_%d%s.root",RunYear,Era),"RECREATE");
+	else outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/Trigger/files/plot_egTrigger_DY_%d%s.root",RunYear,Era),"RECREATE");
 
 	outputfile->cd();
 
@@ -120,23 +87,23 @@ void analysis_egTrigger(int RunYear, const char *Era){//main
 	bool  probePhoMatchTrailing;
 	float invmass; // eg mass
 
-	egtree->Branch("tagPt",                 &tagPt);
-	egtree->Branch("tagEta",                &tagEta);
-	egtree->Branch("tagPhi",                &tagPhi);
-	egtree->Branch("tagR9",                 &tagR9);
+	egtree->Branch("tagPt",                 	&tagPt);
+	egtree->Branch("tagEta",                	&tagEta);
+	egtree->Branch("tagPhi",                	&tagPhi);
+	egtree->Branch("tagR9",                 	&tagR9);
 	egtree->Branch("probeEt",            		&probePhoEt);
 	egtree->Branch("probeEta",           		&probePhoEta);
 	egtree->Branch("probePhi",           		&probePhoPhi);
 	egtree->Branch("probeR9",            		&probePhoR9);
 	egtree->Branch("probeMatchLeading",  		&probePhoMatchLeading);
 	egtree->Branch("probeMatchTrailing", 		&probePhoMatchTrailing);
-	egtree->Branch("invmass",               &invmass);
-	egtree->Branch("mcPID",			   					&mcPID);
-	egtree->Branch("mcEta",			   					&mcEta);
-	egtree->Branch("mcPhi",			   					&mcPhi);
-	egtree->Branch("mcPt",				   				&mcPt);
-	egtree->Branch("mcMomPID",			   			&mcMomPID);
-	egtree->Branch("mcGMomPID",		   				&mcGMomPID);
+	egtree->Branch("invmass",               	&invmass);
+	egtree->Branch("mcPID",			   	&mcPID);
+	egtree->Branch("mcEta",			   	&mcEta);
+	egtree->Branch("mcPhi",			   	&mcPhi);
+	egtree->Branch("mcPt",				&mcPt);
+	egtree->Branch("mcMomPID",			&mcMomPID);
+	egtree->Branch("mcGMomPID",		   	&mcGMomPID);
 
 	TTree *eetree = new TTree("eeTree","eeTree");
 	float probeElePt(0);
@@ -151,19 +118,19 @@ void analysis_egTrigger(int RunYear, const char *Era){//main
 	eetree->Branch("tagEta",                &tagEta);
 	eetree->Branch("tagPhi",                &tagPhi);
 	eetree->Branch("tagR9",                 &tagR9);
-	eetree->Branch("probeEt",            		&probeElePt);
-	eetree->Branch("probeEta",           		&probeEleEta);
-	eetree->Branch("probePhi",           		&probeElePhi);
-	eetree->Branch("probeR9",            		&probeEleR9);
+	eetree->Branch("probeEt",            	&probeElePt);
+	eetree->Branch("probeEta",           	&probeEleEta);
+	eetree->Branch("probePhi",           	&probeElePhi);
+	eetree->Branch("probeR9",            	&probeEleR9);
 	eetree->Branch("probeMatchLeading",     &probeEleMatchLeading);
-	eetree->Branch("probeMatchTrailing", 		&probeEleMatchTrailing);
-	eetree->Branch("invmass",        				&diElectronMass);
-	eetree->Branch("mcPID",			   					&mcPID);
-	eetree->Branch("mcEta",			   					&mcEta);
-	eetree->Branch("mcPhi",			   					&mcPhi);
-	eetree->Branch("mcPt",				   				&mcPt);
-	eetree->Branch("mcMomPID",			   			&mcMomPID);
-	eetree->Branch("mcGMomPID",		   				&mcGMomPID);
+	eetree->Branch("probeMatchTrailing", 	&probeEleMatchTrailing);
+	eetree->Branch("invmass",        	&diElectronMass);
+	eetree->Branch("mcPID",			&mcPID);
+	eetree->Branch("mcEta",			&mcEta);
+	eetree->Branch("mcPhi",			&mcPhi);
+	eetree->Branch("mcPt",			&mcPt);
+	eetree->Branch("mcMomPID",		&mcMomPID);
+	eetree->Branch("mcGMomPID",		&mcGMomPID);
 
 	const unsigned nEvts = es->GetEntries(); 
 	cout << "total event "<< nEvts << std::endl;
@@ -175,10 +142,11 @@ void analysis_egTrigger(int RunYear, const char *Era){//main
 	std::vector<recoMuon>   Muon;
 	std::vector<recoEle>   Ele;
 	float MET(0);
+
 	
 	for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
 
-		if (ievt%10000==0){
+		if (ievt%1000000==0){
 			std::cout << " -- Processing event " << ievt << std::endl;
 			logfile 	<< " -- Processing event " << ievt << std::endl;
 		}
@@ -195,9 +163,9 @@ void analysis_egTrigger(int RunYear, const char *Era){//main
 		MET = raw.pfMET;
 
 		if(!raw.passHLT())continue;
-		if(raw.nPho <1)continue;
-		if(MET>70)continue;
-		if(RunYear == 2016 && ((raw.HLTEleMuX >> 1) &1) == 0) continue; // HLT_Ele27_eta2p1_WPTight_Gsf_v
+		if(raw.nPho < 1)continue;
+		if(MET > 70)continue;
+		if(RunYear == 2016 && ((raw.HLTEleMuX >> 4) &1) == 0) continue; // HLT_Ele27_WPTight_Gsf_v
 		if(RunYear == 2017 && ((raw.HLTEleMuX >> 3) &1) == 0) continue; // HLT_Ele35_WPTight_Gsf_v
 		if(RunYear == 2018 && ((raw.HLTEleMuX >> 55) &1) == 0) continue; // HLT_Ele32_WPTight_Gsf_v
 
@@ -205,16 +173,15 @@ void analysis_egTrigger(int RunYear, const char *Era){//main
 		tagEleVec.clear();
 		for(std::vector<recoEle>::iterator itEle = Ele.begin(); itEle != Ele.end(); itEle++){
 			// electron pt cut should be higher than trigger threshold
-			// change it to 38 later
-			if(itEle->getEt() < 30 || fabs(itEle->getEta())>2.1)continue;
+			// Tag is tight WP electron
+			if(itEle->getEt() < 30 || fabs(itEle->getEta()) > 2.1)continue;
 			if(!itEle->passHLTSelection())continue;
-			if(RunYear == 2016 && !itEle->fireTrgs(11))continue; // HLT_Ele27_eta2p1_WPTight_Gsf 
-			// not working for 2017 Check trigger again
+			if(RunYear == 2016 && !itEle->fireTrgs(12))continue; // HLT_Ele27_WPTight_Gsf 
 			if(RunYear == 2017 && !itEle->fireTrgs(46))continue; // HLT_Ele35_WPTight_Gsf
 			if(RunYear == 2018 && !itEle->fireTrgs(13))continue; // HLT_Ele32_WPTight_Gsf
+			//if(RunYear == 2017 && !itEle->fireTrgs(12))continue;  //HLT_Ele27_WPTight_Gsf_v
 			if(!itEle->passSignalSelection())continue;
 			tagEleVec.push_back(itEle);
-			// Tag is tight WP electron
 		}
 
 		for(unsigned itag(0); itag < tagEleVec.size(); itag++){
@@ -319,8 +286,8 @@ void analysis_egTrigger(int RunYear, const char *Era){//main
 
 	}//loop on  events
 	// to see percentage
-	cout<<egtree->GetEntries()<<"  "<<100*egtree->GetEntries()/nEvts<<endl;
-	cout<<eetree->GetEntries()<<"  "<<100*eetree->GetEntries()/nEvts<<endl;
+	cout<<egtree->GetEntries()<<"  "<<100.*egtree->GetEntries()/nEvts<<endl;
+	cout<<eetree->GetEntries()<<"  "<<100.*eetree->GetEntries()/nEvts<<endl;
 	
 	outputfile->Write();
 	logfile.close();

@@ -46,33 +46,47 @@
 #include "../../include/analysis_rawData.h"
 #include "../../include/analysis_photon.h"
 #include "../../include/analysis_muon.h"
+#include "../../include/analysis_jet.h"
 #include "../../include/analysis_ele.h"
 #include "../../include/analysis_mcData.h"
 #include "../../include/analysis_tools.h"
 #include "../../include/analysis_fakes.h"
 
 bool useMC = true;
-bool doIterate = true;
+bool doIterate = false;
 
-int
-FitJetFake(float lowercut, float uppercut, int detType){
+int RunYear=2018;
+bool preVFP=false;
+
+int FitJetFake(float lowercut, float uppercut, int detType){
 
 	setTDRStyle();   
 	time_t now = time(0);
 
 	std::cout << "start fitting " << std::endl;
-	gSystem->Load("/uscms/home/mengleis/work/SUSY2016/SUSYAnalysis/lib/libAnaClasses.so");
+	gSystem->Load("../../lib/libAnaClasses.so");
+	
+	std::string whichVFP;
+        if(RunYear==2016 and preVFP == 1) whichVFP = "preVFP";
+  	else if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
+  	else if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
+	
+	std::string whichRegion;
+	if(detType==1) whichRegion = "EB";
+	else if(detType==2) whichRegion = "EE";
+	
 	ofstream myfile;
-	if(detType == 1)myfile.open("JetFakeRate-ISR-EB.txt", std::ios_base::app | std::ios_base::out);
-	else if(detType == 2)myfile.open("JetFakeRate-ISR-EE.txt", std::ios_base::app | std::ios_base::out);
+	myfile.open(Form("/eos/uscms/store/user/tmishra/jetfakepho/files/JetFakeRate-ISR-%s_%d%s.txt",whichRegion.c_str(),RunYear,whichVFP.c_str()), std::ios_base::app | std::ios_base::out);
+
 	std::ostringstream datasetname;
 	datasetname.str("");
-	//datasetname << "/uscms_data/d3/mengleis/FullStatusOct/resTree_ISR_data.root";
-	datasetname << "/uscms_data/d3/mengleis/test/plot_hadron_ISR.root";
-
-	char lowername[3];
+	datasetname << "/eos/uscms/store/user/tmishra/jetfakepho/files/plot_hadron_ISR_"<<RunYear<<whichVFP<<".root";
+	//datasetname << "/eos/uscms/store/user/tmishra/jetfakepho/files/plot_hadron_ISR_"<<RunYear<<".root";
+	//datasetname << "/uscms_data/d3/mengleis/test/plot_hadron_ISR.root";
+	// made with analysis_mgHadron.C
+	char lowername[4];
 	sprintf(lowername, "%d", (int)lowercut);
-	char uppername[3];
+	char uppername[4];
 	if(uppercut < 1000){
 	  sprintf(uppername, "%d", (int)uppercut);
 	}
@@ -80,23 +94,32 @@ FitJetFake(float lowercut, float uppercut, int detType){
 
 	double   StandardCut = 0;
 	double   StandardIso = 0;
-	Double_t SigmaCutLower_EB[]={0.0103,0.0104,0.0105,0.0106,0.0107,0.0108,0.0109,0.0110,0.0111,0.0112};
-	Double_t SigmaCutUpper_EB[]={0.0140,0.0145,0.0150,0.0155,0.0160,0.0165,0.0170,0.0175,0.0180,0.0185};
-	Double_t SigmaCutLower_EE[]={0.03013,0.0302,0.0303,0.0304,0.0305,0.0306,0.0307,0.0308,0.0309,0.031};
-	Double_t SigmaCutUpper_EE[]={0.035,0.036,0.037,0.038,0.039,0.04};
+	Double_t SigmaCutLower_EB[]={0.0106,0.0107,0.0108,0.0109,0.0110,0.0111,0.0112,0.0113,0.0114,0.0115};
+        Double_t SigmaCutUpper_EB[]={0.0140,0.0145,0.0150,0.0155,0.0160,0.0165,0.0170,0.0175,0.0180,0.0185};
+        Double_t SigmaCutLower_EE[]={0.0272,0.0273,0.0274,0.0275,0.0276,0.0277,0.0278,0.0279,0.028,0.0281};
+        Double_t SigmaCutUpper_EE[]={0.035,0.036,0.037,0.038,0.039,0.04};
+
+	//Double_t SigmaCutLower_EB[]={0.0103,0.0104,0.0105,0.0106,0.0107,0.0108,0.0109,0.0110,0.0111,0.0112};
+	//Double_t SigmaCutUpper_EB[]={0.0140,0.0145,0.0150,0.0155,0.0160,0.0165,0.0170,0.0175,0.0180,0.0185};
+	//Double_t SigmaCutLower_EE[]={0.03013,0.0302,0.0303,0.0304,0.0305,0.0306,0.0307,0.0308,0.0309,0.031};
+	//Double_t SigmaCutUpper_EE[]={0.035,0.036,0.037,0.038,0.039,0.04};
 	std::vector<double> SigmaCutLower;
 	std::vector<double> SigmaCutUpper;
 	SigmaCutLower.clear();
 	SigmaCutUpper.clear();
 	if(detType == 1){
-		StandardCut = 0.0103;
-		StandardIso = 1.295;
+		// StandardCut = 0.0103;
+		// StandardIso = 1.295;
+		StandardCut = 0.0106;
+		StandardIso = 1.694;
 		for(unsigned i(0); i<sizeof(SigmaCutLower_EB)/sizeof(Double_t); i++)SigmaCutLower.push_back(SigmaCutLower_EB[i]);
 		for(unsigned i(0); i<sizeof(SigmaCutUpper_EB)/sizeof(Double_t); i++)SigmaCutUpper.push_back(SigmaCutUpper_EB[i]);
 	}
 	else if(detType == 2){
-		StandardCut = 0.03013;
-		StandardIso = 1.011;
+		//StandardCut = 0.03013;
+		//StandardIso = 1.011;
+		StandardCut = 0.0272;
+                StandardIso = 2.089;
 		for(unsigned i(0); i<sizeof(SigmaCutLower_EE)/sizeof(Double_t); i++)SigmaCutLower.push_back(SigmaCutLower_EE[i]);
 		for(unsigned i(0); i<sizeof(SigmaCutUpper_EE)/sizeof(Double_t); i++)SigmaCutUpper.push_back(SigmaCutUpper_EE[i]);
 	}
@@ -135,16 +158,17 @@ FitJetFake(float lowercut, float uppercut, int detType){
 
 	hname.str("");
 	hname << "fracHad2D_" << lowername << "-" << uppername;
-	TH2F* fracHad2D = new TH2F(hname.str().c_str(),"hadron fraction;Lower #sigma_{i#etai#eta} Threshold(GeV);Upper #sigma_{i#etai#eta} Threshold(GeV)",10,SigmaCutLower[0], SigmaCutLower[SigmaCutLower.size()-1],26,0.014,0.04);
+	TH2F* fracHad2D = new TH2F(hname.str().c_str(),"  Hadron fraction;Lower #sigma_{i#etai#eta} Threshold(GeV);Upper #sigma_{i#etai#eta} Threshold(GeV)",9,SigmaCutLower[0], SigmaCutLower[SigmaCutLower.size()-1],10,0.014,0.019);
 	hname.str("");
 	hname << "fracHad1D_" << lowername << "-" << uppername;
 	TH1D* fracHad1D = new TH1D(hname.str().c_str(),hname.str().c_str(),500,0,1.0);
 
 
-//************ Signal Tree **********************//
+	//************ Signal Tree **********************//
 	TChain *mctree = new TChain("egTree");
-	//mctree->Add("/uscms_data/d3/mengleis/Sep1/plot_hadron_GJet.root");
-	mctree->Add("/uscms_data/d3/mengleis/Sep1/plot_hadron_mgGJet.root");
+	//mctree->Add("/uscms_data/d3/mengleis/Sep1/plot_hadron_mgGJet.root");
+	mctree->Add(Form("/eos/uscms/store/user/tmishra/jetfakepho/files/plot_hadron_mgGJet_%d%s.root",RunYear,whichVFP.c_str()));
+	// made with ../jetFakePho/src/analysis_mgGJet.C
 	float mc_phoEt(0);
 	float mc_phoEta(0); 
 	float mc_phoPhi(0); 
@@ -351,7 +375,7 @@ FitJetFake(float lowercut, float uppercut, int detType){
 				h_target->SetTitle(hname.str().c_str());
 				h_target->SetMinimum(h_target->GetBinContent(20));
 				result[iLower][iUpper]->SetMinimum(100);
-				gPad->SetLogy();
+				//gPad->SetLogy();
 				h_target->SetMarkerStyle(20);
 				h_target->Draw("Ep");
 				result[iLower][iUpper]->SetLineColor(kBlue);
@@ -393,7 +417,7 @@ FitJetFake(float lowercut, float uppercut, int detType){
 					leg->AddEntry(mc_predict[iLower][iUpper], "hadrons");
 					leg->Draw("same");
 					hname.str("");
-					hname << "frac-" << lowername << "-" << uppername << "-ISR-FullEcal";
+					hname << "/eos/uscms/store/user/tmishra/ISRweighting/JetFakePlots/frac-" << lowername << "-" << uppername << "-ISR-FullEcal";
 					if(detType == 1)hname << "-EB.pdf";
 					else if(detType == 2)hname << "-EE.pdf";
 					can[iLower][iUpper]->SaveAs(hname.str().c_str());
@@ -410,7 +434,11 @@ FitJetFake(float lowercut, float uppercut, int detType){
 		hadfrac = fracHad1D->GetMean();	
 	}
 
-	hname.str(""); hname << "can2D-" << lowername << "-" << uppername << "-ISR-FullEcal.pdf";
+	hname.str(""); 
+	hname << "/eos/uscms/store/user/tmishra/ISRweighting/JetFakePlots/can2D-" << lowername << "-" << uppername << "-ISR-FullEcal";
+	if(detType == 1)hname << "-EB.pdf";
+	else if(detType == 2)hname << "-EE.pdf";
+	
 	can2D->cd();
 	fracHad2D->Draw("colz");
 	can2D->SaveAs(hname.str().c_str());

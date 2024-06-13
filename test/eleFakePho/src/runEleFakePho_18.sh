@@ -1,5 +1,3 @@
 #!/bin/bash
-./analysis_bgtemplate.exe 2018 A
-./analysis_bgtemplate.exe 2018 B
-./analysis_bgtemplate.exe 2018 C
-./analysis_bgtemplate.exe 2018 D
+./Data_analysis_elefakepho.exe 2018 C
+./Data_analysis_elefakepho.exe 2018 D

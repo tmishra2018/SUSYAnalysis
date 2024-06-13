@@ -17,7 +17,7 @@ float esfScaleFactor::getElectronESF(float inputpt, float inputeta){
 	}	
 
 	float pt = inputpt;
-	if(pt >= 200)pt = 199;
+	if(pt >= 500)pt = 499;
 	if(pt > ptaxis->GetXmax())pt = ptaxis->GetXmax() - 1.0;
 	float eta= inputeta;
 	if(etaaxis->GetXmin() > -1.0)eta =fabs(eta);
@@ -25,9 +25,11 @@ float esfScaleFactor::getElectronESF(float inputpt, float inputeta){
 
 	float eleESF(1);
 	if(ptOnX){
-		eleESF = electronIDESF->GetBinContent(ptaxis->FindBin(pt), etaaxis->FindBin(eta))*electronISOESF->GetBinContent(ptaxis->FindBin(pt), etaaxis->FindBin(eta));
+		eleESF = electronIDESF->GetBinContent(ptaxis->FindBin(pt), etaaxis->FindBin(eta));
+		//eleESF = electronIDESF->GetBinContent(ptaxis->FindBin(pt), etaaxis->FindBin(eta))*electronISOESF->GetBinContent(ptaxis->FindBin(pt), etaaxis->FindBin(eta));
 	}
-	else eleESF = electronIDESF->GetBinContent(etaaxis->FindBin(eta), ptaxis->FindBin(pt))*electronISOESF->GetBinContent(etaaxis->FindBin(eta), ptaxis->FindBin(pt));
+	else eleESF = electronIDESF->GetBinContent(etaaxis->FindBin(eta), ptaxis->FindBin(pt));
+	//else eleESF = electronIDESF->GetBinContent(etaaxis->FindBin(eta), ptaxis->FindBin(pt))*electronISOESF->GetBinContent(etaaxis->FindBin(eta), ptaxis->FindBin(pt));
 
 	eleESF = eleESF*getR9ESF(pt, eta);	
 	
@@ -35,7 +37,7 @@ float esfScaleFactor::getElectronESF(float inputpt, float inputeta){
 }
 
 
-float esfScaleFactor::getPhotonESF(float inputpt, float inputeta){
+float esfScaleFactor::getPhotonESF(float inputpt, float inputeta){    // new
 	
 	bool  ptOnX(true);
 	TAxis *ptaxis;
@@ -52,7 +54,7 @@ float esfScaleFactor::getPhotonESF(float inputpt, float inputeta){
 	}	
 
 	float pt = inputpt;
-	if(pt >= 200)pt = 199;
+	if(pt >= 500)pt = 499;
 	if(pt > ptaxis->GetXmax())pt = ptaxis->GetXmax() - 1.0;
 	float eta= inputeta;
 	if(etaaxis->GetXmin() > -1.0)eta =fabs(eta);
@@ -85,25 +87,28 @@ float esfScaleFactor::getMuonESF(float inputpt, float inputeta){
 	}	
 
 	float pt = inputpt;
-	if(pt >= 200)pt = 199;
+	if(pt >= 120)pt = 119;
 	if(pt > ptaxis->GetXmax())pt = ptaxis->GetXmax() - 1.0;
 	float eta= inputeta;
 	if(etaaxis->GetXmin() > -1.0)eta =fabs(eta);
-	if(fabs(eta) > 2.5) eta = 2.49;
+	if(fabs(eta) > 2.4) eta = 2.39;
 
 	float muonESF(1);
-	float muonIDESFvalue(1), muonISOESFvalue(1), muonIPESFvalue(1);
+	float muonIDESFvalue(1);
+	//float muonISOESFvalue(1), muonIPESFvalue(1);
 	if(ptOnX){
-		muonIDESFvalue = muonIDESF->GetBinContent(ptaxis->FindBin(pt), etaaxis->FindBin(eta));
-		muonISOESFvalue= muonISOESF->GetBinContent(ptaxis->FindBin(pt), etaaxis->FindBin(eta));
-		muonIPESFvalue = muonIPESF->GetBinContent(ptaxis->FindBin(pt), etaaxis->FindBin(eta));
-		muonESF = muonIDESFvalue*muonISOESFvalue*muonIPESFvalue;
+		muonIDESFvalue = muonIDESF->GetBinContent(ptaxis->FindBin(pt), etaaxis->FindBin(eta));  // new available
+		//muonISOESFvalue= muonISOESF->GetBinContent(ptaxis->FindBin(pt), etaaxis->FindBin(eta));
+		//muonIPESFvalue = muonIPESF->GetBinContent(ptaxis->FindBin(pt), etaaxis->FindBin(eta));
+		//muonESF = muonIDESFvalue*muonISOESFvalue*muonIPESFvalue;
+		muonESF = muonIDESFvalue;
 	}
 	else{
-	 muonIDESFvalue = muonIDESF->GetBinContent(etaaxis->FindBin(eta), ptaxis->FindBin(pt));
-	 muonISOESFvalue = muonISOESF->GetBinContent(etaaxis->FindBin(eta), ptaxis->FindBin(pt));
-	 muonIPESFvalue = muonIPESF->GetBinContent(etaaxis->FindBin(eta), ptaxis->FindBin(pt));
-	 muonESF = muonIDESFvalue*muonISOESFvalue*muonIPESFvalue;
+	 muonIDESFvalue = muonIDESF->GetBinContent(etaaxis->FindBin(eta), ptaxis->FindBin(pt)); // new available
+	 //muonISOESFvalue = muonISOESF->GetBinContent(etaaxis->FindBin(eta), ptaxis->FindBin(pt));
+	 //muonIPESFvalue = muonIPESF->GetBinContent(etaaxis->FindBin(eta), ptaxis->FindBin(pt));
+	 //muonESF = muonIDESFvalue*muonISOESFvalue*muonIPESFvalue;
+	 muonESF = muonIDESFvalue;
 	}
 		
   return muonESF;
@@ -126,7 +131,7 @@ float esfScaleFactor::getegPhotonTRGESF(float inputpt, float inputeta){
 	}	
 
 	float pt = inputpt;
-	if(pt >= 200)pt = 199;
+	if(pt >= 500)pt = 499;
 	if(pt > ptaxis->GetXmax())pt = ptaxis->GetXmax() - 1.0;
 	float eta= inputeta;
 	if(etaaxis->GetXmin() > -1.0)eta =fabs(eta);
@@ -158,7 +163,7 @@ float esfScaleFactor::getElectronTRGESF(float inputpt, float inputeta){
 	}	
 
 	float pt = inputpt;
-	if(pt >= 200)pt = 199;
+	if(pt >= 500)pt = 499;
 	if(pt > ptaxis->GetXmax())pt = ptaxis->GetXmax() - 1.0;
 	float eta= inputeta;
 	if(etaaxis->GetXmin() > -1.0)eta =fabs(eta);
@@ -206,7 +211,7 @@ float esfScaleFactor::getElectronESFError(float inputpt, float inputeta){
 	}	
 
 	float pt = inputpt;
-	if(pt >= 200)pt = 199;
+	if(pt >= 500)pt = 499;
 	if(pt > ptaxis->GetXmax())pt = ptaxis->GetXmax() - 1.0;
 	float eta= inputeta;
 	if(etaaxis->GetXmin() > -1.0)eta =fabs(eta);
@@ -214,9 +219,11 @@ float esfScaleFactor::getElectronESFError(float inputpt, float inputeta){
 
 	float eleESFError(1);
 	if(ptOnX){
-		eleESFError = sqrt(pow(electronIDESF->GetBinError(ptaxis->FindBin(pt), etaaxis->FindBin(eta)), 2)+ pow(electronISOESF->GetBinError(ptaxis->FindBin(pt), etaaxis->FindBin(eta)), 2) + pow(getR9ESFError(pt, eta),2));
+		eleESFError = sqrt(pow(electronIDESF->GetBinError(ptaxis->FindBin(pt), etaaxis->FindBin(eta)), 2) + pow(getR9ESFError(pt, eta),2));
+		//eleESFError = sqrt(pow(electronIDESF->GetBinError(ptaxis->FindBin(pt), etaaxis->FindBin(eta)), 2)+ pow(electronISOESF->GetBinError(ptaxis->FindBin(pt), etaaxis->FindBin(eta)), 2) + pow(getR9ESFError(pt, eta),2));
 	}
-	else eleESFError = sqrt(pow( electronIDESF->GetBinError(etaaxis->FindBin(eta), ptaxis->FindBin(pt)), 2)+ pow(electronISOESF->GetBinError(etaaxis->FindBin(eta), ptaxis->FindBin(pt)),2) + pow(getR9ESFError(pt, eta),2));
+	else eleESFError = sqrt(pow( electronIDESF->GetBinError(etaaxis->FindBin(eta), ptaxis->FindBin(pt)), 2) + pow(getR9ESFError(pt, eta),2));
+	//else eleESFError = sqrt(pow( electronIDESF->GetBinError(etaaxis->FindBin(eta), ptaxis->FindBin(pt)), 2)+ pow(electronISOESF->GetBinError(etaaxis->FindBin(eta), ptaxis->FindBin(pt)),2) + pow(getR9ESFError(pt, eta),2));
 	
 		
   return eleESFError;
@@ -240,7 +247,7 @@ float esfScaleFactor::getPhotonESFError(float inputpt, float inputeta){
 	}	
 
 	float pt = inputpt;
-	if(pt >= 200)pt = 199;
+	if(pt >= 500)pt = 499;
 	if(pt > ptaxis->GetXmax())pt = ptaxis->GetXmax() - 1.0;
 	float eta= inputeta;
 	if(etaaxis->GetXmin() > -1.0)eta =fabs(eta);
@@ -273,7 +280,7 @@ float esfScaleFactor::getMuonESFError(float inputpt, float inputeta){
 	}	
 
 	float pt = inputpt;
-	if(pt >= 200)pt = 199;
+	if(pt >= 120)pt = 119;
 	if(pt > ptaxis->GetXmax())pt = ptaxis->GetXmax() - 1.0;
 	float eta= inputeta;
 	if(etaaxis->GetXmin() > -1.0)eta =fabs(eta);
@@ -314,7 +321,7 @@ float esfScaleFactor::getegPhotonTRGESFError(float inputpt, float inputeta){
 	}	
 
 	float pt = inputpt;
-	if(pt >= 200)pt = 199;
+	if(pt >= 500)pt = 499;
 	if(pt > ptaxis->GetXmax())pt = ptaxis->GetXmax() - 1.0;
 	float eta= inputeta;
 	if(etaaxis->GetXmin() > -1.0)eta =fabs(eta);
@@ -346,7 +353,7 @@ float esfScaleFactor::getElectronTRGESFError(float inputpt, float inputeta){
 	}	
 
 	float pt = inputpt;
-	if(pt >= 200)pt = 199;
+	if(pt >= 500)pt = 499;
 	if(pt > ptaxis->GetXmax())pt = ptaxis->GetXmax() - 1.0;
 	float eta= inputeta;
 	if(etaaxis->GetXmin() > -1.0)eta =fabs(eta);

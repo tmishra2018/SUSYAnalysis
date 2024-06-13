@@ -1,9 +1,0 @@
-mv EleFakeRate-Data-Bw-expo-eta-60-120.txt EleFakeRate-DrellYan-Bw-expo-eta-60-120.txt
-mv EleFakeRate-Data-Bw-expo-pt-60-120.txt EleFakeRate-DrellYan-Bw-expo-pt-60-120.txt
-mv EleFakeRate-Data-Bw-expo-vtx-60-120.txt EleFakeRate-DrellYan-Bw-expo-vtx-60-120.txt
-mv EleFakeRate-Data-Bw-ker-eta-60-120.txt EleFakeRate-DrellYan-Bw-ker-eta-60-120.txt
-mv EleFakeRate-Data-Bw-ker-pt-60-120.txt EleFakeRate-DrellYan-Bw-ker-pt-60-120.txt
-mv EleFakeRate-Data-Bw-ker-vtx-60-120.txt EleFakeRate-DrellYan-Bw-ker-vtx-60-120.txt
-mv EleFakeRate-Data-DY-ker-eta-60-120.txt EleFakeRate-DrellYan-DY-ker-eta-60-120.txt
-mv EleFakeRate-Data-DY-ker-pt-60-120.txt EleFakeRate-DrellYan-DY-ker-pt-60-120.txt 
-mv EleFakeRate-Data-DY-ker-vtx-60-120.txt EleFakeRate-DrellYan-DY-ker-vtx-60-120.txt 

@@ -1,9 +1,11 @@
-ichannel 1
+ichannel 2
 anatype 1
 lowMt 0
 highMt -1
-lowMET 0
-highMET -1
+lowMET 40
+highMET 70
 lowPt 0
-highPt -1
+highPt 1000
 lepIso 4
+RunYear 2016
+preVFP 0

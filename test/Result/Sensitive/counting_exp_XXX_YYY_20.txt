@@ -2,26 +2,26 @@ imax 1 number of channels
 jmax 5  number of backgrounds
 kmax *  number of nuisance parameters
 ------------
-bin  1  
+bin  bin1  
 observation 256.955000
 ------------
-bin                                  1            1            1            1            1            1 
+bin                               bin1         bin1         bin1         bin1         bin1         bin1 
 process                           SUSY   elefakepho   jetfakepho   qcdfakelep       VGamma         rare 
 process                              0            1            2            3            4            5 
-rate                             NSC20       79.791       37.473       14.430       35.118       94.050 
+rate                             NSC20       79.714       32.692       14.430       35.118       99.147 
 ------------
-jes             lnN             JESS20            -            -            -        1.125        1.043 
-jer             lnN             JERS20            -            -            -        1.136        1.054 
+jes             lnN             JESS20            -            -            -        1.125        1.044 
+jer             lnN             JERS20            -            -            -        1.136        1.052 
 esf             lnN              ESF20            -            -            -        1.025        1.025 
 scale           lnN                  -            -            -        0.800        1.200            - 
 e_to_pho_syst   lnN                  -        1.091            -            -            -            - 
-j_to_pho_syst   lnN                  -            -        1.095            -            -            - 
+j_to_pho_syst   lnN                  -            -        1.083            -            -            - 
 fakelep_shape   lnN                  -            -            -        1.228            -            - 
 xs              lnN                  -            -            -            -            -        1.500 
 lumi            lnN              1.026            -            -            -            -        1.026 
 isr             lnN                  -            -            -            -        1.274            - 
 SUSY_stat20     lnN             STSC20            -            -            -            -            - 
-e_to_pho_stat20 gmN   4284           -      0.01863            -            -            -            - 
-j_to_pho_stat20 gmN     78           -            -      0.48042            -            -            - 
+e_to_pho_stat20 gmN   4281           -      0.01862            -            -            -            - 
+j_to_pho_stat20 gmN    141           -            -      0.23186            -            -            - 
 j_to_lep_stat20 gmN     47           -            -            -      0.30702            -            - 
 rare_stat20     lnN                  -            -            -            -            -        1.038 

@@ -15,7 +15,6 @@ do
   echo  3 0 1 ${ptbins[$i]} ${ptbins[$j]} 60 120 >> RunnerScript.txt
 done 
 
-
 for (( i = 0 ; i < ${#Etabins[@]}-1 ; i++ ))
 do
 	j=$((i+1))

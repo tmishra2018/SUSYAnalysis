@@ -25,24 +25,32 @@
 #include "../../include/analysis_photon.h"
 #include "../../include/analysis_muon.h"
 #include "../../include/analysis_ele.h"
+#include "../../include/analysis_jet.h"
 #include "../../include/analysis_tools.h"
 #include "../../include/analysis_mcData.h"
 
+int RunYear = 2016;
+bool preVFP = false;
 void analysis_mgTriggerMC(){//main  
 
 	gSystem->Load("../../lib/libAnaClasses.so");
+	
+	std::string whichVFP;
+        if(RunYear==2016 and preVFP == 1) whichVFP = "preVFP";
+        if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
+        if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
 
 	ofstream logfile;
-	logfile.open("/eos/uscms/store/user/tmishra/Trigger/plot_MuonTrigger_DY.log"); 
+	logfile.open(Form("/eos/uscms/store/user/tmishra/Trigger/logs/plot_MuonTrigger_DY_%d%s.log",RunYear,whichVFP.c_str())); 
 
 	logfile << "analysis_mgTrigger()" << std::endl;
 
 	RunType datatype(MC); 
 
 	TChain* es = new TChain("ggNtuplizer/EventTree");
-	es->Add("/eos/uscms/store/user/msun/copied/DYJetsToLL_M-50_NLO.root");
+	es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/Tribeni/DYJetsToLL/DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
 	
-	TFile *outputfile = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/plot_MuonTrigger_DY.root","RECREATE");
+	TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/Trigger/files/plot_MuonTrigger_DY_%d%s.root",RunYear,whichVFP.c_str()),"RECREATE");
 	outputfile->cd();
 
 	TTree *mgtree = new TTree("mgTree","mgTree");
@@ -88,12 +96,12 @@ void analysis_mgTriggerMC(){//main
 	std::vector<recoPhoton> Photon;
 	std::vector<recoMuon>   Muon;
 	std::vector<recoEle>   Ele;
-  std::vector<mcData>  MCData;
+  	std::vector<mcData>  MCData;
 	float MET(0);
 
 	for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
   
-		if(ievt%10000==0) std::cout << " -- Processing event " << ievt << std::endl;
+		if(ievt%1000000==0) std::cout << " -- Processing event " << ievt << std::endl;
 
 			raw.GetData(es, ievt);
 			Photon.clear();
@@ -149,8 +157,8 @@ void analysis_mgTriggerMC(){//main
 				}
 			}
 
-			for(int iMu(0); iMu < probeMuVec.size(); iMu++){
-				for(int ipho(0); ipho < probePhoVec.size(); ipho++){
+			for(unsigned iMu(0); iMu < probeMuVec.size(); iMu++){
+				for(unsigned ipho(0); ipho < probePhoVec.size(); ipho++){
 
 					std::vector<recoMuon>::iterator probeMu = probeMuVec[iMu]; 
 					std::vector<recoPhoton>::iterator probePho = probePhoVec[ipho];
@@ -176,17 +184,19 @@ void analysis_mgTriggerMC(){//main
 					if(probeMu->fireL1Trg(29))mg_mufireL1_2=29;
 					else mg_mufireL1_2=0;
 
+					
+					
+					if(probeMu->fireSingleTrg(2) || probeMu->fireSingleTrg(21))mg_mufireHLT=1;
+					else mg_mufireHLT=0;
+					
+					if(probeMu->fireSingleTrg(22))mg_mufireHLT2=1;
+					else mg_mufireHLT2=0;
+
 					if(probePho->fireDoubleTrg(28) || probePho->fireDoubleTrg(29))mg_phofireHLT=1;
 					else mg_phofireHLT=0;
 
-					if(probeMu->fireSingleTrg(2) || probeMu->fireSingleTrg(21))mg_mufireHLT=1;
-					else mg_mufireHLT=0;
-
 					if(probePho->fireDoubleTrg(30))mg_phofireHLT2=1;
 					else mg_phofireHLT2=0;
-
-					if(probeMu->fireSingleTrg(22))mg_mufireHLT2=1;
-					else mg_mufireHLT2=0;
 
 					mgtree->Fill();
 				}

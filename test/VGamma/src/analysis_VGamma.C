@@ -1,5 +1,3 @@
-// eg and mg events from different Simulation, ISR weight
-// g++ `root-config --cflags` ../../../lib/libAnaClasses.so analysis_VGamma.C -o analysis_VGamma.exe `root-config --libs`
 #include<string>
 #include<iostream>
 #include<fstream>
@@ -23,26 +21,23 @@
 #include "TLorentzVector.h"
 #include "TProfile2D.h"
 #include "TFileCollection.h"
-#include "TCut.h"
 
 #include "../../../include/analysis_rawData.h"
 #include "../../../include/analysis_photon.h"
 #include "../../../include/analysis_muon.h"
+#include "../../../include/analysis_jet.h"
 #include "../../../include/analysis_ele.h"
 #include "../../../include/analysis_mcData.h"
-#include "../../../include/analysis_jet.h"
 #include "../../../include/analysis_tools.h"
 
 double Normalization = 0.98;
 
 bool isHardLepton(int momID){
-		// mother particle is quarks, gluon, tau, Z, W for prompt lepton
 		if((fabs(momID) >= 0 && fabs(momID) <= 6) || momID==21 || fabs(momID) == 15 || fabs(momID) == 999 || fabs(momID) == 23 || fabs(momID) == 24)return true;
 		else return false;
 }
 		
 bool isHardPhoton(int momID){
-		// mother particle is quarks, lepton, gluon, tau, Z, W for prompt photon
 		if((fabs(momID) >= 0 && fabs(momID) <= 16) || momID==21 || fabs(momID) == 15 || fabs(momID) == 999 || fabs(momID) == 23 || fabs(momID) == 24)return true;
 		else return false;
 }
@@ -54,7 +49,6 @@ bool nisrMatch(float jetEta, float jetPhi, std::vector<mcData>& genParticles){
       if(matched)break;
 			bool isPromptFinal(false);
       int momid = abs(itMC->getMomPID());
-	// 1-5 = quarks except top, 6 = top, 23 = Z, 24 = W, 25 = higgs, 22=photon, 15 = tau, 13=muon, 11=electron  : Different possible prompt processes
       if(abs(itMC->getPID())<=5 && (momid==6 || momid==23 || momid==24 || momid==25))isPromptFinal = true;
 			else if(abs(itMC->getPID()) == 11 && (momid<=6 || momid==23 || momid==24 || momid== 22 || momid== 15))isPromptFinal = true;
 			else if(abs(itMC->getPID()) == 13 && (momid<=6 || momid==23 || momid==24 || momid== 22 || momid== 15))isPromptFinal = true;
@@ -64,7 +58,6 @@ bool nisrMatch(float jetEta, float jetPhi, std::vector<mcData>& genParticles){
 			if(DeltaR(jetEta, jetPhi, itMC->getEta(), itMC->getPhi()) < 0.3){
 				//std::cout << "match " << itMC->getPID() << " " << itMC->getMomPID() << " status:" << itMC->getStatus() << std::endl; 
       	matched = true;
-	// To avoid counting the decays products of the Z boson, the jets are cleaned from isolated leptons.
 			}
     } // Loop over MC particles
 		return matched;
@@ -81,52 +74,46 @@ bool passFilter(int filter){
   return passfilter;
 }
 
-void analysis_VGamma(int RunYear, const char *Sample){//main 
-	
+int RunYear = 2016;
+bool preVFP = false;
+bool doEB = false;
 
+
+void analysis_VGamma(int RunYear, const char *Sample){//main 
+  
+  std::string whichVFP;
+  if(RunYear==2016 and preVFP == 1) whichVFP = "preVFP";
+  if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
+  if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
+	
   ofstream logfile;
-  logfile.open(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_%s_%d.log",Sample,RunYear)); 
+  logfile.open(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_%s_%d%s.log",Sample,RunYear,whichVFP.c_str()));
   logfile << "analysis_VGamma()" << std::endl;
 
   RunType datatype(MC);
   TChain* es = new TChain("ggNtuplizer/EventTree");
-	char* inputfile = new char[300];
-	sprintf(inputfile,"/eos/uscms/store/group/lpcsusyhad/Tribeni/%s/%s_%d.root",Sample,Sample,RunYear);
-	es->Add(inputfile);
-  logfile << Sample;
-	logfile << "muon MiniIso" << std::endl;
- 
-  const unsigned nEvts = es->GetEntries(); 
-  logfile << "Total event: " << nEvts << std::endl;
+  char* inputfile = new char[300];
 
-  TCut Pass_egPho, Pass_mgPho, Pass_egEle, Pass_mgMu, Pass_MuonEG, Pass_DoubleEG;
-  if(RunYear==2016){
-		 Pass_DoubleEG = "(((raw.HLTPho >> 14)&1)==1)"; 
-		 Pass_MuonEG = "(((raw.HLTEleMuX >> 8)&1)!=0 || ((raw.HLTEleMuX >> 51)&1)!=0)";
-		 Pass_egPho = "(itpho->fireDoubleTrg(1) || itpho->fireDoubleTrg(2))";
-		 Pass_mgPho = "(itpho->fireDoubleTrg(28) || itpho->fireDoubleTrg(29) || itpho->fireDoubleTrg(30))";
-		 Pass_egEle = "(itEle->fireTrgs(21) || itEle->fireTrgs(22))";
-		 Pass_mgMu = "(itMu->fireSingleTrg(2) || itMu->fireSingleTrg(21) || itMu->fireSingleTrg(22))"; }
+  if (strstr(Sample, "DYJetsToLL") != NULL or strstr(Sample, "TTJets") != NULL or strstr(Sample, "WJetsToLNu"))
+        //sprintf(inputfile,"/eos/uscms/store/user/msun/copied/TTJets_TuneCUETP8M2T4_13TeV-amcatnloFXFX-pythia8.root");
+        sprintf(inputfile,"/eos/uscms/store/group/lpcsusyphotons/Tribeni/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());
+  else
+        sprintf(inputfile,"/eos/uscms/store/user/tmishra/InputFilesMC/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());
+  es->Add(inputfile);
 
-  if(RunYear==2017){
-		 Pass_DoubleEG = "(((raw.HLTPho >> 14)&1)==1)"; 
-		 Pass_MuonEG = "(((raw.HLTEleMuX >> 8)&1)!=0 || ((raw.HLTEleMuX >> 57)&1)!=0)";
-		 Pass_egPho = "(itpho->fireDoubleTrg(33) || itpho->fireDoubleTrg(34))";
-		 Pass_mgPho = "(itpho->fireDoubleTrg(28) || itpho->fireDoubleTrg(29) || itpho->fireDoubleTrg(30))";
-		 Pass_egEle = "(itEle->fireTrgs(43) || itEle->fireTrgs(44))";
-		 Pass_mgMu = "(itMu->fireSingleTrg(2) || itMu->fireSingleTrg(21) || itMu->fireSingleTrg(22))"; }
+  logfile << "VG";
+  logfile << "muon MiniIso" << std::endl;
 
-  if(RunYear==2018){
-		 Pass_DoubleEG = "(((raw.HLTPho >> 14)&1)==1)"; 
-		 Pass_MuonEG = "(((raw.HLTEleMuX >> 8)&1)!=0 || ((raw.HLTEleMuX >> 57)&1)!=0)";
-		 Pass_egPho = "(itpho->fireDoubleTrg(33) || itpho->fireDoubleTrg(34))";
-		 Pass_mgPho = "(itpho->fireDoubleTrg(28) || itpho->fireDoubleTrg(29) || itpho->fireDoubleTrg(30))";
-		 Pass_egEle = "(itEle->fireTrgs(43) || itEle->fireTrgs(44))";
-		 Pass_mgMu = "(itMu->fireSingleTrg(2) || itMu->fireSingleTrg(21) || itMu->fireSingleTrg(22))"; }
-
-  TFile* outputfile = new TFile(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_%s_%d.root",Sample,RunYear),"RECREATE");
+  const unsigned nEvts = 859634;
+  //const unsigned nEvts = es->GetEntries()/100.;
+  logfile << "Total events : " << nEvts << std::endl;
+  
+  int npassEGselection(0), npassdR(0), npassZ(0), npassMETFilter(0), npassPho(0), npassEle(0), npassHLTPho(0);
+  
+  TFile* outputfile;
+  outputfile = new TFile(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_%s_%d%s.root",Sample,RunYear,whichVFP.c_str()),"RECREATE");
   outputfile->cd();
-
+  
   int mcType;
   if(strstr(inputfile, "WGToLNuG") != NULL){
                 std::cout << "WGToLNuG sample !" << std::endl;
@@ -148,7 +135,7 @@ void analysis_VGamma(int RunYear, const char *Sample){//main
                 std::cout << "DYJetsToLL sample !" << std::endl;
                 mcType = MCType::DYLL50;
   }
-  else if(strstr(inputfile, "TTGJets") != NULL){
+  else  if(strstr(inputfile, "TTGJets") != NULL){
                 std::cout << "TTGJets sample !" << std::endl;
                 mcType = MCType::TTG;
   }
@@ -172,23 +159,20 @@ void analysis_VGamma(int RunYear, const char *Sample){//main
                 std::cout << "WZ sample !" << std::endl;
                 mcType = MCType::WZ;
   }
-  else {
-                std::cout << "not specific MC !" << std::endl;
-                mcType = MCType::NOMC;
-  }
+
 
   if(datatype == MC && mcType == MCType::NOMC){std::cout << "wrong MC type" << std::endl; throw;} 
   logfile << "mcType" << mcType << std::endl;
 
   float crosssection = MC_XS[mcType];
   float ntotalevent = es->GetEntries();
-	float PUweight(1);
-	float llmass(0);
-	int   nBJet(0);
-	float ISRWeight(1);
-	float pdfWeight(0);
-	std::vector<float> pdfSystWeight;
-	std::vector<float> ScaleSystWeight; 
+  float PUweight(1);
+  float llmass(0);
+  int   nBJet(0);
+  float ISRWeight(1);
+  float pdfWeight(0);
+  std::vector<float> pdfSystWeight;
+  std::vector<float> ScaleSystWeight; 
 //************ Signal Tree **********************//
   TTree *egtree = new TTree("egTree","egTree");
   float eg_phoEt(0);
@@ -197,9 +181,9 @@ void analysis_VGamma(int RunYear, const char *Sample){//main
   float eg_lepPt(0);
   float eg_lepEta(0);
   float eg_lepPhi(0);
-	float trailPt(0);
-	float trailEta(0);
-	float trailPhi(0);
+  float trailPt(0);
+  float trailEta(0);
+  float trailPhi(0);
   float eg_sigMT(0);
   float eg_sigMET(0);
   float eg_sigMETPhi(0);
@@ -208,24 +192,24 @@ void analysis_VGamma(int RunYear, const char *Sample){//main
   float eg_dRPhoLep(0);
   float eg_HT(0);
   float eg_nJet(0);
-	int   eg_nISRJet(0);
-	float eg_ISRJetPt(0);
+  int   eg_nISRJet(0);
+  float eg_ISRJetPt(0);
   float eg_invmass(0);
-	float eg_bosonPt(0);
-	float eg_sigMETJESup(0);
-	float eg_sigMETJESdo(0);
-	float eg_sigMETJERup(0);
-	float eg_sigMETJERdo(0);
-	float eg_sigMTJESup(0);
-	float eg_sigMTJESdo(0);
-	float eg_sigMTJERup(0);
-	float eg_sigMTJERdo(0);
-	float eg_HTJESup(0);
-	float eg_HTJESdo(0);
-	float eg_dPhiLepMETJESup(0);
-	float eg_dPhiLepMETJESdo(0);
-	float eg_dPhiLepMETJERup(0);
-	float eg_dPhiLepMETJERdo(0);
+  float eg_bosonPt(0);
+  float eg_sigMETJESup(0);
+  float eg_sigMETJESdo(0);
+  float eg_sigMETJERup(0);
+  float eg_sigMETJERdo(0);
+  float eg_sigMTJESup(0);
+  float eg_sigMTJESdo(0);
+  float eg_sigMTJERup(0);
+  float eg_sigMTJERdo(0);
+  float eg_HTJESup(0);
+  float eg_HTJESdo(0);
+  float eg_dPhiLepMETJESup(0);
+  float eg_dPhiLepMETJESdo(0);
+  float eg_dPhiLepMETJERup(0);
+  float eg_dPhiLepMETJERdo(0);
   std::vector<int> eg_mcPID;
   std::vector<float> eg_mcEta;
   std::vector<float> eg_mcPhi;
@@ -234,22 +218,22 @@ void analysis_VGamma(int RunYear, const char *Sample){//main
   std::vector<int> eg_mcGMomPID;
   std::vector<int> eg_mcStatus;
 
-	egtree->Branch("crosssection",&crosssection);
-	egtree->Branch("ntotalevent", &ntotalevent);
-	egtree->Branch("ISRWeight", &ISRWeight);
-	egtree->Branch("pdfWeight", &pdfWeight);
-	egtree->Branch("pdfSystWeight", &pdfSystWeight);
-	egtree->Branch("ScaleSystWeight", &ScaleSystWeight);
+  egtree->Branch("crosssection",&crosssection);
+  egtree->Branch("ntotalevent", &ntotalevent);
+  egtree->Branch("ISRWeight", &ISRWeight);
+  egtree->Branch("pdfWeight", &pdfWeight);
+  egtree->Branch("pdfSystWeight", &pdfSystWeight);
+  egtree->Branch("ScaleSystWeight", &ScaleSystWeight);
   egtree->Branch("phoEt",     &eg_phoEt);
   egtree->Branch("phoEta",    &eg_phoEta);
   egtree->Branch("phoPhi",    &eg_phoPhi);
   egtree->Branch("lepPt",     &eg_lepPt);
   egtree->Branch("lepEta",    &eg_lepEta);
   egtree->Branch("lepPhi",    &eg_lepPhi);
-	egtree->Branch("trailPt",   &trailPt);
-	egtree->Branch("trailEta",  &trailEta);
-	egtree->Branch("trailPhi",  &trailPhi);
-	egtree->Branch("PUweight",  &PUweight);
+  egtree->Branch("trailPt",   &trailPt);
+  egtree->Branch("trailEta",  &trailEta);
+  egtree->Branch("trailPhi",  &trailPhi);
+  egtree->Branch("PUweight",  &PUweight);
   egtree->Branch("sigMT",     &eg_sigMT);
   egtree->Branch("sigMET",    &eg_sigMET);
   egtree->Branch("sigMETPhi", &eg_sigMETPhi);
@@ -260,23 +244,23 @@ void analysis_VGamma(int RunYear, const char *Sample){//main
   egtree->Branch("nJet",      &eg_nJet);
   egtree->Branch("nBJet",     &nBJet);
   egtree->Branch("nISRJet",   &eg_nISRJet);
-	egtree->Branch("ISRJetPt",  &eg_ISRJetPt);
+  egtree->Branch("ISRJetPt",  &eg_ISRJetPt);
   egtree->Branch("invmass",   &eg_invmass);
-	egtree->Branch("bosonPt",   &eg_bosonPt);
-	egtree->Branch("sigMETJESup",     &eg_sigMETJESup);
-	egtree->Branch("sigMETJESdo",     &eg_sigMETJESdo);
-	egtree->Branch("sigMETJERup",     &eg_sigMETJERup);
-	egtree->Branch("sigMETJERdo",     &eg_sigMETJERdo);
-	egtree->Branch("sigMTJESup",      &eg_sigMTJESup);
-	egtree->Branch("sigMTJESdo",      &eg_sigMTJESdo);
-	egtree->Branch("sigMTJERup",      &eg_sigMTJERup);
-	egtree->Branch("sigMTJERdo",      &eg_sigMTJERdo);
-	egtree->Branch("dPhiLepMETJESup", &eg_dPhiLepMETJESup);
-	egtree->Branch("dPhiLepMETJESdo", &eg_dPhiLepMETJESdo);
-	egtree->Branch("dPhiLepMETJERup", &eg_dPhiLepMETJERup);
-	egtree->Branch("dPhiLepMETJERdo", &eg_dPhiLepMETJERdo);
-	egtree->Branch("HTJESup",     &eg_HTJESup);
-	egtree->Branch("HTJESdo",     &eg_HTJESdo);
+  egtree->Branch("bosonPt",   &eg_bosonPt);
+  egtree->Branch("sigMETJESup",     &eg_sigMETJESup);
+  egtree->Branch("sigMETJESdo",     &eg_sigMETJESdo);
+  egtree->Branch("sigMETJERup",     &eg_sigMETJERup);
+  egtree->Branch("sigMETJERdo",     &eg_sigMETJERdo);
+  egtree->Branch("sigMTJESup",      &eg_sigMTJESup);
+  egtree->Branch("sigMTJESdo",      &eg_sigMTJESdo);
+  egtree->Branch("sigMTJERup",      &eg_sigMTJERup);
+  egtree->Branch("sigMTJERdo",      &eg_sigMTJERdo);
+  egtree->Branch("dPhiLepMETJESup", &eg_dPhiLepMETJESup);
+  egtree->Branch("dPhiLepMETJESdo", &eg_dPhiLepMETJESdo);
+  egtree->Branch("dPhiLepMETJERup", &eg_dPhiLepMETJERup);
+  egtree->Branch("dPhiLepMETJERdo", &eg_dPhiLepMETJERdo);
+  egtree->Branch("HTJESup",     &eg_HTJESup);
+  egtree->Branch("HTJESdo",     &eg_HTJESdo);
   egtree->Branch("mcType",   &mcType);
   egtree->Branch("mcPID",    &eg_mcPID);
   egtree->Branch("mcEta",    &eg_mcEta);
@@ -285,7 +269,7 @@ void analysis_VGamma(int RunYear, const char *Sample){//main
   egtree->Branch("mcMomPID", &eg_mcMomPID);
   egtree->Branch("mcGMomPID", &eg_mcGMomPID);
   egtree->Branch("mcStatus", &eg_mcStatus);
-	egtree->Branch("llmass",   &llmass);
+  egtree->Branch("llmass",   &llmass);
 
   TTree *mgtree = new TTree("mgTree","mgTree");
   float mg_phoEt(0);
@@ -298,76 +282,76 @@ void analysis_VGamma(int RunYear, const char *Sample){//main
   float mg_sigMET(0);
   float mg_sigMETPhi(0);
   float mg_dPhiLepMET(0);
-	float mg_threeMass(0);
+  float mg_threeMass(0);
   int   mg_nVertex(0);
   float mg_dRPhoLep(0);
   float mg_HT(0);
   float mg_nJet(0);
   float mg_nISRJet(0);
-	float mg_ISRJetPt(0);
-	float mg_bosonPt(0);
-	float mg_sigMETJESup(0);
-	float mg_sigMETJESdo(0);
-	float mg_sigMETJERup(0);
-	float mg_sigMETJERdo(0);
-	float mg_sigMTJESup(0);
-	float mg_sigMTJESdo(0);
-	float mg_sigMTJERup(0);
-	float mg_sigMTJERdo(0);
-	float mg_HTJESup(0);
-	float mg_HTJESdo(0);
-	float mg_dPhiLepMETJESup(0);
-	float mg_dPhiLepMETJESdo(0);
-	float mg_dPhiLepMETJERup(0);
-	float mg_dPhiLepMETJERdo(0);
+  float mg_ISRJetPt(0);
+  float mg_bosonPt(0);
+  float mg_sigMETJESup(0);
+  float mg_sigMETJESdo(0);
+  float mg_sigMETJERup(0);
+  float mg_sigMETJERdo(0);
+  float mg_sigMTJESup(0);
+  float mg_sigMTJESdo(0);
+  float mg_sigMTJERup(0);
+  float mg_sigMTJERdo(0);
+  float mg_HTJESup(0);
+  float mg_HTJESdo(0);
+  float mg_dPhiLepMETJESup(0);
+  float mg_dPhiLepMETJESdo(0);
+  float mg_dPhiLepMETJERup(0);
+  float mg_dPhiLepMETJERdo(0);
   std::vector<int> mg_mcPID;
   std::vector<float> mg_mcEta;
   std::vector<float> mg_mcPhi;
   std::vector<float> mg_mcPt;
   std::vector<int> mg_mcMomPID;
   std::vector<int> mg_mcGMomPID;
-	std::vector<int> mg_mcStatus;
+  std::vector<int> mg_mcStatus;
  
-	mgtree->Branch("crosssection",&crosssection);
-	mgtree->Branch("ntotalevent", &ntotalevent);
-	mgtree->Branch("ISRWeight", &ISRWeight);
-	mgtree->Branch("pdfWeight", &pdfWeight);
-	mgtree->Branch("pdfSystWeight", &pdfSystWeight);
-	mgtree->Branch("ScaleSystWeight", &ScaleSystWeight);
+  mgtree->Branch("crosssection",&crosssection);
+  mgtree->Branch("ntotalevent", &ntotalevent);
+  mgtree->Branch("ISRWeight", &ISRWeight);
+  mgtree->Branch("pdfWeight", &pdfWeight);
+  mgtree->Branch("pdfSystWeight", &pdfSystWeight);
+  mgtree->Branch("ScaleSystWeight", &ScaleSystWeight);
   mgtree->Branch("phoEt",     &mg_phoEt);
   mgtree->Branch("phoEta",    &mg_phoEta);
   mgtree->Branch("phoPhi",    &mg_phoPhi);
   mgtree->Branch("lepPt",     &mg_lepPt);
   mgtree->Branch("lepEta",    &mg_lepEta);
   mgtree->Branch("lepPhi",    &mg_lepPhi);
-	mgtree->Branch("PUweight",      &PUweight);
+  mgtree->Branch("PUweight",      &PUweight);
   mgtree->Branch("sigMT",     &mg_sigMT);
   mgtree->Branch("sigMET",    &mg_sigMET);
   mgtree->Branch("sigMETPhi", &mg_sigMETPhi);
   mgtree->Branch("dPhiLepMET",&mg_dPhiLepMET);
-	mgtree->Branch("threeMass", &mg_threeMass);
+  mgtree->Branch("threeMass", &mg_threeMass);
   mgtree->Branch("nVertex",   &mg_nVertex);
   mgtree->Branch("dRPhoLep",  &mg_dRPhoLep);
   mgtree->Branch("HT",        &mg_HT);
   mgtree->Branch("nJet",      &mg_nJet);
   mgtree->Branch("nBJet",     &nBJet);
   mgtree->Branch("nISRJet",   &mg_nISRJet);
-	mgtree->Branch("ISRJetPt",  &mg_ISRJetPt);
-	mgtree->Branch("bosonPt",   &mg_bosonPt);
-	mgtree->Branch("sigMETJESup",     &mg_sigMETJESup);
-	mgtree->Branch("sigMETJESdo",     &mg_sigMETJESdo);
-	mgtree->Branch("sigMETJERup",     &mg_sigMETJERup);
-	mgtree->Branch("sigMETJERdo",     &mg_sigMETJERdo);
-	mgtree->Branch("sigMTJESup",      &mg_sigMTJESup);
-	mgtree->Branch("sigMTJESdo",      &mg_sigMTJESdo);
-	mgtree->Branch("sigMTJERup",      &mg_sigMTJERup);
-	mgtree->Branch("sigMTJERdo",      &mg_sigMTJERdo);
-	mgtree->Branch("dPhiLepMETJESup", &mg_dPhiLepMETJESup);
-	mgtree->Branch("dPhiLepMETJESdo", &mg_dPhiLepMETJESdo);
-	mgtree->Branch("dPhiLepMETJERup", &mg_dPhiLepMETJERup);
-	mgtree->Branch("dPhiLepMETJERdo", &mg_dPhiLepMETJERdo);
-	mgtree->Branch("HTJESup",     &mg_HTJESup);
-	mgtree->Branch("HTJESdo",     &mg_HTJESdo);
+  mgtree->Branch("ISRJetPt",  &mg_ISRJetPt);
+  mgtree->Branch("bosonPt",   &mg_bosonPt);
+  mgtree->Branch("sigMETJESup",     &mg_sigMETJESup);
+  mgtree->Branch("sigMETJESdo",     &mg_sigMETJESdo);
+  mgtree->Branch("sigMETJERup",     &mg_sigMETJERup);
+  mgtree->Branch("sigMETJERdo",     &mg_sigMETJERdo);
+  mgtree->Branch("sigMTJESup",      &mg_sigMTJESup);
+  mgtree->Branch("sigMTJESdo",      &mg_sigMTJESdo);
+  mgtree->Branch("sigMTJERup",      &mg_sigMTJERup);
+  mgtree->Branch("sigMTJERdo",      &mg_sigMTJERdo);
+  mgtree->Branch("dPhiLepMETJESup", &mg_dPhiLepMETJESup);
+  mgtree->Branch("dPhiLepMETJESdo", &mg_dPhiLepMETJESdo);
+  mgtree->Branch("dPhiLepMETJERup", &mg_dPhiLepMETJERup);
+  mgtree->Branch("dPhiLepMETJERdo", &mg_dPhiLepMETJERdo);
+  mgtree->Branch("HTJESup",     &mg_HTJESup);
+  mgtree->Branch("HTJESdo",     &mg_HTJESdo);
   mgtree->Branch("mcType",   &mcType);
   mgtree->Branch("mcPID",    &mg_mcPID);
   mgtree->Branch("mcEta",    &mg_mcEta);
@@ -376,32 +360,34 @@ void analysis_VGamma(int RunYear, const char *Sample){//main
   mgtree->Branch("mcMomPID", &mg_mcMomPID);
   mgtree->Branch("mcGMomPID", &mg_mcGMomPID);
   mgtree->Branch("mcStatus", &mg_mcStatus);
-	mgtree->Branch("llmass",   &llmass);
-//*********** histo list **********************//
+  mgtree->Branch("llmass",   &llmass);
+
+  //*********** histo list **********************//
+  TH1F *p_eventcount = new TH1F("p_eventcount","p_eventcount",7,0,7);
   rawData raw(es, datatype);
   std::vector<mcData>  MCData;
   std::vector<recoPhoton> Photon;
   std::vector<recoMuon>   Muon;
   std::vector<recoEle>   Ele;
   std::vector<recoJet>   JetCollection;
-/*********************************************/
+  /*********************************************/
   float MET(0);
   float METPhi(0);
-	float MET_T1JERUp(0);
-	float MET_T1JERDo(0);
-	float MET_T1JESUp(0);
-	float MET_T1JESDo(0);	
-	float	METPhi_T1JESUp(0);
-	float	METPhi_T1JESDo(0);
-	float	METPhi_T1UESUp(0);
-	float	METPhi_T1UESDo(0);
+  float MET_T1JERUp(0);
+  float MET_T1JERDo(0);
+  float MET_T1JESUp(0);
+  float MET_T1JESDo(0);	
+  float	METPhi_T1JESUp(0);
+  float	METPhi_T1JESDo(0);
+  float	METPhi_T1UESUp(0);
+  float	METPhi_T1UESDo(0);
   int nVtx(0);
   int jetNumber(0);
   int METFilter(0);
-	float ISRJetPt(0);
+  float ISRJetPt(0);
   logfile << "RunType: " << datatype << std::endl;
 
-  std::cout << "Total evetns : " << nEvts << std::endl;
+  std::cout << "Total events : " << nEvts << std::endl;
 
     for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
   
@@ -412,33 +398,36 @@ void analysis_VGamma(int RunYear, const char *Sample){//main
         Photon.clear();
         Muon.clear();
         Ele.clear();
-				JetCollection.clear();
+	JetCollection.clear();
         if(datatype == MC)for(int iMC(0); iMC < raw.nMC; iMC++){MCData.push_back(mcData(raw, iMC));}
         for(int iPho(0); iPho < raw.nPho; iPho++){Photon.push_back(recoPhoton(raw, iPho));}
         for(int iMu(0); iMu < raw.nMu; iMu++){Muon.push_back(recoMuon(raw, iMu));}
         for(int iEle(0); iEle < raw.nEle; iEle++){Ele.push_back(recoEle(raw, iEle));}
-				for(int iJet(0); iJet < raw.nJet; iJet++){JetCollection.push_back(recoJet(raw, iJet));}
+	for(int iJet(0); iJet < raw.nJet; iJet++){JetCollection.push_back(recoJet(raw, iJet));}
+
         MET = raw.pfMET;
         METPhi = raw.pfMETPhi;
-				MET_T1JERUp = raw.pfMET_T1JERUp;
-				MET_T1JERDo = raw.pfMET_T1JERDo;
-				MET_T1JESUp = raw.pfMET_T1JESUp;
-				MET_T1JESDo = raw.pfMET_T1JESDo;
-				METPhi_T1JESUp = raw.pfMETPhi_T1JESUp;
-				METPhi_T1JESDo = raw.pfMETPhi_T1JESDo;
-				METPhi_T1UESUp = raw.pfMETPhi_T1UESUp;
-				METPhi_T1UESDo = raw.pfMETPhi_T1UESDo;
+	MET_T1JERUp = raw.pfMET_T1JERUp;
+	MET_T1JERDo = raw.pfMET_T1JERDo;
+	MET_T1JESUp = raw.pfMET_T1JESUp;
+	MET_T1JESDo = raw.pfMET_T1JESDo;
+	METPhi_T1JESUp = raw.pfMETPhi_T1JESUp;
+	METPhi_T1JESDo = raw.pfMETPhi_T1JESDo;
+	METPhi_T1UESUp = raw.pfMETPhi_T1UESUp;
+	METPhi_T1UESDo = raw.pfMETPhi_T1UESDo;
         METFilter = raw.metFilters;
         nVtx = raw.nVtx;
 				
-				if(RunYear==2016) PUweight = getPUESF16(nVtx);
-				if(RunYear==2017) PUweight = getPUESF17(nVtx);
-				if(RunYear==2018) PUweight = getPUESF18(nVtx);
+				
+        if(preVFP==true and RunYear==2016) PUweight = getPUESF16preVFP(nVtx);
+        if(preVFP==false and RunYear==2016) PUweight = getPUESF16(nVtx);
+        if(RunYear==2017) PUweight = getPUESF17(nVtx);
+        if(RunYear==2018) PUweight = getPUESF18(nVtx);
 	
         if(raw.nPho <1)continue;
 
-	      int Nmedpho(0);
-	      for(std::vector<recoPhoton>::iterator itpho = Photon.begin() ; itpho != Photon.end(); ++itpho){
+	int Nmedpho(0);
+	for(std::vector<recoPhoton>::iterator itpho = Photon.begin() ; itpho != Photon.end(); ++itpho){
 	        if(!itpho->isMedium())continue;
 	        if(itpho->getR9() < 0.5 || itpho->getR9() > 1.0)continue;
 	        if(fabs(itpho->getEta()) > 1.4442 || itpho->getCalibEt() < 40)continue;
@@ -446,41 +435,41 @@ void analysis_VGamma(int RunYear, const char *Sample){//main
 	        if(itpho->PixelSeed() != 0)continue;
 	
 	        Nmedpho+=1;
-	      }
-	      if(Nmedpho >= 2)continue;
+	}
+	if(Nmedpho >= 2)continue;
 
-				nBJet = 0;
-				for(std::vector<recoJet>::iterator itJet = JetCollection.begin() ; itJet != JetCollection.end(); ++itJet){
-					if(itJet->getPt() < 20)continue;
-					if(itJet->isBJet())nBJet+=1;
-				}
-				//pdfWeight = raw.pdfWeight;
-				pdfWeight = 0; 
-				pdfSystWeight.clear();
-				ScaleSystWeight.clear(); 
-			//	for(unsigned i(0); i < raw.pdfSystWeight->size(); i++){
-			//		pdfSystWeight.push_back( (*raw.pdfSystWeight)[i] );
-			//	}
-			//	for(unsigned i(0); i < raw.genScaleSystWeights->size(); i++){
-			//		ScaleSystWeight.push_back( (*raw.genScaleSystWeights)[i]);
-			//	}
-				//process MC first  ****************************/
-				llmass = -1;
-				double WGPt = -1;
-				if(datatype == MC){
-				 std::vector<mcData>::iterator posMcMu; 
-				 bool hasposMcMu(false);
-				 std::vector<mcData>::iterator negMcMu;
-				 bool hasnegMcMu(false);
-				 std::vector<mcData>::iterator posMcTau; 
-				 bool hasposMcTau(false);
-				 std::vector<mcData>::iterator negMcTau;
-				 bool hasnegMcTau(false);
-				 std::vector<mcData>::iterator posMcEle; 
-				 bool hasposMcEle(false);
-				 std::vector<mcData>::iterator negMcEle;
-				 bool hasnegMcEle(false);
-				 for(std::vector<mcData>::iterator itMC = MCData.begin(); itMC!= MCData.end(); itMC++){
+	nBJet = 0;
+	for(std::vector<recoJet>::iterator itJet = JetCollection.begin() ; itJet != JetCollection.end(); ++itJet){
+		if(itJet->getPt() < 20)continue;
+		if(itJet->isBJet())nBJet+=1;
+	}
+	//pdfWeight = raw.pdfWeight;
+	pdfWeight = 0; 
+	pdfSystWeight.clear();
+	ScaleSystWeight.clear(); 
+	//	for(unsigned i(0); i < raw.pdfSystWeight->size(); i++){
+	//		pdfSystWeight.push_back( (*raw.pdfSystWeight)[i] );
+	//	}
+	//	for(unsigned i(0); i < raw.genScaleSystWeights->size(); i++){
+	//		ScaleSystWeight.push_back( (*raw.genScaleSystWeights)[i]);
+	//	}
+	//process MC first  ****************************/
+	llmass = -1;
+	double WGPt = -1;
+	if(datatype == MC){
+		 std::vector<mcData>::iterator posMcMu; 
+		 bool hasposMcMu(false);
+		 std::vector<mcData>::iterator negMcMu;
+		 bool hasnegMcMu(false);
+		 std::vector<mcData>::iterator posMcTau; 
+		 bool hasposMcTau(false);
+		 std::vector<mcData>::iterator negMcTau;
+		 bool hasnegMcTau(false);
+		 std::vector<mcData>::iterator posMcEle; 
+		 bool hasposMcEle(false);
+		 std::vector<mcData>::iterator negMcEle;
+		 bool hasnegMcEle(false);
+		 for(std::vector<mcData>::iterator itMC = MCData.begin(); itMC!= MCData.end(); itMC++){
 					switch(itMC->getPID()){
 						case 13: if(isHardLepton(itMC->getMomPID())){posMcMu = itMC; hasposMcMu=true;};break;
 						case -13:if(isHardLepton(itMC->getMomPID())){negMcMu = itMC; hasnegMcMu=true;};break;
@@ -493,201 +482,225 @@ void analysis_VGamma(int RunYear, const char *Sample){//main
 						case -24: WGPt = itMC->getPt(); break;
 						default: break;
 					}
-				 }
-				 if(hasposMcMu && hasnegMcMu)llmass = (posMcMu->getP4() + negMcMu->getP4()).M();
-				 else if(hasposMcTau && hasnegMcTau)llmass = (posMcTau->getP4() + negMcTau->getP4()).M();
-				 else if(hasposMcEle && hasnegMcEle)llmass = (posMcEle->getP4() + negMcEle->getP4()).M();
-				}
-	// dilepton found
+	         }
+		 if(hasposMcMu && hasnegMcMu)llmass = (posMcMu->getP4() + negMcMu->getP4()).M();
+		 else if(hasposMcTau && hasnegMcTau)llmass = (posMcTau->getP4() + negMcTau->getP4()).M();
+		 else if(hasposMcEle && hasnegMcEle)llmass = (posMcEle->getP4() + negMcEle->getP4()).M();
+	}
+
         bool hasegPho(false);
         bool hasmgPho(false);
         std::vector<recoPhoton>::iterator egsignalPho = Photon.begin();
         std::vector<recoPhoton>::iterator mgsignalPho = Photon.begin();
-       	for(std::vector<recoPhoton>::iterator itpho = Photon.begin() ; itpho != Photon.end(); ++itpho){
-					if(itpho->getR9() < 0.5)continue;
-          if(!itpho->passSignalSelection())continue;
-					bool PixelVeto = itpho->PixelSeed()==0? true: false;
-					bool GSFveto(true);
-					bool FSRVeto(true);
-					for(std::vector<recoEle>::iterator ie = Ele.begin(); ie != Ele.end(); ie++){
-					 if(DeltaR(itpho->getEta(), itpho->getPhi(), ie->getEta(), ie->getPhi()) < 0.02)GSFveto = false;
-					 if(DeltaR(itpho->getEta(), itpho->getPhi(), ie->getEta(), ie->getPhi()) < 0.3)FSRVeto=false;
-					}
-					for(std::vector<recoMuon>::iterator im = Muon.begin(); im != Muon.end(); im++)
-						if(DeltaR(itpho->getEta(), itpho->getPhi(), im->getEta(), im->getPhi()) < 0.3 && im->getPt()>2.0)FSRVeto=false;
-					if(GSFveto && PixelVeto && FSRVeto){
-						if(Pass_egPho){
-					 		if(!hasegPho){
-								hasegPho=true;
-					 			egsignalPho = itpho;
-							}
-						}
-						if(Pass_mgPho){
-					 		if(!hasmgPho){
-								hasmgPho=true;
-					 			mgsignalPho = itpho;
-							}
-						}
-					}
+       	
+	for(std::vector<recoPhoton>::iterator itpho = Photon.begin() ; itpho != Photon.end(); ++itpho){
+		if(itpho->getR9() < 0.5)continue;
+        	if(!itpho->passSignalSelection())continue;
+		bool PixelVeto = itpho->PixelSeed()==0? true: false;
+		bool GSFveto(true);
+		bool FSRVeto(true);
+		// No leptonic activities surrounding photons
+		for(std::vector<recoEle>::iterator ie = Ele.begin(); ie != Ele.end(); ie++){
+			if(DeltaR(itpho->getEta(), itpho->getPhi(), ie->getEta(), ie->getPhi()) < 0.02)GSFveto = false;
+			if(DeltaR(itpho->getEta(), itpho->getPhi(), ie->getEta(), ie->getPhi()) < 0.3)FSRVeto=false;
+		}
+	
+		for(std::vector<recoMuon>::iterator im = Muon.begin(); im != Muon.end(); im++)
+			if(DeltaR(itpho->getEta(), itpho->getPhi(), im->getEta(), im->getPhi()) < 0.3 && im->getPt()>2.0)FSRVeto=false;
+		                
+		if(GSFveto && PixelVeto && FSRVeto){
+	//		if((itpho->fireDoubleTrg(5) || itpho->fireDoubleTrg(6))){ // Year = 2016 Year = 2017
+		 		if(!hasegPho){
+					hasegPho=true;
+		 			egsignalPho = itpho;
+				}
+	//		}
+			if(itpho->fireDoubleTrg(28) || itpho->fireDoubleTrg(29) || itpho->fireDoubleTrg(30)){ // Year = 2016
+		 		if(!hasmgPho){
+					hasmgPho=true;
+		 			mgsignalPho = itpho;
+				}
+			}
+		}
         }
-	// signal lepton found
- 	// WGToLNuG for <= 50 and WGJet40 for > 50    
-				if(hasegPho){ 
-					if(egsignalPho->getCalibEt() > 50  && mcType==MCType::WGJetInclusive)hasegPho=false;
-					if(egsignalPho->getCalibEt() <= 50 && mcType==MCType::WGJet40)hasegPho=false;
-				}
-				if(hasmgPho){ 
-					if(mgsignalPho->getCalibEt() > 50  && mcType==MCType::WGJetInclusive)hasmgPho=false;
-					if(mgsignalPho->getCalibEt() <= 50 && mcType==MCType::WGJet40)hasmgPho=false;
-				}
+     
+	
+	if(hasegPho){ 
+		if(egsignalPho->getCalibEt() > 50  && mcType==MCType::WGJetInclusive)hasegPho=false;
+		if(egsignalPho->getCalibEt() <= 50 && mcType==MCType::WGJet40)hasegPho=false;
+	}
+	if(hasmgPho){ 
+		if(mgsignalPho->getCalibEt() > 50  && mcType==MCType::WGJetInclusive)hasmgPho=false;
+		if(mgsignalPho->getCalibEt() <= 50 && mcType==MCType::WGJet40)hasmgPho=false;
+	}
  
         bool hasEle(false);
         std::vector<recoEle>::iterator signalEle = Ele.begin();
         for(std::vector<recoEle>::iterator itEle = Ele.begin(); itEle != Ele.end(); itEle++){
-          if(hasEle)break;
-					if((itEle->isEB() && itEle->getR9() < 0.5) || (itEle->isEE() && itEle->getR9() < 0.8))continue;
-//					if((itEle->isEB() && (itEle->getD0() > 0.05 || itEle->getDz() > 0.10)) || (itEle->isEE() && ( itEle->getD0() > 0.10 || itEle->getDz() > 0.20)) )continue;
-					if(Pass_egEle){
-						if(itEle->passSignalSelection()){
-							hasEle=true; 
-							signalEle = itEle;
-						}
-					}
+        	if(hasEle)break;
+		if((itEle->isEB() && itEle->getR9() < 0.5) || (itEle->isEE() && itEle->getR9() < 0.8))continue;
+		//if((itEle->isEB() && (itEle->getD0() > 0.05 || itEle->getDz() > 0.10)) || (itEle->isEE() && ( itEle->getD0() > 0.10 || itEle->getDz() > 0.20)) )continue;
+		if(itEle->fireTrgs(21) || itEle->fireTrgs(22)){   // Year = 2016
+			if(itEle->passSignalSelection()){
+				hasEle=true; 
+				signalEle = itEle;
+			}
+		}
         }
 
         bool hasMu(false);
         std::vector<recoMuon>::iterator signalMu = Muon.begin();
-        if(hasmgPho){
-					for(std::vector<recoMuon>::iterator itMu = Muon.begin(); itMu != Muon.end(); itMu++){
-					if(hasMu)break;
-						if(Pass_mgMu){
-							if(itMu->passSignalSelection()){
-								hasMu=true; 
-								signalMu = itMu;
-							}
-						}
-					}
+        
+	if(hasmgPho){
+		for(std::vector<recoMuon>::iterator itMu = Muon.begin(); itMu != Muon.end(); itMu++){
+			if(hasMu)break;
+			if(itMu->fireSingleTrg(2) || itMu->fireSingleTrg(21) || itMu->fireSingleTrg(22)){  // Year = 2016
+				if(itMu->passSignalSelection()){
+					hasMu=true; 
+					signalMu = itMu;
+				}
+			}
+		}
         }
 
-				bool hasTrail(false);
-				std::vector<recoMuon>::iterator trailLep = Muon.begin();
-				for(std::vector<recoMuon>::iterator itMu = Muon.begin(); itMu != Muon.end(); itMu++){
-					if(itMu->getPt() < 25)continue;
-					if(itMu->passSignalSelection()){
-						if(!hasTrail){
-							hasTrail = true;
-							trailLep = itMu;
-						}
-					}
-				}
+	bool hasTrail(false);
+	std::vector<recoMuon>::iterator trailLep = Muon.begin();
+	for(std::vector<recoMuon>::iterator itMu = Muon.begin(); itMu != Muon.end(); itMu++){
+		if(itMu->getPt() < 25)continue;
+		if(itMu->passSignalSelection()){
+			if(!hasTrail){
+				hasTrail = true;
+				trailLep = itMu;
+			}
+		}	
+	}
 
-
-				bool hasDoubleEG(false);
+	bool hasDoubleEG(false);
 	
-				ISRJetPt = 0;
-				TLorentzVector JetVec(0,0,0,0);	
+	ISRJetPt = 0;
+	TLorentzVector JetVec(0,0,0,0);	
+	for(std::vector<recoJet>::iterator itJet = JetCollection.begin() ; itJet != JetCollection.end(); ++itJet){
+		if(!itJet->passSignalSelection())continue;
+		if(!nisrMatch(itJet->getEta(), itJet->getPhi(), MCData))JetVec = JetVec + itJet->getP4();
+	}
+	ISRJetPt = JetVec.Pt();
+	double reweightF(1);	
+				
+	if(RunYear==2016 && preVFP==1){
+	        if(ISRJetPt < 50)reweightF = 0.967889;
+             	else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.11724;
+                else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.979645;
+                else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.833069;
+                else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.881191;
+                else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.895074;
+                else if(ISRJetPt >= 300)reweightF = 0.816445;
+                Normalization = 0.988597;
+        }
+        else if(RunYear==2016 && preVFP==0){
+              	if(ISRJetPt < 50)reweightF = 1.0078;
+                else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.18628;
+                else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.940295;
+                else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.926074;
+                else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.856512;
+                else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.752113;
+                else if(ISRJetPt >= 300)reweightF = 0.671831;
+                 Normalization = 0.955131;
+        }
+
+       	ISRWeight = reweightF*Normalization;
+
+	///*************************   eg filters *****************************//
+	if(hasegPho) npassPho+=1;
+	if(hasEle)   npassEle+=1;
+	if(((raw.HLTPho >> 14)&1)==1) npassHLTPho+=1;
+
+        if(hasegPho && hasEle && (((raw.HLTPho >> 14)&1)==1)){ // Year = 2016 Year = 2017
+	  	npassEGselection+=1;
+          	double dReg = DeltaR(egsignalPho->getEta(), egsignalPho->getPhi(), signalEle->getEta(), signalEle->getPhi()); 
+          	if(dReg>0.8){
+	  		npassdR+=1;
+            		if(((egsignalPho->getP4()+signalEle->getP4()).M() - 91.188) > 10.0){
+	  		npassZ+=1;
+                	if(passFilter(METFilter)){
+				npassMETFilter+=1;
+				hasDoubleEG = true;
+				float deltaPhi = DeltaPhi(signalEle->getPhi(), METPhi);
+				float MT = sqrt(2*MET*signalEle->getPt()*(1-std::cos(deltaPhi)));
+        	    		eg_phoEt = egsignalPho->getEt();
+				eg_phoEta= egsignalPho->getEta();
+                		eg_phoPhi= egsignalPho->getPhi();
+				eg_lepPt = signalEle->getPt();
+ 				eg_lepEta= signalEle->getEta();
+                		eg_lepPhi= signalEle->getPhi();
+				if(hasTrail){
+					trailPt = trailLep->getPt();
+					trailEta = trailLep->getEta();
+					trailPhi = trailLep->getPhi();
+				}
+				else{
+					trailPt  = 0; 
+					trailEta = 0;
+					trailPhi = 0;
+				}
+ 				eg_sigMT = MT;
+				eg_sigMET= MET;
+                		eg_sigMETPhi = METPhi;
+				eg_dPhiLepMET = deltaPhi; 
+				eg_nVertex = nVtx; 
+				eg_dRPhoLep= dReg;
+                		eg_invmass = (egsignalPho->getP4()+signalEle->getP4()).M();
+				eg_bosonPt = WGPt;
+				eg_sigMETJESup = MET_T1JESUp;
+				eg_sigMETJESdo = MET_T1JESDo;
+				eg_sigMETJERup = MET_T1JERUp;
+				eg_sigMETJERdo = MET_T1JERDo;
+				eg_dPhiLepMETJESup = DeltaPhi(signalEle->getPhi(), METPhi_T1JESUp);
+				eg_dPhiLepMETJESdo = DeltaPhi(signalEle->getPhi(), METPhi_T1JESDo);
+				eg_dPhiLepMETJERup = deltaPhi;
+				eg_dPhiLepMETJERdo = deltaPhi;
+				eg_sigMTJESup = sqrt(2*MET_T1JESUp*signalEle->getPt()*(1-std::cos(eg_dPhiLepMETJESup)));
+				eg_sigMTJESdo = sqrt(2*MET_T1JESDo*signalEle->getPt()*(1-std::cos(eg_dPhiLepMETJESdo)));
+				eg_sigMTJERup = sqrt(2*MET_T1JERUp*signalEle->getPt()*(1-std::cos(eg_dPhiLepMETJERup)));
+				eg_sigMTJERdo = sqrt(2*MET_T1JERDo*signalEle->getPt()*(1-std::cos(eg_dPhiLepMETJERdo)));
+							
+				eg_nJet = 0;
+				eg_nISRJet = 0;
+				eg_HT = 0;
+				eg_HTJESup = 0;
+				eg_HTJESdo = 0;
 				for(std::vector<recoJet>::iterator itJet = JetCollection.begin() ; itJet != JetCollection.end(); ++itJet){
 					if(!itJet->passSignalSelection())continue;
-					if(!nisrMatch(itJet->getEta(), itJet->getPhi(), MCData))JetVec = JetVec + itJet->getP4();
-				}
-				//The ISR pT is deifned as the vector sum of all jets which have pT > 30 GeV and |eta| < 2.5.
-				ISRJetPt = JetVec.Pt();
-				double reweightF(1);	
-				// ISR weight from table 14 analysis note
-				if(ISRJetPt < 50)reweightF = 1.015;
-				else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.110;
-				else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.845;
-				else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.715;
-				else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF =	0.730;
-				else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF =	0.732;
-				else if(ISRJetPt >= 300)reweightF =  0.642; 
-				ISRWeight = reweightF*Normalization;	
-///*************************   eg filters *****************************//
-        if(hasegPho && hasEle && Pass_DoubleEG){
-          double dReg = DeltaR(egsignalPho->getEta(), egsignalPho->getPhi(), signalEle->getEta(), signalEle->getPhi()); 
-          if(dReg>0.8){
-            	if(((egsignalPho->getP4()+signalEle->getP4()).M() - 91.188) > 10.0){
-              if(passFilter(METFilter)){
-
-								hasDoubleEG = true;
-								float deltaPhi = DeltaPhi(signalEle->getPhi(), METPhi);
-								float MT = sqrt(2*MET*signalEle->getPt()*(1-std::cos(deltaPhi)));
-        	    	eg_phoEt = egsignalPho->getEt();
-			    			eg_phoEta= egsignalPho->getEta();
-                eg_phoPhi= egsignalPho->getPhi();
-			    			eg_lepPt = signalEle->getPt();
- 			    			eg_lepEta= signalEle->getEta();
-                eg_lepPhi= signalEle->getPhi();
-								if(hasTrail){
-									trailPt = trailLep->getPt();
-									trailEta = trailLep->getEta();
-									trailPhi = trailLep->getPhi();
-								}
-								else{
-									trailPt  = 0; 
-									trailEta = 0;
-									trailPhi = 0;
-								}
- 			    			eg_sigMT = MT;
-			    			eg_sigMET= MET;
-                eg_sigMETPhi = METPhi;
-			    			eg_dPhiLepMET = deltaPhi; 
-			    			eg_nVertex = nVtx; 
-			    			eg_dRPhoLep= dReg;
-                eg_invmass = (egsignalPho->getP4()+signalEle->getP4()).M();
-								eg_bosonPt = WGPt;
-								eg_sigMETJESup = MET_T1JESUp;
-								eg_sigMETJESdo = MET_T1JESDo;
-								eg_sigMETJERup = MET_T1JERUp;
-								eg_sigMETJERdo = MET_T1JERDo;
-								eg_dPhiLepMETJESup = DeltaPhi(signalEle->getPhi(), METPhi_T1JESUp);
-								eg_dPhiLepMETJESdo = DeltaPhi(signalEle->getPhi(), METPhi_T1JESDo);
-								eg_dPhiLepMETJERup = deltaPhi;
-								eg_dPhiLepMETJERdo = deltaPhi;
-								eg_sigMTJESup = sqrt(2*MET_T1JESUp*signalEle->getPt()*(1-std::cos(eg_dPhiLepMETJESup)));
-								eg_sigMTJESdo = sqrt(2*MET_T1JESDo*signalEle->getPt()*(1-std::cos(eg_dPhiLepMETJESdo)));
-								eg_sigMTJERup = sqrt(2*MET_T1JERUp*signalEle->getPt()*(1-std::cos(eg_dPhiLepMETJERup)));
-								eg_sigMTJERdo = sqrt(2*MET_T1JERDo*signalEle->getPt()*(1-std::cos(eg_dPhiLepMETJERdo)));
-							
-								eg_nJet = 0;
-								eg_nISRJet = 0;
-								eg_HT = 0;
-								eg_HTJESup = 0;
-								eg_HTJESdo = 0;
-								for(std::vector<recoJet>::iterator itJet = JetCollection.begin() ; itJet != JetCollection.end(); ++itJet){
-									if(!itJet->passSignalSelection())continue;
 									
-									if(!nisrMatch(itJet->getEta(), itJet->getPhi(), MCData))eg_nISRJet += 1;
-									if(DeltaR(itJet->getEta(), itJet->getPhi(), signalEle->getEta(), signalEle->getPhi()) <= 0.4)continue;
-									if(DeltaR(itJet->getEta(), itJet->getPhi(), egsignalPho->getEta(),egsignalPho->getPhi()) <= 0.4)continue;	
-									eg_nJet += 1;
-									eg_HT += itJet->getPt();
-									eg_HTJESup += itJet->getPt()*(1+itJet->getPtUnc());
-									eg_HTJESdo += itJet->getPt()*(1-itJet->getPtUnc());
-								}
-								eg_ISRJetPt = ISRJetPt;	
+					if(!nisrMatch(itJet->getEta(), itJet->getPhi(), MCData))eg_nISRJet += 1;
+					if(DeltaR(itJet->getEta(), itJet->getPhi(), signalEle->getEta(), signalEle->getPhi()) <= 0.4)continue;
+					if(DeltaR(itJet->getEta(), itJet->getPhi(), egsignalPho->getEta(),egsignalPho->getPhi()) <= 0.4)continue;	
+					eg_nJet += 1;
+					eg_HT += itJet->getPt();
+					eg_HTJESup += itJet->getPt()*(1+itJet->getPtUnc());
+					eg_HTJESdo += itJet->getPt()*(1-itJet->getPtUnc());
+				}
+				eg_ISRJetPt = ISRJetPt;	
  
-								if(datatype == MC){
-									eg_mcPID.clear();
-									eg_mcEta.clear();
-									eg_mcPhi.clear();
-									eg_mcPt.clear();
-									eg_mcMomPID.clear();
-									eg_mcGMomPID.clear();
-									eg_mcStatus.clear();
-									for(std::vector<mcData>::iterator itMC = MCData.begin(); itMC!= MCData.end(); itMC++){
-										if(itMC->getEt() < 5.0)continue;
-										eg_mcPID.push_back(itMC->getPID());
-										eg_mcMomPID.push_back(itMC->getMomPID());
-										eg_mcEta.push_back(itMC->getEta());      
-										eg_mcPhi.push_back(itMC->getPhi());
-										eg_mcPt.push_back(itMC->getEt());
-										eg_mcGMomPID.push_back(itMC->getGMomPID());
-										eg_mcStatus.push_back(itMC->getStatus());
-									}
-								}
-
-                egtree->Fill();
+				if(datatype == MC){
+					eg_mcPID.clear();
+					eg_mcEta.clear();
+					eg_mcPhi.clear();
+					eg_mcPt.clear();
+					eg_mcMomPID.clear();
+					eg_mcGMomPID.clear();
+					eg_mcStatus.clear();
+					for(std::vector<mcData>::iterator itMC = MCData.begin(); itMC!= MCData.end(); itMC++){
+						if(itMC->getEt() < 5.0)continue;
+						eg_mcPID.push_back(itMC->getPID());
+						eg_mcMomPID.push_back(itMC->getMomPID());
+						eg_mcEta.push_back(itMC->getEta());      
+						eg_mcPhi.push_back(itMC->getPhi());
+						eg_mcPt.push_back(itMC->getEt());
+						eg_mcGMomPID.push_back(itMC->getGMomPID());
+						eg_mcStatus.push_back(itMC->getStatus());
+					}
+				}
+                		egtree->Fill();
  
               }//MET Filter
             }// Z mass Filter
@@ -696,7 +709,7 @@ void analysis_VGamma(int RunYear, const char *Sample){//main
        
 //**********************  mg filter **************************************//         
  
-       if(hasmgPho && hasMu && Pass_MuonEG && !hasDoubleEG){
+       if(hasmgPho && hasMu && (((raw.HLTEleMuX >> 8)&1)!=0 || ((raw.HLTEleMuX >> 51)&1)!=0) && !hasDoubleEG){  // Year = 2016
 					double dRmg = DeltaR(mgsignalPho->getEta(), mgsignalPho->getPhi(), signalMu->getEta(), signalMu->getPhi());
 					if(dRmg>0.8){
 						if(passFilter(METFilter)){ 
@@ -790,12 +803,26 @@ void analysis_VGamma(int RunYear, const char *Sample){//main
        }//Candidate Filter
  
 	}//loop on  events
-cout<<"Entries in egtree "<<egtree->GetEntries()<<"  "<<100.*egtree->GetEntries()/es->GetEntries()<<endl;
-cout<<"Entries in mgtree "<<mgtree->GetEntries()<<"  "<<100.*mgtree->GetEntries()/es->GetEntries()<<endl;
-if(egtree->GetEntries()==0 || mgtree->GetEntries()==0) cout<<RunYear<<"  "<<Sample<<" Ahh Entries is ZERO... please check"<<endl;
-outputfile->Write();
-outputfile->Close();
-logfile.close();
+
+  p_eventcount->GetXaxis()->SetBinLabel(1,"npassPho");
+  p_eventcount->GetXaxis()->SetBinLabel(2,"npassEle");
+  p_eventcount->GetXaxis()->SetBinLabel(3,"npassHLTPho");
+  p_eventcount->GetXaxis()->SetBinLabel(4,"npassEGselection");
+  p_eventcount->GetXaxis()->SetBinLabel(5,"npassdR");
+  p_eventcount->GetXaxis()->SetBinLabel(6,"npassZ");
+  p_eventcount->GetXaxis()->SetBinLabel(7,"npassMETFilter");
+  
+  p_eventcount->Fill(0.5, npassPho);
+  p_eventcount->Fill(1.5, npassEle);
+  p_eventcount->Fill(2.5, npassHLTPho);
+  p_eventcount->Fill(3.5, npassEGselection);
+  p_eventcount->Fill(4.5, npassdR);
+  p_eventcount->Fill(5.5, npassZ);
+  p_eventcount->Fill(6.5, npassMETFilter);
+  cout<<egtree->GetEntries()<<"\t"<<npassPho<<"\t"<<npassEle<<"\t"<<npassHLTPho<<"\t"<<npassEGselection<<"\t"<<npassdR<<"\t"<<npassZ<<"\t"<<npassMETFilter<<endl;
+  outputfile->Write();
+  outputfile->Close();
+  logfile.close();
 
 }
 

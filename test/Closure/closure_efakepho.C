@@ -1,64 +1,68 @@
-#include "../../include/analysis_commoncode.h"
-#include "TArrow.h"
+	// run by root -l -q "closure_efakepho.C(1,2016,1)"
 
-//#define NTOY 1000
-#define NTOY 1
-bool useGaussFit=false;
+	#include "../../include/analysis_commoncode.h"
+	#include "TArrow.h"
 
-#define MAXET 199
-#define MAXMT 399
-#define MAXMET 399
-#define MAXHT 399
-int RunYear = 2016;
-bool doDrellYan = true;
+	//#define NTOY 1000
+	#define NTOY 1
+	bool useGaussFit=false;
 
-void closure_efakepho(){
-  gROOT->SetBatch(kTRUE);
-  setTDRStyle();
-	gStyle->SetTitleXOffset(2.5);
-  gSystem->Load("../../lib/libAnaClasses.so");
-  int channelType = 1; // eg = 1; mg =2;
+	#define MAXET 199
+	#define MAXMT 399
+	#define MAXMET 399
+	#define MAXHT 399
+	//int Year = 2018; bool ISpreVFP = true;
 
-  /**********************************/
-	/*	double normfactor = par[0]; 	*/  
-  /*	double slope = par[1];				*/
-  /*	double constant = par[2];			*/
-  /*	double index = par[3];				*/
-  /*	double coeff = par[4]; 				*/
-	/*	double vtx_constant = par[5];	*/
-	/*	double vtx_slope = par[6];		*/
-  /**********************************/
-	std::ifstream elefake_file(Form("/eos/uscms/store/user/tmishra/elefakepho/EleFakeRate-DrellYan-ByPtVtx-EB_DY_%d.txt",RunYear));
-	// fake rate byPtVtx estimated from DrellYan
-	double scalefactor(0);
-	double ptslope(0);
-	double ptconstant(0);
-	double ptindex(0);
-	double ptcoeff(0);
-	double vtxconst(0);
-	double vtxslope(0);
-	std::string variabletype;
-	double variablevalue;
-	if(elefake_file.is_open()){
-  	for(int i(0); i<7; i++){ 
-			elefake_file >> variabletype >> variablevalue; 
-			if(variabletype.find("scalefactor")!=std::string::npos)scalefactor = variablevalue;
-			else if(variabletype.find("ptslope")!=std::string::npos)ptslope = variablevalue;
-			else if(variabletype.find("ptconstant")!=std::string::npos)ptconstant = variablevalue;
-			else if(variabletype.find("ptindex")!=std::string::npos)ptindex = variablevalue;
-			else if(variabletype.find("ptcoeff")!=std::string::npos)ptcoeff = variablevalue;
-			else if(variabletype.find("vtxconst")!=std::string::npos)vtxconst = variablevalue;
-			else if(variabletype.find("vtxslope")!=std::string::npos)vtxslope = variablevalue;
-	  }
-	}
-	elefake_file.close();
-	TF3 h_nominal_fakerate("h_nominal_fakerate", mcfakerate_func,10,1000,0,100,0,1.5,7);
-	h_nominal_fakerate.SetParameters(scalefactor, ptslope, ptconstant, ptindex, ptcoeff, vtxconst, vtxslope);
+	void closure_efakepho(int ichannel, int Year, bool ISpreVFP){
+	  gROOT->SetBatch(kTRUE);
+	  setTDRStyle();
+	  gStyle->SetTitleXOffset(2.5);
+	  gSystem->Load("../../lib/libAnaClasses.so");
+	  int channelType = ichannel; // eg = 1; mg =2;
 
-	TF3 *h_toymc_fakerate[NTOY];
-	std::ostringstream funcname;
-	//std::ifstream elefake_toyfile("/uscms_data/d3/mengleis/SUSYAnalysis/test/eleFakePho/DrellYanResult/ToyFakeRate_DrellYan_EB.txt");
-	std::ifstream elefake_toyfile(Form("/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult%d/ToyFakeRate_DrellYan_EB.txt",RunYear));
+	  /**********************************/
+		/*	double normfactor = par[0]; 	*/  
+	  /*	double slope = par[1];				*/
+	  /*	double constant = par[2];			*/
+	  /*	double index = par[3];				*/
+	  /*	double coeff = par[4]; 				*/
+		/*	double vtx_constant = par[5];	*/
+		/*	double vtx_slope = par[6];		*/
+	  /**********************************/
+		std::string whichVFP;
+		if(Year==2016 and ISpreVFP == true) whichVFP = "preVFP";
+		if(Year==2016 and ISpreVFP == false) whichVFP = "postVFP";
+		if(Year==2017 or  Year == 2018) whichVFP = "";
+		std::ifstream elefake_file(Form("/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult%d%s/EleFakeRate-DrellYan-ByPtVtx-EB.txt",Year,whichVFP.c_str()));
+		// fake rate byPtVtx estimated from DrellYan
+		double scalefactor(0);
+		double ptslope(0);
+		double ptconstant(0);
+		double ptindex(0);
+		double ptcoeff(0);
+		double vtxconst(0);
+		double vtxslope(0);
+		std::string variabletype;
+		double variablevalue;
+		if(elefake_file.is_open()){
+		for(int i(0); i<7; i++){ 
+				elefake_file >> variabletype >> variablevalue; 
+				if(variabletype.find("scalefactor")!=std::string::npos)scalefactor = variablevalue;
+				else if(variabletype.find("ptslope")!=std::string::npos)ptslope = variablevalue;
+				else if(variabletype.find("ptconstant")!=std::string::npos)ptconstant = variablevalue;
+				else if(variabletype.find("ptindex")!=std::string::npos)ptindex = variablevalue;
+				else if(variabletype.find("ptcoeff")!=std::string::npos)ptcoeff = variablevalue;
+				else if(variabletype.find("vtxconst")!=std::string::npos)vtxconst = variablevalue;
+				else if(variabletype.find("vtxslope")!=std::string::npos)vtxslope = variablevalue;
+		  }
+		}
+		elefake_file.close();
+		TF3 h_nominal_fakerate("h_nominal_fakerate", mcfakerate_func,10,1000,0,100,0,1.5,7);
+		h_nominal_fakerate.SetParameters(scalefactor, ptslope, ptconstant, ptindex, ptcoeff, vtxconst, vtxslope);
+
+		TF3 *h_toymc_fakerate[NTOY];
+		std::ostringstream funcname;
+		std::ifstream elefake_toyfile(Form("/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult%d%s/ToyFakeRate_DrellYan_EB.txt",Year,whichVFP.c_str()));
 	// toy fake rate byPtVtx estimated from DrellYan
 	
 	if(elefake_toyfile.is_open()){
@@ -88,15 +92,15 @@ void closure_efakepho(){
 	//************ Signal Tree **********************//
 	TChain *sigtree = new TChain("signalTree");
 	// processes contribute to electron fake photon background <= direct signal event
-	if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_DYJetsToLL_%d.root",RunYear));
-	if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_TTJets_%d.root",RunYear));
-	if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WW_%d.root",RunYear));
-	if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WZ_%d.root",RunYear));
+	if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_DYJetsToLL_%d%s.root",Year,whichVFP.c_str()));
+	if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_TTJets_%d%s.root",Year,whichVFP.c_str()));
+	if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WW_%d%s.root",Year,whichVFP.c_str()));
+	if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WZ_%d%s.root",Year,whichVFP.c_str()));
 
-	if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_DYJetsToLL_%d.root",RunYear));
-	if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_TTJets_%d.root",RunYear));
-	if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WW_%d.root",RunYear));
-	if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WZ_%d.root",RunYear));
+	if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_DYJetsToLL_%d%s.root",Year,whichVFP.c_str()));
+	if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_TTJets_%d%s.root",Year,whichVFP.c_str()));
+	if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WW_%d%s.root",Year,whichVFP.c_str()));
+	if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WZ_%d%s.root",Year,whichVFP.c_str()));
 
 	float crosssection(0);
 	float ntotalevent(0);
@@ -114,12 +118,12 @@ void closure_efakepho(){
 	int   nVertex(0);
 	float dRPhoLep(0);
 	float nJet(0);
-  std::vector<int>   *mcPID=0;
-  std::vector<float> *mcEta=0;
-  std::vector<float> *mcPhi=0;
-  std::vector<float> *mcPt=0;
-  std::vector<int>   *mcMomPID=0;
-  std::vector<int>   *mcGMomPID=0;
+  	std::vector<int>   *mcPID=0;
+  	std::vector<float> *mcEta=0;
+  	std::vector<float> *mcPhi=0;
+  	std::vector<float> *mcPt=0;
+  	std::vector<int>   *mcMomPID=0;
+  	std::vector<int>   *mcGMomPID=0;
 
 	sigtree->SetBranchAddress("crosssection",&crosssection);
 	sigtree->SetBranchAddress("ntotalevent", &ntotalevent);
@@ -131,23 +135,36 @@ void closure_efakepho(){
 	sigtree->SetBranchAddress("lepPhi",    &lepPhi);
 	sigtree->SetBranchAddress("sigMT",     &sigMT);
 	sigtree->SetBranchAddress("sigMET",    &sigMET);
-  sigtree->SetBranchAddress("HT",        &HT);
+  	sigtree->SetBranchAddress("HT",        &HT);
 	sigtree->SetBranchAddress("dPhiLepMET",&dPhiLepMET);
 	sigtree->SetBranchAddress("sigMETPhi", &sigMETPhi);
 	sigtree->SetBranchAddress("nVertex",   &nVertex);
 	sigtree->SetBranchAddress("dRPhoLep",  &dRPhoLep);
 	sigtree->SetBranchAddress("nJet",      &nJet);
-  sigtree->SetBranchAddress("mcPID",     &mcPID);
-  sigtree->SetBranchAddress("mcEta",     &mcEta);
-  sigtree->SetBranchAddress("mcPhi",     &mcPhi);
-  sigtree->SetBranchAddress("mcPt",      &mcPt);
-  sigtree->SetBranchAddress("mcMomPID",  &mcMomPID);
-  sigtree->SetBranchAddress("mcGMomPID", &mcGMomPID);
+  	sigtree->SetBranchAddress("mcPID",     &mcPID);
+  	sigtree->SetBranchAddress("mcEta",     &mcEta);
+  	sigtree->SetBranchAddress("mcPhi",     &mcPhi);
+  	sigtree->SetBranchAddress("mcPt",      &mcPt);
+  	sigtree->SetBranchAddress("mcMomPID",  &mcMomPID);
+  	sigtree->SetBranchAddress("mcGMomPID", &mcGMomPID);
 
 	for (unsigned ievt(0); ievt<sigtree->GetEntries(); ++ievt){//loop on entries
 		sigtree->GetEntry(ievt);
 		// cross sectional weight
-		double weight = getEvtWeight(RunYear,crosssection,ntotalevent);
+		double weight = 1;
+		if(channelType == 1){
+                        if(Year == 2016 and ISpreVFP == 1)             weight = lumi_2016preVFP_DoubleEG*1000*crosssection/ntotalevent;
+                        else if(Year == 2016 and ISpreVFP == 0)        weight = lumi_2016postVFP_DoubleEG*1000*crosssection/ntotalevent;
+                        else if(Year == 2017)                        weight = lumi_2017_DoubleEG*1000*crosssection/ntotalevent;
+                        else if(Year == 2018)                        weight = lumi_2018_DoubleEG*1000*crosssection/ntotalevent;}
+
+                else if(channelType == 2){
+                        if(Year == 2016 and ISpreVFP == 1)             weight = lumi_2016preVFP_MuonEG*1000*crosssection/ntotalevent;
+                        else if(Year == 2016 and ISpreVFP == 0)        weight = lumi_2016postVFP_MuonEG*1000*crosssection/ntotalevent;
+                        else if(Year == 2017)                        weight = lumi_2017_MuonEG*1000*crosssection/ntotalevent;
+                        else if(Year == 2018)                        weight = lumi_2018_MuonEG*1000*crosssection/ntotalevent;}
+		//if(ievt==0) cout<<Year<< " "<<crosssection<<" "<<ntotalevent<<" "<<weight<<endl;
+		//cout<<"weight is "<<weight<<endl;
 		/** cut flow *****/
 		if(phoEt < 35 || lepPt < 25)continue;
 		if(fabs(phoEta) > 1.4442 || fabs(lepEta) > 2.5)continue;
@@ -191,11 +208,11 @@ void closure_efakepho(){
 		if(minEledR < 0.02)isFakePho = true;
 
 		if(!isFakePho){
-			std::cout << "event " << ievt << std::endl; 
+			//std::cout << "event " << ievt << std::endl; 
 			for(unsigned iMC(0); iMC < mcPID->size(); iMC++){
 				double dR = DeltaR((*mcEta)[iMC], (*mcPhi)[iMC], phoEta, phoPhi);
 				double dE = fabs((*mcPt)[iMC] - phoEt)/phoEt;
-				std::cout << fabs((*mcPID)[iMC]) << " dR " << dR << " dE " << dE << std::endl;
+				//std::cout << fabs((*mcPID)[iMC]) << " dR " << dR << " dE " << dE << std::endl;
 			}
 		}
 	
@@ -271,8 +288,8 @@ void closure_efakepho(){
 	//************ Proxy Tree **********************//
 	TChain *proxytree = new TChain("proxyTree");
 	// DY majorly contribute to electron fake photon background, proxy event
-	if(channelType==1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_DYJetsToLL_%d.root",RunYear));
-	if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_DYJetsToLL_%d.root",RunYear));
+	if(channelType==1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_DYJetsToLL_%d%s.root",Year,whichVFP.c_str()));
+	if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_DYJetsToLL_%d%s.root",Year,whichVFP.c_str()));
 
 	float proxycrosssection(0);
 	float proxyntotalevent(0);
@@ -308,10 +325,24 @@ void closure_efakepho(){
 	proxytree->SetBranchAddress("HT",        	 &proxyHT);
 	proxytree->SetBranchAddress("nJet",      	 &proxynJet);
 
+	 cout<<"Year "<<Year<<endl<<endl;
 	for (unsigned ievt(0); ievt<proxytree->GetEntries(); ++ievt){//loop on entries
 		proxytree->GetEntry(ievt);
 		
-		double weight = getEvtWeight(RunYear,proxycrosssection,proxyntotalevent);
+		double weight = 1;
+		if(channelType == 1){
+                        if(Year == 2016 and ISpreVFP == 1)             weight = lumi_2016preVFP_DoubleEG*1000*proxycrosssection/proxyntotalevent;
+                        else if(Year == 2016 and ISpreVFP == 0)        weight = lumi_2016postVFP_DoubleEG*1000*proxycrosssection/proxyntotalevent;
+                        else if(Year == 2017)                        weight = lumi_2017_DoubleEG*1000*proxycrosssection/proxyntotalevent;
+                        else if(Year == 2018)                        weight = lumi_2018_DoubleEG*1000*proxycrosssection/proxyntotalevent;}
+
+                else if(channelType == 2){
+                        if(Year == 2016 and ISpreVFP == 1)             weight = lumi_2016preVFP_MuonEG*1000*proxycrosssection/proxyntotalevent;
+                        else if(Year == 2016 and ISpreVFP == 0)        weight = lumi_2016postVFP_MuonEG*1000*proxycrosssection/proxyntotalevent;
+                        else if(Year == 2017)                        weight = lumi_2017_MuonEG*1000*proxycrosssection/proxyntotalevent;
+                        else if(Year == 2018)                        weight = lumi_2018_MuonEG*1000*proxycrosssection/proxyntotalevent;}
+		
+		if(ievt==0) cout<<"DY cross-section "<<proxycrosssection<<endl;
 
 		if(proxyphoEt > MAXET)proxyphoEt = MAXET;
 		if(proxysigMET > MAXMET)proxysigMET = MAXMET;
@@ -361,13 +392,13 @@ void closure_efakepho(){
 	//************ Proxy Tree **********************//
 	TChain *raretree = new TChain("proxyTree");
 	// TTJets, WW, WZ rarely contribute to electron fake photon background, proxy event
-	if(channelType==1)raretree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_TTJets_%d.root",RunYear));
-	if(channelType==1)raretree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WW_%d.root",RunYear));
-	if(channelType==1)raretree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WZ_%d.root",RunYear));
+	if(channelType==1)raretree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_TTJets_%d%s.root",Year,whichVFP.c_str()));
+	if(channelType==1)raretree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WW_%d%s.root",Year,whichVFP.c_str()));
+	if(channelType==1)raretree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WZ_%d%s.root",Year,whichVFP.c_str()));
 
-	if(channelType==2)raretree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_TTJets_%d.root",RunYear));
-	if(channelType==2)raretree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WW_%d.root",RunYear));
-	if(channelType==2)raretree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WZ_%d.root",RunYear));
+	if(channelType==2)raretree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_TTJets_%d%s.root",Year,whichVFP.c_str()));
+	if(channelType==2)raretree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WW_%d%s.root",Year,whichVFP.c_str()));
+	if(channelType==2)raretree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WZ_%d%s.root",Year,whichVFP.c_str()));
 
 	float rarecrosssection(0);
 	float rarentotalevent(0);
@@ -405,9 +436,21 @@ void closure_efakepho(){
 
 	for (unsigned ievt(0); ievt<raretree->GetEntries(); ++ievt){//loop on entries
 		raretree->GetEntry(ievt);
+		
+		double weight = 1;
+		if(channelType == 1){
+                        if(Year == 2016 and ISpreVFP == 1)             weight = lumi_2016preVFP_DoubleEG*1000*rarecrosssection/rarentotalevent;
+                        else if(Year == 2016 and ISpreVFP == 0)        weight = lumi_2016postVFP_DoubleEG*1000*rarecrosssection/rarentotalevent;
+                        else if(Year == 2017)                        weight = lumi_2017_DoubleEG*1000*rarecrosssection/rarentotalevent;
+                        else if(Year == 2018)                        weight = lumi_2018_DoubleEG*1000*rarecrosssection/rarentotalevent;}
 
-		double weight = getEvtWeight(RunYear,rarecrosssection,rarentotalevent);
-
+                else if(channelType == 2){
+                        if(Year == 2016 and ISpreVFP == 1)             weight = lumi_2016preVFP_MuonEG*1000*rarecrosssection/rarentotalevent;
+                        else if(Year == 2016 and ISpreVFP == 0)        weight = lumi_2016postVFP_MuonEG*1000*rarecrosssection/rarentotalevent;
+                        else if(Year == 2017)                        weight = lumi_2017_MuonEG*1000*rarecrosssection/rarentotalevent;
+                        else if(Year == 2018)                        weight = lumi_2018_MuonEG*1000*rarecrosssection/rarentotalevent;}
+		
+		if(ievt==0) cout<<"tt cross-section "<<rarecrosssection<<endl<<endl;
 		if(rarephoEt > MAXET)rarephoEt = MAXET;
 		if(raresigMET > MAXMET)raresigMET = MAXMET;
 		if(raresigMT > MAXMT)raresigMT = MAXMT;
@@ -418,7 +461,7 @@ void closure_efakepho(){
 		if(rarephoEt < 35 || rarelepPt < 25)continue;
 		if(fabs(rarephoEta) > 1.4442 || fabs(rarelepEta) > 2.5)continue;
 		double w_ele = h_nominal_fakerate(rarephoEt, rarenVertex, fabs(rarephoEta));
-		// XSec weight * ele fake photon weight
+		// ele fake photon weight * XSec weight
 		w_ele = w_ele*weight;
 		// predicted electron fake background using proxy events
 		pred_PhoEt->Fill(rarephoEt,w_ele);
@@ -450,7 +493,7 @@ void closure_efakepho(){
     toyvec.push_back(pred_PhoEt->GetBinContent(ibin));
     for(unsigned it(0); it < NTOY; it++)toyvec.push_back(toy_PhoEt[it]->GetBinContent(ibin));
 	// systematic error from predicted bkg and toys with Gauss fit
-    double syserr = calcToyError( toyvec, useGaussFit);
+    double syserr = calcToyError( toyvec, useGaussFit, channelType);
 		// Total stat and syst error
 		double totalerror = sqrt(syserr*syserr + pred_PhoEt->GetBinError(ibin)*pred_PhoEt->GetBinError(ibin));
 		pred_PhoEt->SetBinError(ibin, totalerror);
@@ -459,7 +502,7 @@ void closure_efakepho(){
     toyvec.clear();
     toyvec.push_back(pred_LepPt->GetBinContent(ibin));
     for(unsigned it(0); it < NTOY; it++)toyvec.push_back(toy_LepPt[it]->GetBinContent(ibin));
-    double syserr = calcToyError( toyvec, useGaussFit);
+    double syserr = calcToyError( toyvec, useGaussFit, channelType);
 
 		double totalerror = sqrt(syserr*syserr + pred_LepPt->GetBinError(ibin)*pred_LepPt->GetBinError(ibin));
 		pred_LepPt->SetBinError(ibin, totalerror);
@@ -468,7 +511,7 @@ void closure_efakepho(){
     toyvec.clear();
     toyvec.push_back(pred_MET->GetBinContent(ibin));
     for(unsigned it(0); it < NTOY; it++)toyvec.push_back(toy_MET[it]->GetBinContent(ibin));
-    double syserr = calcToyError( toyvec, useGaussFit);
+    double syserr = calcToyError( toyvec, useGaussFit, channelType);
 
 		double totalerror = sqrt(syserr*syserr + pred_MET->GetBinError(ibin)*pred_MET->GetBinError(ibin));
 		pred_MET->SetBinError(ibin, totalerror);
@@ -477,7 +520,7 @@ void closure_efakepho(){
     toyvec.clear();
     toyvec.push_back(pred_Mt->GetBinContent(ibin));
     for(unsigned it(0); it < NTOY; it++)toyvec.push_back(toy_Mt[it]->GetBinContent(ibin));
-    double syserr = calcToyError( toyvec, useGaussFit);
+    double syserr = calcToyError( toyvec, useGaussFit, channelType);
 
 		double totalerror = sqrt(syserr*syserr + pred_Mt->GetBinError(ibin)*pred_Mt->GetBinError(ibin));
 		pred_Mt->SetBinError(ibin, totalerror);
@@ -486,7 +529,7 @@ void closure_efakepho(){
     toyvec.clear();
     toyvec.push_back(pred_dPhiEleMET->GetBinContent(ibin));
     for(unsigned it(0); it < NTOY; it++)toyvec.push_back(toy_dPhiEleMET[it]->GetBinContent(ibin));
-    double syserr = calcToyError( toyvec, useGaussFit);
+    double syserr = calcToyError( toyvec, useGaussFit, channelType);
 
 		double totalerror = sqrt(syserr*syserr + pred_dPhiEleMET->GetBinError(ibin)*pred_dPhiEleMET->GetBinError(ibin));
 		pred_dPhiEleMET->SetBinError(ibin, totalerror);
@@ -495,7 +538,7 @@ void closure_efakepho(){
     toyvec.clear();
     toyvec.push_back(pred_HT->GetBinContent(ibin));
     for(unsigned it(0); it < NTOY; it++)toyvec.push_back(toy_HT[it]->GetBinContent(ibin));
-    double syserr = calcToyError( toyvec, useGaussFit);
+    double syserr = calcToyError( toyvec, useGaussFit, channelType);
 
 		double totalerror = sqrt(syserr*syserr + pred_HT->GetBinError(ibin)*pred_HT->GetBinError(ibin));
 		pred_HT->SetBinError(ibin, totalerror);
@@ -551,16 +594,19 @@ void closure_efakepho(){
 	leg->AddEntry(pred_PhoEt,"t#bar{t} / WW / WZ");
 	leg->AddEntry(DY_PhoEt,"Drell#scale[0.5]{ }#minusYan");
 
-	leg->AddEntry(error_PhoEt, "Total uncertainty");
+	//leg->AddEntry(error_PhoEt, "Total uncertainty");
 	leg->Draw("same");
-  TLatex chantex;
-  chantex.SetNDC();
-  chantex.SetTextFont(42);
-  chantex.SetTextSize(0.07);    
-  //chantex.DrawLatex(0.58,0.82," #mu + #gamma");
-  chantex.DrawLatex(0.58,0.82," e + #gamma");
+  	TLatex chantex;
+  	chantex.SetNDC();
+  	chantex.SetTextFont(42);
+  	chantex.SetTextSize(0.07);    
+  	if(channelType==1) chantex.DrawLatex(0.58,0.82," e + #gamma");
+  	if(channelType==2) chantex.DrawLatex(0.58,0.82," #mu + #gamma");
  	gPad->RedrawAxis();
-  CMS_lumi( pt_pad1, 11 );
+	if(Year==2016 and ISpreVFP == 1)       CMS_lumi( pt_pad1, 1, 11 );
+        else if(Year==2016 and ISpreVFP == 0)  CMS_lumi( pt_pad1, 2, 11 );
+        else if(Year==2017)                  CMS_lumi( pt_pad1, 3, 11 );
+        else if(Year==2018)                  CMS_lumi( pt_pad1, 4, 11 );
 		
 	p_PhoEt->Draw("same");
 	for(int ibin(1); ibin < pred_PhoEt->GetSize(); ibin++){
@@ -577,27 +623,31 @@ void closure_efakepho(){
 
 	c_pt->cd();
 	TPad *pt_pad2 = new TPad("pt_pad2", "pt_pad2", 0, 0, 1, 0.35);
+	pt_pad2->SetTopMargin(0);
 	pt_pad2->SetBottomMargin(0.3);
 	pt_pad2->Draw();
 	pt_pad2->cd();
   TLine *flatratio = new TLine(35,1,200,1);
 	ratio->GetXaxis()->SetRangeUser(35,200);
-	ratio->SetMinimum(0);
-	ratio->SetMaximum(2);
+	ratio->GetYaxis()->SetRangeUser(0.4,1.7);
 	ratio->SetMarkerStyle(20);
 	ratio->SetLineColor(kBlack);
 	// from signal events - predicted events
 	ratio->Divide(pred_PhoEt);
 	ratio->SetTitle("");
-	ratio->GetYaxis()->SetTitle("#frac{Simulation}{Prediction}");
+	ratio->GetYaxis()->SetTitle("#frac{Simulation}{Prediction} ");
 	ratio->GetYaxis()->SetNdivisions(504);
 	ratio->Draw();
 	ratioerror_PhoEt->SetFillColor(12);
 	ratioerror_PhoEt->SetFillStyle(3345);
-	ratioerror_PhoEt->Draw("E2 same");
+	//ratioerror_PhoEt->Draw("E2 same");
 	ratio->Draw("same");
 	flatratio->Draw("same");
-	c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/closure_elefakepho_PhotonEt_eg_%d.pdf",RunYear));
+	TLine *ratioValue_PhoEt = new TLine(35,p_PhoEt->Integral()/pred_PhoEt->Integral(),200,p_PhoEt->Integral()/pred_PhoEt->Integral());
+        ratioValue_PhoEt->SetLineColor(kRed);
+        ratioValue_PhoEt->Draw("same");
+	if(channelType==1) c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho_PhotonEt_eg_%d%s.pdf",Year,whichVFP.c_str()));
+	if(channelType==2) c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho_PhotonEt_mg_%d%s.pdf",Year,whichVFP.c_str()));
 
 
 // similar for other variables
@@ -610,6 +660,10 @@ void closure_efakepho(){
 	met_pad1->Draw();  
 	met_pad1->cd();  
 	gPad->SetLogy();
+	cout<<"Direct simulation "<< p_MET->Integral()<<endl;
+	//cout<<"DY " <<DY_MET->Integral()<<endl;
+	cout<<"t#bar{t} / WW/ WZ "<<pred_MET->Integral()<<endl;
+	cout<<"Ratio "<<p_MET->Integral()/pred_MET->Integral()<<endl;
 	p_MET->SetMaximum(1000*p_MET->GetBinContent(p_MET->GetMaximumBin())); 
 	p_MET->SetMinimum(0.05);
 	p_MET->GetXaxis()->SetRangeUser(0,400);
@@ -633,15 +687,15 @@ void closure_efakepho(){
 	}
 	pred_MET->Draw("hist same");
 	DY_MET->Draw("hist same");
-  error_MET->SetFillColor(12);
-  error_MET->SetFillStyle(3345);
+  	error_MET->SetFillColor(12);
+  	error_MET->SetFillStyle(3345);
 	error_MET->Draw("E2 same");
 	leg->Draw("same");
 	p_MET->Draw("E same");
-  //chantex.DrawLatex(0.58,0.82," #mu + #gamma");
-  chantex.DrawLatex(0.58,0.82," e + #gamma");
+  	if(channelType==1) chantex.DrawLatex(0.58,0.82," e + #gamma");
+  	if(channelType==2) chantex.DrawLatex(0.58,0.82," #mu + #gamma");
 	//TLine *line_met = new TLine(70,0,70,10000);
-	TLine *line_met = new TLine(70,0,70,100000);
+	TLine *line_met = new TLine(70,0.05,70,1000*p_MET->GetBinContent(p_MET->GetMaximumBin()));
 	line_met->SetLineStyle(2);
 	line_met->Draw("same");
 	TLatex* latex = new TLatex();
@@ -651,10 +705,14 @@ void closure_efakepho(){
 	latex->DrawLatex(20, 60000,"control");
 	latex->DrawLatex(20, 30000,"region");
  	gPad->RedrawAxis();
-  CMS_lumi( met_pad1, 11 );
+	if(Year==2016 and ISpreVFP == 1)       CMS_lumi( met_pad1, 1, 11 );
+        else if(Year==2016 and ISpreVFP == 0)  CMS_lumi( met_pad1, 2, 11 );
+        else if(Year==2017)                  CMS_lumi( met_pad1, 3, 11 );
+        else if(Year==2018)                  CMS_lumi( met_pad1, 4, 11 );
 
 	c_met->cd();
 	TPad *met_pad2 = new TPad("met_pad2", "met_pad2", 0, 0, 1, 0.35);
+	met_pad2->SetTopMargin(0);
 	met_pad2->SetBottomMargin(0.3);
 	met_pad2->Draw();
 	met_pad2->cd();
@@ -665,19 +723,25 @@ void closure_efakepho(){
 	ratio_met->SetMarkerStyle(20);
 	ratio_met->Divide(pred_MET);
 	ratio_met->SetTitle("");
-	ratio_met->GetYaxis()->SetTitle("#frac{Simulation}{Prediction}");
-	ratio_met->GetYaxis()->SetRangeUser(0,2);
+	ratio_met->GetYaxis()->SetTitle("#frac{Simulation}{Prediction} ");
+	ratio_met->GetYaxis()->SetRangeUser(0.4,1.7);
 	ratio_met->Draw();
 	ratioerror_MET->SetFillColor(12);
 	ratioerror_MET->SetFillStyle(3345);
-	ratioerror_MET->Draw("E2 same");
+	//ratioerror_MET->Draw("E2 same");
 	ratio_met->Draw("same");
 	flatratio_met->Draw("same");
-	TLine *line_met_ratio = new TLine(70,0,70,3);
+	
+	TLine *ratioValue_met = new TLine(0,p_MET->Integral()/pred_MET->Integral(),400,p_MET->Integral()/pred_MET->Integral());
+        ratioValue_met->SetLineColor(kRed);
+        ratioValue_met->Draw("same");
+
+	TLine *line_met_ratio = new TLine(70,0.4,70,1.7);
 	line_met_ratio->SetLineStyle(2);
 	line_met_ratio->Draw("same");
  	gPad->RedrawAxis();
-	c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/closure_elefakepho_MET_eg_%d.pdf",RunYear));
+	if(channelType==1) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho_MET_eg_%d%s.pdf",Year,whichVFP.c_str()));
+	if(channelType==2) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho_MET_mg_%d%s.pdf",Year,whichVFP.c_str()));
 
 // ******** Mt ************************//
 	TCanvas *c_mt = new TCanvas("Mt", "Mt",600,600);
@@ -715,13 +779,17 @@ void closure_efakepho(){
 	error_Mt->Draw("E2 same");
 	leg->Draw("same");
 	p_Mt->Draw("E same");
-  //chantex.DrawLatex(0.58,0.82," #mu + #gamma");
-  chantex.DrawLatex(0.58,0.82," e + #gamma");
+  	if(channelType==1) chantex.DrawLatex(0.58,0.82," e + #gamma");
+  	if(channelType==2) chantex.DrawLatex(0.58,0.82," #mu + #gamma");
  	gPad->RedrawAxis();
-  CMS_lumi( mt_pad1, 11 );
+	if(Year==2016 and ISpreVFP == 1)       CMS_lumi( mt_pad1, 1, 11 );
+        else if(Year==2016 and ISpreVFP == 0)  CMS_lumi( mt_pad1, 2, 11 );
+        else if(Year==2017)                  CMS_lumi( mt_pad1, 3, 11 );
+        else if(Year==2018)                  CMS_lumi( mt_pad1, 4, 11 );
 
 	c_mt->cd();
 	TPad *mt_pad2 = new TPad("mt_pad2", "mt_pad2", 0, 0, 1, 0.35);
+	mt_pad2->SetTopMargin(0);
 	mt_pad2->SetBottomMargin(0.3);
 	mt_pad2->Draw();
 	mt_pad2->cd();
@@ -729,20 +797,26 @@ void closure_efakepho(){
 	ratio_mt->SetMarkerStyle(20);
 	ratio_mt->SetLineColor(kBlack);
 	ratio_mt->GetXaxis()->SetRangeUser(0,400);
-	ratio_mt->GetYaxis()->SetRangeUser(0,2);
+	ratio_mt->GetYaxis()->SetRangeUser(0.4,1.7);
 	ratio_mt->GetYaxis()->SetNdivisions(504);
 	ratio_mt->SetMinimum(0);
 	ratio_mt->SetMaximum(2);
 	ratio_mt->Divide(pred_Mt);
 	ratio_mt->SetTitle("");
-	ratio_mt->GetYaxis()->SetTitle("#frac{Simulation}{Prediction}");
+	ratio_mt->GetYaxis()->SetTitle("#frac{Simulation}{Prediction} ");
 	ratio_mt->Draw();
 	ratioerror_Mt->SetFillColor(12);
 	ratioerror_Mt->SetFillStyle(3345);
-	ratioerror_Mt->Draw("E2 same");
+	//ratioerror_Mt->Draw("E2 same");
 	ratio_mt->Draw("same");
+
+	TLine *ratioValue_mt = new TLine(0,p_Mt->Integral()/pred_Mt->Integral(),400,p_Mt->Integral()/pred_Mt->Integral());
+        ratioValue_mt->SetLineColor(kRed);
+        ratioValue_mt->Draw("same");
+
 	flatratio_mt->Draw("same");
-	c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/closure_elefakepho_MT_eg_%d.pdf",RunYear));
+	if(channelType==1) c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho_MT_eg_%d%s.pdf",Year,whichVFP.c_str()));
+	if(channelType==2) c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho_MT_mg_%d%s.pdf",Year,whichVFP.c_str()));
 
 // ******** HT ************************//
 	TCanvas *c_HT = new TCanvas("HT", "HT",600,600);
@@ -776,36 +850,42 @@ void closure_efakepho(){
 	pred_HT->Draw("hist same");
 	DY_HT->Draw("hist same");
 	error_HT->SetFillColor(12);
-  error_HT->SetFillStyle(3345);
+  	error_HT->SetFillStyle(3345);
 	error_HT->Draw("E2 same");
 	leg->Draw("same");
 	p_HT->Draw("E same");
-  //chantex.DrawLatex(0.58,0.82," #mu + #gamma");
-  chantex.DrawLatex(0.58,0.82," e + #gamma");
+	  if(channelType==1) chantex.DrawLatex(0.58,0.82," e + #gamma");
+	  if(channelType==2) chantex.DrawLatex(0.58,0.82," #mu + #gamma");
  	gPad->RedrawAxis();
-  CMS_lumi( HT_pad1, 11 );
+	if(Year==2016 and ISpreVFP == 1)       CMS_lumi( HT_pad1, 1, 11 );
+        else if(Year==2016 and ISpreVFP == 0)  CMS_lumi( HT_pad1, 2, 11 );
+        else if(Year==2017)                  CMS_lumi( HT_pad1, 3, 11 );
+        else if(Year==2018)                  CMS_lumi( HT_pad1, 4, 11 );
 
 	c_HT->cd();
 	TPad *HT_pad2 = new TPad("HT_pad2", "HT_pad2", 0, 0, 1, 0.35);
+	HT_pad2->SetTopMargin(0);
 	HT_pad2->SetBottomMargin(0.3);
 	HT_pad2->Draw();
 	HT_pad2->cd();
-  TLine *flatratio_HT = new TLine(0,1,400,1);
+  	TLine *flatratio_HT = new TLine(0,1,420,1);
 	ratio_HT->SetMarkerStyle(20);
 	ratio_HT->SetLineColor(kBlack);
-	ratio_HT->GetXaxis()->SetRangeUser(0,400);
-	ratio_HT->GetYaxis()->SetRangeUser(0,2);
+	ratio_HT->GetXaxis()->SetRangeUser(0,420);
+	ratio_HT->GetYaxis()->SetRangeUser(0.4,1.7);
 	ratio_HT->GetYaxis()->SetNdivisions(504);
-	ratio_HT->SetMinimum(0);
-	ratio_HT->SetMaximum(2);
 	ratio_HT->Divide(pred_HT);
 	ratio_HT->SetTitle("");
-	ratio_HT->GetYaxis()->SetTitle("#frac{Simulation}{Prediction}");
+	ratio_HT->GetYaxis()->SetTitle("#frac{Simulation}{Prediction} ");
 	ratio_HT->Draw();
 	ratioerror_HT->SetFillColor(12);
 	ratioerror_HT->SetFillStyle(3345);
-	ratioerror_HT->Draw("E2 same");
+	//ratioerror_HT->Draw("E2 same");
 	flatratio_HT->Draw("same");
-	c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/closure_elefakepho_HT_eg_%d.pdf",RunYear));
+	TLine *ratioValue_ht = new TLine(0,p_HT->Integral()/pred_HT->Integral(),420,p_HT->Integral()/pred_HT->Integral());
+        ratioValue_ht->SetLineColor(kRed);
+        ratioValue_ht->Draw("same");
+	if(channelType==1) c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho_HT_eg_%d%s.pdf",Year,whichVFP.c_str()));
+	if(channelType==2) c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho_HT_mg_%d%s.pdf",Year,whichVFP.c_str()));
 
 }

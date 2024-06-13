@@ -316,8 +316,8 @@ void analysis_DY(){//main
         for(int iMu(0); iMu < raw.nMu; iMu++){Muon.push_back(recoMuon(raw, iMu));}
         for(int iEle(0); iEle < raw.nEle; iEle++){Ele.push_back(recoEle(raw, iEle));}
 				for(int iJet(0); iJet < raw.nJet; iJet++){JetCollection.push_back(recoJet(raw, iJet));}
-        MET = raw.pfMET;
-        METPhi = raw.pfMETPhi;
+        			MET = raw.pfMET;
+        			METPhi = raw.pfMETPhi;
 				MET_T1JERUp = raw.pfMET_T1JERUp;
 				MET_T1JERDo = raw.pfMET_T1JERDo;
 				MET_T1JESUp = raw.pfMET_T1JESUp;
@@ -326,14 +326,15 @@ void analysis_DY(){//main
 				METPhi_T1JESDo = raw.pfMETPhi_T1JESDo;
 				METPhi_T1UESUp = raw.pfMETPhi_T1UESUp;
 				METPhi_T1UESDo = raw.pfMETPhi_T1UESDo;
-        METFilter = raw.metFilters;
-        nVtx = raw.nVtx;
+        			METFilter = raw.metFilters;
+        			nVtx = raw.nVtx;
 				
-				if(RunYear==2016)PUweight = getPUESF16(nVtx);
-                        	if(RunYear==2017)PUweight = getPUESF17(nVtx);
-                        	if(RunYear==2018)PUweight = getPUESF18(nVtx);
+				if(RunYear==2016 and preVFP==1)PUweight = getPUESF16preVFP(nVtx);
+				else if(RunYear==2016 and preVFP==0)PUweight = getPUESF16(nVtx);
+                        	else if(RunYear==2017)PUweight = getPUESF17(nVtx);
+                        	else if(RunYear==2018)PUweight = getPUESF18(nVtx);
 	
-        if(raw.nPho <1)continue;
+        			if(raw.nPho <1)continue;
 
 				nBJet = 0;
 				for(std::vector<recoJet>::iterator itJet = JetCollection.begin() ; itJet != JetCollection.end(); ++itJet){

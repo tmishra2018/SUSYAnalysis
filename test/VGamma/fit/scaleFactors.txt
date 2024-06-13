@@ -1,0 +1,96 @@
+highbound = 0.403092
+lowbound = 0.395453
+
+double factor_egQCD_2016preVFP(0.400397);
+double factorerror_egQCD_2016preVFP(0.032191);
+
+highbound = 0.957402
+lowbound = 0.841961
+
+double factor_mgQCD_2016preVFP(0.858729);
+double factorerror_mgQCD_2016preVFP(0.0919012);
+
+highbound = 1.5582
+lowbound = 1.54055
+
+double factor_egVGamma_2016preVFP(1.55158);
+double factorerror_egVGamma_2016preVFP(0.0931608);
+
+highbound = 1.44244
+lowbound = 1.36245
+
+double factor_mgVGamma_2016preVFP(1.40697);
+double factorerror_mgVGamma_2016preVFP(0.0684939);
+
+highbound = 0.514545
+lowbound = 0.505113
+
+double factor_egQCD_2016postVFP(0.508157);
+double factorerror_egQCD_2016postVFP(0.0344402);
+
+highbound = 1.08814
+lowbound = 0.874088
+
+double factor_mgQCD_2016postVFP(1.08752);
+double factorerror_mgQCD_2016postVFP(0.131539);
+
+highbound = 1.4014
+lowbound = 1.38231
+
+double factor_egVGamma_2016postVFP(1.38818);
+double factorerror_egVGamma_2016postVFP(0.112449);
+
+highbound = 1.55386
+lowbound = 1.3392
+
+double factor_mgVGamma_2016postVFP(1.33581);
+double factorerror_mgVGamma_2016postVFP(0.117483);
+
+highbound = 0.406076
+lowbound = 0.401466
+
+double factor_egQCD_2017(0.403208);
+double factorerror_egQCD_2017(0.0264701);
+
+highbound = 1.02172
+lowbound = 0.807059
+
+double factor_mgQCD_2017(0.924421);
+double factorerror_mgQCD_2017(0.136297);
+
+highbound = 1.46598
+lowbound = 1.45052
+
+double factor_egVGamma_2017(1.4562);
+double factorerror_egVGamma_2017(0.101554);
+
+highbound = 1.46992
+lowbound = 1.30217
+
+double factor_mgVGamma_2017(1.35251);
+double factorerror_mgVGamma_2017(0.11364);
+
+highbound = 0.35925
+lowbound = 0.356343
+
+double factor_egQCD_2018(0.357324);
+double factorerror_egQCD_2018(0.0227174);
+
+highbound = 1.02239
+lowbound = 0.801453
+
+double factor_mgQCD_2018(0.853726);
+double factorerror_mgQCD_2018(0.145422);
+
+highbound = 1.73694
+lowbound = 1.72446
+
+double factor_egVGamma_2018(1.72839);
+double factorerror_egVGamma_2018(0.0858579);
+
+highbound = 1.40531
+lowbound = 1.24743
+
+double factor_mgVGamma_2018(1.32517);
+double factorerror_mgVGamma_2018(0.0842323);
+

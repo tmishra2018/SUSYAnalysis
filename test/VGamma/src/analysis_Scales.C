@@ -265,9 +265,10 @@ void analysis_VGamma(){//main
         nVtx = raw.nVtx;
         jetNumber = raw.nJet;
 				 
-				if(RunYear==2016)PUweight = getPUESF16(nVtx);
-                        	if(RunYear==2017)PUweight = getPUESF17(nVtx);
-                        	if(RunYear==2018)PUweight = getPUESF18(nVtx);
+				if(RunYear==2016 and preVFP==1)PUweight = getPUESF16preVFP(nVtx);
+				else if(RunYear==2016 and preVFP==0)PUweight = getPUESF16(nVtx);
+                        	else if(RunYear==2017)PUweight = getPUESF17(nVtx);
+                        	else if(RunYear==2018)PUweight = getPUESF18(nVtx);
 
         if(raw.nPho <1)continue;
 

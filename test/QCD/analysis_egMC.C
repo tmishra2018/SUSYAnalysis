@@ -29,17 +29,21 @@
 #include "../../include/analysis_mcData.h"
 #include "../../include/analysis_tools.h"
 
+bool isQCD = true;
+bool isGJet = false;
 int RunYear = 2016;
-
+bool preVFP = false;
 void analysis_egMC(){//main 
 
   gSystem->Load("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/lib/libAnaClasses.so");
 
-  char outputname[100] = "/eos/uscms/store/user/tmishra/fakeLep/fakelep_egsignal_QCD.root";
-  //char outputname[100] = "fakelep_egsignal_GJet.root";
   ofstream logfile;
-  logfile.open("/eos/uscms/store/user/tmishra/fakeLep/fakelep_egsignal_QCD.log"); 
-  //logfile.open("fakelep_egsignal_GJet.log"); 
+  std::string whichVFP;
+  if(RunYear==2016 and preVFP == true) whichVFP = "preVFP";
+  else whichVFP = "";
+  	
+  if(isQCD ==true)  logfile.open(Form("/eos/uscms/store/user/tmishra/fakeLep/fakelep_egsignal_QCD_%d%s.log",RunYear,whichVFP.c_str())); 
+  if(isGJet==true)  logfile.open(Form("/eos/uscms/store/user/tmishra/fakeLep/fakelep_egsignal_GJet_%d%s.log",RunYear,whichVFP.c_str())); 
 
   logfile << "analysis_eg()" << std::endl;
   logfile << "medium eleID+miniIso" << std::endl;
@@ -57,16 +61,20 @@ void analysis_egMC(){//main
   if(datatype == MC || datatype == MCDoubleEG2018 || datatype == MCMuonEG2018||  datatype == MCSingleElectron2018 || datatype == MCSingleMuon2018||  datatype == MCDoubleMuon2018 || datatype == MCMET2018)isMC=true;
 
   TChain* es = new TChain("ggNtuplizer/EventTree");
-  es->Add("root://cmseos.fnal.gov//store/user/mengleis/copied/QCD_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TrancheIV_v6-v1.root");
+  if(isQCD ==true)   es->Add(Form("/eos/uscms/store/user/tmishra/InputFilesMC/QCD_DoubleEM/QCD_DoubleEM_%d%s.root",RunYear,whichVFP.c_str()));
+  if(isGJet ==true)  es->Add(Form("/eos/uscms/store/user/tmishra/InputFilesMC/GJets/GJets_DoubleEM_%d%s.root",RunYear,whichVFP.c_str()));
 
   const unsigned nEvts = es->GetEntries(); 
   logfile << "Total event: " << nEvts << std::endl;
   std::cout << "Total event: " << nEvts << std::endl;
-  logfile << "Output file: " << outputname << std::endl;
+  if(isQCD ==true)  logfile << "Output file: /eos/uscms/store/user/tmishra/fakeLep/fakelep_egsignal_QCD_" << RunYear << whichVFP <<".root" << std::endl;
+  if(isGJet ==true) logfile << "Output file: /eos/uscms/store/user/tmishra/fakeLep/fakelep_egsignal_GJet_" << RunYear << whichVFP <<".root" << std::endl;
 
 	int nTotal(0),npassHLT(0), npassPho(0), npassLep(0), npassdR(0), npassZ(0), npassMETFilter(0);
 
-  TFile *outputfile = TFile::Open(outputname,"RECREATE");
+  TFile *outputfile = 0;
+  if(isQCD ==true)  outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/fakeLep/fakelep_egsignal_QCD_%d%s.root",RunYear,whichVFP.c_str()),"RECREATE");
+  if(isGJet ==true) outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/fakeLep/fakelep_egsignal_GJet_%d%s.root",RunYear,whichVFP.c_str()),"RECREATE");
   outputfile->cd();
 
 //************ Signal Tree **********************//
@@ -241,19 +249,21 @@ void analysis_egMC(){//main
 
 			if(raw.nEle < 1)continue;
 
-		//	bool hasPho(false);
-		//	std::vector<recoJet>::iterator signalPho = JetCollection.begin();
-		//	for(std::vector<recoJet>::iterator itJet = JetCollection.begin() ; itJet != JetCollection.end(); ++itJet){
-		//		if(!itJet->passSignalSelection())continue;
-		//		if(itJet->getPt() < 35 || fabs(itJet->getEta())>1.442)continue;
-		//		if(!hasPho){
-		//			signalPho = itJet;
-		//			hasPho = true;
-		//		}
-		//	}	
-
-			bool hasPho(false);
-			std::vector<recoPhoton>::iterator signalPho = Photon.begin();
+		bool hasPho(false);
+		// for QCD sample
+		
+			std::vector<recoJet>::iterator signalPho = JetCollection.begin();
+			for(std::vector<recoJet>::iterator itJet = JetCollection.begin() ; itJet != JetCollection.end(); ++itJet){
+				if(!itJet->passSignalSelection())continue;
+				if(itJet->getPt() < 35 || fabs(itJet->getEta())>1.442)continue;
+				if(!hasPho){
+					signalPho = itJet;
+					hasPho = true;
+				}
+			}	
+		
+		// for GJet sample
+		/*	std::vector<recoPhoton>::iterator signalPho = Photon.begin();
 			for(std::vector<recoPhoton>::iterator itpho = Photon.begin() ; itpho != Photon.end(); ++itpho){
 				if(itpho->getR9() < 0.5)continue;
 				bool PixelVeto = itpho->PixelSeed()==0? true: false;
@@ -266,6 +276,7 @@ void analysis_egMC(){//main
 					}
 				}
 			}
+		*/
 			/******************************************************************************************************************************************************************************/
 			/***********************************                                  Select Lepton                                              **********************************************/
 			bool hasLep(false);
@@ -372,8 +383,8 @@ void analysis_egMC(){//main
 	 
 
 			if(hasPho && !hasLep){
-				//std::vector<recoJet>::iterator fakeLepPho = signalPho;
-				std::vector<recoPhoton>::iterator fakeLepPho = signalPho;
+				std::vector<recoJet>::iterator fakeLepPho = signalPho;  // for QCD
+				//std::vector<recoPhoton>::iterator fakeLepPho = signalPho; // for GJet
 				for(unsigned ip(0); ip < fakeLepCollection.size(); ip++){
 					std::vector<recoEle>::iterator fakeLep = fakeLepCollection[ip];
 					double dRlepphoton = DeltaR(fakeLepPho->getEta(), fakeLepPho->getPhi(), fakeLep->getEta(), fakeLep->getPhi());
@@ -452,7 +463,6 @@ void analysis_egMC(){//main
 			}
 	
 	}//loop on  events
-
   p_eventcount->GetXaxis()->SetBinLabel(1,"nTotal");
   p_eventcount->GetXaxis()->SetBinLabel(2,"npassHLT");
   p_eventcount->GetXaxis()->SetBinLabel(3,"npassPho");
@@ -467,7 +477,8 @@ void analysis_egMC(){//main
   p_eventcount->Fill(4.5, npassdR);
   p_eventcount->Fill(5.5, npassZ);
   p_eventcount->Fill(6.5, npassMETFilter);
-
+	cout<<"fake lepton  : "<<fakeLeptree->GetEntries()<<endl;
+	cout<<"signal lepon  : "<<sigtree->GetEntries()<<endl;
 	outputfile->Write();
 	outputfile->Close();
 	logfile.close();

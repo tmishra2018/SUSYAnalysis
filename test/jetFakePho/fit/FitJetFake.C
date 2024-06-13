@@ -52,15 +52,17 @@
 #include "../../../include/analysis_tools.h"
 #include "../../../include/analysis_fakes.h"
 
-int  eventType = 1; // 1 = eg, 2 = mg, 3 = MCeg, 4 = MCmg
 bool useMC = true;
 bool doIterate = true;
+
+int  eventType = 2; // 1 = eg, 2 = mg, 3 = MCeg, 4 = MCmg
+// to do in control region
 float METLOWCUT = 0;
 float METHIGHCUT = 70;
 
-int  RunYear = 2017;
-int
-FitJetFake(float lowercut, float uppercut, int detType, float loweta, float higheta){
+bool ISpreVFP = false;
+int  RunYear = 2016;
+int FitJetFake(float lowercut, float uppercut, int detType, float loweta, float higheta){
 
 	setTDRStyle();   
 	time_t now = time(0);
@@ -81,7 +83,7 @@ FitJetFake(float lowercut, float uppercut, int detType, float loweta, float high
 	std::cout << "start fitting " << std::endl;
 	gSystem->Load("/uscms/home/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/lib/libAnaClasses.so");
 	ofstream myfile;
-	std::string  outputType;
+	std::string  outputType, outputName, outputT;
 	// Channel looking for
 	std::string  outputDet;
 	// Barrel or EndCap
@@ -89,34 +91,42 @@ FitJetFake(float lowercut, float uppercut, int detType, float loweta, float high
 	std::ostringstream  Hist1Dname;  Hist1Dname.str("");
 	std::ostringstream  Hist2Dname;  Hist2Dname.str("");
 	switch(eventType){
-		case 1: outputType = "DoubleEG-"; break;
-		case 2: outputType = "MuonEG-"; break;
-		case 3: outputType = "MCEG-"; break;
-		case 4: outputType = "MCMG-"; break;
+		case 1: outputT = "DoubleEG";	outputType = "DoubleEG-"; outputName = "eg-"; break;
+		case 2: outputT = "MuonEG";   outputType = "MuonEG-"; outputName = "mg-"; break;
+		case 3: outputType = "MCEG-"; outputName = "MCeg-"; break;
+		case 4: outputType = "MCMG-"; outputName = "MCmg-"; break;
 	}
 	if(detType == 1)outputDet = "EB";
 	else if(detType == 2)outputDet = "EE";
 
+	std::string whichVFP;
+	if(RunYear==2016 and ISpreVFP == true) whichVFP = "preVFP";
+	if(RunYear==2016 and ISpreVFP == false) whichVFP = "postVFP";
+	if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
+
         // ------------------------------------------------------------------------------------------------------------
 
-	myfilename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<"/JetFakeRate-" << outputType << outputDet << ".txt";
-	Hist1Dname << "/eos/uscms/store/user/tmishra/jetfakepho/Plots"<<RunYear<<"/frac-" << lowername << "-" << uppername << "-" << outputType << outputDet << ".png";
-	Hist2Dname << "/eos/uscms/store/user/tmishra/jetfakepho/Plots"<<RunYear<<"/can2D-" << lowername << "-" << uppername << "-" << outputType << outputDet << ".png";
+	myfilename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<< whichVFP<<"/JetFakeRate-" << outputType << outputDet << ".txt";
+	Hist1Dname << "/eos/uscms/store/user/tmishra/jetfakepho/Plots"<<RunYear<< whichVFP<<"/"<<outputT<<"/frac-" << lowername << "-" << uppername << "-" << outputType << outputDet << ".png";
+	Hist2Dname << "/eos/uscms/store/user/tmishra/jetfakepho/Plots"<<RunYear<< whichVFP<<"/"<<outputT<<"/can2D-" << lowername << "-" << uppername << "-" << outputType << outputDet << ".png";
 	myfile.open(myfilename.str().c_str(), std::ios_base::app | std::ios_base::out);
 
 	ofstream logfile;
-	logfile.open(Form("fittingquality_%d.log",RunYear), std::ios_base::app | std::ios_base::out);
+	logfile.open(Form("/eos/uscms/store/user/tmishra/jetfakepho/logs/fittingquality_%d%s.log",RunYear,whichVFP.c_str()));
 	logfile << outputType << " " << lowername << " " << uppername << std::endl;
 	
         // ------------------------------------------------------------------------------------------------------------
         // tree from Data
 	TChain *datatree = new TChain("hadronTree");
+	
 	switch(eventType){
-		case 1: datatree->Add(Form("/eos/uscms/store/group/lpcsusyhad/Tribeni/eg_mg_trees/resTree_egsignal_DoubleEG_%d.root",RunYear)); break;
-		case 2: datatree->Add(Form("/eos/uscms/store/group/lpcsusyhad/Tribeni/eg_mg_trees/resTree_mgsignal_MuonEG_%d.root",RunYear)); break;
-		case 3: datatree->Add("/eos/uscms/store/user/tmishra/resTree_egsignal_DY.root");
-						datatree->Add("/eos/uscms/store/user/tmishra/resTree_egsignal_WJet.root");
-						datatree->Add("/eos/uscms/store/user/tmishra/resTree_egsignal_QCD40.root");
+		//case 1: datatree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_egsignal_DoubleEG_ReMiniAOD_FullEcal.root"); break;
+		case 1: datatree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str())); break;
+		case 2: datatree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str())); break;
+		case 3: datatree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_DYJetsToLL_%d.root",RunYear));
+			datatree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WJetsToLNu_%d.root",RunYear));
+			datatree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_QCD_DoubleEM_%d.root",RunYear));
+	
 						break;
 	}	
 
@@ -125,7 +135,9 @@ FitJetFake(float lowercut, float uppercut, int detType, float loweta, float high
 	if(eventType == 1 || eventType == 3)mcTreename << "egTree";
 	else if(eventType == 2 || eventType == 4)mcTreename << "mgTree";
 	TChain *mctree = new TChain(mcTreename.str().c_str());
-	mctree->Add(Form("/eos/uscms/store/user/tmishra/jetfakepho/files/plot_hadron_GJet_%d.root",RunYear));
+        mctree->Add(Form("/eos/uscms/store/user/tmishra/jetfakepho/files/plot_hadron_GJet_%d%s.root",RunYear,whichVFP.c_str()));
+        //mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/plot_hadron_GJet.root");
+
 
 
         // ------------------------------------------------------------------------------------------------------------
@@ -141,8 +153,7 @@ FitJetFake(float lowercut, float uppercut, int detType, float loweta, float high
 	/*************************************/
 	std::ostringstream elefake_config;
 	elefake_config.str("");
-	elefake_config << "/uscms_data/d3/mengleis/SUSYAnalysis/test/eleFakePho/DataResult/EleFakeRate-ByPtVtx-" << outputDet << ".txt";
-	//elefake_config << "EleFakeRate-ByPtVtx-" << outputDet << "_" <<RunYear << ".txt";
+	elefake_config << "/eos/uscms/store/user/tmishra/elefakepho/DataResult"<<RunYear<<whichVFP<<"/EleFakeRate-Data-ByPtVtx-" << outputDet <<".txt";
 	std::ifstream elefake_file(elefake_config.str().c_str());
 	double scalefactor(0);
 	double ptslope(0);
@@ -175,6 +186,12 @@ FitJetFake(float lowercut, float uppercut, int detType, float loweta, float high
 
 	double   StandardCut = 0;
 	double   StandardIso = 0;
+
+//	Double_t SigmaCutLower_EB[]={0.0103,0.0104,0.0105,0.0106,0.0107,0.0108,0.0109,0.0110,0.0111,0.0112};
+//      Double_t SigmaCutUpper_EB[]={0.0140,0.0145,0.0150,0.0155,0.0160,0.0165,0.0170,0.0175,0.0180,0.0185};
+//      Double_t SigmaCutLower_EE[]={0.03013,0.0302,0.0303,0.0304,0.0305,0.0306,0.0307,0.0308,0.0309,0.031};
+//      Double_t SigmaCutUpper_EE[]={0.035,0.036,0.037,0.038,0.039,0.04};
+
 	Double_t SigmaCutLower_EB[]={0.0106,0.0107,0.0108,0.0109,0.0110,0.0111,0.0112,0.0113,0.0114,0.0115};
 	Double_t SigmaCutUpper_EB[]={0.0140,0.0145,0.0150,0.0155,0.0160,0.0165,0.0170,0.0175,0.0180,0.0185};
 	Double_t SigmaCutLower_EE[]={0.0272,0.0273,0.0274,0.0275,0.0276,0.0277,0.0278,0.0279,0.028,0.0281};
@@ -185,12 +202,16 @@ FitJetFake(float lowercut, float uppercut, int detType, float loweta, float high
 	SigmaCutUpper.clear();
 //cut based photon ID 94X-V2 ID for Run2
 	if(detType == 1){
+	//	StandardCut = 0.0103;
+	//	StandardIso = 1.295;
 		StandardCut = 0.0106;
 		StandardIso = 1.694;
 		for(unsigned i(0); i<sizeof(SigmaCutLower_EB)/sizeof(Double_t); i++)SigmaCutLower.push_back(SigmaCutLower_EB[i]);
 		for(unsigned i(0); i<sizeof(SigmaCutUpper_EB)/sizeof(Double_t); i++)SigmaCutUpper.push_back(SigmaCutUpper_EB[i]);
 	}
 	else if(detType == 2){
+	//	StandardCut = 0.03013;
+	//	StandardIso = 1.011;
 		StandardCut = 0.0272;
 		StandardIso = 2.089;
 		for(unsigned i(0); i<sizeof(SigmaCutLower_EE)/sizeof(Double_t); i++)SigmaCutLower.push_back(SigmaCutLower_EE[i]);
@@ -241,7 +262,8 @@ FitJetFake(float lowercut, float uppercut, int detType, float loweta, float high
 		}
 	}
 
-	TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/jetfakepho/JetFakeRate-eg-%d.root",RunYear),"RECREATE");
+	TFile *outputfile;
+	outputfile = TFile::Open(Form("/uscms_data/d3/tmishra/jetfakepho/JetFakeRate-%s%d%s.root",outputName.c_str(),RunYear,whichVFP.c_str()),"RECREATE");
 	outputfile->cd();
 	hname.str("");
 	hname << "fracHad2D_" << lowername << "-" << uppername;
@@ -400,15 +422,15 @@ FitJetFake(float lowercut, float uppercut, int detType, float loweta, float high
 		// pTmiss < 70 GeV CR
 
 		double LumiWeight = 1;
-		if(eventType == 3 || eventType == 4)	LumiWeight = getEvtWeight(RunYear,crosssection,ntotalevent);
+		if(eventType == 3 || eventType == 4)	LumiWeight = 35.8*crosssection*1000/ntotalevent;
+		//if(eventType == 3 || eventType == 4)	LumiWeight = getEvtWeight(RunYear,crosssection,ntotalevent);
 
                 // counting electron fake photon, storing totalden, totalnum, nden, nnum
 
 		for(unsigned iele(0); iele < eleproxyEt->size(); iele++){
 			if(detType == 1 && fabs( (*eleproxyEta)[iele]) > 1.4442)continue;
 			else if(detType == 2 && ( fabs( (*eleproxyEta)[iele]) < loweta || fabs( (*eleproxyEta)[iele]) > higheta) )continue;
-			//double w_ele = -1.0*f_elefake( (*eleproxyEt)[iele], (*eleproxynVertex)[iele], fabs( (*eleproxyEta)[iele]));
-			double w_ele = 1;
+			double w_ele = -1.0*f_elefake( (*eleproxyEt)[iele], (*eleproxynVertex)[iele], fabs( (*eleproxyEta)[iele]));
 			w_ele = w_ele*LumiWeight;
 			if( (*eleproxyEt)[iele] < lowercut || (*eleproxyEt)[iele]  > uppercut)continue;
 
@@ -462,10 +484,10 @@ FitJetFake(float lowercut, float uppercut, int detType, float loweta, float high
 		}
 
 	}
-	h_target->Sumw2();
-	for(unsigned iUpper(0); iUpper<nUpper; iUpper++)
-		for(unsigned iLower(0); iLower<nLower; iLower++)
-			h_bg[iLower][iUpper]->Sumw2();
+	//h_target->Sumw2();
+	//for(unsigned iUpper(0); iUpper<nUpper; iUpper++)
+	//	for(unsigned iLower(0); iLower<nLower; iLower++)
+	//		h_bg[iLower][iUpper]->Sumw2();
 
 	std::cout << "data tree has been filled " <<datatree->GetEntries()<< std::endl;
 
@@ -480,7 +502,6 @@ FitJetFake(float lowercut, float uppercut, int detType, float loweta, float high
 	h_bg[0][0]->Draw();
 
 	std::cout << "target " << h_target->Integral(1,nBinTotal) << std::endl;
-
 
 	for(unsigned iUpper(0); iUpper<nUpper; iUpper++){
 		for(unsigned iLower(0); iLower<nLower; iLower++){
@@ -605,6 +626,12 @@ FitJetFake(float lowercut, float uppercut, int detType, float loweta, float high
 					leg->AddEntry(mc_predict[iLower][iUpper], "hadrons");
 					leg->Draw("same");
 					can[iLower][iUpper]->SaveAs(Hist1Dname.str().c_str());
+					
+					mc_sig->Write();
+					h_bg[iLower][iUpper]->Write();	
+					h_target->Write();
+					//result[iLower][iUpper]->Write();
+					//mc_predict[iLower][iUpper]->Write();
 				}
 				if(fracBkg >0 && fracBkg < 1)fracHad2D->Fill(SigmaCutLower[iLower]+0.00005, SigmaCutUpper[iUpper]+0.00005, num*fracBkg/den);
 				if(fracBkg >0 && fracBkg < 1)fracHad1D->Fill(num*fracBkg/den);
@@ -625,6 +652,8 @@ FitJetFake(float lowercut, float uppercut, int detType, float loweta, float high
 	can2D->SaveAs(Hist2Dname.str().c_str());
 	systematicError = highestfrac - lowestfrac;
 	myfile << " " << lowername << " " << uppername << " " << hadfrac << " "; 
+	// why this large error in 3 bins ???
+	//if(RunYear == 2016 and ISpreVFP == true and lowercut == 150 and uppercut == 180) myfile << sqrt(fittingError*fittingError)<< " ";
 	myfile << sqrt(fittingError*fittingError + systematicError*systematicError) << " ";
 	myfile << systematicError << "	" << " ";
 	myfile << mcfakerate << std::endl;
@@ -641,6 +670,6 @@ FitJetFake(float lowercut, float uppercut, int detType, float loweta, float high
 	} 
 	myfile.close();
 	logfile.close();
-	outputfile->Write();
+//	outputfile->Write();
 	return 1;
 }

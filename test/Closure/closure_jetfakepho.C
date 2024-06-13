@@ -1,3 +1,4 @@
+// root -l -q "closure_jetfakepho.C+(1, 2016, 1)"
 #include<string>
 #include<iostream>
 #include<fstream>
@@ -25,6 +26,7 @@
 #include "TGraphErrors.h"
 
 #include "../../include/analysis_rawData.h"
+#include "../../include/analysis_jet.h"
 #include "../../include/analysis_photon.h"
 #include "../../include/analysis_muon.h"
 #include "../../include/analysis_ele.h"
@@ -32,20 +34,27 @@
 #include "../../include/analysis_tools.h"
 #include "../../include/analysis_fakes.h"
 
-#define NTOY 1000
+//#define NTOY 1000
+#define NTOY 1
 
 #define MAXET 199
 #define MAXMT 399
 #define MAXMET 399
 #define MAXHT 399
 
-void closure_jetfakepho(int ichannel){
+void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 
-  gSystem->Load("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/lib/libAnaClasses.so");
+  gSystem->Load("../../lib/libAnaClasses.so");
   int channelType = ichannel; // eg = 1; mg =2;
 
-	gRandom = new TRandom3(0);
-	gRandom->SetSeed(0);
+  std::string whichVFP;
+  if(RunYear==2016 and preVFP == true) whichVFP = "preVFP";
+  if(RunYear==2016 and preVFP == false) whichVFP = "postVFP";
+  if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
+
+  gROOT->SetBatch(kTRUE);
+  gRandom = new TRandom3(0);
+  gRandom->SetSeed(0);
 	double randomweight_jet[1000];
 	randomweight_jet[0] = 0;
 	for(unsigned ir(1); ir<1000; ir++)	
@@ -56,21 +65,23 @@ void closure_jetfakepho(int ichannel){
 //	double jetfake_numerror[264];
 //	double jetfake_denerror[264];
 	
-	std::stringstream JetFakeRateFile;
-  JetFakeRateFile.str();
-	// fake rate input 
-	if(channelType==1)JetFakeRateFile << "/uscms_data/d3/mengleis/SUSYAnalysis/test/jetFakePho/result/JetFakeRate-transferfactor-DoubleEG-EB.txt";
-	if(channelType==2)JetFakeRateFile << "/uscms_data/d3/mengleis/SUSYAnalysis/test/jetFakePho/result/JetFakeRate-transferfactor-MuonEG-EB.txt";
-	std::ifstream jetfakefile(JetFakeRateFile.str().c_str());
+	std::ifstream jetfakefile;
+	if(channelType == 1)
+		jetfakefile.open(Form("/eos/uscms/store/user/tmishra/jetfakepho/txt%d%s/JetFakeRate-transferfactor-DoubleEG-EB.txt",RunYear,whichVFP.c_str()));
+	if(channelType == 2)
+		jetfakefile.open(Form("/eos/uscms/store/user/tmishra/jetfakepho/txt%d%s/JetFakeRate-transferfactor-MuonEG-EB.txt",RunYear,whichVFP.c_str()));
+	
 	std::string paratype;
 	float paravalue;	
-	for(int i(0); i < 4; i++){
-		jetfakefile >> paratype >> paravalue;
-		fitfunc_den->SetParameter(i, paravalue);
-	}
-	for(int i(0); i < 4; i++){
-		jetfakefile >> paratype >> paravalue;
-		fitfunc_num->SetParameter(i, paravalue);
+	if(jetfakefile.is_open()){
+		for(int i(0); i < 4; i++){
+			jetfakefile >> paratype >> paravalue;
+			fitfunc_den->SetParameter(i, paravalue);
+		}
+		for(int i(0); i < 4; i++){
+			jetfakefile >> paratype >> paravalue;
+			fitfunc_num->SetParameter(i, paravalue);
+		}
 	}
 //	int binnumber;
 //	for(int i(0); i < 264; i++){
@@ -97,10 +108,11 @@ void closure_jetfakepho(int ichannel){
 	//************ Signal Tree **********************//
 	TChain *sigtree = new TChain("signalTree");
 	// signal events directly from simulation
-	if(channelType==1)sigtree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_egsignal_DY.root");
-	if(channelType==1)sigtree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_egsignal_WJet.root");
+	if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
+	if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WJetsToLNu_%d%s.root",RunYear,whichVFP.c_str()));
 
-	if(channelType==2)sigtree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_mgsignal_DY.root");
+	if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
+	if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WJetsToLNu_%d%s.root",RunYear,whichVFP.c_str()));
 
 	float crosssection(0);
 	float ntotalevent(0);
@@ -150,8 +162,18 @@ void closure_jetfakepho(int ichannel){
 
 	for (unsigned ievt(0); ievt<sigtree->GetEntries(); ++ievt){//loop on entries
 		sigtree->GetEntry(ievt);
+		double weight = 1;
+		if(channelType == 1){
+                        if(RunYear == 2016 and preVFP == 1)             weight = lumi_2016preVFP_DoubleEG*1000*crosssection/ntotalevent;
+                        else if(RunYear == 2016 and preVFP == 0)        weight = lumi_2016postVFP_DoubleEG*1000*crosssection/ntotalevent;
+                        else if(RunYear == 2017)                        weight = lumi_2017_DoubleEG*1000*crosssection/ntotalevent;
+                        else if(RunYear == 2018)                        weight = lumi_2018_DoubleEG*1000*crosssection/ntotalevent;}
+		else if(channelType == 2){
+                        if(RunYear == 2016 and preVFP == 1)             weight = lumi_2016preVFP_MuonEG*1000*crosssection/ntotalevent;
+                        else if(RunYear == 2016 and preVFP == 0)        weight = lumi_2016postVFP_MuonEG*1000*crosssection/ntotalevent;
+                        else if(RunYear == 2017)                        weight = lumi_2017_MuonEG*1000*crosssection/ntotalevent;
+                        else if(RunYear == 2018)                        weight = lumi_2018_MuonEG*1000*crosssection/ntotalevent;}
 
-		double weight = getEvtWeight(RunYear,crosssection,ntotalevent);
 		/** cut flow *****/
 		if(phoEt < 35 || lepPt < 25)continue;
 		if(fabs(phoEta) > 1.4442 || fabs(lepEta) > 2.5)continue;
@@ -241,8 +263,8 @@ void closure_jetfakepho(int ichannel){
 	TChain *proxytree = new TChain("jetTree");
 	// jetTree for proxy events
 	// proxy events weighted by fake rate, WJet has major contribution
-	if(channelType==1)proxytree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_egsignal_WJet.root");
-	if(channelType==2)proxytree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_mgsignal_WJet.root");
+	if(channelType==1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WJetsToLNu_%d%s.root",RunYear,whichVFP.c_str()));
+	if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WJetsToLNu_%d%s.root",RunYear,whichVFP.c_str()));
 
 	float proxycrosssection(0);
 	float proxyntotalevent(0);
@@ -280,8 +302,17 @@ void closure_jetfakepho(int ichannel){
 
 	for (unsigned ievt(0); ievt<proxytree->GetEntries(); ++ievt){//loop on entries
 		proxytree->GetEntry(ievt);
-
-		double weight = getEvtWeight(RunYear,proxycrosssection,proxyntotalevent);
+		double weight = 1;
+		if(channelType == 1){
+                        if(RunYear == 2016 and preVFP == 1)             weight = lumi_2016preVFP_DoubleEG*1000*proxycrosssection/proxyntotalevent;
+                        else if(RunYear == 2016 and preVFP == 0)        weight = lumi_2016postVFP_DoubleEG*1000*proxycrosssection/proxyntotalevent;
+                        else if(RunYear == 2017)                        weight = lumi_2017_DoubleEG*1000*proxycrosssection/proxyntotalevent;
+                        else if(RunYear == 2018)                        weight = lumi_2018_DoubleEG*1000*proxycrosssection/proxyntotalevent;}
+		else if(channelType == 2){
+                        if(RunYear == 2016 and preVFP == 1)             weight = lumi_2016preVFP_MuonEG*1000*proxycrosssection/proxyntotalevent;
+                        else if(RunYear == 2016 and preVFP == 0)        weight = lumi_2016postVFP_MuonEG*1000*proxycrosssection/proxyntotalevent;
+                        else if(RunYear == 2017)                        weight = lumi_2017_MuonEG*1000*proxycrosssection/proxyntotalevent;
+                        else if(RunYear == 2018)                        weight = lumi_2018_MuonEG*1000*proxycrosssection/proxyntotalevent;}
 
 		if(proxyphoEt > MAXET)proxyphoEt = MAXET;
 		if(proxysigMET > MAXMET)proxysigMET = MAXMET;
@@ -291,9 +322,8 @@ void closure_jetfakepho(int ichannel){
 		/** cut flow *****/
 		if(proxyphoEt < 35 || proxylepPt < 25)continue;
 		if(fabs(proxyphoEta) > 1.4442 || fabs(proxylepEta) > 2.5)continue;
-		double w_jet(0);
+		double w_jet(1);
 		w_jet = fitfunc_num->Eval(proxyphoEt)/fitfunc_den->Eval(proxyphoEt);
-
 //		double jetfakeerror(0);
 //		for(int ipt(0); ipt < 264; ipt++){
 //			if(proxyphoEt >= ipt+35 && proxyphoEt < ipt+1+35)jetfakeerror = sqrt(jetfake_numerror[ipt]*jetfake_numerror[ipt]/fitfunc_den->Eval(proxyphoEt)/fitfunc_den->Eval(proxyphoEt) + jetfake_denerror[ipt]*jetfake_denerror[ipt]*w_jet*w_jet)/fitfunc_den->Eval(proxyphoEt);
@@ -337,9 +367,10 @@ void closure_jetfakepho(int ichannel){
 	//************ Proxy Tree **********************//
 	TChain *raretree = new TChain("jetTree");
 	// rare contribution from DY
-	if(channelType==1)raretree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_egsignal_DY.root");
+	if(channelType==1)raretree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
+	if(channelType==2)raretree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
 
-	if(channelType==2)raretree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_mgsignal_DY.root");
+	//if(channelType==2)raretree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_mgsignal_DY.root");
 
 	float rarecrosssection(0);
 	float rarentotalevent(0);
@@ -377,8 +408,17 @@ void closure_jetfakepho(int ichannel){
 
 	for (unsigned ievt(0); ievt<raretree->GetEntries(); ++ievt){//loop on entries
 		raretree->GetEntry(ievt);
-
-		double weight = getEvtWeight(RunYear,rarecrosssection,rarentotalevent);
+		double weight=1;
+		if(channelType == 1){
+                        if(RunYear == 2016 and preVFP == 1)             weight = lumi_2016preVFP_DoubleEG*1000*rarecrosssection/rarentotalevent;
+                        else if(RunYear == 2016 and preVFP == 0)        weight = lumi_2016postVFP_DoubleEG*1000*rarecrosssection/rarentotalevent;
+                        else if(RunYear == 2017)                        weight = lumi_2017_DoubleEG*1000*rarecrosssection/rarentotalevent;
+                        else if(RunYear == 2018)                        weight = lumi_2018_DoubleEG*1000*rarecrosssection/rarentotalevent;}
+		else if(channelType == 2){
+                        if(RunYear == 2016 and preVFP == 1)             weight = lumi_2016preVFP_MuonEG*1000*rarecrosssection/rarentotalevent;
+                        else if(RunYear == 2016 and preVFP == 0)        weight = lumi_2016postVFP_MuonEG*1000*rarecrosssection/rarentotalevent;
+                        else if(RunYear == 2017)                        weight = lumi_2017_MuonEG*1000*rarecrosssection/rarentotalevent;
+                        else if(RunYear == 2018)                        weight = lumi_2018_MuonEG*1000*rarecrosssection/rarentotalevent;}
 
 		if(rarephoEt > MAXET)rarephoEt = MAXET;
 		if(raresigMET > MAXMET)raresigMET = MAXMET;
@@ -389,7 +429,7 @@ void closure_jetfakepho(int ichannel){
 		/** cut flow *****/
 		if(rarephoEt < 35 || rarelepPt < 25)continue;
 		if(fabs(rarephoEta) > 1.4442 || fabs(rarelepEta) > 2.5)continue;
-		double w_jet(0);
+		double w_jet(1);
 		w_jet = fitfunc_num->Eval(rarephoEt)/fitfunc_den->Eval(rarephoEt);
 
 	//	double jetfakeerror(0);
@@ -553,7 +593,8 @@ void closure_jetfakepho(int ichannel){
 	ratioerror_PhoEt->Draw("E2 same");
 	ratio->Draw("same");
 	flatratio->Draw("same");
-	c_pt->SaveAs("closure_jetfakepho_PhotonEt_mg.pdf");
+	if(channelType==1) 	c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/closure_jetfakepho_PhotonEt_eg_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==2) 	c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/closure_jetfakepho_PhotonEt_mg_%d%s.pdf",RunYear,whichVFP.c_str()));
 
 
 
@@ -585,10 +626,15 @@ void closure_jetfakepho(int ichannel){
 		ratioerror_MET->SetPoint(ibin-1,pred_MET->GetBinCenter(ibin), 1); 
 		ratioerror_MET->SetPointError(ibin-1,(pred_MET->GetBinLowEdge(ibin+1)-pred_MET->GetBinLowEdge(ibin))/2, prederror/pred_MET->GetBinContent(ibin)); 
 	}
+	cout<<"direct simulation "<< p_MET->Integral()<<endl;
+//      cout<<"DY " <<DY_MET->Integral()<<endl;
+        cout<<"t#bar{t}/ WW/ WZ "<<pred_MET->Integral()<<endl;
+	cout<<"Ratio "<<p_MET->Integral()/pred_MET->Integral()<<endl;
+
 	pred_MET->Draw("hist same");
 	DY_MET->Draw("hist same");
-  error_MET->SetFillColor(15);
-  error_MET->SetFillStyle(3345);
+  	error_MET->SetFillColor(15);
+  	error_MET->SetFillStyle(3345);
 	error_MET->Draw("E2 same");
 	leg->Draw("same");
 	p_MET->Draw("E same");
@@ -616,7 +662,8 @@ void closure_jetfakepho(int ichannel){
 	ratioerror_MET->Draw("E2 same");
 	ratio_met->Draw("same");
 	flatratio_met->Draw("same");
-	c_met->SaveAs("closure_jetfakepho_MET_mg.pdf");
+	if(channelType==1) 	c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/closure_jetfakepho_MET_eg_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==2) 	c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/closure_jetfakepho_MET_mg_%d%s.pdf",RunYear,whichVFP.c_str()));
 
 // ******** Mt ************************//
 	gStyle->SetOptStat(0);
@@ -679,7 +726,8 @@ void closure_jetfakepho(int ichannel){
 	ratioerror_Mt->Draw("E2 same");
 	ratio_mt->Draw("same");
 	flatratio_mt->Draw("same");
-	c_mt->SaveAs("closure_jetfakepho_MT_mg.pdf");
+	if(channelType==1)	c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/closure_jetfakepho_MT_eg_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==2)	c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/closure_jetfakepho_MT_mg_%d%s.pdf",RunYear,whichVFP.c_str()));
 
 // ******** HT ************************//
 	gStyle->SetOptStat(0);
@@ -740,7 +788,8 @@ void closure_jetfakepho(int ichannel){
 	ratioerror_HT->SetFillStyle(3345);
 	ratioerror_HT->Draw("E2 same");
 	flatratio_HT->Draw("same");
-	c_HT->SaveAs("closure_jetfakepho_HT_mg.pdf");
+	if(channelType==1)	c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/closure_jetfakepho_HT_eg_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==2)	c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/closure_jetfakepho_HT_mg_%d%s.pdf",RunYear,whichVFP.c_str()));
 
 }
 

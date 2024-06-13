@@ -47,7 +47,7 @@ void analysis_qcd(){//main
 	bool  isMC(false);
 	if(datatype == MC || datatype == MCDoubleEG2016 || datatype == MCMuonEG2016||  datatype == MCSingleElectron2016 || datatype == MCSingleMuon2016||  datatype == MCDoubleMuon2016 || datatype == MCMET2016)isMC=true;
   TChain* es = new TChain("ggNtuplizer/EventTree");
-	es->Add("root://cmseos.fnal.gov//store/user/mengleis/copied/QCD_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TrancheIV_v6-v1.root");
+	es->Add("/eos/uscms/store/user/tmishra/InputFilesMC/QCD_DoubleEM/QCD_DoubleEM_2016.root");
 
   const unsigned nEvts = es->GetEntries(); 
   logfile << "Total event: " << nEvts << std::endl;

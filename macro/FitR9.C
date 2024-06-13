@@ -46,6 +46,7 @@
 #include "../include/analysis_rawData.h"
 #include "../include/analysis_photon.h"
 #include "../include/analysis_muon.h"
+#include "../include/analysis_jet.h"
 #include "../include/analysis_ele.h"
 #include "../include/analysis_tools.h"
 #include "../include/analysis_mcData.h"
@@ -73,7 +74,7 @@ bool isElectron(int PID, int momID){
 
 void FitR9(int inputfittype, float lowerptcut, float upperptcut, float loweretacut, float upperetacut){//main  
 
-  gSystem->Load("/uscms/home/mengleis/work/SUSY2016/SUSYAnalysis/lib/libRooFitClasses.so");
+  gSystem->Load("../lib/libRooFitClasses.so");
   
 	bool usePoly(false);
 	bool useKer(true);
@@ -102,7 +103,7 @@ void FitR9(int inputfittype, float lowerptcut, float upperptcut, float loweretac
 
 //************** Process Z->ee Tree ********************************************************//   
   TChain *etree = new TChain("eeTree");																									
-  etree->Add("/uscms_data/d3/mengleis/work/CMSSW_8_0_26_patch1/src/EgammaAnalysis/TnPTreeProducer/plot_R9_data.root");
+  etree->Add("/uscms_data/d3/mengleis/CMSSW_Work/CMSSW_8_0_26_patch1/src/EgammaAnalysis/TnPTreeProducer/plot_R9_data.root");
 
   float invmass=0; 
   float probePt=0; 
@@ -316,7 +317,7 @@ void FitR9(int inputfittype, float lowerptcut, float upperptcut, float loweretac
   TLatex* latex = new TLatex();
   char chi2str[50];
   sprintf (chi2str, "chi2/ndof = %f", chi2);
-  latex->DrawLatex(90,0.7*p_invmass->GetMaximum(),chi2str);
+  latex->DrawLatex(90,0.5*p_invmass->GetMaximum(),chi2str);
   histname.str("");
 	if(useDY)histname << "DY_";
 	else histname << "Bw_";

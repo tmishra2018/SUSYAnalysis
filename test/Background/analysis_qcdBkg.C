@@ -1,35 +1,68 @@
+#include<string>
+#include "TString.h"
 #include "../../include/analysis_commoncode.h"
 
 void analysis_qcdBkg(){
 
 	SetRunConfig();
 	setTDRStyle();
+	
+  	gSystem->Load("../../lib/libAnaClasses.so");
+
+	std::string whichVFP;
+        if(RunYear==2016 and preVFP == 1) whichVFP = "preVFP";
+        if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
+        if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
+	
 	bool toDeriveScale(false);
+	if(anatype == 0)toDeriveScale = true;
 
-  gSystem->Load("../../lib/libAnaClasses.so");
-
-  int channelType = ichannel; // eg = 1; mg =2;
+  	int channelType = ichannel; // eg = 1; mg =2;
 	double factorQCD(1);
 	double factorQCDUP = 1; 
-	if(channelType == 1){
-	// from include/analysis_commoncode.h
-		factorQCD = factor_egQCD;
-		factorQCDUP = factor_egQCD + factorerror_egQCD;
-	}
-	else if(channelType == 2){
-		factorQCD = factor_mgQCD;
-		factorQCDUP = factor_mgQCD + factorerror_mgQCD;
-	}
 
-	if(anatype == 0){
-		toDeriveScale = true;
+	if(toDeriveScale){
 		factorQCD = 1;
 		factorQCDUP = 1;
 	}
+	else{
+	        if(channelType == 1){
+                        if(RunYear==2016 and preVFP == 1){
+                                factorQCD = factor_egQCD_2016preVFP;
+                                factorQCDUP = factor_egQCD_2016preVFP+factorerror_egQCD_2016preVFP;}
+                        if(RunYear==2016 and preVFP == 0){
+                                factorQCD = factor_egQCD_2016postVFP;
+                                factorQCDUP = factor_egQCD_2016postVFP+factorerror_egQCD_2016postVFP;}
+                        if(RunYear==2017 and preVFP == 0){
+                                factorQCD = factor_egQCD_2017;
+                                factorQCDUP = factor_egQCD_2017+factorerror_egQCD_2017;}
+                        if(RunYear==2018 and preVFP == 0){
+                                factorQCD = factor_egQCD_2018;
+                                factorQCDUP = factor_egQCD_2018+factorerror_egQCD_2018;}
+                }
+                else if(channelType == 2){
+                        if(RunYear==2016 and preVFP == 1){
+                                factorQCD = factor_mgQCD_2016preVFP;
+                                factorQCDUP = factor_mgQCD_2016preVFP+factorerror_mgQCD_2016preVFP;}
+                        if(RunYear==2016 and preVFP == 0){
+                                factorQCD = factor_mgQCD_2016postVFP;
+                                factorQCDUP = factor_mgQCD_2016postVFP+factorerror_mgQCD_2016postVFP;}
+                        if(RunYear==2017 and preVFP == 0){
+                                factorQCD = factor_mgQCD_2017;
+                                factorQCDUP = factor_mgQCD_2017+factorerror_mgQCD_2017;}
+                        if(RunYear==2018 and preVFP == 0){
+                                factorQCD = factor_mgQCD_2018;
+                                factorQCDUP = factor_mgQCD_2018+factorerror_mgQCD_2018;}
+                }
+	}
+	// make this ON when you have to derive the QCD and VGamma scales
 	// reading scale factor from sf files
 	TFile *scaleFile;
-	if(channelType == 1)scaleFile = TFile::Open("../script/qcd_eg_scale.root");
-	else if(channelType == 2)scaleFile = TFile::Open("../script/qcd_mg_scale.root");
+		//if(channelType == 1)scaleFile = TFile::Open("../script/qcd_eg_scale.root");
+        	//else if(channelType == 2)scaleFile = TFile::Open("../script/qcd_mg_scale.root");
+	
+		if(channelType == 1)scaleFile = TFile::Open(Form("/eos/uscms/store/user/tmishra/fakeLep/qcd_eg_scale_%d%s.root",RunYear,whichVFP.c_str()));
+		else if(channelType == 2)scaleFile = TFile::Open(Form("/eos/uscms/store/user/tmishra/fakeLep/qcd_mg_scale_%d%s.root",RunYear,whichVFP.c_str()));
 	TH1D *p_scale = 0;
 	if(channelType == 1)p_scale = (TH1D*)scaleFile->Get("transfer_factor");
 	else if(channelType == 2)p_scale = (TH1D*)scaleFile->Get("transfer_factor");
@@ -71,17 +104,19 @@ void analysis_qcdBkg(){
 	TH1D *unweight_dPhiEleMET = new TH1D("unweight_dPhiEleMET","dPhiEleMET",32,0,3.2); 
 // ********** fake lepton tree ************** //
   TChain *fakeEtree = new TChain("fakeLepTree","fakeLepTree");
-  	// fake lepton is predicted from data, fakeLeptree
-	if(channelType==1)fakeEtree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_egsignal_DoubleEG_ReMiniAOD_FullEcal.root");
-	if(channelType==2)fakeEtree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_mgsignal_MuonEG_FullEcal.root");
+  // fake lepton is predicted from data, fakeLeptree
+
+  if(channelType==1)fakeEtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
+  //if(channelType==1)fakeEtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s_HoverE-OLD.root",RunYear,whichVFP.c_str()));
+  if(channelType==2)fakeEtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
   float phoEt(0);
   float phoEta(0);
   float phoPhi(0);
   float lepPt(0);
   float lepEta(0);
   float lepPhi(0);
-	float fakeLepMiniIso(0);
-	int   fakeLepIsStandardProxy(0);
+  float fakeLepMiniIso(0);
+  int   fakeLepIsStandardProxy(0);
   float sigMT(0);
   float sigMET(0);
   float sigMETPhi(0);
@@ -90,7 +125,7 @@ void analysis_qcdBkg(){
   float dRPhoLep(0);
   float HT(0);
   float nJet(0);
-	int   nBJet(0); 
+  int   nBJet(0); 
  
   fakeEtree->SetBranchAddress("phoEt",     &phoEt);
   fakeEtree->SetBranchAddress("phoEta",    &phoEta);
@@ -110,7 +145,7 @@ void analysis_qcdBkg(){
   fakeEtree->SetBranchAddress("nJet",      &nJet);
   fakeEtree->SetBranchAddress("nBJet",     &nBJet);
 
-	for(unsigned ievt(0); ievt < fakeEtree->GetEntries(); ievt++){
+  for(unsigned ievt(0); ievt < fakeEtree->GetEntries(); ievt++){
 		fakeEtree->GetEntry(ievt);
 
 		double w_qcd = 0; 
@@ -118,7 +153,6 @@ void analysis_qcdBkg(){
 		double w_qcd_unweight = 0;
 		// weights used for fake lepton
 		if(channelType == 1){
-			// don't know why the extra weight in eg channel
 			w_qcd = factorQCD*p_scale->GetBinContent(p_scale->FindBin(lepPt));
 			w_qcd_up = factorQCDUP*p_scale->GetBinContent(p_scale->FindBin(lepPt));
 			w_qcd_unweight = factorQCD;
@@ -230,9 +264,9 @@ void analysis_qcdBkg(){
 	}
 	if(channelType==1)outputname << "egamma_qcd";
 	else if(channelType==2)outputname << "mg_qcd";
-	if(anatype ==0)outputname << "_met" << lowMET <<"_" << highMET << "_pt" << lowPt << "_" << highPt << "_iso" << lepIso;
-	outputname << ".root";
-
+	if(anatype ==0 or anatype ==1) outputname << "_met" << lowMET <<"_" << highMET << "_pt" << lowPt << "_" << highPt;
+        outputname <<"_" << RunYear<<whichVFP <<".root";
+	
 	TFile *outputfile = TFile::Open(outputname.str().c_str(),"RECREATE");
 	outputfile->cd();
 	p_PhoEt->Write();
@@ -253,5 +287,3 @@ void analysis_qcdBkg(){
 	outputfile->Write();
 	outputfile->Close();
 }
-
-

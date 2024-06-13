@@ -26,9 +26,10 @@
 #include "../../include/analysis_muon.h"
 #include "../../include/analysis_ele.h"
 #include "../../include/analysis_mcData.h"
-#include "../../include/analysis_tools.h"
 #include "../../include/analysis_jet.h"
+#include "../../include/analysis_tools.h"
 
+int RunYear = 2016;
 bool passEleSignalSelection(float eta, float sigma, float dEta, float dPhi, float HoverE, float EoverP, int MissHit, int ConvVeto, float miniIso ){
   bool passMiniMedium(true);
  
@@ -60,9 +61,9 @@ void analysis_fake(){//main
 
   gSystem->Load("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/lib/libAnaClasses.so");
 
-  char outputname[100] = "test_egsignal_QCDfake_2.root";
+  char outputname[100] = "/eos/uscms/store/user/tmishra/fakeLep/test_egsignal_QCDfake_2.root";
   ofstream logfile;
-  logfile.open("test_egsignal_QCDfake.log"); 
+  logfile.open("/eos/uscms/store/user/tmishra/fakeLep/test_egsignal_QCDfake.log"); 
 
   logfile << "analysis_eg()" << std::endl;
   logfile << "medium eleID+miniIso" << std::endl;
@@ -72,10 +73,10 @@ void analysis_fake(){//main
 	bool  isMC(false);
 	if(datatype == MC || datatype == MCDoubleEG2016 || datatype == MCMuonEG2016||  datatype == MCSingleElectron2016 || datatype == MCSingleMuon2016||  datatype == MCDoubleMuon2016 || datatype == MCMET2016)isMC=true;
   TChain* es = new TChain("ggNtuplizer/EventTree");
-	es->Add("/eos/uscms/store/user/mengleis/copied/QCD_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TrancheIV_v6-v1.root");
+	es->Add(Form("/eos/uscms/store/user/tmishra/InputFilesMC/QCD_DoubleEM/QCD_DoubleEM_%d.root",RunYear));
+	//es->Add("/eos/uscms/store/user/mengleis/copied/QCD_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TrancheIV_v6-v1.root");
 
-  //const unsigned nEvts = es->GetEntries(); 
-  const unsigned nEvts = 100000; 
+  const unsigned nEvts = es->GetEntries(); 
   logfile << "Total event: " << nEvts << std::endl;
   std::cout << "Total event: " << nEvts << std::endl;
   logfile << "Output file: " << outputname << std::endl;

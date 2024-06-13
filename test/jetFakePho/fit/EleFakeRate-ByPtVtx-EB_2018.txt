@@ -1,7 +1,0 @@
-scalefactor 2483.98
-ptslope		 1254.01
-ptconstant  -38685
-ptindex			-0.4
-ptcoeff			1.0
-vtxconst	  0.000159133
-vtxslope	  0.000831309

@@ -46,6 +46,8 @@
 #include "../../../include/analysis_mcData.h"
 #include "../../../include/analysis_tools.h"
 
+int RunYear = 2016;
+int ichannel = 2;
 void plotFit(){
 	gROOT->SetBatch(kTRUE);
 	gStyle->SetOptStat(0);
@@ -55,9 +57,14 @@ void plotFit(){
 	TGraphErrors *p_frac_total = new TGraphErrors(1);
 	TGraphErrors *p_error_total = new TGraphErrors(1);
 	// distribution of VGamma scale factor in full pT range(Figure 29 AN)
-	TH1F *p_frac_0 = new TH1F("p_frac_0","a_{V#gamma}",50,1,1.5);
+	TH1F *p_frac_0;
+	if(ichannel == 1) p_frac_0  = new TH1F("p_frac_0","a_{V#gamma}",50,1.5,2.5);
+	if(ichannel == 2) p_frac_0  = new TH1F("p_frac_0","a_{V#gamma}",50,1.,1.75);
 
-	std::ifstream vgammascalefile("VGamma_scalefactor_mg.txt");
+	std::ifstream vgammascalefile;
+//	if(ichannel == 1) vgammascalefile.open("/uscms/homes/m/mengleis/work/SUSY2016/SUSYAnalysis/test/VGamma/fit/VGamma_scalefactor_eg.txt");
+	if(ichannel == 1) vgammascalefile.open(Form("/eos/uscms/store/user/tmishra/VGamma/VGamma_scalefactor_eg_%d.txt",RunYear));
+	if(ichannel == 2) vgammascalefile.open(Form("/eos/uscms/store/user/tmishra/VGamma/VGamma_scalefactor_mg_%d.txt",RunYear));
 	float fakescale, vgammascale, fakescaleerror, vgammascaleerror;
 	float leplow, lephigh;
 
@@ -67,33 +74,20 @@ void plotFit(){
 	TCanvas *cantemp = new TCanvas("cantemp","",1200,1200);
 	// four temporary histograms for four lepton pT bins, where scalefactor is derived
 	TH1D *temphist[4];
-	temphist[0] = new TH1D("temphist0","",100,0.5,2);
-	temphist[1] = new TH1D("temphist1","",100,0.5,2);
-	temphist[2] = new TH1D("temphist2","",100,0.5,2);
-	temphist[3] = new TH1D("temphist3","",100,0.5,2);
-	cantemp->Divide(2,2);
-	for(unsigned i(0);  i < 4; i++){
-		double xvalue = 0, xerror = 0, yvalue = 0, yerror;
-		for(unsigned j(0);  j < 1000; j++){
-			vgammascalefile >> leplow >> lephigh >> fakescale >> fakescaleerror >> vgammascale >> vgammascaleerror;
-			if(j==0){
-				xvalue = (leplow + lephigh) < 200? (leplow + lephigh)/2 : (leplow + 200)/2;
-				xerror = (lephigh - leplow) < 100? (lephigh - leplow)/2 : (200 - leplow)/2;
-				yvalue = vgammascale;
-			}
-			temphist[i]->Fill(vgammascale);
-		}
-		cantemp->cd(i+1);
-		temphist[i]->Draw();
-		temphist[i]->Fit("gaus","","",0.5,2);
-		yerror = temphist[i]->GetFunction("gaus")->GetParameter(2);
-		if(yerror > 0.5)yerror= temphist[i]->GetRMS()/2;
-		// set four point for VGamma scale factor
-		p_frac->SetPoint(i, xvalue, yvalue);
-		p_frac->SetPointError(i, xerror, yerror);
-	}
-	double lowbound(2), highbound(0), norm(0);
-	for(unsigned i(0);  i < 1000; i++){
+	if(ichannel == 1) {
+		temphist[0] = new TH1D("temphist0","",100,1.5,2.5);
+		temphist[1] = new TH1D("temphist1","",100,1.5,2.5);
+		temphist[2] = new TH1D("temphist2","",100,1.5,2.5);
+		temphist[3] = new TH1D("temphist3","",100,1.5,2.5);}
+	
+	if(ichannel == 2) {
+		temphist[0] = new TH1D("temphist0","",100,1.,1.75);
+		temphist[1] = new TH1D("temphist1","",100,1.,1.75);
+		temphist[2] = new TH1D("temphist2","",100,1.,1.75);
+		temphist[3] = new TH1D("temphist3","",100,1.,1.75);}
+
+	double lowbound(3), highbound(0), norm(0);
+	for(unsigned i(0);  i < 50 ; i++){
 		vgammascalefile >> leplow >> lephigh >> fakescale >> fakescaleerror >> vgammascale >> vgammascaleerror;
 		if(i == 0)p_frac_total->SetPoint(0, 100, vgammascale);
 		if(i == 0)p_error_total->SetPoint(0, 100, vgammascale);
@@ -104,8 +98,31 @@ void plotFit(){
 		if(vgammascale < lowbound)lowbound = vgammascale;
 		if(vgammascale > highbound)highbound = vgammascale;
 	}
+
+	cantemp->Divide(2,2);
+	for(unsigned i(0);  i < 4; i++){
+		double xvalue = 0, xerror = 0, yvalue = 0, yerror;
+		for(unsigned j(0);  j < 50 ; j++){
+			vgammascalefile >> leplow >> lephigh >> fakescale >> fakescaleerror >> vgammascale >> vgammascaleerror;
+			if(j==0){
+				xvalue = (leplow + lephigh) < 200? (leplow + lephigh)/2 : (leplow + 200)/2;
+				xerror = (lephigh - leplow) < 100? (lephigh - leplow)/2 : (200 - leplow)/2;
+				yvalue = vgammascale;
+			}
+			temphist[i]->Fill(vgammascale);
+		}
+		cantemp->cd(i+1);
+		temphist[i]->Draw();
+		if(ichannel == 1) temphist[i]->Fit("gaus","","",1.5,2.5);
+		if(ichannel == 2) temphist[i]->Fit("gaus","","",1.,1.75);
+		yerror = temphist[i]->GetFunction("gaus")->GetParameter(2);
+		if(yerror > 0.5)yerror= temphist[i]->GetRMS()/2;
+		// set four point for VGamma scale factor
+		p_frac->SetPoint(i, xvalue, yvalue);
+		p_frac->SetPointError(i, xerror, yerror);
+	}
 	p_frac_0->Fit("gaus");
-	systematicerror = 3*p_frac_0->GetFunction("gaus")->GetParameter(2);
+	systematicerror = p_frac_0->GetFunction("gaus")->GetParameter(2);
 	//systematicerror = (highbound-norm) > (norm - lowbound)? (highbound-norm):(norm - lowbound); 
 	if(p_frac_0->GetFunction("gaus")->GetParameter(1) + systematicerror > highest)highest=p_frac_0->GetFunction("gaus")->GetParameter(1) + systematicerror;
 	if(p_frac_0->GetFunction("gaus")->GetParameter(1) - systematicerror < lowest)lowest=p_frac_0->GetFunction("gaus")->GetParameter(1) - systematicerror;
@@ -115,12 +132,13 @@ void plotFit(){
 
 	std::cout << "highbound = " << highbound << std::endl;
 	std::cout << "lowbound = " << lowbound << std::endl;
+	std::cout << "scale factor = " << p_frac_0->GetFunction("gaus")->GetParameter(1)  << std::endl;
 	std::cout << "error = " << totalerror << std::endl;
 
 	TCanvas *can = new TCanvas("can","",600,600);
 	can->cd();
 	TH1D *dummy = new TH1D("dummy","VGamma scale; p_{T} (GeV); scalefactor",1,0,200);
-	dummy->SetMaximum(2);
+	dummy->SetMaximum(4);
 	dummy->Draw();
 	p_frac->SetLineColor(kBlue);
 	p_frac->SetMarkerColor(kBlue);
@@ -143,10 +161,12 @@ void plotFit(){
 	gStyle->SetLegendBorderSize(0);
 	gStyle->SetLegendFillColor(0);
 	leg->Draw("same");
-	can->SaveAs("/eos/uscms/store/user/tmishra/VGamma/scale_ptDependence_mg.png");	
+	if(ichannel == 1) 	can->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/%d/scale_ptDependence_eg.png",RunYear));	
+	if(ichannel == 2) 	can->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/%d/scale_ptDependence_mg.png",RunYear));	
 
 	TCanvas *canscale = new TCanvas("canscale","",600,600);
 	canscale->cd();
 	p_frac_0->Draw();	
-	canscale->SaveAs("/eos/uscms/store/user/tmishra/VGamma/VGammaScale_mg.png");	
+	if(ichannel == 1)  canscale->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/%d/VGammaScale_eg.png",RunYear));	
+	if(ichannel == 2)  canscale->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/%d/VGammaScale_mg.png",RunYear));	
 }

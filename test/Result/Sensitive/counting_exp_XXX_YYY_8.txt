@@ -2,26 +2,26 @@ imax 1 number of channels
 jmax 5  number of backgrounds
 kmax *  number of nuisance parameters
 ------------
-bin  1  
+bin  bin1  
 observation   2.914000
 ------------
-bin                                  1            1            1            1            1            1 
+bin                               bin1         bin1         bin1         bin1         bin1         bin1 
 process                           SUSY   elefakepho   jetfakepho   qcdfakelep       VGamma         rare 
 process                              0            1            2            3            4            5 
-rate                              NSC8        0.108        0.000        1.240        0.169        1.352 
+rate                              NSC8        0.108        0.000        1.240        0.169        0.905 
 ------------
-jes             lnN              JESS8            -            -            -        1.080        1.013 
-jer             lnN              JERS8            -            -            -        1.000        1.223 
-esf             lnN               ESF8            -            -            -        1.058        1.061 
+jes             lnN              JESS8            -            -            -        1.080        1.020 
+jer             lnN              JERS8            -            -            -        1.000        1.333 
+esf             lnN               ESF8            -            -            -        1.058        1.059 
 scale           lnN                  -            -            -        0.800        1.200            - 
 e_to_pho_syst   lnN                  -        1.087            -            -            -            - 
-j_to_pho_syst   lnN                  -            -        1.031            -            -            - 
+j_to_pho_syst   lnN                  -            -        1.015            -            -            - 
 fakelep_shape   lnN                  -            -            -        1.000            -            - 
 xs              lnN                  -            -            -            -            -        1.500 
 lumi            lnN              1.026            -            -            -            -        1.026 
 isr             lnN                  -            -            -            -        1.549            - 
 SUSY_stat8      lnN              STSC8            -            -            -            -            - 
 e_to_pho_stat8  gmN      7           -      0.01540            -            -            -            - 
-j_to_pho_stat8  gmN      0           -            -      0.35222            -            -            - 
+j_to_pho_stat8  gmN      0           -            -      0.16375            -            -            - 
 j_to_lep_stat8  gmN      2           -            -            -      0.62000            -            - 
-rare_stat8      lnN                  -            -            -            -            -        1.490 
+rare_stat8      lnN                  -            -            -            -            -        1.540 

@@ -88,9 +88,9 @@ enum RunType{
 	//	tree->SetBranchAddress("pdfSystWeight",   &pdfSystWeight);
 	//	tree->SetBranchAddress("genScaleSystWeights", &genScaleSystWeights);
     }
-	  tree->SetBranchAddress("run",			        &run);
-	  tree->SetBranchAddress("event",			    &event);
-	  tree->SetBranchAddress("lumis",			    &lumis);
+      tree->SetBranchAddress("run",			        &run);
+      tree->SetBranchAddress("event",			    &event);
+      tree->SetBranchAddress("lumis",			    &lumis);
       tree->SetBranchAddress("nVtx",			    &nVtx);
       tree->SetBranchAddress("nGoodVtx",		    &nGoodVtx);
       tree->SetBranchAddress("isPVGood",		    &isPVGood);
@@ -102,14 +102,14 @@ enum RunType{
       tree->SetBranchAddress("HLTPhoIsPrescaled",   &HLTPhoIsPrescaled);
       tree->SetBranchAddress("pfMET",    			&pfMET);
       tree->SetBranchAddress("pfMETPhi",    		&pfMETPhi);
-			tree->SetBranchAddress("pfMET_T1JERUp",			&pfMET_T1JERUp);
-			tree->SetBranchAddress("pfMET_T1JERDo",     &pfMET_T1JERDo);
-			tree->SetBranchAddress("pfMET_T1JESUp",     &pfMET_T1JESUp);
-			tree->SetBranchAddress("pfMET_T1JESDo",     &pfMET_T1JESDo);
-			tree->SetBranchAddress("pfMETPhi_T1JESUp",  &pfMETPhi_T1JESUp);
-			tree->SetBranchAddress("pfMETPhi_T1JESDo",  &pfMETPhi_T1JESDo);
-			tree->SetBranchAddress("pfMETPhi_T1UESUp",  &pfMETPhi_T1UESUp);
-			tree->SetBranchAddress("pfMETPhi_T1UESDo",  &pfMETPhi_T1UESDo);
+      tree->SetBranchAddress("pfMET_T1JERUp",			&pfMET_T1JERUp);
+      tree->SetBranchAddress("pfMET_T1JERDo",     &pfMET_T1JERDo);
+      tree->SetBranchAddress("pfMET_T1JESUp",     &pfMET_T1JESUp);
+      tree->SetBranchAddress("pfMET_T1JESDo",     &pfMET_T1JESDo);
+      tree->SetBranchAddress("pfMETPhi_T1JESUp",  &pfMETPhi_T1JESUp);
+      tree->SetBranchAddress("pfMETPhi_T1JESDo",  &pfMETPhi_T1JESDo);
+      tree->SetBranchAddress("pfMETPhi_T1UESUp",  &pfMETPhi_T1UESUp);
+      tree->SetBranchAddress("pfMETPhi_T1UESDo",  &pfMETPhi_T1UESDo);
       tree->SetBranchAddress("metFilters",   		&metFilters);
 
       tree->SetBranchAddress("nPho",                    &nPho);

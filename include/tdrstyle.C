@@ -14,12 +14,14 @@ float canRight  = 0.04;
 float canTop    = 0.08;
 float canBottom = 0.1;
 
-TString cmsText     = "CMS";
+TString cmsText     = "";
+//TString cmsText     = "CMS";
 float cmsTextFont   = 62;  // default is helvetic-bold
 
 bool writeExtraText = true;
-//TString extraText   = "";
-TString extraText   = "Simulation Preliminary";
+//TString extraText   = "work in progress";
+TString extraText   = "";
+//TString extraText   = "Simulation Preliminary";
 //TString extraText   = "Simulation";
 float extraTextFont = 52;  // default is helvetica-italics
 
@@ -38,7 +40,7 @@ float relExtraDY = 1.2;
 float extraOverCmsTextSize  = 0.76;
 
 void 
-CMS_lumi( TPad* pad, int iPosX )
+CMS_lumi( TPad* pad, int iPeriod, int iPosX )
 {            
   bool outOfFrame    = false;
   if( iPosX/10==0 ) 
@@ -67,7 +69,18 @@ CMS_lumi( TPad* pad, int iPosX )
   pad->cd();
 
   TString lumiText;
-  lumiText += "35.9 fb^{-1} (13 TeV)";
+  if( iPeriod==0 )
+    lumiText += "(13 TeV)";
+  else if( iPeriod==1 )
+    lumiText += "19.52 fb^{-1} (13 TeV)";
+  else if ( iPeriod==2 )
+    lumiText += "16.81 fb^{-1} (13 TeV)";
+  else if ( iPeriod==3 )
+    lumiText += "41.48 fb^{-1} (13 TeV)";
+  else if ( iPeriod==4 )
+    lumiText += "59.83 fb^{-1} (13 TeV)";
+
+  //lumiText += "35.9 fb^{-1} (13 TeV)";
 
   TLatex latex;
   latex.SetNDC();
@@ -237,7 +250,7 @@ void setTDRStyle() {
   tdrStyle->SetTitleSize(28, "XYZ");
   // tdrStyle->SetTitleXSize(Float_t size = 0.02); // Another way to set the size?
   // tdrStyle->SetTitleYSize(Float_t size = 0.02);
-  tdrStyle->SetTitleXOffset(3.0);
+  tdrStyle->SetTitleXOffset(1.2);
   tdrStyle->SetTitleYOffset(1.2);
   // tdrStyle->SetTitleOffset(1.1, "Y"); // Another way to set the Offset
 

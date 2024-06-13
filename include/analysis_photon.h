@@ -68,7 +68,7 @@ class recoPhoton{
       phoPFPhoIso_ = (*raw.phoPFPhoIso)[ipho];
       phoPFNeuIso_ = (*raw.phoPFNeuIso)[ipho];
     } 
-      
+ 	// Only comment these for signal files T5WG, as triggers are not stored in ntuples     
     phoFiredSingleTrgs_ = (*raw.phoFiredSingleTrgs)[ipho];
     phoFiredDoubleTrgs_ = (*raw.phoFiredDoubleTrgs)[ipho];
     phoFiredL1Trgs_ = (*raw.phoFiredL1Trgs)[ipho]; 
@@ -114,6 +114,11 @@ bool passSigma(int WP);
 bool passChIso(int WP);
 bool passNeuIso(int WP);
 bool passPhoIso(int WP);
+bool passSigmaOLD(int WP);
+bool passChIsoOLD(int WP);
+bool passHoverEOLD(int WP);
+bool passNeuIsoOLD(int WP);
+bool passPhoIsoOLD(int WP);
 
 bool passSignalSelection();
 bool passBasicSelection();

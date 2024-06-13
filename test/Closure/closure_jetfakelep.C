@@ -1,3 +1,6 @@
+// run using root -l "closure_jetfakelep.C(1)"
+// 	Scale factor due to pT dependence of miniIsolation leads to disagreement in fake electron pT shape. 
+	// this scale factor is to correct the electron proxy sample, as described in section 5.3.3 AN
 #include<string>
 #include<iostream>
 #include<fstream>
@@ -28,40 +31,48 @@
 #include "../../include/analysis_photon.h"
 #include "../../include/analysis_ele.h"
 #include "../../include/analysis_muon.h"
+#include "../../include/analysis_jet.h"
 #include "../../include/analysis_mcData.h"
 #include "../../include/analysis_tools.h"
 #include "../../include/analysis_fakes.h"
 #include "../../include/tdrstyle.C"
 
 #define NTOY 1000
-
-
+int RunYear = 2018;
+bool ISpreVFP = false;
 void closure_jetfakelep(int ichannel){
 
 	setTDRStyle();   
 	gStyle->SetLegendBorderSize(0);
 	gStyle->SetLegendFillColor(0);
-  gSystem->Load("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/lib/libAnaClasses.so");
-  int channelType = ichannel; // eg = 1; mg =2;
-
+  	gSystem->Load("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/lib/libAnaClasses.so");
+  	int channelType = ichannel; // eg = 1; mg =2;
+	gROOT->SetBatch(1);
 	// Signal Tree //
 	//*********** hist o list **********************//
-	TH1D *p_PhoEt = new TH1D("p_PhoEt","; E_{T} (GeV)",20,0,200);
+	TH1D *p_PhoEt = new TH1D("p_PhoEt","; E_{T} (GeV);",20,0,200);
 	TH1D *p_LepPt = new TH1D("p_LepPt","LepPt; p_{T} (GeV);",nBkgPtBins,bkgPtBins);
 	TH1D *p_MET = new TH1D("p_MET",";p_{T}^{miss} (GeV);",20,0,100);
-	TH1D *p_Mt = new TH1D("p_Mt","; M_{T}(l,p_{T}^{miss}) (GeV);",40,0,200);
-	TH1D *p_HT = new TH1D("p_HT","; HT (GeV);",40,0,400); 
+	TH1D *p_Mt = new TH1D("p_Mt",";M_{T}(l,p_{T}^{miss}) (GeV);",40,0,200);
+	TH1D *p_HT = new TH1D("p_HT",";HT (GeV);",40,0,400); 
 	TH1D *p_dPhiEleMET = new TH1D("p_dPhiEleMET",";#Delta#phi(l,p_{T}^{miss});",32,0,3.2); 
+
 	TH1D *p_PhoEta = new TH1D("p_PhoEta","#gamma #eta; #eta;",60,-3,3);
 	TH1D *p_LepEta = new TH1D("p_LepEta","p_LepEta",60,-3,3);
 	TH1D *p_eventcount = new TH1D("p_eventcount","eventcount",9,0,9);
 	TH1D *p_nJet = new TH1D("p_nJet","p_nJet",10,0,10);
 	//************ Signal Tree **********************//
-	TChain *sigtree = new TChain("signalTree");
-	// signal events from QCD process
-	if(channelType==1)sigtree->Add("/uscms_data/d3/mengleis/FullStatusOct/fakelep_egsignal_QCD.root");
-	if(channelType==2)sigtree->Add("/uscms_data/d3/mengleis/FullStatusOct/fakelep_mgsignal_QCD.root");
+	
+	std::string whichVFP;
+	if(RunYear==2016 and ISpreVFP == true) whichVFP = "preVFP";
+        if(RunYear==2016 and ISpreVFP == false) whichVFP = "postVFP";
+        if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
 
+	// from QCD simulation
+	// Inputs from ./QCD/analysis_egMC.C
+	TChain *sigtree = new TChain("signalTree");
+	if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/fakeLep/fakelep_egsignal_QCD_%d%s.root",RunYear,whichVFP.c_str()));
+	if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/fakeLep/fakelep_mgsignal_QCD_%d%s.root",RunYear,whichVFP.c_str())); // looks correct from stat
 	float phoEt(0);
 	float phoEta(0);
 	float phoPhi(0);
@@ -76,12 +87,12 @@ void closure_jetfakelep(int ichannel){
 	int   nVertex(0);
 	float dRPhoLep(0);
 	float nJet(0);
-  std::vector<int>   *mcPID=0;
-  std::vector<float> *mcEta=0;
-  std::vector<float> *mcPhi=0;
-  std::vector<float> *mcPt=0;
-  std::vector<int>   *mcMomPID=0;
-  std::vector<int>   *mcGMomPID=0;
+  	std::vector<int>   *mcPID=0;
+  	std::vector<float> *mcEta=0;
+  	std::vector<float> *mcPhi=0;
+  	std::vector<float> *mcPt=0;
+  	std::vector<int>   *mcMomPID=0;
+  	std::vector<int>   *mcGMomPID=0;
 
 	sigtree->SetBranchAddress("phoEt",     &phoEt);
 	sigtree->SetBranchAddress("phoEta",    &phoEta);
@@ -91,18 +102,18 @@ void closure_jetfakelep(int ichannel){
 	sigtree->SetBranchAddress("lepPhi",    &lepPhi);
 	sigtree->SetBranchAddress("sigMT",     &sigMT);
 	sigtree->SetBranchAddress("sigMET",    &sigMET);
-  sigtree->SetBranchAddress("HT",        &HT);
+  	sigtree->SetBranchAddress("HT",        &HT);
 	sigtree->SetBranchAddress("dPhiLepMET",&dPhiLepMET);
 	sigtree->SetBranchAddress("sigMETPhi", &sigMETPhi);
 	sigtree->SetBranchAddress("nVertex",   &nVertex);
 	sigtree->SetBranchAddress("dRPhoLep",  &dRPhoLep);
 	sigtree->SetBranchAddress("nJet",      &nJet);
-  sigtree->SetBranchAddress("mcPID",     &mcPID);
-  sigtree->SetBranchAddress("mcEta",     &mcEta);
-  sigtree->SetBranchAddress("mcPhi",     &mcPhi);
-  sigtree->SetBranchAddress("mcPt",      &mcPt);
-  sigtree->SetBranchAddress("mcMomPID",  &mcMomPID);
-  sigtree->SetBranchAddress("mcGMomPID", &mcGMomPID);
+  	sigtree->SetBranchAddress("mcPID",     &mcPID);
+  	sigtree->SetBranchAddress("mcEta",     &mcEta);
+  	sigtree->SetBranchAddress("mcPhi",     &mcPhi);
+  	sigtree->SetBranchAddress("mcPt",      &mcPt);
+  	sigtree->SetBranchAddress("mcMomPID",  &mcMomPID);
+  	sigtree->SetBranchAddress("mcGMomPID", &mcGMomPID);
 
 	for (unsigned ievt(0); ievt<sigtree->GetEntries(); ++ievt){//loop on entries
 		sigtree->GetEntry(ievt);
@@ -141,8 +152,8 @@ void closure_jetfakelep(int ichannel){
 	//************ Proxy Tree **********************//
 	// proxy events enriched in fake leptons from data
 	TChain *proxytree = new TChain("fakeLepTree");
-	if(channelType==1)proxytree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_egsignal_DoubleEG_ReMiniAOD_FullEcal.root");
-	if(channelType==2)proxytree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_mgsignal_MuonEG_FullEcal.root");
+        if(channelType==1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
+        if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
 
 	float proxyphoEt(0);
 	float proxyphoEta(0);
@@ -171,8 +182,8 @@ void closure_jetfakelep(int ichannel){
 	proxytree->SetBranchAddress("sigMET",    	 &proxysigMET);
 	proxytree->SetBranchAddress("sigMETPhi", 	 &proxysigMETPhi);
 	proxytree->SetBranchAddress("dPhiLepMET",	 &proxydPhiLepMET);
-  proxytree->SetBranchAddress("fakeLepMiniIso", &fakeLepMiniIso);
-  proxytree->SetBranchAddress("fakeLepIsStandardProxy",&fakeLepIsStandardProxy);
+  	proxytree->SetBranchAddress("fakeLepMiniIso", &fakeLepMiniIso);
+  	proxytree->SetBranchAddress("fakeLepIsStandardProxy",&fakeLepIsStandardProxy);
 	proxytree->SetBranchAddress("nVertex",   	 &proxynVertex);
 	proxytree->SetBranchAddress("dRPhoLep",  	 &proxydRPhoLep);
 	proxytree->SetBranchAddress("HT",        	 &proxyHT);
@@ -221,8 +232,8 @@ void closure_jetfakelep(int ichannel){
 	//************ Proxy Tree **********************//
 	TChain *mcproxytree = new TChain("fakeLepTree");
 	// proxy events enriched in fake leptons from MC
-	if(channelType==1)mcproxytree->Add("/uscms_data/d3/mengleis/FullStatusOct/fakelep_egsignal_QCD.root");
-	if(channelType==2)mcproxytree->Add("/uscms_data/d3/mengleis/FullStatusOct/fakelep_mgsignal_QCD.root");
+	if(channelType==1)	mcproxytree->Add(Form("/eos/uscms/store/user/tmishra/fakeLep/fakelep_egsignal_QCD_%d%s.root",RunYear,whichVFP.c_str()));
+	if(channelType==2)	mcproxytree->Add(Form("/eos/uscms/store/user/tmishra/fakeLep/fakelep_mgsignal_QCD_%d%s.root",RunYear,whichVFP.c_str()));
 
 	float mcproxyphoEt(0);
 	float mcproxyphoEta(0);
@@ -250,7 +261,7 @@ void closure_jetfakelep(int ichannel){
 	mcproxytree->SetBranchAddress("sigMET",    	 &mcproxysigMET);
 	mcproxytree->SetBranchAddress("sigMETPhi", 	 &mcproxysigMETPhi);
 	mcproxytree->SetBranchAddress("dPhiLepMET",	 &mcproxydPhiLepMET);
-  mcproxytree->SetBranchAddress("fakeLepMiniIso", &mcfakeLepMiniIso);
+  	mcproxytree->SetBranchAddress("fakeLepMiniIso", &mcfakeLepMiniIso);
 	mcproxytree->SetBranchAddress("nVertex",   	 &mcproxynVertex);
 	mcproxytree->SetBranchAddress("dRPhoLep",  	 &mcproxydRPhoLep);
 	mcproxytree->SetBranchAddress("HT",        	 &mcproxyHT);
@@ -319,9 +330,9 @@ void closure_jetfakelep(int ichannel){
 	// proxy template from data
 	pred_dPhiEleMET->SetLineColor(kRed);
 	pred_dPhiEleMET->Draw("hist  same");
-	mcpred_dPhiEleMET->SetLineColor(kCyan);
 	// proxy template from MC
-	mcpred_dPhiEleMET->Draw("hist  same");
+	//mcpred_dPhiEleMET->SetLineColor(kCyan);
+	//mcpred_dPhiEleMET->Draw("hist  same");
 	TLegend *leg =  new TLegend(0.5,0.7,0.85,0.85);
 	leg->SetFillStyle(0);
 	pred_dPhiEleMET->SetMarkerColor(kRed);
@@ -329,9 +340,10 @@ void closure_jetfakelep(int ichannel){
 	leg->AddEntry(pred_dPhiEleMET,"data proxy template");
 	leg->Draw("same");
 	p_dPhiEleMET->Draw("P same");
-	c_dphi->SaveAs("faketemp_electron_dPhi.pdf");
+	if(channelType==1) c_dphi->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/faketemp_electron_dPhi_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==2) c_dphi->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/faketemp_muon_dPhi_%d%s.pdf",RunYear,whichVFP.c_str()));
 
-// ******** MET ************************//
+	// ******** MET ************************//
 	gStyle->SetOptStat(0);
 	TCanvas *c_met = new TCanvas("MET", "MET",600,600);
 	c_met->SetBottomMargin(0.12);
@@ -347,14 +359,15 @@ void closure_jetfakelep(int ichannel){
 	p_MET->Draw();
 	pred_MET->SetLineColor(kRed);
 	pred_MET->Draw("hist  same");
-//	mcpred_MET->SetLineColor(kCyan);
-//	mcpred_MET->Draw("hist  same");
+	//	mcpred_MET->SetLineColor(kCyan);
+	//	mcpred_MET->Draw("hist  same");
 	leg->Draw("same");
 	p_MET->Draw("E same");
 
-	c_met->SaveAs("faketemp_electron_met.pdf");
+	if(channelType==1) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/faketemp_electron_met_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==2) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/faketemp_muon_met_%d%s.pdf",RunYear,whichVFP.c_str()));
 
-// ******** Mt ************************//
+	// ******** Mt ************************//
 	gStyle->SetOptStat(0);
 	TCanvas *c_mt = new TCanvas("Mt", "Mt",600,600);
 	c_mt->cd();
@@ -362,7 +375,7 @@ void closure_jetfakelep(int ichannel){
 	c_mt->SetLeftMargin(0.12);
 	gPad->SetLogy();
 	p_Mt->SetMinimum(0.00001);
-  //p_Mt->SetMaximum(1000000);
+  	//p_Mt->SetMaximum(1000000);
 	p_Mt->GetXaxis()->SetRangeUser(0,200);
 	p_Mt->GetXaxis()->SetTitleOffset(0.9);
 	p_Mt->SetLineColor(1);
@@ -373,12 +386,15 @@ void closure_jetfakelep(int ichannel){
 	leg->Draw("same");
 	p_Mt->Draw("E same");
 
-	c_mt->SaveAs("faketemp_electron_mt.pdf");
+	if(channelType==1) c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/faketemp_electron_mt_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==2) c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/faketemp_muon_mt_%d%s.pdf",RunYear,whichVFP.c_str()));
 
-// ******** HT ************************//
+	// ******** HT ************************//
 	gStyle->SetOptStat(0);
 	TCanvas *c_HT = new TCanvas("HT", "HT",600,600);
 	c_HT->cd();
+	c_HT->SetBottomMargin(0.12);
+        c_HT->SetLeftMargin(0.12);
 	gPad->SetLogy();
 	//p_HT->GetYaxis()->SetRangeUser(1,10*p_HT->GetBinContent(1));
 	p_HT->GetXaxis()->SetRangeUser(0,400);
@@ -391,9 +407,10 @@ void closure_jetfakelep(int ichannel){
 	leg->Draw("same");
 	p_HT->Draw("E same");
 
-	c_HT->SaveAs("faketemp_electron_ht.pdf");
+	if(channelType==1) c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/faketemp_electron_ht_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==2) c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/faketemp_muon_ht_%d%s.pdf",RunYear,whichVFP.c_str()));
 
-// ******** LepPt ************************//
+	// ******** LepPt ************************//
 	p_LepPt->Sumw2();
 	pred_LepPt->Sumw2();
 	mcpred_LepPt->Sumw2();
@@ -404,6 +421,8 @@ void closure_jetfakelep(int ichannel){
 	gStyle->SetOptStat(0);
 	TCanvas *c_LepPt = new TCanvas("LepPt", "LepPt",600,600);
 	c_LepPt->cd();
+	c_LepPt->SetBottomMargin(0.12);
+        c_LepPt->SetLeftMargin(0.12);
 	TPad *LepPt_pad1 = new TPad("LepPt_pad1", "LepPt_pad1", 0, 0.3, 1, 1.0);
 	LepPt_pad1->SetBottomMargin(0);
 	LepPt_pad1->Draw();  
@@ -417,15 +436,15 @@ void closure_jetfakelep(int ichannel){
 	p_LepPt->Draw("P");
 	pred_LepPt->SetLineColor(kRed);
 	pred_LepPt->SetLineWidth(2);
-	pred_LepPt->Draw("hist  same");
-//	mcpred_LepPt->SetLineColor(kCyan);
-//	mcpred_LepPt->SetLineWidth(2);
-//	mcpred_LepPt->Draw("hist  same");
+	pred_LepPt->Draw("hist same");
+	mcpred_LepPt->SetLineColor(kCyan);
+	mcpred_LepPt->SetLineWidth(2);
+	//mcpred_LepPt->Draw("hist same");
 	TLegend *leg_pt =  new TLegend(0.5,0.7,0.85,0.85);
 	leg_pt->SetFillStyle(0);
-	leg_pt->AddEntry(p_dPhiEleMET,"Simulation");
-	leg_pt->AddEntry(pred_dPhiEleMET,"data proxy template");
-//	leg_pt->AddEntry(mcpred_dPhiEleMET,"MC proxy template");
+	leg_pt->AddEntry(p_LepPt,"Simulation");
+	leg_pt->AddEntry(pred_LepPt,"data proxy template");
+	//leg_pt->AddEntry(mcpred_LepPt,"MC proxy template");
 	leg_pt->Draw("same");
 	p_LepPt->Draw("E same");
 
@@ -435,7 +454,8 @@ void closure_jetfakelep(int ichannel){
 	LepPt_pad2->SetTopMargin(0);
 	LepPt_pad2->Draw();
 	LepPt_pad2->cd();
-  TLine *flatratio_LepPt = new TLine(25,1,800,1);
+  	TLine *flatratio_LepPt = new TLine(25,1,800,1);
+	// signal trees from QCD simulation divided by fakeLepTree from data
 	TH1D *ratio_LepPt=(TH1D*)p_LepPt->Clone("transfer_factor");
 	ratio_LepPt->SetMarkerStyle(20);
 	ratio_LepPt->SetLineColor(kBlack);
@@ -443,18 +463,23 @@ void closure_jetfakelep(int ichannel){
 	ratio_LepPt->GetXaxis()->SetTitle("p_{T} (GeV)");
 	ratio_LepPt->GetYaxis()->SetRangeUser(0,4);
 	ratio_LepPt->SetMinimum(0);
-	ratio_LepPt->SetMaximum(4);
+	ratio_LepPt->SetMaximum(4.2);
+	ratio_LepPt->GetYaxis()->SetLabelSize(11);
 	ratio_LepPt->Divide(pred_LepPt);
 	ratio_LepPt->SetTitle("");
-	ratio_LepPt->GetYaxis()->SetTitle("obs./bkg.");
+	ratio_LepPt->GetYaxis()->SetTitleOffset(2);
+	ratio_LepPt->GetYaxis()->SetTitleSize(12);
+	ratio_LepPt->GetYaxis()->SetTitle("#frac{Simulation}{data proxy template}   ");
 	ratio_LepPt->Draw();
 	flatratio_LepPt->Draw("same");
-	c_LepPt->SaveAs("faketemp_electron_LepPt.pdf");
-	TFile *outputfile = TFile::Open("qcd_mg_scale.root","RECREATE");
+	if(channelType==1) c_LepPt->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/faketemp_electron_LepPt_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==2) c_LepPt->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/faketemp_muon_LepPt_%d%s.pdf",RunYear,whichVFP.c_str()));
+	TFile *outputfile;
+	if(channelType==1)  outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/fakeLep/qcd_eg_scale_%d%s.root",RunYear,whichVFP.c_str()),"RECREATE");
+	if(channelType==2)  outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/fakeLep/qcd_mg_scale_%d%s.root",RunYear,whichVFP.c_str()),"RECREATE");
+	// this scale factor is to correct the electron proxy sample, as described in section 4.3.3 AN
 	outputfile->cd();
 	ratio_LepPt->Write();
 	outputfile->Write();
 	outputfile->Close(); 
 }
-
-

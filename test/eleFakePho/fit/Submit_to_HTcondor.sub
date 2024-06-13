@@ -1,0 +1,7 @@
+executable            = Run_Analyser_short.py
+arguments             =  --Arg0 Arg0 --Arg1 Arg1 --Arg2 Arg2 --Arg3 Arg3 --Arg4 Arg4 --Arg5 Arg5 --Arg6 Arg6
+output                = logs/Output_$(Cluster)_$(Process).stdout
+error                 = logs/Errors_$(Cluster)_$(Process).stderr
+log                   = logs/Log_$(Cluster)_$(Process).log
+transfer_output_files   = ""
++JobFlavour            = "tomorrow"

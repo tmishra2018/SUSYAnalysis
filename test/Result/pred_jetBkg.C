@@ -1,5 +1,4 @@
 #include "../../include/analysis_commoncode.h"
-int RunYear = 2016;
 #define NTOY 1000
 bool useGaussFit, channelType=false;
 

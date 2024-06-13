@@ -29,20 +29,27 @@
 #include "../../include/analysis_tools.h"
 #include "../../include/analysis_mcData.h"
 
+bool preVFP=false;
 int RunYear = 2016;
+
 void analysis_R9(){//main  
 
 	gSystem->Load("../../lib/libAnaClasses.so");
+	
+	std::string whichVFP;
+        if(RunYear==2016 and preVFP == 1) whichVFP = "preVFP";
+        if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
+        if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
 
 	ofstream logfile;
-	logfile.open(Form("/eos/uscms/store/user/tmishra/Trigger/plot_R9_DY_%d.log",RunYear));
+	logfile.open(Form("/eos/uscms/store/user/tmishra/Trigger/plot_R9_DY_%d%s.log",RunYear,whichVFP.c_str()));
 	logfile << "analysis_egTrigger()" << std::endl;
 
 	RunType datatype(MC);
 	TChain* es = new TChain("ggNtuplizer/EventTree");
-	es->Add(Form("/eos/uscms/store/group/lpcsusyhad/Tribeni/DYJetsToLL/DYJetsToLL_%d.root",RunYear));
+	es->Add(Form("/eos/uscms/store/user/lpcsusyphotons/Tribeni/DYJetsToLL/DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
 
-	TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/Trigger/plot_R9_DY_%d.root",RunYear),"RECREATE");
+	TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/Trigger/plot_R9_DY_%d%s.root",RunYear,whichVFP.c_str()),"RECREATE");
 	outputfile->cd();
 //	TDirectory *cdtof = outputfile->mkdir("MC");
 //	cdtof->cd();
@@ -242,5 +249,3 @@ void analysis_R9(){//main
 	outputfile->Write();
 	logfile.close();
 }
-
-

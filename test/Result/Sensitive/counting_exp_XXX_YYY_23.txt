@@ -2,26 +2,26 @@ imax 1 number of channels
 jmax 5  number of backgrounds
 kmax *  number of nuisance parameters
 ------------
-bin  1  
+bin  bin1  
 observation  49.956000
 ------------
-bin                                  1            1            1            1            1            1 
+bin                               bin1         bin1         bin1         bin1         bin1         bin1 
 process                           SUSY   elefakepho   jetfakepho   qcdfakelep       VGamma         rare 
 process                              0            1            2            3            4            5 
-rate                             NSC23       11.659        9.535        2.298        7.104       20.810 
+rate                             NSC23       11.659        8.026        2.298        7.104       21.452 
 ------------
-jes             lnN             JESS23            -            -            -        1.135        1.029 
+jes             lnN             JESS23            -            -            -        1.135        1.028 
 jer             lnN             JERS23            -            -            -        1.038        1.003 
 esf             lnN              ESF23            -            -            -        1.028        1.020 
 scale           lnN                  -            -            -        0.800        1.200            - 
 e_to_pho_syst   lnN                  -        1.089            -            -            -            - 
-j_to_pho_syst   lnN                  -            -        1.102            -            -            - 
+j_to_pho_syst   lnN                  -            -        1.080            -            -            - 
 fakelep_shape   lnN                  -            -            -        1.175            -            - 
 xs              lnN                  -            -            -            -            -        1.500 
 lumi            lnN              1.026            -            -            -            -        1.026 
 isr             lnN                  -            -            -            -        1.357            - 
 SUSY_stat23     lnN             STSC23            -            -            -            -            - 
 e_to_pho_stat23 gmN    637           -      0.01830            -            -            -            - 
-j_to_pho_stat23 gmN     21           -            -      0.45406            -            -            - 
+j_to_pho_stat23 gmN     34           -            -      0.23606            -            -            - 
 j_to_lep_stat23 gmN      8           -            -            -      0.28729            -            - 
 rare_stat23     lnN                  -            -            -            -            -        1.092 

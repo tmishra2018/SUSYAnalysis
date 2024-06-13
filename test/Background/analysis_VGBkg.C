@@ -1,3 +1,4 @@
+#include<string>
 #include "../../include/analysis_commoncode.h"
 
 void analysis_VGBkg(){
@@ -5,28 +6,54 @@ void analysis_VGBkg(){
 	SetRunConfig();
 	setTDRStyle();
 
-  gSystem->Load("../../lib/libAnaClasses.so");
+  	gSystem->Load("../../lib/libAnaClasses.so");
+
+	std::string whichVFP;
+        if(RunYear==2016 and preVFP == 1) whichVFP = "preVFP";
+        if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
+        if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
 	
 	esfScaleFactor  objectESF;
 	bool toDeriveScale(false);
 	if(anatype == 0)toDeriveScale = true;
 
-  int channelType = ichannel; // eg = 1; mg =2;
+  	int channelType = ichannel; // eg = 1; mg =2;
 	double factorMC(1);
 	double factorMCUP = factorMC*(1+0);
+	
+	 // make this ON when you have to derive the QCD and VGamma scales
 	if(toDeriveScale){
 		factorMC = 1;
 		factorMCUP = 1;
 	}
 	else{
 		if(channelType == 1){
-			// from ../analysis_commoncode.h
-			factorMC = factor_egVGamma;
-			factorMCUP = factor_egVGamma+factorerror_egVGamma;
+			if(RunYear==2016 and preVFP == 1){
+				factorMC = factor_egVGamma_2016preVFP;
+				factorMCUP = factor_egVGamma_2016preVFP+factorerror_egVGamma_2016preVFP;}
+			if(RunYear==2016 and preVFP == 0){
+				factorMC = factor_egVGamma_2016postVFP;
+				factorMCUP = factor_egVGamma_2016postVFP+factorerror_egVGamma_2016postVFP;}
+			if(RunYear==2017){
+				factorMC = factor_egVGamma_2017;
+				factorMCUP = factor_egVGamma_2017+factorerror_egVGamma_2017;}
+			if(RunYear==2018){
+				factorMC = factor_egVGamma_2018;
+				factorMCUP = factor_egVGamma_2018+factorerror_egVGamma_2018;}
 		}
 		else if(channelType == 2){
-			factorMC = factor_mgVGamma;
-			factorMCUP = factor_mgVGamma + factorerror_mgVGamma;
+			if(RunYear==2016 and preVFP == 1){
+				factorMC = factor_mgVGamma_2016preVFP;
+				factorMCUP = factor_mgVGamma_2016preVFP+factorerror_mgVGamma_2016preVFP;}
+			if(RunYear==2016 and preVFP == 0){
+				factorMC = factor_mgVGamma_2016postVFP;
+				factorMCUP = factor_mgVGamma_2016postVFP+factorerror_mgVGamma_2016postVFP;}
+			if(RunYear==2017){
+				factorMC = factor_mgVGamma_2017;
+				factorMCUP = factor_mgVGamma_2017+factorerror_mgVGamma_2017;}
+			if(RunYear==2018){
+				factorMC = factor_mgVGamma_2018;
+				factorMCUP = factor_mgVGamma_2018+factorerror_mgVGamma_2018;}
 		}
 	}
 
@@ -42,8 +69,9 @@ void analysis_VGBkg(){
 	if(channelType==1)outputname << "egamma_VGBkg";
 	else if(channelType==2)outputname << "mg_VGBkg";
 	// MET and lepton pT range
-	if(anatype ==0)outputname << "_met" << lowMET <<"_" << highMET << "_pt" << lowPt << "_" << highPt;
-	outputname << ".root";
+	if(anatype ==0 or anatype ==1)	outputname << "_met" << lowMET <<"_" << highMET << "_pt" << lowPt << "_" << highPt;
+	outputname <<"_" << RunYear<<whichVFP<<".root";
+
 	TFile *outputfile = TFile::Open(outputname.str().c_str(),"RECREATE");
 	outputfile->cd();
 	std::ostringstream histname;
@@ -117,18 +145,21 @@ void analysis_VGBkg(){
 		histname << "toy_VGdPhiEleMET_" << ih;
 		toy_dPhiEleMET[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),32,0,3.2);
 	}
-// ********  MC *************************//
+	// ********  MC *************************//
 	std::ostringstream chainname;
 	chainname.str("");
 	if(channelType == 1)chainname << "egTree";
 	else if(channelType == 2)chainname << "mgTree";
 	// ZG bkg is directly from simulation, mctree
-  TChain *mctree = new TChain(chainname.str().c_str(), chainname.str().c_str());
-  mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_VGamma_WG35_VetoEle.root");
-	mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_VGamma_WG50_VetoEle.root");
-	mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_VGamma_WG130_VetoEle.root");
-	mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_VGamma_ZG_VetoEle.root");
-	mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_VGamma_DY.root");
+  	TChain *mctree = new TChain(chainname.str().c_str(), chainname.str().c_str());
+ 	
+	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGJet40_%d%s.root",RunYear,whichVFP.c_str()));
+        mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGJet130_%d%s.root",RunYear,whichVFP.c_str()));
+        mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGToLNuG_%d%s.root",RunYear,whichVFP.c_str()));
+        mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_ZGToLLG_%d%s.root",RunYear,whichVFP.c_str()));
+        mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
+	
+
 	float crosssection(0);
 	float ntotalevent(0);
 	float ISRWeight(0);
@@ -137,23 +168,23 @@ void analysis_VGBkg(){
 	std::vector<float> *ScaleSystWeight = 0; 
 	int   mcType(0);
 	float PUweight(1);
-  float phoEt(0);
-  float phoEta(0);
-  float phoPhi(0);
-  float lepPt(0);
-  float lepEta(0);
-  float lepPhi(0);
-  float sigMT(0);
-  float sigMET(0);
-  float sigMETPhi(0);
-  float dPhiLepMET(0);
-  int   nVertex(0);
-  float dRPhoLep(0);
-  float HT(0);
-  float nJet(0);
+  	float phoEt(0);
+  	float phoEta(0);
+  	float phoPhi(0);
+  	float lepPt(0);
+  	float lepEta(0);
+  	float lepPhi(0);
+  	float sigMT(0);
+  	float sigMET(0);
+  	float sigMETPhi(0);
+  	float dPhiLepMET(0);
+  	int   nVertex(0);
+	float dRPhoLep(0);
+  	float HT(0);
+  	float nJet(0);
 	int   nBJet(0);
 	float llmass(0);
-	float ISRPt(0); 
+	float ISRJetPt(0); 
 	float sigMETJESup(0);
 	float sigMETJESdo(0);
 	float sigMETJERup(0);
@@ -168,13 +199,13 @@ void analysis_VGBkg(){
 	float dPhiLepMETJESdo(0);
 	float dPhiLepMETJERup(0);
 	float dPhiLepMETJERdo(0);
-  std::vector<int> *mcPID=0;
-  std::vector<float> *mcEta=0;
-  std::vector<float> *mcPhi=0;
-  std::vector<float> *mcPt=0;
-  std::vector<int> *mcMomPID=0;
-//  std::vector<int> *mcGMomPID=0;
-//
+	std::vector<int> *mcPID=0;
+  	std::vector<float> *mcEta=0;
+  	std::vector<float> *mcPhi=0;
+  	std::vector<float> *mcPt=0;
+  	std::vector<int> *mcMomPID=0;
+	//  std::vector<int> *mcGMomPID=0;
+	
 	mctree->SetBranchAddress("crosssection",&crosssection);
 	mctree->SetBranchAddress("ntotalevent", &ntotalevent);
 	mctree->SetBranchAddress("ISRWeight", &ISRWeight);
@@ -183,23 +214,23 @@ void analysis_VGBkg(){
 	mctree->SetBranchAddress("ScaleSystWeight", &ScaleSystWeight);
 	mctree->SetBranchAddress("mcType",    &mcType);
 	mctree->SetBranchAddress("PUweight",  &PUweight);
-  mctree->SetBranchAddress("phoEt",     &phoEt);
-  mctree->SetBranchAddress("phoEta",    &phoEta);
-  mctree->SetBranchAddress("phoPhi",    &phoPhi);
-  mctree->SetBranchAddress("lepPt",     &lepPt);
-  mctree->SetBranchAddress("lepEta",    &lepEta);
-  mctree->SetBranchAddress("lepPhi",    &lepPhi);
-  mctree->SetBranchAddress("sigMT",     &sigMT);
-  mctree->SetBranchAddress("sigMET",    &sigMET);
-  mctree->SetBranchAddress("sigMETPhi", &sigMETPhi);
-  mctree->SetBranchAddress("dPhiLepMET",&dPhiLepMET);
-  mctree->SetBranchAddress("nVertex",   &nVertex);
-  mctree->SetBranchAddress("dRPhoLep",  &dRPhoLep);
+  	mctree->SetBranchAddress("phoEt",     &phoEt);
+  	mctree->SetBranchAddress("phoEta",    &phoEta);
+  	mctree->SetBranchAddress("phoPhi",    &phoPhi);
+  	mctree->SetBranchAddress("lepPt",     &lepPt);
+  	mctree->SetBranchAddress("lepEta",    &lepEta);
+  	mctree->SetBranchAddress("lepPhi",    &lepPhi);
+  	mctree->SetBranchAddress("sigMT",     &sigMT);
+  	mctree->SetBranchAddress("sigMET",    &sigMET);
+  	mctree->SetBranchAddress("sigMETPhi", &sigMETPhi);
+  	mctree->SetBranchAddress("dPhiLepMET",&dPhiLepMET);
+  	mctree->SetBranchAddress("nVertex",   &nVertex);
+  	mctree->SetBranchAddress("dRPhoLep",  &dRPhoLep);
 	mctree->SetBranchAddress("llmass",    &llmass);
-  mctree->SetBranchAddress("HT",        &HT);
-  mctree->SetBranchAddress("nJet",      &nJet);
-  mctree->SetBranchAddress("nBJet",     &nBJet);
-  mctree->SetBranchAddress("ISRJetPt",        &ISRPt);
+  	mctree->SetBranchAddress("HT",        &HT);
+  	mctree->SetBranchAddress("nJet",      &nJet);
+  	mctree->SetBranchAddress("nBJet",     &nBJet);
+  	mctree->SetBranchAddress("ISRJetPt",        &ISRJetPt);
 	mctree->SetBranchAddress("sigMETJESup",     &sigMETJESup);
 	mctree->SetBranchAddress("sigMETJESdo",     &sigMETJESdo);
 	mctree->SetBranchAddress("sigMETJERup",     &sigMETJERup);
@@ -214,19 +245,19 @@ void analysis_VGBkg(){
 	mctree->SetBranchAddress("dPhiLepMETJESdo", &dPhiLepMETJESdo);
 	mctree->SetBranchAddress("dPhiLepMETJERup", &dPhiLepMETJERup);
 	mctree->SetBranchAddress("dPhiLepMETJERdo", &dPhiLepMETJERdo);
-  mctree->SetBranchAddress("mcPID",     &mcPID);
-  mctree->SetBranchAddress("mcEta",     &mcEta);
-  mctree->SetBranchAddress("mcPhi",     &mcPhi);
-  mctree->SetBranchAddress("mcPt",      &mcPt);
-  mctree->SetBranchAddress("mcMomPID",  &mcMomPID);
+  	mctree->SetBranchAddress("mcPID",     &mcPID);
+  	mctree->SetBranchAddress("mcEta",     &mcEta);
+  	mctree->SetBranchAddress("mcPhi",     &mcPhi);
+  	mctree->SetBranchAddress("mcPt",      &mcPt);
+  	mctree->SetBranchAddress("mcMomPID",  &mcMomPID);
 
 	//   start filling ///
 	for(unsigned ievt(0); ievt < mctree->GetEntries(); ievt++){
 		mctree->GetEntry(ievt);
 		p_PU->Fill(nVertex,PUweight);
 
-		double scalefactor(0);
-		double scalefactorup(0);
+		double scalefactor(1);
+		double scalefactorup(1);
 		if(channelType == 1){
 			// from include/analysis_scalefactor.h, src/analysis_scalefactor.cc
 			scalefactor = objectESF.getElectronESF(lepPt,lepEta)*objectESF.getPhotonESF(phoEt,phoEta)*objectESF.getegPhotonTRGESF(phoEt,phoEta)*objectESF.getElectronTRGESF(lepPt,lepEta);
@@ -235,32 +266,107 @@ void analysis_VGBkg(){
 			double s_eletrg_error = objectESF.getElectronTRGESFError(lepPt,lepEta)*objectESF.getElectronESF(lepPt,lepEta)*objectESF.getPhotonESF(phoEt,phoEta)*objectESF.getegPhotonTRGESF(phoEt,phoEta);
 			double s_photrg_error = objectESF.getegPhotonTRGESFError(phoEt,phoEta)*objectESF.getElectronESF(lepPt,lepEta)*objectESF.getPhotonESF(phoEt,phoEta)*objectESF.getElectronTRGESF(lepPt,lepEta);
 			double s_error = sqrt(pow(s_ele_error,2) + pow(s_pho_error,2) + pow(s_eletrg_error,2) + pow(s_photrg_error, 2)); 
-			//scalefactorup = scalefactor + s_error; 
-			scalefactorup = objectESF.getElectronESF(lepPt,lepEta)*objectESF.getPhotonESF(phoEt,phoEta)*objectESF.getegPhotonTRGESF(phoEt,phoEta)*objectESF.getElectronTRGESF(lepPt,lepEta)*objectESF.getR9ESF(lepPt,lepEta); 
+			scalefactorup = scalefactor + s_error; 
 		}
 		if(channelType == 2){
 			scalefactor = objectESF.getMuonESF(lepPt,lepEta)*objectESF.getPhotonESF(phoEt,phoEta)*objectESF.getMuonEGTRGESF(phoEt, lepPt);
 			double s_mu_error = objectESF.getMuonESFError(lepPt,lepEta)*objectESF.getPhotonESF(phoEt,phoEta)*objectESF.getMuonEGTRGESF(phoEt, lepPt);
-      double s_pho_error = objectESF.getPhotonESFError(phoEt,phoEta)*objectESF.getMuonESF(lepPt,lepEta)*objectESF.getMuonEGTRGESF(phoEt, lepPt);
-      double s_trg_error = objectESF.getMuonEGTRGESFError(phoEt, lepPt)*objectESF.getMuonESF(lepPt,lepEta)*objectESF.getPhotonESF(phoEt,phoEta);
+      			double s_pho_error = objectESF.getPhotonESFError(phoEt,phoEta)*objectESF.getMuonESF(lepPt,lepEta)*objectESF.getMuonEGTRGESF(phoEt, lepPt);
+      			double s_trg_error = objectESF.getMuonEGTRGESFError(phoEt, lepPt)*objectESF.getMuonESF(lepPt,lepEta)*objectESF.getPhotonESF(phoEt,phoEta);
 			double s_error = sqrt(pow(s_mu_error,2) + pow(s_pho_error,2) + pow(s_trg_error,2));
 			scalefactorup = scalefactor + s_error; 
 		}
 		// ZG sample has llmass > 30, we use DY for llmass < 30
 		if(mcType == 4 && llmass < 30)continue;
 		if(mcType == 5 && llmass > 30)continue;
-		float XS_weight = 35.87*1000*crosssection/ntotalevent;
-		//float XS_weight = getEvtWeight(RunYear,crosssection, ntotalevent);
+
+		float XS_weight = 1;
+		
+                if(channelType == 1){
+                        if(RunYear == 2016 and preVFP == 1)             XS_weight = lumi_2016preVFP_DoubleEG*1000*crosssection/ntotalevent;
+                        else if(RunYear == 2016 and preVFP == 0)        XS_weight = lumi_2016postVFP_DoubleEG*1000*crosssection/ntotalevent;
+                        else if(RunYear == 2017)                        XS_weight = lumi_2017_DoubleEG*1000*crosssection/ntotalevent;
+                        else if(RunYear == 2018)                        XS_weight = lumi_2018_DoubleEG*1000*crosssection/ntotalevent;}
+
+                else if(channelType == 2){
+                        if(RunYear == 2016 and preVFP == 1)             XS_weight = lumi_2016preVFP_MuonEG*1000*crosssection/ntotalevent;
+                        else if(RunYear == 2016 and preVFP == 0)        XS_weight = lumi_2016postVFP_MuonEG*1000*crosssection/ntotalevent;
+                        else if(RunYear == 2017)                        XS_weight = lumi_2017_MuonEG*1000*crosssection/ntotalevent;
+                        else if(RunYear == 2018)                        XS_weight = lumi_2018_MuonEG*1000*crosssection/ntotalevent;}
+
+                /*double reweightF(1);
+		double Normalization=1;
+		
+		if(RunYear==2016 && preVFP==1){
+			if(ISRJetPt < 50)reweightF = 0.925997; 
+                        else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.06149;
+                        else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.914626;
+                        else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.769654;
+                        else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.81176;
+                        else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.823717;
+                        else if(ISRJetPt >= 300)reweightF = 0.749379;
+			Normalization = 1.0273957;     }
+
+	        else if(RunYear==2016 && preVFP==0){
+			if(ISRJetPt < 50)reweightF = 1.0078;
+                 	else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.18628;
+                 	else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.940295;
+                 	else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.926074;
+                 	else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.856512;
+                 	else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.752113;
+                 	else if(ISRJetPt >= 300)reweightF = 0.671831;   
+			Normalization = 0.955131;	}
+
+		else if(RunYear==2017){
+			if(ISRJetPt < 50)reweightF = 0.933817;
+		        else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.05006;
+                 	else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.916321;
+                 	else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.809937;
+                 	else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.903668;
+                 	else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.749578;
+                 	else if(ISRJetPt >= 300)reweightF = 0.868441;
+                 	Normalization = 1.0435;    }
+
+		else if(RunYear==2018){
+			if(ISRJetPt < 50)reweightF = 1.03041;
+                 	else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.09768;
+                 	else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.82165;
+                 	else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.793166;
+                 	else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.711279;
+                 	else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.817255;
+                 	else if(ISRJetPt >= 300)reweightF = 0.760731;
+                 	Normalization = 1.01506;    }
+
+                //ISRWeight = reweightF*Normalization;
+                */
+                ISRWeight = 1.0; // releasing ISR weight for checking
+		
+		// Using Menglei's ISR weight for checking
+                // Menglei's ISR
+                //  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                /*		Normalization = 0.98;
+                                if(ISRJetPt < 50)reweightF = 1.015;
+                                else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.110;
+                                else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.845;
+                                else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.715;
+                                else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF =   0.730;
+                                else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF =   0.732;
+                                else if(ISRJetPt >= 300)reweightF =  0.642;
+                                ISRWeight = reweightF*Normalization;*/
+                //  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
 		// check all weights used
-		float weight = PUweight*XS_weight*scalefactor*ISRWeight*factorMC;
-		float weight_scaleup = PUweight*XS_weight*scalefactorup*ISRWeight*factorMC;
-		float weight_normup = PUweight*XS_weight*scalefactor*ISRWeight*factorMCUP;
-		float weight_noisr = PUweight*XS_weight*scalefactor*factorMC;
+		float weight = PUweight*XS_weight*ISRWeight*factorMC*scalefactor;
+		float weight_scaleup = PUweight*XS_weight*ISRWeight*factorMC*scalefactorup;
+		float weight_normup = PUweight*XS_weight*ISRWeight*factorMCUP*scalefactor;
+		float weight_noisr = PUweight*XS_weight*factorMC*scalefactor;
 
 		double weight_toy[500];
 		for(unsigned ii(0); ii < 500; ii++){
-			if(pdfSystWeight->size() < ii)weight_toy[ii] = weight;
-			else weight_toy[ii] = weight*(*pdfSystWeight)[ii]/pdfWeight;
+			weight_toy[ii] = 1;
+			//if(pdfSystWeight->size() < ii)weight_toy[ii] = weight;
+			//else weight_toy[ii] = weight*(*pdfSystWeight)[ii]/pdfWeight;
 		}
 		/** cut flow *****/
 		if(phoEt < 35 || fabs(phoEta) > 1.4442)continue;
@@ -353,14 +459,20 @@ void analysis_VGBkg(){
 		isrup_HT->Fill(HT, weight_noisr);
 		isrup_dPhiEleMET->Fill(fabs(dPhiLepMET), weight_noisr);
 	}
+//	 for (int ibin=0;ibin<p_MET->GetNbinsX();++ibin){
+//               cout<<"Bin "<<ibin <<" "<<p_MET->GetBinContent(ibin)<<endl;
+//        }
 
+
+	// Stat and Syst error
 	for(int ibin(1); ibin < p_PhoEt->GetSize(); ibin++){
 		double syserror(0);
-		syserror += p_PhoEt->GetBinError(ibin)* p_PhoEt->GetBinError(ibin);
-		syserror += pow((scaleup_PhoEt->GetBinContent(ibin)-p_PhoEt->GetBinContent(ibin)),2);
-		syserror += pow((normup_PhoEt->GetBinContent(ibin)-p_PhoEt->GetBinContent(ibin)),2);
-		syserror += pow((isrup_PhoEt->GetBinContent(ibin)-p_PhoEt->GetBinContent(ibin)),2);
+		syserror += p_PhoEt->GetBinError(ibin)* p_PhoEt->GetBinError(ibin);                    // stat
+		syserror += pow((scaleup_PhoEt->GetBinContent(ibin)-p_PhoEt->GetBinContent(ibin)),2);  // ID and trigger ESF
+		syserror += pow((normup_PhoEt->GetBinContent(ibin)-p_PhoEt->GetBinContent(ibin)),2);   // normalisation scale
+		syserror += pow((isrup_PhoEt->GetBinContent(ibin)-p_PhoEt->GetBinContent(ibin)),2);    // ISR corrections
 		p_PhoEt->SetBinError(ibin,sqrt(syserror));
+		//cout<<p_PhoEt->GetBinError(ibin)<<endl;
 		// quadrature sum of all errors
 	}	
 	for(int ibin(1); ibin < p_LepPt->GetSize(); ibin++){
@@ -377,8 +489,8 @@ void analysis_VGBkg(){
 		syserror += pow((scaleup_MET->GetBinContent(ibin)-p_MET->GetBinContent(ibin)),2);
 		syserror += pow((normup_MET->GetBinContent(ibin)-p_MET->GetBinContent(ibin)),2);
 		syserror += pow((isrup_MET->GetBinContent(ibin)-p_MET->GetBinContent(ibin)),2);
-		double jeserror = max( fabs(jesup_MET->GetBinContent(ibin)-p_MET->GetBinContent(ibin)), fabs(jesdo_MET->GetBinContent(ibin)-p_MET->GetBinContent(ibin)));
-		double jererror = max( fabs(jerup_MET->GetBinContent(ibin)-p_MET->GetBinContent(ibin)), fabs(jerdo_MET->GetBinContent(ibin)-p_MET->GetBinContent(ibin)));
+		double jeserror = max( fabs(jesup_MET->GetBinContent(ibin)-p_MET->GetBinContent(ibin)), fabs(jesdo_MET->GetBinContent(ibin)-p_MET->GetBinContent(ibin))); // JEC
+		double jererror = max( fabs(jerup_MET->GetBinContent(ibin)-p_MET->GetBinContent(ibin)), fabs(jerdo_MET->GetBinContent(ibin)-p_MET->GetBinContent(ibin))); // JER
 		syserror += pow(jeserror,2);
 		syserror += pow(jererror,2);
 		p_MET->SetBinError(ibin,sqrt(syserror));
@@ -422,5 +534,3 @@ void analysis_VGBkg(){
 	outputfile->Close();
 
 }
-
-

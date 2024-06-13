@@ -55,7 +55,7 @@ void plot_dPhiTemplate(int RunYear, int channelType){
  	if(channelType == 1)mctree = new TChain("egTree","egTree");
   	else if(channelType == 2)mctree = new TChain("mgTree","mgTree");
 	
-	//mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGToLNuG_%d.root",RunYear));
+	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGToLNuG_%d.root",RunYear));
 	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGJet40_%d.root",RunYear));
 	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGJet130_%d.root",RunYear));
 	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_ZGToLLG_%d.root",RunYear));
@@ -109,8 +109,8 @@ void plot_dPhiTemplate(int RunYear, int channelType){
 
 	//************ Proxy Tree **********************//
 	TChain *proxytree = new TChain("fakeLepTree");
-	if(channelType==1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_trees/resTree_egsignal_DoubleEG_%d_NEW.root",RunYear));
-	if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_trees/resTree_mgsignal_MuonEG_%d_NEW.root",RunYear));
+	if(channelType==1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d_April.root",RunYear));
+	if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d_April.root",RunYear));
 
 	float proxyphoEt(0);
 	float proxyphoEta(0);
@@ -180,10 +180,10 @@ void plot_dPhiTemplate(int RunYear, int channelType){
 	if(channelType==2) leg->AddEntry(pred_dPhiEleMET,"jet-fake-muon template");
 	leg->Draw("same");
 	p_dPhiEleMET->Draw("P same");
-	if(channelType==1) c_dphi->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/dphiTemplate_egChannel_%d.pdf",RunYear));
-	if(channelType==2) c_dphi->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/dphiTemplate_mgChannel_%d.pdf",RunYear));
-	if(channelType==1) c_dphi->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/dphiTemplate_egChannel_%d.png",RunYear));
-	if(channelType==2) c_dphi->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/dphiTemplate_mgChannel_%d.png",RunYear));
+	if(channelType==1) c_dphi->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/%d/dphiTemplate_egChannel_%d.pdf",RunYear,RunYear));
+	if(channelType==2) c_dphi->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/%d/dphiTemplate_mgChannel_%d.pdf",RunYear,RunYear));
+	if(channelType==1) c_dphi->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/%d/dphiTemplate_egChannel_%d.png",RunYear,RunYear));
+	if(channelType==2) c_dphi->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/%d/dphiTemplate_mgChannel_%d.png",RunYear,RunYear));
 
 // ******** MET ************************//
 	gStyle->SetOptStat(0);
@@ -202,10 +202,10 @@ void plot_dPhiTemplate(int RunYear, int channelType){
 	leg_met->AddEntry(p_MET_ZG,"Z#gamma");
 	leg_met->AddEntry(p_MET_WG,"W#gamma");
 	leg_met->Draw("same");
-	if(channelType==1) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/dphiTemplate_MET_egChannel_%d.pdf",RunYear));
-	if(channelType==2) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/dphiTemplate_MET_mgChannel_%d.pdf",RunYear));
-	if(channelType==1) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/dphiTemplate_MET_egChannel_%d.png",RunYear));
-	if(channelType==2) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/dphiTemplate_MET_mgChannel_%d.png",RunYear));
+	if(channelType==1) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/%d/dphiTemplate_MET_egChannel_%d.pdf",RunYear,RunYear));
+	if(channelType==2) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/%d/dphiTemplate_MET_mgChannel_%d.pdf",RunYear,RunYear));
+	if(channelType==1) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/%d/dphiTemplate_MET_egChannel_%d.png",RunYear,RunYear));
+	if(channelType==2) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/%d/dphiTemplate_MET_mgChannel_%d.png",RunYear,RunYear));
 }
 
 int main(int argc, char** argv)
