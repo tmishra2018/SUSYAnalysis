@@ -49,11 +49,11 @@ void Data_analysis_elefakepho(int RunYear, const char *Era){//main
   TFile *f; 
 
   if(RunYear==2016 || RunYear==2017){
-  	f = TFile::Open(Form("/eos/uscms/store/group/lpcsusyphotons/Tribeni/SingleElectron/SingleElectron_%d%s.root",RunYear,Era));
+  	f = TFile::Open(Form("/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/SingleElectron/SingleElectron_%d%s.root",RunYear,Era));
 	apply_L1=true;}
 
   if(RunYear==2018){
-  	f = TFile::Open(Form("/eos/uscms/store/group/lpcsusyphotons/Tribeni/DoubleEG/DoubleEG_%d%s.root",RunYear,Era));
+  	f = TFile::Open(Form("/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/DoubleEG/DoubleEG_%d%s.root",RunYear,Era));
 	apply_HEMveto=true; }
 	
    cout<<"Applying L1 prefiring prob.? "<<apply_L1<<endl;
@@ -208,19 +208,18 @@ void Data_analysis_elefakepho(int RunYear, const char *Era){//main
 	passPixelIssue++;
 	
         if(MET > 70.0)continue;
-	if(MET < 40.0)continue; // added temporarily
-        //if(!raw.passHLT())continue;
-				if(RunYear==2016 && ((raw.HLTEleMuX >> 4) &1) ==0)continue;  //HLT_Ele27_WPTight_Gsf_v
-				if(RunYear==2017 && ((raw.HLTEleMuX >> 3) &1) ==0)continue;  //HLT_Ele35_WPTight_Gsf_v
-				if(RunYear==2018 && ((raw.HLTEleMuX >> 55) &1) ==0)continue; //HLT_Ele32_WPTight_Gsf_v
+        //if(!raw.passHLT())continue; Explicitly for each year as mentioned below. 
+	if(RunYear==2016 && ((raw.HLTEleMuX >> 4) &1) ==0)continue;  //HLT_Ele27_WPTight_Gsf_v
+	if(RunYear==2017 && ((raw.HLTEleMuX >> 3) &1) ==0)continue;  //HLT_Ele35_WPTight_Gsf_v
+	if(RunYear==2018 && ((raw.HLTEleMuX >> 55) &1) ==0)continue; //HLT_Ele32_WPTight_Gsf_v
         std::vector<std::vector<recoEle>::iterator> ElectronCollection;
         ElectronCollection.clear();
         for(std::vector<recoEle>::iterator itEle = Ele.begin(); itEle != Ele.end(); itEle++){
 		   if(itEle->getCalibEt() < pTcut || fabs(itEle->getEta())>2.1)continue;                              // Tag electron selection
-		   //if(!itEle->passHLTSelection())continue;
-						 if(RunYear==2016 && !itEle->fireTrgs(12))continue;  //HLT_Ele27_WPTight_Gsf_v
-						 if(RunYear==2017 && !itEle->fireTrgs(46))continue;  //HLT_Ele35_WPTight_Gsf_v
-						 if(RunYear==2018 && !itEle->fireTrgs(13))continue;  //HLT_Ele32_WPTight_Gsf_v
+		   //if(!itEle->passHLTSelection())continue;  Explicitly for each year as mentioned below. 
+		   if(RunYear==2016 && !itEle->fireTrgs(12))continue;  //HLT_Ele27_WPTight_Gsf_v
+		   if(RunYear==2017 && !itEle->fireTrgs(46))continue;  //HLT_Ele35_WPTight_Gsf_v
+		   if(RunYear==2018 && !itEle->fireTrgs(13))continue;  //HLT_Ele32_WPTight_Gsf_v
 		   if(itEle->passSignalSelection())ElectronCollection.push_back(itEle); // Tag electron selection
 			// pt > 30 GeV, medium ID, eta < 2.1 electron
 		}
@@ -228,33 +227,33 @@ void Data_analysis_elefakepho(int RunYear, const char *Era){//main
 		std::vector<std::vector<recoPhoton>::iterator> signalPho;
 		std::vector<bool> PhoPixelVeto;
 		std::vector<bool> PhoEleVeto;
-					std::vector<bool> PhoFSRVeto;
+		std::vector<bool> PhoFSRVeto;
 		signalPho.clear(); 
 		PhoPixelVeto.clear();
 		PhoEleVeto.clear();
-					PhoFSRVeto.clear();
+		PhoFSRVeto.clear();
 		if(ElectronCollection.size() > 0){
-		      for(std::vector<recoPhoton>::iterator itpho = Photon.begin() ; itpho != Photon.end(); ++itpho){
+		    for(std::vector<recoPhoton>::iterator itpho = Photon.begin() ; itpho != Photon.end(); ++itpho){
 			if(itpho->getCalibEt() < 30)continue;                            // Photon pt and loose selection
-	        if(itpho->isLoose()){
-              bool PixelVeto = itpho->PixelSeed()==0? true: false;               // check whether pixel seed or not
-              bool GSFveto(true);
-		      bool FSRVeto(true);
-			  for(std::vector<recoEle>::iterator ie = Ele.begin(); ie != Ele.end(); ie++){
-			 //if(DeltaR(itpho->getEta(), itpho->getPhi(), ie->getEta(), ie->getPhi()) < 0.02)GSFveto = false;
-				 if(DeltaR(itpho->getEta(), itpho->getPhi(), ie->getEta(), ie->getPhi()) < 0.05)GSFveto = false;
-				 // electron match to a photon
-				 if(DeltaR(itpho->getEta(), itpho->getPhi(), ie->getEta(), ie->getPhi()) < 0.3 && ie->getCalibEt()>2.0)FSRVeto=false;
-			  }
-			  for(std::vector<recoMuon>::iterator im = Muon.begin(); im != Muon.end(); im++)
-				 if(DeltaR(itpho->getEta(), itpho->getPhi(), im->getEta(), im->getPhi()) < 0.3 && im->getEt()>2.0)FSRVeto=false;
+	        	if(itpho->isLoose()){
+              			bool PixelVeto = itpho->PixelSeed()==0? true: false;               // check whether pixel seed or not
+             			bool GSFveto(true);
+				bool FSRVeto(true);
+				for(std::vector<recoEle>::iterator ie = Ele.begin(); ie != Ele.end(); ie++){
+			 		//if(DeltaR(itpho->getEta(), itpho->getPhi(), ie->getEta(), ie->getPhi()) < 0.02)GSFveto = false;
+				 	if(DeltaR(itpho->getEta(), itpho->getPhi(), ie->getEta(), ie->getPhi()) < 0.05)GSFveto = false;
+				 	// electron match to a photon
+				 	if(DeltaR(itpho->getEta(), itpho->getPhi(), ie->getEta(), ie->getPhi()) < 0.3 && ie->getCalibEt()>2.0)FSRVeto=false;
+				}
+				for(std::vector<recoMuon>::iterator im = Muon.begin(); im != Muon.end(); im++)
+				 	if(DeltaR(itpho->getEta(), itpho->getPhi(), im->getEta(), im->getPhi()) < 0.3 && im->getEt()>2.0)FSRVeto=false;
 					// FSR rejection; no events with lepton near photon.
 				        signalPho.push_back(itpho);              // signal photons
 					PhoPixelVeto.push_back(PixelVeto);
 					PhoEleVeto.push_back(GSFveto);
 					PhoFSRVeto.push_back(FSRVeto);
-            }
-	      }
+            		}
+	      	}
         }
         
         int nTagEle = ElectronCollection.size();

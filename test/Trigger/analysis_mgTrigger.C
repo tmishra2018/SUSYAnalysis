@@ -35,21 +35,14 @@
 #include "../../src/analysis_photon.cc"
 
 
-bool useData = true;
-int RunYear= 2016;
 
-void analysis_mgTrigger(int RunYear, const char *Era){//main  
+void analysis_mgTrigger(bool useData, int RunYear, const char *Era){
 
 	gSystem->Load("../../lib/libAnaClasses.so");
 
-
-//	std::string whichVFP;
-//  	if(RunYear==2016 and preVFP == 1) whichVFP = "preVFP";
-//  	if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
-//  	if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
-
 	ofstream logfile;
-	logfile.open(Form("/eos/uscms/store/user/tmishra/Trigger/logs/plot_MuonTrigger_Data_%d%s.log",RunYear,Era));
+	if (useData) logfile.open(Form("/eos/uscms/store/user/tmishra/Trigger/logs/plot_MuonTrigger_Data_%d%s.log",RunYear,Era));
+        else logfile.open(Form("/eos/uscms/store/user/tmishra/Trigger/logs/plot_MuonTrigger_DY_%d%s.log",RunYear,Era));
 	logfile << "analysis_mgTrigger()" << std::endl;
 
 	RunType datatype;
@@ -59,9 +52,13 @@ void analysis_mgTrigger(int RunYear, const char *Era){//main
         if(useData && RunYear==2017)    datatype = SingleMuon2017;
         if(useData && RunYear==2018)    datatype = SingleMuon2018;
 	TChain* es = new TChain("ggNtuplizer/EventTree");
-	es->Add(Form("/eos/uscms/store/user/tmishra/InputFilesDATA/%d/SingleMuon/SingleMuon_%d%s.root",RunYear,RunYear,Era));
+	if(!useData) es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/DYJetsToLL/DYJetsToLL_%d%s.root",RunYear,Era));
+        else es->Add(Form("/eos/uscms/store/user/tmishra/InputFilesDATA/%d/SingleMuon/SingleMuon_%d%s.root",RunYear,RunYear,Era));
 
-	TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/Trigger/files/plot_MuonTrigger_Data_%d%s.root",RunYear,Era),"RECREATE");
+	TFile *outputfile;
+        if (useData) outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/Trigger/files/plot_MuonTrigger_Data_%d%s.root",RunYear,Era),"RECREATE");
+        else outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/Trigger/files/plot_MuonTrigger_DY_%d%s.root",RunYear,Era),"RECREATE");
+
 	outputfile->cd();
 
 	TTree *Ztree = new TTree("ZTree","ZTree");
@@ -165,7 +162,7 @@ void analysis_mgTrigger(int RunYear, const char *Era){//main
 			for(int iEle(0); iEle < raw.nEle; iEle++){Ele.push_back(recoEle(raw, iEle));}
 			MET = raw.pfMET;
 
-			if(!raw.passHLT())continue;
+			if(!raw.passHLT())continue;      // #a1
 			Z_nVtx= raw.nVtx;
 			Z_rho = raw.rho;
 			Z_run = raw.run; 
@@ -180,11 +177,11 @@ void analysis_mgTrigger(int RunYear, const char *Era){//main
 			DiMuVec.clear();
 			probePhoVec.clear();
 			for(std::vector<recoMuon>::iterator itLeadMu = Muon.begin(); itLeadMu!= Muon.end(); ++itLeadMu){
-				if(!itLeadMu->passHLTSelection())continue;
+				if(!itLeadMu->passHLTSelection())continue;  // #a2
 				if(itLeadMu->passSignalSelection()){
 					if(!hasMu){ itIsoMu = itLeadMu; hasMu = true; }
 				}
-				if(!itLeadMu->isLoose() || itLeadMu->getPt() < 25.0 )continue;
+				if(!itLeadMu->isLoose() || itLeadMu->getPt() < 20.0 )continue; // #a3
 				tagMuVec.push_back(itLeadMu);
 			}
 
@@ -330,8 +327,9 @@ void analysis_mgTrigger(int RunYear, const char *Era){//main
 
 int main(int argc, char** argv)
 {
-    if(argc < 3)
+    if(argc < 4)
       cout << "You have to provide two arguments!!\n";
-    analysis_mgTrigger(atoi(argv[1]), argv[2]);
+    bool useData = (atoi(argv[1]) == 1);
+    analysis_mgTrigger(useData, atoi(argv[2]), argv[3]);
     return 0;
 }

@@ -29,7 +29,7 @@ int channel = 2; // 1 = eg, 2 = mg
 
 void plot_bkg(){//main  
 
-  gSystem->Load("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/lib/libAnaClasses.so");
+  gSystem->Load("../../lib/libAnaClasses.so");
 	setTDRStyle();
 
 	std::ostringstream signame;  signame.str("");

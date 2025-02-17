@@ -1,4 +1,4 @@
-// run using root -l "closure_jetfakelep.C(1)"
+// run using root -l "closure_jetfakelep.C(1, 2016, 1)"
 // 	Scale factor due to pT dependence of miniIsolation leads to disagreement in fake electron pT shape. 
 	// this scale factor is to correct the electron proxy sample, as described in section 5.3.3 AN
 #include<string>
@@ -38,20 +38,31 @@
 #include "../../include/tdrstyle.C"
 
 #define NTOY 1000
-int RunYear = 2018;
-bool ISpreVFP = false;
-void closure_jetfakelep(int ichannel){
+void closure_jetfakelep(int ichannel, int RunYear, bool ISpreVFP){
+	Double_t bkgPtBins1[] = {25, 50, 75, 100, 125, 150, 200, 400, 800};
+	Double_t bkgPtBins2[] = {20, 50, 75, 100, 125, 150, 200, 400, 800};
+	int nBkgPtBins;
+	int LepPtCut = 25;
+	Double_t* bkgPtBins_ = bkgPtBins1; 
+
+	if (ichannel == 2) {
+    		LepPtCut = 20;
+    		bkgPtBins_ = bkgPtBins2;
+	}
+
+	nBkgPtBins = (sizeof(bkgPtBins1) / sizeof(bkgPtBins1[0])) - 1;  
 
 	setTDRStyle();   
 	gStyle->SetLegendBorderSize(0);
 	gStyle->SetLegendFillColor(0);
-  	gSystem->Load("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/lib/libAnaClasses.so");
+  	gSystem->Load("../../lib/libAnaClasses.so");
   	int channelType = ichannel; // eg = 1; mg =2;
 	gROOT->SetBatch(1);
 	// Signal Tree //
+
 	//*********** hist o list **********************//
 	TH1D *p_PhoEt = new TH1D("p_PhoEt","; E_{T} (GeV);",20,0,200);
-	TH1D *p_LepPt = new TH1D("p_LepPt","LepPt; p_{T} (GeV);",nBkgPtBins,bkgPtBins);
+	TH1D *p_LepPt = new TH1D("p_LepPt","LepPt; p_{T} (GeV);",nBkgPtBins,bkgPtBins_);
 	TH1D *p_MET = new TH1D("p_MET",";p_{T}^{miss} (GeV);",20,0,100);
 	TH1D *p_Mt = new TH1D("p_Mt",";M_{T}(l,p_{T}^{miss}) (GeV);",40,0,200);
 	TH1D *p_HT = new TH1D("p_HT",";HT (GeV);",40,0,400); 
@@ -86,7 +97,7 @@ void closure_jetfakelep(int ichannel){
 	float HT(0);
 	int   nVertex(0);
 	float dRPhoLep(0);
-	float nJet(0);
+	int nJet(0);
   	std::vector<int>   *mcPID=0;
   	std::vector<float> *mcEta=0;
   	std::vector<float> *mcPhi=0;
@@ -120,7 +131,7 @@ void closure_jetfakelep(int ichannel){
 
 		double weight = 1; 
 		/** cut flow *****/
-		if(phoEt < 40 || lepPt < 25)continue;
+		if(phoEt < 40 || lepPt < LepPtCut)continue;
 		if(fabs(phoEta) > 1.4442 || fabs(lepEta) > 2.5)continue;
 
 		p_PhoEt->Fill(phoEt, weight);
@@ -140,7 +151,7 @@ void closure_jetfakelep(int ichannel){
 	//*********** hist o list **********************//
 	std::ostringstream histname;
 	TH1D *pred_PhoEt = new TH1D("pred_PhoEt","#gamma E_{T}; E_{T} (GeV)",20,0,200);
-	TH1D *pred_LepPt = new TH1D("pred_LepPt","pred_LepPt",nBkgPtBins,bkgPtBins);
+	TH1D *pred_LepPt = new TH1D("pred_LepPt","pred_LepPt",nBkgPtBins,bkgPtBins_);
 	TH1D *pred_MET = new TH1D("pred_MET","MET; MET (GeV);",20,0,100);
 	TH1D *pred_Mt = new TH1D("pred_Mt","M_{T}; M_{T} (GeV);",40,0,200);
 	TH1D *pred_HT = new TH1D("pred_HT","HT; HT (GeV);",40,0,400); 
@@ -153,7 +164,7 @@ void closure_jetfakelep(int ichannel){
 	// proxy events enriched in fake leptons from data
 	TChain *proxytree = new TChain("fakeLepTree");
         if(channelType==1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
-        if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
+        if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
 
 	float proxyphoEt(0);
 	float proxyphoEta(0);
@@ -168,7 +179,9 @@ void closure_jetfakelep(int ichannel){
 	int   proxynVertex(0);
 	float proxydRPhoLep(0);
 	float proxyHT(0);
-	float proxynJet(0);
+	float nJetFloat(0);
+        int nJetInt(0);
+
 	float fakeLepMiniIso(0);
 	int   fakeLepIsStandardProxy(0);
 	
@@ -187,7 +200,8 @@ void closure_jetfakelep(int ichannel){
 	proxytree->SetBranchAddress("nVertex",   	 &proxynVertex);
 	proxytree->SetBranchAddress("dRPhoLep",  	 &proxydRPhoLep);
 	proxytree->SetBranchAddress("HT",        	 &proxyHT);
-	proxytree->SetBranchAddress("nJet",      	 &proxynJet);
+	if (channelType == 1) proxytree->SetBranchAddress("nJet", &nJetFloat);
+        else proxytree->SetBranchAddress("nJet", &nJetInt);
 
 	for (unsigned ievt(0); ievt<proxytree->GetEntries(); ++ievt){//loop on entries
 		proxytree->GetEntry(ievt);
@@ -195,7 +209,7 @@ void closure_jetfakelep(int ichannel){
 		double weight = 1; 
 		
 		/** cut flow *****/
-		if(proxyphoEt < 40 || proxylepPt < 25)continue;
+		if(proxyphoEt < 40 || proxylepPt < LepPtCut)continue;
 		if(fabs(proxyphoEta) > 1.4442 || fabs(proxylepEta) > 2.5)continue;
 
 		bool isProxy(false);
@@ -214,13 +228,15 @@ void closure_jetfakelep(int ichannel){
 		pred_LepPt->Fill(proxylepPt, weight);
 		pred_LepEta->Fill(proxylepEta, weight);
 		pred_dPhiEleMET->Fill(fabs(proxydPhiLepMET), weight);
-		pred_nJet->Fill(proxynJet, weight);
+		if (channelType == 1) pred_nJet->Fill(nJetFloat, weight);
+                if (channelType == 2) pred_nJet->Fill(nJetInt, weight);
+
 	}
 		
 	//MC Fake Tree //
 	//*********** hist o list **********************//
 	TH1D *mcpred_PhoEt = new TH1D("mcpred_PhoEt","#gamma E_{T}; E_{T} (GeV)",20,0,200);
-	TH1D *mcpred_LepPt = new TH1D("mcpred_LepPt","mcpred_LepPt",nBkgPtBins,bkgPtBins);
+	TH1D *mcpred_LepPt = new TH1D("mcpred_LepPt","mcpred_LepPt",nBkgPtBins,bkgPtBins_);
 	TH1D *mcpred_MET = new TH1D("mcpred_MET","MET; MET (GeV);",20,0,100);
 	TH1D *mcpred_Mt = new TH1D("mcpred_Mt","M_{T}; M_{T} (GeV);",40,0,200);
 	TH1D *mcpred_HT = new TH1D("mcpred_HT","HT; HT (GeV);",40,0,400); 
@@ -273,7 +289,7 @@ void closure_jetfakelep(int ichannel){
 		double weight = 1; 
 		
 		/** cut flow *****/
-		if(mcproxyphoEt < 40 || mcproxylepPt < 25)continue;
+		if(mcproxyphoEt < 40 || mcproxylepPt < LepPtCut)continue;
 		if(fabs(mcproxyphoEta) > 1.4442 || fabs(mcproxylepEta) > 2.5)continue;
 
 		bool isProxy(false);
@@ -322,50 +338,62 @@ void closure_jetfakelep(int ichannel){
 	gStyle->SetOptStat(0);
 	TCanvas *c_dphi = new TCanvas("dPhi","dPhi",600,600);
 	c_dphi->cd();
-	p_dPhiEleMET->GetYaxis()->SetRangeUser(0, 1.5*p_dPhiEleMET->GetBinContent(1));
-	// directly from simulation
+	p_dPhiEleMET->GetYaxis()->SetRangeUser(0, 1.5 * p_dPhiEleMET->GetBinContent(p_dPhiEleMET->GetMaximumBin()));
 	p_dPhiEleMET->Draw();
 	p_dPhiEleMET->SetLineColor(kBlack);
 	p_dPhiEleMET->SetMarkerStyle(20);
-	// proxy template from data
+
+	// Proxy template from data
 	pred_dPhiEleMET->SetLineColor(kRed);
-	pred_dPhiEleMET->Draw("hist  same");
-	// proxy template from MC
-	//mcpred_dPhiEleMET->SetLineColor(kCyan);
-	//mcpred_dPhiEleMET->Draw("hist  same");
-	TLegend *leg =  new TLegend(0.5,0.7,0.85,0.85);
+	pred_dPhiEleMET->Draw("hist same");
+
+	// Legend adjusted to avoid overlap
+	TLegend *leg = new TLegend(0.55, 0.77, 0.95, 0.92); // Adjust position
 	leg->SetFillStyle(0);
 	pred_dPhiEleMET->SetMarkerColor(kRed);
-	leg->AddEntry(p_dPhiEleMET,"Simulation");
-	leg->AddEntry(pred_dPhiEleMET,"data proxy template");
+	leg->AddEntry(p_dPhiEleMET, "Simulation");
+	leg->AddEntry(pred_dPhiEleMET, "Data proxy template","l");
 	leg->Draw("same");
 	p_dPhiEleMET->Draw("P same");
-	if(channelType==1) c_dphi->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/faketemp_electron_dPhi_%d%s.pdf",RunYear,whichVFP.c_str()));
-	if(channelType==2) c_dphi->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/faketemp_muon_dPhi_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(RunYear==2016 and ISpreVFP == 1)       CMS_lumi( c_dphi, 1, ichannel, 11 );
+        else if(RunYear==2016 and ISpreVFP == 0)  CMS_lumi( c_dphi, 2, ichannel, 11 );
+        else if(RunYear==2017)                    CMS_lumi( c_dphi, 3, ichannel, 11 );
+        else if(RunYear==2018)                    CMS_lumi( c_dphi, 4, ichannel, 11 );
+
+	if (channelType == 1) c_dphi->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_dPhi_eg_%d%s.pdf", RunYear, whichVFP.c_str()));
+	if (channelType == 2) c_dphi->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_dPhi_mg_%d%s.pdf", RunYear, whichVFP.c_str()));
+
 
 	// ******** MET ************************//
 	gStyle->SetOptStat(0);
-	TCanvas *c_met = new TCanvas("MET", "MET",600,600);
+	TCanvas *c_met = new TCanvas("MET", "MET", 600, 600);
 	c_met->SetBottomMargin(0.12);
 	c_met->SetLeftMargin(0.12);
 	c_met->cd();
 	gPad->SetLogy();
-	p_MET->SetMinimum(0.0001);
-	p_MET->SetMaximum(1);
-	p_MET->GetXaxis()->SetTitleOffset(0.9);
-	p_MET->GetXaxis()->SetRangeUser(0,100);
-	p_MET->SetLineColor(1);
-	p_MET->SetMarkerStyle(20);
+	p_MET->SetMinimum(0.001);
+	p_MET->SetMaximum(1.5 * p_MET->GetBinContent(p_MET->GetMaximumBin())); // Adjust maximum
 	p_MET->Draw();
-	pred_MET->SetLineColor(kRed);
-	pred_MET->Draw("hist  same");
-	//	mcpred_MET->SetLineColor(kCyan);
-	//	mcpred_MET->Draw("hist  same");
-	leg->Draw("same");
-	p_MET->Draw("E same");
+	p_MET->SetLineColor(kBlack);
+	p_MET->GetXaxis()->SetTitleOffset(0.9);
+	p_MET->SetMarkerStyle(20);
 
-	if(channelType==1) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/faketemp_electron_met_%d%s.pdf",RunYear,whichVFP.c_str()));
-	if(channelType==2) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/faketemp_muon_met_%d%s.pdf",RunYear,whichVFP.c_str()));
+	// Proxy template from data
+	pred_MET->SetLineColor(kRed);
+	pred_MET->Draw("hist same");
+
+	// Adjusted legend position
+	leg->SetFillStyle(0);
+	pred_MET->SetMarkerColor(kRed);
+	leg->Draw("same");
+	p_MET->Draw("P same");
+	if(RunYear==2016 and ISpreVFP == 1)       CMS_lumi( c_met, 1, ichannel, 11 );
+        else if(RunYear==2016 and ISpreVFP == 0)  CMS_lumi( c_met, 2, ichannel, 11 );
+        else if(RunYear==2017)                    CMS_lumi( c_met, 3, ichannel, 11 );
+        else if(RunYear==2018)                    CMS_lumi( c_met, 4, ichannel, 11 );
+
+	if (channelType == 1) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_MET_eg_%d%s.pdf", RunYear, whichVFP.c_str()));
+	if (channelType == 2) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_MET_mg_%d%s.pdf", RunYear, whichVFP.c_str()));
 
 	// ******** Mt ************************//
 	gStyle->SetOptStat(0);
@@ -374,7 +402,7 @@ void closure_jetfakelep(int ichannel){
 	c_mt->SetBottomMargin(0.12);
 	c_mt->SetLeftMargin(0.12);
 	gPad->SetLogy();
-	p_Mt->SetMinimum(0.00001);
+	p_Mt->SetMinimum(0.0001);
   	//p_Mt->SetMaximum(1000000);
 	p_Mt->GetXaxis()->SetRangeUser(0,200);
 	p_Mt->GetXaxis()->SetTitleOffset(0.9);
@@ -385,9 +413,13 @@ void closure_jetfakelep(int ichannel){
 	pred_Mt->Draw("hist  same");
 	leg->Draw("same");
 	p_Mt->Draw("E same");
+	if(RunYear==2016 and ISpreVFP == 1)       CMS_lumi( c_mt, 1, ichannel, 11 );
+        else if(RunYear==2016 and ISpreVFP == 0)  CMS_lumi( c_mt, 2, ichannel, 11 );
+        else if(RunYear==2017)                    CMS_lumi( c_mt, 3, ichannel, 11 );
+        else if(RunYear==2018)                    CMS_lumi( c_mt, 4, ichannel, 11 );
 
-	if(channelType==1) c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/faketemp_electron_mt_%d%s.pdf",RunYear,whichVFP.c_str()));
-	if(channelType==2) c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/faketemp_muon_mt_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==1) c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_MT_eg_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==2) c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_MT_mg_%d%s.pdf",RunYear,whichVFP.c_str()));
 
 	// ******** HT ************************//
 	gStyle->SetOptStat(0);
@@ -406,9 +438,13 @@ void closure_jetfakelep(int ichannel){
 	pred_HT->Draw("hist  same");
 	leg->Draw("same");
 	p_HT->Draw("E same");
+	if(RunYear==2016 and ISpreVFP == 1)       CMS_lumi( c_HT, 1, ichannel, 11 );
+        else if(RunYear==2016 and ISpreVFP == 0)  CMS_lumi( c_HT, 2, ichannel, 11 );
+        else if(RunYear==2017)                    CMS_lumi( c_HT, 3, ichannel, 11 );
+        else if(RunYear==2018)                    CMS_lumi( c_HT, 4, ichannel, 11 );
 
-	if(channelType==1) c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/faketemp_electron_ht_%d%s.pdf",RunYear,whichVFP.c_str()));
-	if(channelType==2) c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/faketemp_muon_ht_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==1) c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_HT_eg_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==2) c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_HT_mg_%d%s.pdf",RunYear,whichVFP.c_str()));
 
 	// ******** LepPt ************************//
 	p_LepPt->Sumw2();
@@ -429,8 +465,8 @@ void closure_jetfakelep(int ichannel){
 	LepPt_pad1->cd();  
 	gPad->SetLogy();
 	//p_LepPt->GetYaxis()->SetRangeUser(1,10*p_LepPt->GetBinContent(1));
-	p_LepPt->GetXaxis()->SetRangeUser(25,800);
-	p_LepPt->SetMinimum(1);
+	p_LepPt->GetXaxis()->SetRangeUser(LepPtCut,800);
+	//p_LepPt->SetMinimum(1);
 	p_LepPt->SetLineColor(1);
 	p_LepPt->SetMarkerStyle(20);
 	p_LepPt->Draw("P");
@@ -439,14 +475,16 @@ void closure_jetfakelep(int ichannel){
 	pred_LepPt->Draw("hist same");
 	mcpred_LepPt->SetLineColor(kCyan);
 	mcpred_LepPt->SetLineWidth(2);
-	//mcpred_LepPt->Draw("hist same");
-	TLegend *leg_pt =  new TLegend(0.5,0.7,0.85,0.85);
-	leg_pt->SetFillStyle(0);
-	leg_pt->AddEntry(p_LepPt,"Simulation");
-	leg_pt->AddEntry(pred_LepPt,"data proxy template");
-	//leg_pt->AddEntry(mcpred_LepPt,"MC proxy template");
-	leg_pt->Draw("same");
+	mcpred_LepPt->Draw("hist same");
+	leg->SetFillStyle(0);
+	leg->AddEntry(mcpred_LepPt,"MC proxy template","l");
+	leg->Draw("same");
 	p_LepPt->Draw("E same");
+	if(RunYear==2016 and ISpreVFP == 1)       CMS_lumi( LepPt_pad1, 1, ichannel, 11 );
+        else if(RunYear==2016 and ISpreVFP == 0)  CMS_lumi( LepPt_pad1, 2, ichannel, 11 );
+        else if(RunYear==2017)                    CMS_lumi( LepPt_pad1, 3, ichannel, 11 );
+        else if(RunYear==2018)                    CMS_lumi( LepPt_pad1, 4, ichannel, 11 );
+
 
 	c_LepPt->cd();
 	TPad *LepPt_pad2 = new TPad("LepPt_pad2", "LepPt_pad2", 0, 0.05, 1, 0.3);
@@ -454,26 +492,70 @@ void closure_jetfakelep(int ichannel){
 	LepPt_pad2->SetTopMargin(0);
 	LepPt_pad2->Draw();
 	LepPt_pad2->cd();
-  	TLine *flatratio_LepPt = new TLine(25,1,800,1);
+  	TLine *flatratio_LepPt = new TLine(LepPtCut,1,800,1);
 	// signal trees from QCD simulation divided by fakeLepTree from data
 	TH1D *ratio_LepPt=(TH1D*)p_LepPt->Clone("transfer_factor");
 	ratio_LepPt->SetMarkerStyle(20);
 	ratio_LepPt->SetLineColor(kBlack);
-	ratio_LepPt->GetXaxis()->SetRangeUser(25,800);
-	ratio_LepPt->GetXaxis()->SetTitle("p_{T} (GeV)");
+	ratio_LepPt->GetXaxis()->SetRangeUser(LepPtCut,800);
+	ratio_LepPt->GetXaxis()->SetTitleOffset(0.9);
+	ratio_LepPt->GetXaxis()->SetTitle("Lepton p_{T} (GeV)");
 	ratio_LepPt->GetYaxis()->SetRangeUser(0,4);
 	ratio_LepPt->SetMinimum(0);
 	ratio_LepPt->SetMaximum(4.2);
 	ratio_LepPt->GetYaxis()->SetLabelSize(11);
 	ratio_LepPt->Divide(pred_LepPt);
+	for (int i = 1; i <= ratio_LepPt->GetNbinsX(); i++) {
+    		if (ratio_LepPt->GetBinContent(i) == 0) {
+        		ratio_LepPt->SetBinContent(i, 1.0);
+    		}
+	}
 	ratio_LepPt->SetTitle("");
 	ratio_LepPt->GetYaxis()->SetTitleOffset(2);
 	ratio_LepPt->GetYaxis()->SetTitleSize(12);
 	ratio_LepPt->GetYaxis()->SetTitle("#frac{Simulation}{data proxy template}   ");
 	ratio_LepPt->Draw();
 	flatratio_LepPt->Draw("same");
-	if(channelType==1) c_LepPt->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/faketemp_electron_LepPt_%d%s.pdf",RunYear,whichVFP.c_str()));
-	if(channelType==2) c_LepPt->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/faketemp_muon_LepPt_%d%s.pdf",RunYear,whichVFP.c_str()));
+
+// Open a text file to save LaTeX table
+std::ofstream latexFile;
+if (channelType == 1) 
+    latexFile.open(Form("ratio_LepPt_table_eg_%d%s.tex", RunYear, whichVFP.c_str()));
+else if (channelType == 2) 
+    latexFile.open(Form("ratio_LepPt_table_mg_%d%s.tex", RunYear, whichVFP.c_str()));
+
+latexFile << "\\begin{table}[htdp]\n";
+latexFile << "\t\\centering\n";
+latexFile << "  \\begin{tabular}{|c|c|}\n";
+latexFile << "  \\hline\n";
+latexFile << "  $p_T$ (GeV)  & $e$ proxy corrections \\\\ \\hline\n";
+
+for (int i = 1; i <= ratio_LepPt->GetNbinsX(); i++) {
+    double binLowEdge = ratio_LepPt->GetXaxis()->GetBinLowEdge(i);
+    double binUpEdge = ratio_LepPt->GetXaxis()->GetBinUpEdge(i);
+    double ratioValue = ratio_LepPt->GetBinContent(i);
+    double ratioError = ratio_LepPt->GetBinError(i);
+
+    std::string binRange;
+    if (i == ratio_LepPt->GetNbinsX()) {
+        binRange = "$>$ " + std::to_string((int)binLowEdge);  // Last bin: "> X"
+        latexFile << "  " << binRange << " & " << ratioValue << " \\\\ \\hline\n";
+    } else {
+        binRange = std::to_string((int)binLowEdge) + "-" + std::to_string((int)binUpEdge);
+        latexFile << "  " << binRange << "  & " << ratioValue << "$\\pm$ " << ratioError << "  \\\\ \\hline\n";
+    }
+}
+
+latexFile << "  \\end{tabular}\n";
+latexFile << "  \\caption{Correction factors used in electron proxy reweighting.}\n";
+latexFile << "  \\label{table:correctionsfakelep}\n";
+latexFile << "\\end{table}\n";
+
+latexFile.close();
+std::cout << "LaTeX table saved as ratio_LepPt_table.tex" << std::endl;
+
+	if(channelType==1) c_LepPt->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_LepPt_eg_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==2) c_LepPt->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_LepPt_mg_%d%s.pdf",RunYear,whichVFP.c_str()));
 	TFile *outputfile;
 	if(channelType==1)  outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/fakeLep/qcd_eg_scale_%d%s.root",RunYear,whichVFP.c_str()),"RECREATE");
 	if(channelType==2)  outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/fakeLep/qcd_mg_scale_%d%s.root",RunYear,whichVFP.c_str()),"RECREATE");

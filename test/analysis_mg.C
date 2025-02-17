@@ -34,7 +34,7 @@ bool apply_HEMveto=false;
 void analysis_mg(int RunYear, const char *Era){//main
 
   ofstream logfile;
-  logfile.open(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.log",RunYear,Era),ios::trunc);
+  logfile.open(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/logs/resTree_mgsignal_MuonEG_%d%s.log",RunYear,Era),ios::trunc);
 
   logfile << "analysis_mg()" << std::endl;
   logfile << "miniIso; one lepton for fakephoton background" << std::endl;
@@ -45,7 +45,7 @@ void analysis_mg(int RunYear, const char *Era){//main
 	bool  isMC(false);
 	if(datatype == MC || datatype == MCDoubleEG2016 || datatype == MCMuonEG2016||  datatype == MCSingleElectron2016 || datatype == MCSingleMuon2016||  datatype == MCDoubleMuon2016 || datatype == MCMET2016)isMC=true;
   TChain* es = new TChain("ggNtuplizer/EventTree");
-	es->Add(Form("/eos/uscms/store/user/lpcsusyphotons/Tribeni/MuonEG/MuonEG_%d%s.root",RunYear,Era));
+	es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/MuonEG/MuonEG_%d%s.root",RunYear,Era));
 
   if(RunYear==2018) apply_HEMveto=true;
   const unsigned nEvts = es->GetEntries(); 
@@ -55,7 +55,7 @@ void analysis_mg(int RunYear, const char *Era){//main
 
 	int nTotal(0),npassHLT(0), npassPho(0), npassLep(0), npassdR(0), npassZ(0), npassMETFilter(0);
 
-  TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,Era),"RECREATE");
+  TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,Era),"RECREATE");
   outputfile->cd();
 
 	TH1D *p_METFilter = new TH1D("p_METFilter","",12,-2,10);	
@@ -321,8 +321,8 @@ void analysis_mg(int RunYear, const char *Era){//main
   logfile << "RunType: " << datatype << std::endl;
 
   int passHEM(0);
-  std::cout << "Total evetns : " << nEvts << std::endl;
-  logfile << "Total evetns : " << nEvts << std::endl;
+  std::cout << "Total events : " << nEvts << std::endl;
+  logfile << "Total events : " << nEvts << std::endl;
 	for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
 
 		if (ievt%1000000==0) logfile  << " -- Processing event " << ievt << std::endl;
@@ -356,6 +356,7 @@ void analysis_mg(int RunYear, const char *Era){//main
 			npassHLT+=1;
 
 			if(raw.nMu < 1 || raw.nPho <1)continue;
+
 
   //    int Nmedpho(0);
   //    for(std::vector<recoPhoton>::iterator itpho = Photon.begin() ; itpho != Photon.end(); ++itpho){
@@ -444,7 +445,7 @@ void analysis_mg(int RunYear, const char *Era){//main
 			miniisoLep.clear();
 			for(std::vector<recoMuon>::iterator itMu = Muon.begin(); itMu != Muon.end(); itMu++){
 				if(itMu->isMedium() && itMu->getPt() > 15 && itMu->getMiniIso() < 0.2)miniisoLep.push_back(itMu);
-				if(itMu->getPt() < 25)continue;
+				if(itMu->getPt() < 20)continue;
 				if(itMu->isFakeProxy())fakeLepCollection.push_back(itMu);
 				if(!itMu->passHLTSelection())continue;
 				//if(itMu->isFakeProxy())fakeLepCollection.push_back(itMu);

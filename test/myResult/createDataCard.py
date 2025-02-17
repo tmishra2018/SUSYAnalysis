@@ -8,17 +8,27 @@ import argparse
 from os import system
 import sys
 
-limdir = './'
+limdir = 'logs/'
 
 n_channels = int(sys.argv[1])*2
 RunYear = sys.argv[2]
+preVFP = sys.argv[3]
 #n_channels = 36
 n_processes= 6
 # 5 bkgrounds, 1 susy process
 pro_names = ['SUSY','elefakepho', 'jetfakepho', 'qcdfakelep','VGamma','rare']
 syst_names = ['jes','esf','scale','e_to_pho_syst','j_to_pho_syst','fakelep_shape','xs','lumi','isr']
 
-file_in = ROOT.TFile('/uscms_data/d3/tmishra/Output/SignalSystematic_'+RunYear+'.root', 'read')
+
+
+if RunYear == '2016' and preVFP == '1':
+    whichVFP = 'preVFP'
+elif RunYear == '2016' and preVFP == '0':
+    whichVFP = 'postVFP'
+else:
+    whichVFP = ''
+
+file_in = ROOT.TFile(f'/uscms_data/d3/tmishra/Output/SignalSystematic_{RunYear}{whichVFP}.root', 'read')
 h_rates = {}
 for hname in pro_names:
     h_rates['h_' + hname + '_norm'] = file_in.Get('h_' + hname + '_norm')
@@ -31,8 +41,9 @@ h_rates['h_jetfakepho_transferfactor'] = file_in.Get('h_jetfakepho_transferfacto
 h_rates['h_qcdfakelep_controlsample'] = file_in.Get('h_qcdfakelep_controlsample')
 h_rates['h_qcdfakelep_transferfactor'] = file_in.Get('h_qcdfakelep_transferfactor')
 
-logfile_out = open( 't5wg.log','w')
-file_out = open( limdir+'counting_exp_XXX_YYY_{}_{}.txt'.format(n_channels,RunYear), 'w')
+logfile_out = open( 'logs/t5wg.log','w')
+filename = limdir + 'counting_exp_XXX_YYY_{}_{}{}.txt'.format(n_channels, RunYear, whichVFP)
+file_out = open(filename, 'w')
 
 #file_out.write("imax 36 number of channels\n")
 file_out.write('imax {:2d} number of channels\n'.format(n_channels))
@@ -46,20 +57,22 @@ for i in range(1,n_channels+1):
 file_out.write('\n')
 
 file_out.write('{:16s}'.format('observation    '))
-with open('data_mg.log') as fileMG:
-	for line in fileMG:
-	          if re.search('bin', line):
-                        l = line.split('bin')
-                        v = int(l[1].strip())
-			file_out.write('{:>4d} '.format(v))
 
-with open('data_eg.log') as fileEG:
-	for line in fileEG:
-	          if re.search('bin', line):
-                        l = line.split('bin')
-                        v = int(l[1].strip())
-			file_out.write('{:>4d} '.format(v))
+with open('logs/data_mg_{}{}.log'.format(RunYear, whichVFP)) as fileMG:
+    for line in fileMG:
+        if re.search('bin', line):
+            l = line.split('bin')
+            v = int(l[1].strip())
+            file_out.write('{:>4d} '.format(v))
+
+with open('logs/data_eg_{}{}.log'.format(RunYear, whichVFP)) as fileEG:
+    for line in fileEG:
+        if re.search('bin', line):
+            l = line.split('bin')
+            v = int(l[1].strip())
+            file_out.write('{:>4d} '.format(v))
 file_out.write('\n')
+
 
 #### from file pred_sig.C
 #if n_channels == 22 :
@@ -82,9 +95,9 @@ file_out.write('\n')
 file_out.write("------------\n")
 
 file_out.write('{:26s}'.format('bin'))
-for i in range(1,n_channels+1):
-    for j in range(0,n_processes):
-	file_out.write('{:>12s} '.format('bin'+ str(i)))
+for i in range(1, n_channels + 1):
+    for j in range(0, n_processes):
+        file_out.write('{:>12s} '.format('bin' + str(i)))
 file_out.write('\n')
 
 file_out.write('{:26s}'.format('process'))
@@ -198,6 +211,7 @@ file_out.write('\n')
 
 for ich in range(1,n_channels+1):
     file_out.write('{:15s} {:3s} {:6s}'.format('SUSY_stat'+str(ich),'lnN',''))
+    #file_out.write('{:22s} {:3s} {:6s}'.format('SUSY_' + RunYear + whichVFP + '_stat' + str(ich), 'lnN', ''))
     for k in range(1,n_channels+1):
         if( k == ich):
             file_out.write('{:>12s} {:>12s} {:>12s} {:>12s} {:>12s} {:>12s} '.format('STSC'+ str(ich),'-', '-', '-', '-', '-'))
@@ -205,11 +219,12 @@ for ich in range(1,n_channels+1):
             file_out.write('{:>12s} {:>12s} {:>12s} {:>12s} {:>12s} {:>12s} '.format('-', '-', '-', '-', '-', '-'))
     file_out.write('\n')
 
+
 for ich in range(1,n_channels+1):
     nevt = h_rates['h_elefakepho_controlsample'].GetBinContent(ich)
     fakerate = h_rates['h_elefakepho_transferfactor'].GetBinContent(ich)
     # number of events in control sample and fake rate
-    file_out.write('{:15s} {:3s} {:6d}'.format('e_to_pho_stat'+str(ich),'gmN',int(nevt)))
+    file_out.write('{:22s} {:3s} {:6d}'.format('e_to_pho_'  + RunYear + whichVFP + '_stat'+str(ich),'gmN',int(nevt)))
     for k in range(1,n_channels+1):
         if( k == ich):
             file_out.write('{:>12s} {:12.5f} {:>12s} {:>12s} {:>12s} {:>12s} '.format('-', fakerate, '-', '-', '-', '-'))
@@ -221,7 +236,7 @@ for ich in range(1,n_channels+1):
     nevt = h_rates['h_jetfakepho_controlsample'].GetBinContent(ich)
     fakerate = h_rates['h_jetfakepho_transferfactor'].GetBinContent(ich)
     # number of events in control sample and fake rate
-    file_out.write('{:15s} {:3s} {:6d}'.format('j_to_pho_stat'+str(ich),'gmN',int(nevt)))
+    file_out.write('{:22s} {:3s} {:6d}'.format('j_to_pho_'  + RunYear + whichVFP + '_stat'+str(ich),'gmN',int(nevt)))
     for k in range(1,n_channels+1):
         if( k == ich):
             file_out.write('{:>12s} {:>12s} {:12.5f} {:>12s} {:>12s} {:>12s} '.format('-', '-', fakerate, '-', '-', '-'))
@@ -233,7 +248,7 @@ for ich in range(1,n_channels+1):
     nevt = h_rates['h_qcdfakelep_controlsample'].GetBinContent(ich)
     fakerate = h_rates['h_qcdfakelep_transferfactor'].GetBinContent(ich)
     # number of events in control sample and fake rate
-    file_out.write('{:15s} {:3s} {:6d}'.format('j_to_lep_stat'+str(ich),'gmN',int(nevt)))
+    file_out.write('{:22s} {:3s} {:6d}'.format('j_to_lep_'  + RunYear + whichVFP + '_stat'+str(ich),'gmN',int(nevt)))
     for k in range(1,n_channels+1):
         if( k == ich):
             file_out.write('{:>12s} {:>12s} {:>12s} {:12.5f} {:>12s} {:>12s} '.format('-', '-', '-', fakerate, '-', '-'))
@@ -244,10 +259,11 @@ for ich in range(1,n_channels+1):
 
 for ich in range(1,n_channels+1):
     file_out.write('{:15s} {:3s} {:6s}'.format('rare_stat'+str(ich),'lnN',''))
+    #file_out.write('{:22s} {:3s} {:6s}'.format('rare_'  + RunYear + whichVFP + '_stat'+str(ich),'lnN',''))
     if(h_rates['h_rare_norm'].GetBinContent(ich) != 0):
     	staterror= 1.0 + h_rates['h_rare_norm'].GetBinError(ich)/h_rates['h_rare_norm'].GetBinContent(ich)
     else:
-	staterror= 1.0	
+	    staterror= 1.0	
     # stat error for rare bkgs
     for k in range(1,n_channels+1):
         if( k == ich):
@@ -258,10 +274,11 @@ for ich in range(1,n_channels+1):
 
 for ich in range(1,n_channels+1):
     file_out.write('{:15s} {:3s} {:6s}'.format('VG_stat'+str(ich),'lnN',''))
+    #file_out.write('{:22s} {:3s} {:6s}'.format('VG_'  + RunYear + whichVFP + '_stat'+str(ich),'lnN',''))
     if(h_rates['h_VGamma_norm'].GetBinContent(ich) != 0):
     	staterror= 1.0 + h_rates['h_VGamma_norm'].GetBinError(ich)/h_rates['h_VGamma_norm'].GetBinContent(ich)
     else:
-	staterror= 1.0	
+	    staterror= 1.0	
     # stat error for VG bkgs
     for k in range(1,n_channels+1):
         if( k == ich):
@@ -271,4 +288,3 @@ for ich in range(1,n_channels+1):
     file_out.write('\n')
 file_out.close()
 logfile_out.close()
-

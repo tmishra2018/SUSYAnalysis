@@ -1,303 +1,86 @@
 #!/bin/bash
+
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-#anatype=0 # to Derive Scale
-anatype=1
+temp_file="temp.txt"
+rm -f $temp_file
 
-lmt=0
-hmt=-1
-lmet=40
-hmet=70
+
+# make only one of these three true
+ToDeriveScale=false
+makeCRPlots=false
+makeVRPlots=true
+
+if [ "$ToDeriveScale" = true ]; then
+  anatype=0
+  lmet=40
+  hmet=70
+  lmt=0
+  hmt=-1
+elif [ "$makeCRPlots" = true ]; then
+  anatype=1
+  lmet=0
+  hmet=70
+  lmt=0
+  hmt=-1
+elif [ "$makeVRPlots" = true ]; then
+  anatype=2 # validation region 0 < MT < 100
+  lmet=0
+  hmet=-1
+  lmt=0
+  hmt=100
+else
+  echo "Neither ToDeriveScale nor makeCRPlots nor makeVRPlots is set to true."
+  exit 1
+fi
+
 iso=4
 
-##################################################################
+for RunYear in 2016 2017 2018; do
+  for preVFP in {0..1}; do
+    if [ "$RunYear" != "2016" ] && [ "$preVFP" -eq 1 ]; then
+      continue
+    fi
 
-RunYear=2016
-preVFP=0
+    for ch in 1 2; do
+      echo "Processing RunYear=$RunYear, preVFP=$preVFP, channel=$ch"
 
-ch=1
+      rm -f BkgPredConfig.txt
+      {
+        echo "ichannel $ch"
+        echo "anatype $anatype"
+        echo "lowMt $lmt"
+        echo "highMt $hmt"
+        echo "lowMET $lmet"
+        echo "highMET $hmet"
+        echo "lowPt 0"
+        echo "highPt 1000"
+        echo "lepIso $iso"
+        echo "RunYear $RunYear"
+        echo "preVFP $preVFP"
+      } >> BkgPredConfig.txt
 
-rm BkgPredConfig.txt
-echo 'ichannel' $ch  >> BkgPredConfig.txt
-echo 'anatype'  $anatype >>  BkgPredConfig.txt
-echo 'lowMt'    $lmt >> BkgPredConfig.txt
-echo 'highMt'   $hmt >> BkgPredConfig.txt
-echo 'lowMET'   $lmet >> BkgPredConfig.txt
-echo 'highMET'  $hmet >> BkgPredConfig.txt
-echo 'lowPt'    0 >> BkgPredConfig.txt
-echo 'highPt'   1000 >> BkgPredConfig.txt
-echo 'lepIso'   $iso    >> BkgPredConfig.txt
-echo 'RunYear'   $RunYear    >> BkgPredConfig.txt
-echo 'preVFP'   $preVFP    >> BkgPredConfig.txt
-root -l -q analysis_VGBkg.C++
-root -l -q analysis_eleBkg.C++
-root -l -q analysis_jetBkg.C++
-root -l -q analysis_qcdBkg.C++
-root -l -q analysis_rareBkg.C++
-root -l -q analysis_sig.C++
+      root -l -q analysis_VGBkg.C++
+      root -l -q analysis_eleBkg.C++
+      root -l -q analysis_jetBkg.C++
+      root -l -q analysis_qcdBkg.C++
+      root -l -q analysis_rareBkg.C++
+      root -l -q analysis_sig.C++
 
-ch=2
+      if [ "$makeCRPlots" = true ] || [ "$makeVRPlots" = true ]; then
+        echo "Plotting background for ch=$ch, RunYear=$RunYear, preVFP=$preVFP"
+        root -l -q "plot_bkg.C($ch, $RunYear, $preVFP)" >> $temp_file
+      fi
+    done
+  done
+done
 
-rm BkgPredConfig.txt
-echo 'ichannel' $ch  >> BkgPredConfig.txt
-echo 'anatype'  $anatype >>  BkgPredConfig.txt
-echo 'lowMt'    $lmt >> BkgPredConfig.txt
-echo 'highMt'   $hmt >> BkgPredConfig.txt
-echo 'lowMET'   $lmet >> BkgPredConfig.txt
-echo 'highMET'  $hmet >> BkgPredConfig.txt
-echo 'lowPt'    0 >> BkgPredConfig.txt
-echo 'highPt'   1000 >> BkgPredConfig.txt
-echo 'lepIso'   $iso    >> BkgPredConfig.txt
-echo 'RunYear'   $RunYear    >> BkgPredConfig.txt
-echo 'preVFP'   $preVFP    >> BkgPredConfig.txt
-root -l -q analysis_VGBkg.C++
-root -l -q analysis_eleBkg.C++
-root -l -q analysis_jetBkg.C++
-root -l -q analysis_qcdBkg.C++
-root -l -q analysis_rareBkg.C++
-root -l -q analysis_sig.C++
-#
-###################################################################
-
-#RunYear=2016
-#preVFP=0
-#
-#ch=1
-#
-#rm BkgPredConfig.txt
-#echo 'ichannel' $ch  >> BkgPredConfig.txt
-#echo 'anatype'  $anatype >>  BkgPredConfig.txt
-#echo 'lowMt'    $lmt >> BkgPredConfig.txt
-#echo 'highMt'   $hmt >> BkgPredConfig.txt
-#echo 'lowMET'   $lmet >> BkgPredConfig.txt
-#echo 'highMET'  $hmet >> BkgPredConfig.txt
-#echo 'lowPt'    0 >> BkgPredConfig.txt
-#echo 'highPt'   1000 >> BkgPredConfig.txt
-#echo 'lepIso'   $iso    >> BkgPredConfig.txt
-#echo 'RunYear'   $RunYear    >> BkgPredConfig.txt
-#echo 'preVFP'   $preVFP    >> BkgPredConfig.txt
-#root -l -q analysis_VGBkg.C++
-#root -l -q analysis_eleBkg.C++
-#root -l -q analysis_jetBkg.C++
-#root -l -q analysis_qcdBkg.C++
-#root -l -q analysis_rareBkg.C++
-#root -l -q analysis_sig.C++
-#
-#ch=2
-#
-#rm BkgPredConfig.txt
-#echo 'ichannel' $ch  >> BkgPredConfig.txt
-#echo 'anatype'  $anatype >>  BkgPredConfig.txt
-#echo 'lowMt'    $lmt >> BkgPredConfig.txt
-#echo 'highMt'   $hmt >> BkgPredConfig.txt
-#echo 'lowMET'   $lmet >> BkgPredConfig.txt
-#echo 'highMET'  $hmet >> BkgPredConfig.txt
-#echo 'lowPt'    0 >> BkgPredConfig.txt
-#echo 'highPt'   1000 >> BkgPredConfig.txt
-#echo 'lepIso'   $iso    >> BkgPredConfig.txt
-#echo 'RunYear'   $RunYear    >> BkgPredConfig.txt
-#echo 'preVFP'   $preVFP    >> BkgPredConfig.txt
-#root -l -q analysis_VGBkg.C++
-#root -l -q analysis_eleBkg.C++
-#root -l -q analysis_jetBkg.C++
-#root -l -q analysis_qcdBkg.C++
-#root -l -q analysis_rareBkg.C++
-#root -l -q analysis_sig.C++
-#
-###################################################################
+grep egamma temp.txt
+grep mgamma temp.txt
 
 
-#RunYear=2017
-#preVFP=0
-#
-#
-#ch=1
-#
-#rm BkgPredConfig.txt
-#echo 'ichannel' $ch  >> BkgPredConfig.txt
-#echo 'anatype'  $anatype >>  BkgPredConfig.txt
-#echo 'lowMt'    $lmt >> BkgPredConfig.txt
-#echo 'highMt'   $hmt >> BkgPredConfig.txt
-#echo 'lowMET'   $lmet >> BkgPredConfig.txt
-#echo 'highMET'  $hmet >> BkgPredConfig.txt
-#echo 'lowPt'    0 >> BkgPredConfig.txt
-#echo 'highPt'   1000 >> BkgPredConfig.txt
-#echo 'lepIso'   $iso    >> BkgPredConfig.txt
-#echo 'RunYear'   $RunYear    >> BkgPredConfig.txt
-#echo 'preVFP'   $preVFP    >> BkgPredConfig.txt
-#root -l -q analysis_VGBkg.C++
-#root -l -q analysis_eleBkg.C++
-#root -l -q analysis_jetBkg.C++
-#root -l -q analysis_qcdBkg.C++
-#root -l -q analysis_rareBkg.C++
-#root -l -q analysis_sig.C++
-#
-#ch=2
-#
-#rm BkgPredConfig.txt
-#echo 'ichannel' $ch  >> BkgPredConfig.txt
-#echo 'anatype'  $anatype >>  BkgPredConfig.txt
-#echo 'lowMt'    $lmt >> BkgPredConfig.txt
-#echo 'highMt'   $hmt >> BkgPredConfig.txt
-#echo 'lowMET'   $lmet >> BkgPredConfig.txt
-#echo 'highMET'  $hmet >> BkgPredConfig.txt
-#echo 'lowPt'    0 >> BkgPredConfig.txt
-#echo 'highPt'   1000 >> BkgPredConfig.txt
-#echo 'lepIso'   $iso    >> BkgPredConfig.txt
-#echo 'RunYear'   $RunYear    >> BkgPredConfig.txt
-#echo 'preVFP'   $preVFP    >> BkgPredConfig.txt
-#root -l -q analysis_VGBkg.C++
-#root -l -q analysis_eleBkg.C++
-#root -l -q analysis_jetBkg.C++
-#root -l -q analysis_qcdBkg.C++
-#root -l -q analysis_rareBkg.C++
-#root -l -q analysis_sig.C++
-
-###################################################################
-#
-#RunYear=2018
-#preVFP=0
-#
-#
-#ch=1
-#
-#rm BkgPredConfig.txt
-#echo 'ichannel' $ch  >> BkgPredConfig.txt
-#echo 'anatype'  $anatype >>  BkgPredConfig.txt
-#echo 'lowMt'    $lmt >> BkgPredConfig.txt
-#echo 'highMt'   $hmt >> BkgPredConfig.txt
-#echo 'lowMET'   $lmet >> BkgPredConfig.txt
-#echo 'highMET'  $hmet >> BkgPredConfig.txt
-#echo 'lowPt'    0 >> BkgPredConfig.txt
-#echo 'highPt'   1000 >> BkgPredConfig.txt
-#echo 'lepIso'   $iso    >> BkgPredConfig.txt
-#echo 'RunYear'   $RunYear    >> BkgPredConfig.txt
-#echo 'preVFP'   $preVFP    >> BkgPredConfig.txt
-#root -l -q analysis_VGBkg.C++
-#root -l -q analysis_eleBkg.C++
-#root -l -q analysis_jetBkg.C++
-#root -l -q analysis_qcdBkg.C++
-#root -l -q analysis_rareBkg.C++
-#root -l -q analysis_sig.C++
-#
-#ch=2
-#
-#rm BkgPredConfig.txt
-#echo 'ichannel' $ch  >> BkgPredConfig.txt
-#echo 'anatype'  $anatype >>  BkgPredConfig.txt
-#echo 'lowMt'    $lmt >> BkgPredConfig.txt
-#echo 'highMt'   $hmt >> BkgPredConfig.txt
-#echo 'lowMET'   $lmet >> BkgPredConfig.txt
-#echo 'highMET'  $hmet >> BkgPredConfig.txt
-#echo 'lowPt'    0 >> BkgPredConfig.txt
-#echo 'highPt'   1000 >> BkgPredConfig.txt
-#echo 'lepIso'   $iso    >> BkgPredConfig.txt
-#echo 'RunYear'   $RunYear    >> BkgPredConfig.txt
-#echo 'preVFP'   $preVFP    >> BkgPredConfig.txt
-#root -l -q analysis_VGBkg.C++
-#root -l -q analysis_eleBkg.C++
-#root -l -q analysis_jetBkg.C++
-#root -l -q analysis_qcdBkg.C++
-#root -l -q analysis_rareBkg.C++
-#root -l -q analysis_sig.C++
-
-##################################################################
-
-#rm temp.txt
-#root -l -q "plot_bkg.C(1,2016,0)" >> temp.txt
-#root -l -q "plot_bkg.C(2,2016,0)" >> temp.txt
-#
-#root -l -q "plot_bkg.C(1,2016,1)" >> temp.txt
-#root -l -q "plot_bkg.C(2,2016,1)" >> temp.txt
-#
-#root -l -q "plot_bkg.C(1,2017,1)" >> temp.txt
-#root -l -q "plot_bkg.C(2,2017,1)" >> temp.txt
-# 
-#root -l -q "plot_bkg.C(1,2018,1)" >> temp.txt
-#root -l -q "plot_bkg.C(2,2018,1)" >> temp.txt
-#
-#grep egamma temp.txt
-#grep mgamma temp.txt
-#
-#scp -r /eos/uscms/store/user/tmishra/Background/plots/* trmishra@lxplus.cern.ch:/eos/home-t/trmishra/www/Plots/SUSYAnalysis/ControlRegion
-
-
-#########################################################
-
-#different lepton pT ranges : 0-50-70-100-1000
-#rm BkgPredConfig.txt
-#echo 'ichannel' $ch  >> BkgPredConfig.txt
-#echo 'anatype'  $anatype >>  BkgPredConfig.txt
-#echo 'lowMt'    $lmt >> BkgPredConfig.txt
-#echo 'highMt'   $hmt >> BkgPredConfig.txt
-#echo 'lowMET'   $lmet >>BkgPredConfig.txt
-#echo 'highMET'  $hmet >>BkgPredConfig.txt
-#echo 'lowPt'    0 >> BkgPredConfig.txt
-#echo 'highPt'   50 >> BkgPredConfig.txt
-#echo 'lepIso'   $iso    >> BkgPredConfig.txt
-#echo 'RunYear'   $RunYear    >> BkgPredConfig.txt
-#echo 'preVFP'   $preVFP    >> BkgPredConfig.txt
-#root -l -q analysis_VGBkg.C++
-#root -l -q analysis_eleBkg.C++
-#root -l -q analysis_jetBkg.C++
-#root -l -q analysis_qcdBkg.C++
-#root -l -q analysis_rareBkg.C++
-#root -l -q analysis_sig.C++
-#
-#
-#rm BkgPredConfig.txt
-#echo 'ichannel' $ch  >> BkgPredConfig.txt
-#echo 'anatype'  $anatype >>  BkgPredConfig.txt
-#echo 'lowMt'    $lmt >> BkgPredConfig.txt
-#echo 'highMt'   $hmt >> BkgPredConfig.txt
-#echo 'lowMET'   $lmet >>BkgPredConfig.txt
-#echo 'highMET'  $hmet >>BkgPredConfig.txt
-#echo 'lowPt'    50 >> BkgPredConfig.txt
-#echo 'highPt'   70 >> BkgPredConfig.txt
-#echo 'lepIso'   $iso    >> BkgPredConfig.txt
-#echo 'RunYear'   $RunYear    >> BkgPredConfig.txt
-#echo 'preVFP'   $preVFP    >> BkgPredConfig.txt
-#root -l -q analysis_VGBkg.C++
-#root -l -q analysis_eleBkg.C++
-#root -l -q analysis_jetBkg.C++
-#root -l -q analysis_qcdBkg.C++
-#root -l -q analysis_rareBkg.C++
-#root -l -q analysis_sig.C++
-#
-#rm BkgPredConfig.txt
-#echo 'ichannel' $ch  >> BkgPredConfig.txt
-#echo 'anatype'  $anatype >>  BkgPredConfig.txt
-#echo 'lowMt'    $lmt >> BkgPredConfig.txt
-#echo 'highMt'   $hmt >> BkgPredConfig.txt
-#echo 'lowMET'   $lmet >>BkgPredConfig.txt
-#echo 'highMET'  $hmet >>BkgPredConfig.txt
-#echo 'lowPt'    70 >> BkgPredConfig.txt
-#echo 'highPt'   100 >> BkgPredConfig.txt
-#echo 'lepIso'   $iso    >> BkgPredConfig.txt
-#echo 'RunYear'   $RunYear    >> BkgPredConfig.txt
-#echo 'preVFP'   $preVFP    >> BkgPredConfig.txt
-#root -l -q analysis_VGBkg.C++
-#root -l -q analysis_eleBkg.C++
-#root -l -q analysis_jetBkg.C++
-#root -l -q analysis_qcdBkg.C++
-#root -l -q analysis_rareBkg.C++
-#root -l -q analysis_sig.C++
-#
-#rm BkgPredConfig.txt
-#echo 'ichannel' $ch  >> BkgPredConfig.txt
-#echo 'anatype'  $anatype >>  BkgPredConfig.txt
-#echo 'lowMt'    $lmt >> BkgPredConfig.txt
-#echo 'highMt'   $hmt >> BkgPredConfig.txt
-#echo 'lowMET'   $lmet >>BkgPredConfig.txt
-#echo 'highMET'  $hmet >>BkgPredConfig.txt
-#echo 'lowPt'    100 >> BkgPredConfig.txt
-#echo 'highPt'   1000 >> BkgPredConfig.txt
-#echo 'lepIso'   $iso    >> BkgPredConfig.txt
-#echo 'RunYear'   $RunYear    >> BkgPredConfig.txt
-#echo 'preVFP'   $preVFP    >> BkgPredConfig.txt
-#root -l -q analysis_VGBkg.C++
-#root -l -q analysis_eleBkg.C++
-#root -l -q analysis_jetBkg.C++
-#root -l -q analysis_qcdBkg.C++
-#root -l -q analysis_rareBkg.C++
-#root -l -q analysis_sig.C++
+if [ "$makeCRPlots" = true ]; then
+    scp -r /eos/uscms/store/user/tmishra/Background/plots/* trmishra@lxplus.cern.ch:/eos/home-t/trmishra/www/Plots/SUSYAnalysis/ControlRegion
+elif [ "$makeVRPlots" = true ]; then
+    scp -r /eos/uscms/store/user/tmishra/Background/plots/* trmishra@lxplus.cern.ch:/eos/home-t/trmishra/www/Plots/SUSYAnalysis/ValidationRegion
+fi

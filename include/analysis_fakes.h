@@ -9,17 +9,29 @@
 #include	"/eos/uscms/store/user/tmishra/elefakepho/DataResult2017/result_eta_dependence_Data.txt"
 #include	"/eos/uscms/store/user/tmishra/elefakepho/DataResult2018/result_eta_dependence_Data.txt"
 
-double etaRatesEE[]={0.0307332,0.0299524,0.0280145,0.02547,0.0240278,0.021802,0.0225558,0.0226875,0.0226886,0.0215866,0.0236088,0.020717,0.0216991,0.0226854,0.0261154,0.0234785,0.0237738,0.0238696,0.0231526,0.0241064,0.0236423,0.0225728,0.0225309,0.0215295,0.0229856,0.0243029,0.0229342,0.0232938,0.0247321,0.023548,0.022498,0.0218185,0.0234682,0.0254467,0.0246834,0.0229259,0.0231025,0.0216125,0.0210904,0.0221214,0.0202627,0.0191955,0.0160481,0.0167744,0.0160238,0.0159168,0.014636,0.0140576,0.0140319,0.0145108,0.0134792,0.0133057,0.0126636,0.0134775,0.013568,0.0148307,0.0137881,0.0142709,0.0140171,0.0141443,0.0132946,0.0153951,0.0128556,0.0131305,0.0117914,0.0133917,0.0128375,0.0132793,0.0119076,0.0128915,0.0121654,0.0120543,0.0132253,0.0130123,0.0126019,0.0131891,0.0144337,0.0154444,0.0201884,0.023823,0.0273998,0.0323177,0.0384226,0.0467818,0.0621622,0.077865,0.101108,0.12769,0.155996,0.190138,0.234992,0.292042,0.303861,0.183474};
+#include	"/eos/uscms/store/user/tmishra/elefakepho/DataResult2016preVFP/result_eta_dependence_Data_EE.txt"
+#include	"/eos/uscms/store/user/tmishra/elefakepho/DataResult2016postVFP/result_eta_dependence_Data_EE.txt"
+#include	"/eos/uscms/store/user/tmishra/elefakepho/DataResult2017/result_eta_dependence_Data_EE.txt"
+#include	"/eos/uscms/store/user/tmishra/elefakepho/DataResult2018/result_eta_dependence_Data_EE.txt"
 
-double MCetaRatesEB[]={0.030, 0.019, 0.015, 0.015, 0.014, 0.013, 0.013, 0.012, 0.012, 0.011, 0.011, 0.011, 0.010, 0.012, 0.011, 0.011, 0.010, 0.010, 0.011, 0.011, 0.009, 0.010, 0.011, 0.010, 0.010, 0.011, 0.012, 0.012, 0.015};
-double MCetaRatesEE[]={};
 
-std::ifstream configfile("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/test/Result/SigConfig.txt");
+// #include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2016preVFP/result_eta_dependence_DY.txt"
+// #include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2016postVFP/result_eta_dependence_DY.txt"
+// #include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2017/result_eta_dependence_DY.txt"
+// #include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2018/result_eta_dependence_DY.txt"
+
+// #include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2016preVFP/result_eta_dependence_DY_EE.txt"
+// #include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2016postVFP/result_eta_dependence_DY_EE.txt"
+// #include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2017/result_eta_dependence_DY_EE.txt"
+// #include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2018/result_eta_dependence_DY_EE.txt"
+
+
+std::ifstream configfile("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/myResult/SigConfig.txt");
 std::string conftype;
 double confvalue;
 
-int runyear=2016;
-bool prevfp=0;
+int runyear = 2016;
+bool prevfp =  1;
 Double_t fakerate_func(Double_t *x, Double_t *par)
 {
 	if(configfile.is_open()){
@@ -53,49 +65,43 @@ Double_t fakerate_func(Double_t *x, Double_t *par)
 	weight_nvtx = vtx_constant + vtx_slope*nvtx; // (const + slope*nvtx)
 
 	if(eta >= 0 && eta < 1.4442){
-//			cout<<RunYear <<"\t"<<preVFP<<endl;
 		for(int ieta(0); ieta < 29; ieta++)
 			if(eta > ieta*0.05 && eta <= (ieta+1)*0.05)
 			{
-	//			weight_eta = etaRatesEB_2016preVFP[ieta];
 				if (runyear==2016 and prevfp==1) 	weight_eta = etaRatesEB_2016preVFP[ieta];
 				else if (runyear==2016 and prevfp==0) 	weight_eta = etaRatesEB_2016postVFP[ieta];
 				else if (runyear==2017) 		weight_eta = etaRatesEB_2017[ieta];
 				else if (runyear==2018) 		weight_eta = etaRatesEB_2018[ieta];
 			}
-		//	if(eta > ieta*0.05 && eta <= (ieta+1)*0.05)weight_eta = etaRatesEB[ieta];
 	}
 	else if(eta > 1.56 && eta <= 2.5){
 		for(int ieta(0); ieta < 94; ieta++)
 			if(eta > 1.56 + ieta*0.01 && eta <= 1.56+(ieta+1)*0.01){
-				weight_eta = etaRatesEE[ieta];
-				//if (RunYear==2016 and preVFP==1)        	weight_eta = etaRatesEE_2016preVFP[ieta];
-				//else if (RunYear==2016 and preVFP==0)        	weight_eta = etaRatesEE_2016postVFP[ieta];
-				//else if (RunYear==2017)        			weight_eta = etaRatesEE_2017[ieta];
-				//else if (RunYear==2018)        			weight_eta = etaRatesEE_2018[ieta];
+				if (runyear==2016 and prevfp==1) 	weight_eta = etaRatesEE_2016preVFP[ieta];
+				else if (runyear==2016 and prevfp==0) 	weight_eta = etaRatesEE_2016postVFP[ieta];
+				else if (runyear==2017) 		weight_eta = etaRatesEE_2017[ieta];
+				else if (runyear==2018) 		weight_eta = etaRatesEE_2018[ieta];
 			}
 	}
 	else weight_eta = 0;
 	double totalfakerate= normfactor*weight_pt*weight_nvtx*weight_eta;
-	//cout<<weight_eta<<"\t"<<totalfakerate<<endl;
 	return totalfakerate;
 }
 
-Double_t mcfakerate_func(Double_t *x, Double_t *par)
+/*Double_t mcfakerate_func(Double_t *x, Double_t *par)
 {
 	double weight_pt(0.02);
 	double weight_nvtx(0.02);
 	double weight_eta(0.02);
 
 	double normfactor = par[0];
-  double slope = par[1];
-  double constant = par[2];
-  double index = par[3];
-  double coeff = 1.0; 
+  	double slope = par[1];
+  	double constant = par[2];
+  	double index = par[3];
+  	double coeff = 1.0; 
 	double vtx_constant = par[5];
 	double vtx_slope = par[6];
-
-  double pt = TMath::Max(x[0],0.000001);
+  	double pt = TMath::Max(x[0],0.000001);
 	double nvtx=x[1];
 	double eta= x[2];
 
@@ -103,23 +109,30 @@ Double_t mcfakerate_func(Double_t *x, Double_t *par)
 	arg = slope*pt + constant; 
 	double fitval = pow(arg, index)*coeff; 
 	weight_pt = fitval;
-
 	weight_nvtx = vtx_constant + vtx_slope*nvtx;
 
 	if(eta >= 0 && eta < 1.4442){
 		for(int ieta(0); ieta < 29; ieta++)
-			if(eta > ieta*0.05 && eta <= (ieta+1)*0.05)weight_eta = MCetaRatesEB[ieta];
+			if(eta > ieta*0.05 && eta <= (ieta+1)*0.05){
+				if (runyear==2016 and prevfp==1) 	weight_eta = MCetaRatesEB_2016preVFP[ieta];
+				else if (runyear==2016 and prevfp==0) 	weight_eta = MCetaRatesEB_2016postVFP[ieta];
+				else if (runyear==2017) 		weight_eta = MCetaRatesEB_2017[ieta];
+				else if (runyear==2018) 		weight_eta = MCetaRatesEB_2018[ieta];}
 	}
 	else if(eta > 1.56 && eta <= 2.5){
 		for(int ieta(0); ieta < 94; ieta++)
-			if(eta > 1.56 + ieta*0.01 && eta <= 1.56+(ieta+1)*0.01)weight_eta = MCetaRatesEE[ieta];
+			if(eta > 1.56 + ieta*0.01 && eta <= 1.56+(ieta+1)*0.01){
+				if (RunYear==2016 and preVFP==1)        	weight_eta = MCetaRatesEE_2016preVFP[ieta];
+				else if (RunYear==2016 and preVFP==0)        	weight_eta = MCetaRatesEE_2016postVFP[ieta];
+				else if (RunYear==2017)        			weight_eta = MCetaRatesEE_2017[ieta];
+				else if (RunYear==2018)        			weight_eta = MCetaRatesEE_2018[ieta];}
 	}
 	else weight_eta = 0;
 
 	double totalfakerate= normfactor*weight_pt*weight_nvtx*weight_eta;
 	return totalfakerate;
 }
-
+*/
 
 //Double_t jetfake_func(Double_t *x, Double_t *par)
 //{

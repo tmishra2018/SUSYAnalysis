@@ -88,7 +88,7 @@ bool isElectron(int PID, int momID){
 
 void FitKer(int inputbintype, int inputfittype, float lowercut, float uppercut, int fitrangelow, int fitrangehigh){//main  
 
-  gSystem->Load("/uscms/home/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/lib/libAnaClasses.so");
+  gSystem->Load("../../../lib/libAnaClasses.so");
 	setTDRStyle();
   
 	bool useCMSShape;

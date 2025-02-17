@@ -23,27 +23,28 @@
 #include "TLorentzVector.h"
 #include "TRandom3.h"
 #include "TGraphErrors.h"
-#include "../../include/tdrstyle.C"
+#include "../../include/analysis_commoncode.h"
 
-int channel = 2; // 1 = eg, 2 = mg
-int plottype = 1; // 1 = bkg, 2 = valid
+//int plottype = 1; // 1 = bkg, 2 = valid
 bool doTT = false;
-int lowMET = 40;//0;
-int highMET = 70;//-1;
+//int lowMET = 0;//40
+//int highMET = 70;//-1;
 
-//int RunYear=2016;
-//bool preVFP=0;
 
 void plot_bkg(int channel,int RunYear,bool preVFP){//main  
+	        
+	SetRunConfig();
+	int plottype = anatype;
+	setTDRStyle();
 	gROOT->SetBatch(kTRUE);
   	gSystem->Load("../../lib/libAnaClasses.so");
-	setTDRStyle();
 
 	Double_t bkgEtBins[]={35,40,50,60,70,80,90,100,110,120,130,140,150,160,170,185,200,215,230,250,275,290, 305,325,345,370,400,500,800};
 	int nBkgEtBins= sizeof(bkgEtBins)/sizeof(bkgEtBins[0]) -1;
 	Double_t bkgPtBins[]={25,50,75,100,125,150,200,400,800};
 	int nBkgPtBins= sizeof(bkgPtBins)/sizeof(bkgPtBins[0])-1;
-	Double_t bkgMETBins[]={0,40,60,80,100,120,140,160,180,210,240,280,320,400,600,1000};
+	//Double_t bkgMETBins[]={0,40,60,80,100,120,140,160,180,210,240,280,320,400,600,1000};
+	Double_t bkgMETBins[]={0,40,60,80,100,120};
 	int nBkgMETBins= sizeof(bkgMETBins)/sizeof(bkgMETBins[0]) -1;
 	Double_t bkgMtBins[]={0,20,40,60,80,100,120,140,160,180,200,300,400,500,1000};
 	int nBkgMtBins= sizeof(bkgMtBins)/sizeof(bkgMtBins[0]) -1;
@@ -113,19 +114,25 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	//TFile *file_t5 = TFile::Open("signalTree_T5WG.root");
 	//TFile *file_tchi=TFile::Open("signalTree_TChiWG.root");
 
+	TGraphErrors *error_nJet = new TGraphErrors(10);
 	TGraphErrors *error_dPhiEleMET = new TGraphErrors(32);
 	TGraphErrors *error_PhoEt = new TGraphErrors(nBkgEtBins);
 	TGraphErrors *error_LepPt = new TGraphErrors(nBkgPtBins);
 	TGraphErrors *error_MET = new TGraphErrors(nBkgMETBins); 
 	TGraphErrors *error_Mt = new TGraphErrors(nBkgMtBins); 
 	TGraphErrors *error_HT = new TGraphErrors(nBkgHTBins);
+	TGraphErrors *error_nBJet = new TGraphErrors(5);
+	TGraphErrors *ratioerror_nJet = new TGraphErrors(10);
 	TGraphErrors *ratioerror_dPhiEleMET = new TGraphErrors(32);
 	TGraphErrors *ratioerror_PhoEt = new TGraphErrors(nBkgEtBins);
 	TGraphErrors *ratioerror_LepPt = new TGraphErrors(nBkgPtBins);
 	TGraphErrors *ratioerror_MET = new TGraphErrors(nBkgMETBins); 
 	TGraphErrors *ratioerror_Mt = new TGraphErrors(nBkgMtBins); 
 	TGraphErrors *ratioerror_HT = new TGraphErrors(nBkgHTBins);
+	TGraphErrors *ratioerror_nBJet = new TGraphErrors(5);
 
+	TH1F *p_allnJet = (TH1F*)file_sig->Get("p_nJet");
+	TH1F *p_allnBJet = (TH1F*)file_sig->Get("p_nBJet");
 	TH1F *p_alldPhiEleMET = (TH1F*)file_sig->Get("p_dPhiEleMET");
 	TH1F *p_allPhoEt = (TH1F*)file_sig->Get("p_PhoEt");
 	TH1F *p_allLepPt = (TH1F*)file_sig->Get("p_LepPt");
@@ -134,6 +141,8 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	TH1F *p_allHT  = (TH1F*)file_sig->Get("p_HT");
 	TH1F *p_allPU    = (TH1F*)file_sig->Get("p_PU");
 
+	p_allnJet->SetMarkerColor(1);
+	p_allnBJet->SetMarkerColor(1);
 	p_alldPhiEleMET->SetMarkerColor(1);
 	p_allPhoEt->SetMarkerColor(1);
 	p_allLepPt->SetMarkerColor(1);
@@ -142,6 +151,8 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	p_allHT->SetMarkerColor(1);
 	p_allPU->SetMarkerColor(1);
 	
+	TH1F *p_elenJet = (TH1F*)file_ele->Get("p_nJet");
+	TH1F *p_elenBJet = (TH1F*)file_ele->Get("p_nBJet");
 	TH1F *p_eledPhiEleMET = (TH1F*)file_ele->Get("p_dPhiEleMET");
 	TH1F *p_elePhoEt = (TH1F*)file_ele->Get("p_PhoEt");
 	TH1F *p_eleLepPt = (TH1F*)file_ele->Get("p_LepPt");
@@ -150,6 +161,8 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	TH1F *p_eleHT  = (TH1F*)file_ele->Get("p_HT");
 	TH1F *p_elePU    = (TH1F*)file_ele->Get("p_PU");
 
+	TH1F *p_jetnJet = (TH1F*)file_jet->Get("p_nJet");
+	TH1F *p_jetnBJet = (TH1F*)file_jet->Get("p_nBJet");
 	TH1F *p_jetdPhiEleMET = (TH1F*)file_jet->Get("p_dPhiEleMET");
 	TH1F *p_jetPhoEt = (TH1F*)file_jet->Get("p_PhoEt");
 	TH1F *p_jetLepPt = (TH1F*)file_jet->Get("p_LepPt");
@@ -158,6 +171,8 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	TH1F *p_jetHT  = (TH1F*)file_jet->Get("p_HT");
 	TH1F *p_jetPU    = (TH1F*)file_jet->Get("p_PU");
 
+	TH1F *p_qcdnJet = (TH1F*)file_qcd->Get("p_nJet");
+	TH1F *p_qcdnBJet = (TH1F*)file_qcd->Get("p_nBJet");
 	TH1F *p_qcddPhiEleMET = (TH1F*)file_qcd->Get("p_dPhiEleMET");
 	TH1F *p_qcdPhoEt = (TH1F*)file_qcd->Get("p_PhoEt");
 	TH1F *p_qcdLepPt = (TH1F*)file_qcd->Get("p_LepPt");
@@ -166,6 +181,8 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	TH1F *p_qcdHT  = (TH1F*)file_qcd->Get("p_HT");
 	TH1F *p_qcdPU    = (TH1F*)file_qcd->Get("p_PU");
 
+	TH1F *p_VGnJet = (TH1F*)file_VG->Get("p_nJet");
+	TH1F *p_VGnBJet = (TH1F*)file_VG->Get("p_nBJet");
 	TH1F *p_VGdPhiEleMET = (TH1F*)file_VG->Get("p_dPhiEleMET");
 	TH1F *p_VGPhoEt = (TH1F*)file_VG->Get("p_PhoEt");
 	TH1F *p_VGLepPt = (TH1F*)file_VG->Get("p_LepPt");
@@ -174,6 +191,8 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	TH1F *p_VGHT  = (TH1F*)file_VG->Get("p_HT");
 	TH1F *p_VGPU    = (TH1F*)file_VG->Get("p_PU");
 
+	TH1F *p_rarenJet = (TH1F*)file_rare->Get("p_nJet");
+	TH1F *p_rarenBJet = (TH1F*)file_rare->Get("p_nBJet");
 	TH1F *p_raredPhiEleMET = (TH1F*)file_rare->Get("p_dPhiEleMET");
 	TH1F *p_rarePhoEt = (TH1F*)file_rare->Get("p_PhoEt");
 	TH1F *p_rareLepPt = (TH1F*)file_rare->Get("p_LepPt");
@@ -183,36 +202,48 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	TH1F *p_rarePU    = (TH1F*)file_rare->Get("p_PU");
 
 	if(doTT){
+		p_allnJet = (TH1F*)file_sig->Get("p_nJet_TT");
+		p_allnBJet = (TH1F*)file_sig->Get("p_nBJet_TT");
 		p_alldPhiEleMET = (TH1F*)file_sig->Get("p_dPhiEleMET_TT");
 		p_allPhoEt = (TH1F*)file_sig->Get("p_PhoEt_TT");
 		p_allMET   = (TH1F*)file_sig->Get("p_MET_TT");
 		p_allMt    = (TH1F*)file_sig->Get("p_Mt_TT");
 		p_allHT  = (TH1F*)file_sig->Get("p_HT_TT");
 		
+		p_elenJet = (TH1F*)file_ele->Get("p_nJet_TT");
+		p_elenBJet = (TH1F*)file_ele->Get("p_nBJet_TT");
 		p_eledPhiEleMET = (TH1F*)file_ele->Get("p_dPhiEleMET_TT");
 		p_elePhoEt = (TH1F*)file_ele->Get("p_PhoEt_TT");
 		p_eleMET   = (TH1F*)file_ele->Get("p_MET_TT");
 		p_eleMt    = (TH1F*)file_ele->Get("p_Mt_TT");
 		p_eleHT  = (TH1F*)file_ele->Get("p_HT_TT");
 	
+		p_jetnJet = (TH1F*)file_jet->Get("p_nJet_TT");
+		p_jetnBJet = (TH1F*)file_jet->Get("p_nBJet_TT");
 		p_jetdPhiEleMET = (TH1F*)file_jet->Get("p_dPhiEleMET_TT");
 		p_jetPhoEt = (TH1F*)file_jet->Get("p_PhoEt_TT");
 		p_jetMET   = (TH1F*)file_jet->Get("p_MET_TT");
 		p_jetMt    = (TH1F*)file_jet->Get("p_Mt_TT");
 		p_jetHT  = (TH1F*)file_jet->Get("p_HT_TT");
 	
+		p_qcdnJet = (TH1F*)file_qcd->Get("p_nJet_TT");
+		p_qcdnBJet = (TH1F*)file_qcd->Get("p_nBJet_TT");
 		p_qcddPhiEleMET = (TH1F*)file_qcd->Get("p_dPhiEleMET_TT");
 		p_qcdPhoEt = (TH1F*)file_qcd->Get("p_PhoEt_TT");
 		p_qcdMET   = (TH1F*)file_qcd->Get("p_MET_TT");
 		p_qcdMt    = (TH1F*)file_qcd->Get("p_Mt_TT");
 		p_qcdHT  = (TH1F*)file_qcd->Get("p_HT_TT");
 	
+		p_VGnJet = (TH1F*)file_VG->Get("p_nJet_TT");
+		p_VGnBJet = (TH1F*)file_VG->Get("p_nBJet_TT");
 		p_VGdPhiEleMET = (TH1F*)file_VG->Get("p_dPhiEleMET_TT");
 		p_VGPhoEt = (TH1F*)file_VG->Get("p_PhoEt_TT");
 		p_VGMET   = (TH1F*)file_VG->Get("p_MET_TT");
 		p_VGMt    = (TH1F*)file_VG->Get("p_Mt_TT");
 		p_VGHT  = (TH1F*)file_VG->Get("p_HT_TT");
 	
+		p_rarenJet = (TH1F*)file_rare->Get("p_nJet_TT");
+		p_rarenBJet = (TH1F*)file_rare->Get("p_nBJet_TT");
 		p_raredPhiEleMET = (TH1F*)file_rare->Get("p_dPhiEleMET_TT");
 		p_rarePhoEt = (TH1F*)file_rare->Get("p_PhoEt_TT");
 		p_rareMET   = (TH1F*)file_rare->Get("p_MET_TT");
@@ -259,6 +290,8 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 // binnumber = p_rareHT->GetSize()-2;    p_rareHT->SetBinContent(binnumber,    p_rareHT->GetBinContent(binnumber) +     p_rareHT->GetBinContent(binnumber+1) );                  
 //
 
+	std::ostringstream nJetplot;  nJetplot.str("");
+	std::ostringstream nBJetplot;  nBJetplot.str("");
 	std::ostringstream dPhiplot;  dPhiplot.str("");
 	std::ostringstream etplot;    etplot.str("");
 	std::ostringstream ptplot;    ptplot.str("");
@@ -269,6 +302,8 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	if(doTT){
 	   if(channel == 1){
 		if(plottype == 1){
+			nJetplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_egamma_nJet_" << RunYear<<whichVFP <<".png";
+			nBJetplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_egamma_nBJet_" << RunYear<<whichVFP <<".png";
 			dPhiplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_egamma_dPhi_" << RunYear<<whichVFP <<".png";
 			etplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_egamma_pt_" << RunYear<<whichVFP <<".png";
 			ptplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_egamma_leppt_" << RunYear<<whichVFP <<".png";		
@@ -277,6 +312,8 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 			htplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_egamma_ht_" << RunYear<<whichVFP <<".png";	
 		}
 		else if(plottype == 2){
+			nJetplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_egamma_nJet_TT_" << RunYear<<whichVFP <<".png";
+			nBJetplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_egamma_nBJet_TT_" << RunYear<<whichVFP <<".png";
 			dPhiplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_egamma_dPhi_TT_" << RunYear<<whichVFP <<".png";
 			etplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_egamma_pt_TT_" << RunYear<<whichVFP <<".png";
 			ptplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_egamma_leppt_TT_" << RunYear<<whichVFP <<".png";		
@@ -287,6 +324,8 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	   }
 	   else if(channel == 2){
 		if(plottype == 1){
+			nJetplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_mg_nJet_" << RunYear<<whichVFP <<".png";
+			nBJetplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_mg_nBJet_" << RunYear<<whichVFP <<".png";
 			dPhiplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_mg_dPhi_" << RunYear<<whichVFP <<".png";
 			etplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_mg_pt_" << RunYear<<whichVFP <<".png";
 			ptplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_mg_leppt_" << RunYear<<whichVFP <<".png";		
@@ -295,6 +334,8 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 			htplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_mg_ht_" << RunYear<<whichVFP <<".png";	
 		}
 		else if(plottype == 2){
+			nJetplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_mg_nJet_TT_" << RunYear<<whichVFP <<".png";
+			nBJetplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_mg_nBJet_TT_" << RunYear<<whichVFP <<".png";
 			dPhiplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_mg_dPhi_TT_" << RunYear<<whichVFP <<".png";
 			etplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_mg_pt_TT_" << RunYear<<whichVFP <<".png";
 			ptplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_mg_leppt_TT_" << RunYear<<whichVFP <<".png";		
@@ -307,6 +348,8 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	else{
 	   if(channel == 1){
 		if(plottype == 1){
+			nJetplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_egamma_nJet_" << RunYear<<whichVFP <<".png";
+			nBJetplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_egamma_nBJet_" << RunYear<<whichVFP <<".png";
 			dPhiplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_egamma_dPhi_" << RunYear<<whichVFP <<".png";
 			etplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_egamma_pt_" << RunYear<<whichVFP <<".png";
 			ptplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_egamma_leppt_" << RunYear<<whichVFP <<".png";		
@@ -315,6 +358,8 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 			htplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_egamma_ht_" << RunYear<<whichVFP <<".png";	
 		}
 		else if(plottype == 2){
+			nJetplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_egamma_nJet_" << RunYear<<whichVFP <<".png";
+			nBJetplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_egamma_nBJet_" << RunYear<<whichVFP <<".png";
 			dPhiplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_egamma_dPhi_" << RunYear<<whichVFP <<".png";
 			etplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_egamma_pt_" << RunYear<<whichVFP <<".png";
 			ptplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_egamma_leppt_" << RunYear<<whichVFP <<".png";		
@@ -325,6 +370,8 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	   }
 	   else if(channel == 2){
 		if(plottype == 1){
+			nJetplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_mg_nJet_" << RunYear<<whichVFP <<".png";
+			nBJetplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_mg_nBJet_" << RunYear<<whichVFP <<".png";
 			dPhiplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_mg_dPhi_" << RunYear<<whichVFP <<".png";
 			etplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_mg_pt_" << RunYear<<whichVFP <<".png";
 			ptplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_mg_leppt_" << RunYear<<whichVFP <<".png";		
@@ -333,6 +380,8 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 			htplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_mg_ht_" << RunYear<<whichVFP <<".png";	
 		}
 		else if(plottype == 2){
+			nJetplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_mg_nJet_" << RunYear<<whichVFP <<".png";
+			nBJetplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_mg_nBJet_" << RunYear<<whichVFP <<".png";
 			dPhiplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_mg_dPhi_" << RunYear<<whichVFP <<".png";
 			etplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_mg_pt_" << RunYear<<whichVFP <<".png";
 			ptplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_mg_leppt_" << RunYear<<whichVFP <<".png";		
@@ -421,14 +470,14 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	leg_mt->AddEntry(p_jetMt,Form("j->#gamma fake [%.1f]",events_jetMt));
 	leg_mt->AddEntry(p_qcdMt,Form("j->e fake [%.1f]", events_qcdMt));
 	leg_mt->AddEntry(p_VGMt, Form("WG/ZG [%.1f]",events_VGMt));
-	//leg_mt->AddEntry(ratioerror_Mt, "Unc");
+	leg_mt->AddEntry(ratioerror_Mt, "Unc");
 	leg_mt->Draw("same");
 	p_allMt->Draw("E same");
  	gPad->RedrawAxis();
-	if(RunYear==2016 and preVFP == 1)  	CMS_lumi( mt_pad1,1, 11 );
-	else if(RunYear==2016 and preVFP == 0)  CMS_lumi( mt_pad1,2, 11 );
-	else if(RunYear==2017)  		CMS_lumi( mt_pad1,3, 11 );
-	else if(RunYear==2018)  		CMS_lumi( mt_pad1,4, 11 );
+	if(RunYear==2016 and preVFP == 1)  	CMS_lumi( mt_pad1,1,channel, 11 );
+	else if(RunYear==2016 and preVFP == 0)  CMS_lumi( mt_pad1,2,channel, 11 );
+	else if(RunYear==2017)  		CMS_lumi( mt_pad1,3,channel, 11 );
+	else if(RunYear==2018)  		CMS_lumi( mt_pad1,4,channel, 11 );
 
 	c_mt->cd();
 	TPad *mt_pad2 = new TPad("mt_pad2", "mt_pad2", 0, 0, 1, 0.3);
@@ -447,25 +496,28 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	//cout<< p_allMt->Integral()/p_VGMt->Integral()<<endl;
 	ratio_mt->SetTitle("");
 	ratio_mt->GetYaxis()->SetTitle("obs./bkg.");
-	ratio_mt->GetYaxis()->SetRangeUser(0.7,1.23);
+	ratio_mt->GetXaxis()->SetTitleOffset(0.9);
+	ratio_mt->GetXaxis()->SetTitle("M_{T} (GeV)");
+
+	ratio_mt->GetYaxis()->SetRangeUser(0.6,1.4);
 	ratio_mt->GetXaxis()->SetLabelFont(63);
 	ratio_mt->GetXaxis()->SetLabelSize(14);
 	ratio_mt->GetYaxis()->SetLabelFont(63);
-	ratio_mt->GetYaxis()->SetLabelSize(14);
+	ratio_mt->GetYaxis()->SetLabelSize(11);
 	ratio_mt->Draw("pe");
-	//ratioerror_Mt->SetFillColor(kBlack);
-	//ratioerror_Mt->SetFillStyle(3345);
-	//ratioerror_Mt->Draw("E2 same");
+	ratioerror_Mt->SetFillColor(kBlack);
+	ratioerror_Mt->SetFillStyle(3345);
+	ratioerror_Mt->Draw("E2 same");
 	flatratio_mt->Draw("same");
 
   	TLine *ratioValue_mt = new TLine(0,p_allMt->Integral()/p_VGMt->Integral(),1000,p_allMt->Integral()/p_VGMt->Integral());
 	ratioValue_mt->SetLineColor(kRed);
-	ratioValue_mt->Draw("same");
+	//ratioValue_mt->Draw("same");
 	c_mt->SaveAs(mtplot.str().c_str());
  
 	// ******** PhoEt ************************//
   	gStyle->SetOptStat(0);
-	TCanvas *c_pt = new TCanvas("Photon_Pt", "Photon P_{T}",600,600);
+	TCanvas *c_pt = new TCanvas("Photon_Pt", "Photon p_{T}",600,600);
 	setCanvas(c_pt); 
 	c_pt->cd();
 	TPad *pt_pad1 = new TPad("pt_pad1", "pt_pad1", 0, 0.3, 1, 1.0);
@@ -474,7 +526,6 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	pt_pad1->Draw();  
 	pt_pad1->cd();  
 	gPad->SetLogy();
-	p_allPhoEt->SetTitle("p_{T}^{#gamma}");
 	p_allPhoEt->SetMaximum(10*p_allPhoEt->GetBinContent(p_allPhoEt->GetMaximumBin()));
 	p_allPhoEt->SetMinimum(0.5);
 	p_allPhoEt->GetXaxis()->SetRangeUser(35,800);
@@ -546,10 +597,10 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	leg_mt->Draw("same");
 	p_allPhoEt->Draw("E same");
  	gPad->RedrawAxis();
-	if(RunYear==2016 and preVFP == 1)  	CMS_lumi( pt_pad1,1, 11 );
-	else if(RunYear==2016 and preVFP == 0)  CMS_lumi( pt_pad1,2, 11 );
-	else if(RunYear==2017)  		CMS_lumi( pt_pad1,3, 11 );
-	else if(RunYear==2018)  		CMS_lumi( pt_pad1,4, 11 );
+	if(RunYear==2016 and preVFP == 1)  	CMS_lumi( pt_pad1,1,channel, 11 );
+	else if(RunYear==2016 and preVFP == 0)  CMS_lumi( pt_pad1,2,channel, 11 );
+	else if(RunYear==2017)  		CMS_lumi( pt_pad1,3,channel, 11 );
+	else if(RunYear==2018)  		CMS_lumi( pt_pad1,4,channel, 11 );
 
 	c_pt->cd();
 	TPad *pt_pad2 = new TPad("pt_pad2", "pt_pad2", 0, 0, 1, 0.3);
@@ -559,29 +610,148 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	pt_pad2->cd();
   	TLine *flatratio = new TLine(35,1,800,1);
 	TH1F *ratio=(TH1F*)p_allPhoEt->Clone("transfer factor");
-	ratio->SetMinimum(0.7);
-	ratio->SetMaximum(1.23);
-	//ratio->SetMinimum(0);
-	//ratio->SetMaximum(2);
+	        ratio->GetYaxis()->SetRangeUser(0.6,1.4);
+
 	ratio->SetMarkerStyle(20);
 	ratio->SetLineColor(kBlack);
 	ratio->Divide(p_VGPhoEt);
 	//cout<< "Discrepancy : "<<100*(p_VGPhoEt->Integral()-p_allPhoEt->Integral())/p_allPhoEt->Integral()<<" %" <<endl;
 	ratio->SetTitle("");
 	ratio->GetYaxis()->SetTitle("obs./bkg.");
+	ratio->GetXaxis()->SetTitleOffset(0.9);
+	ratio->GetXaxis()->SetTitle("p_{T}^{#gamma} (GeV)");
 	ratio->GetXaxis()->SetLabelFont(63);
 	ratio->GetXaxis()->SetLabelSize(14);
 	ratio->GetYaxis()->SetLabelFont(63);
-	ratio->GetYaxis()->SetLabelSize(14);
+	ratio->GetYaxis()->SetLabelSize(11);
 	ratio->Draw("ep");
-	//ratioerror_PhoEt->SetFillColor(kBlack);
-	//ratioerror_PhoEt->SetFillStyle(3345);
-	//ratioerror_PhoEt->Draw("E2 same");
+	ratioerror_PhoEt->SetFillColor(kBlack);
+	ratioerror_PhoEt->SetFillStyle(3345);
+	ratioerror_PhoEt->Draw("E2 same");
 	flatratio->Draw("same");
   	TLine *ratioValue = new TLine(35,p_allPhoEt->Integral()/p_VGPhoEt->Integral(),800,p_allPhoEt->Integral()/p_VGPhoEt->Integral());
 	ratioValue->SetLineColor(kRed);
-	ratioValue->Draw("same");
+	//ratioValue->Draw("same");
 	c_pt->SaveAs(etplot.str().c_str());
+
+	// ******** nJet ************************//
+  	gStyle->SetOptStat(0);
+	TCanvas *c_nJet = new TCanvas("nJet", "nJet",600,600);
+	setCanvas(c_nJet); 
+	c_nJet->cd();
+	TPad *nJet_pad1 = new TPad("nJet_pad1", "nJet_pad1", 0, 0.3, 1, 1.0);
+	setTopPad(nJet_pad1); 
+	nJet_pad1->SetBottomMargin(0);
+	nJet_pad1->Draw();  
+	nJet_pad1->cd();  
+	gPad->SetLogy();
+	p_allnJet->SetTitle("p_{T}^{#gamma}");
+	p_allnJet->SetMaximum(100*p_allnJet->GetBinContent(p_allnJet->GetMaximumBin()));
+	p_allnJet->SetMinimum(0.5);
+	p_allnJet->GetXaxis()->SetRangeUser(35,800);
+	p_allnJet->SetLineColor(1);
+	p_allnJet->SetMarkerStyle(20);
+	p_allnJet->Draw("P");
+	p_VGnJet->SetFillStyle(1001);
+	p_VGnJet->SetLineColor(kMagenta);
+	p_VGnJet->SetFillColor(kMagenta);
+	p_rarenJet->SetFillStyle(1001);
+	p_rarenJet->SetLineColor(kYellow-4);
+	p_rarenJet->SetFillColor(kYellow-4);
+	p_qcdnJet->SetFillStyle(1001);
+	p_qcdnJet->SetLineColor(kBlue);
+	p_qcdnJet->SetFillColor(kBlue);
+	p_elenJet->SetFillStyle(1001);
+	p_elenJet->SetLineColor(kRed);
+	p_elenJet->SetFillColor(kRed);
+	p_jetnJet->SetFillStyle(1001);
+	p_jetnJet->SetLineColor(kGreen);
+	p_jetnJet->SetFillColor(kGreen);
+	//cout<<p_allnJet->GetBinError(3)<<"\t"<<p_elenJet->GetBinError(3)<<"\t"<<p_jetnJet->GetBinError(3)<<"\t"<<p_qcdnJet->GetBinError(3)<<"\t"<<p_VGnJet->GetBinError(3)<<endl;
+	
+	float events_elenJet, events_jetnJet, events_qcdnJet, events_VGnJet, events_rarenJet, events_allnJet;
+	events_elenJet =  p_elenJet->Integral();
+	events_jetnJet =  p_jetnJet->Integral();
+	events_qcdnJet =  p_qcdnJet->Integral();
+	events_VGnJet =   p_VGnJet->Integral();
+	events_rarenJet = p_rarenJet->Integral();
+	events_allnJet =  p_allnJet->Integral();
+	cout<<events_elenJet <<"\t"<<events_jetnJet<<"\t"<<events_qcdnJet<<"\t"<<events_VGnJet<<"\t"<<events_rarenJet<<"\t"<<events_allnJet<<endl;		
+	
+	p_elenJet->Add(p_rarenJet); // ele 2nd
+	p_jetnJet->Add(p_elenJet);  // jet 3rd
+	p_qcdnJet->Add(p_jetnJet);  // qcd 4th
+	p_VGnJet->Add(p_qcdnJet);   // VG  5th
+	//p_VGnJet->Sumw2();
+	for(int ibin(1); ibin < p_VGnJet->GetSize(); ibin++){
+		error_nJet->SetPoint(ibin-1,p_VGnJet->GetBinCenter(ibin), p_VGnJet->GetBinContent(ibin));
+		float prederror = p_VGnJet->GetBinError(ibin);
+		//prederror += p_elenJet->GetBinError(ibin);
+		//prederror += p_jetnJet->GetBinError(ibin);
+		//prederror += p_qcdnJet->GetBinError(ibin);
+		//prederror += p_rarenJet->GetBinError(ibin)*0.6;
+		error_nJet->SetPointError(ibin-1,(p_VGnJet->GetBinLowEdge(ibin+1)-p_VGnJet->GetBinLowEdge(ibin))/2,prederror);
+		//std::cout << p_elenJet->GetBinError(ibin) << " " << p_jetnJet->GetBinError(ibin) << " " << p_qcdnJet->GetBinError(ibin) << " " << p_rarenJet->GetBinError(ibin)  << std::endl;
+		ratioerror_nJet->SetPoint(ibin-1,p_VGnJet->GetBinCenter(ibin), 1); 
+		ratioerror_nJet->SetPointError(ibin-1,(p_VGnJet->GetBinLowEdge(ibin+1)-p_VGnJet->GetBinLowEdge(ibin))/2, prederror/p_VGnJet->GetBinContent(ibin)); 
+		//cout<<prederror/p_VGnJet->GetBinContent(ibin)<<endl; 
+	}
+	p_VGnJet->Draw("hist same");
+	p_qcdnJet->Draw("hist same");
+	p_jetnJet->Draw("hist same");
+	p_elenJet->Draw("hist same");
+	p_rarenJet->Draw("hist same");
+  	error_nJet->SetFillColor(kBlack);
+  	error_nJet->SetFillStyle(3345);
+	//error_nJet->Draw("E2 same");
+	//TLegend *leg_pt =  new TLegend(0.5,0.65,0.9,0.9);
+	//leg_pt->SetFillStyle(0);
+	//gStyle->SetLegendBorderSize(1);
+	//gStyle->SetLegendFillColor(0);
+	//leg_pt->AddEntry(p_allnJet,"observed (MT < 100 GeV)");
+	//leg_pt->AddEntry(p_rarenJet,"t#bar{t}#gamma/WW#gamma/WZ#gamma");
+	//leg_pt->AddEntry(p_elenJet,"e->#gamma fake");
+	//leg_pt->AddEntry(p_jetnJet,"j->#gamma fake");
+	//leg_pt->AddEntry(p_qcdnJet,"j->e fake");
+	//leg_pt->AddEntry(p_VGnJet, "WG/ZG");
+	leg_mt->Draw("same");
+	p_allnJet->Draw("E same");
+ 	gPad->RedrawAxis();
+	if(RunYear==2016 and preVFP == 1)  	CMS_lumi( nJet_pad1,1,channel, 11 );
+	else if(RunYear==2016 and preVFP == 0)  CMS_lumi( nJet_pad1,2,channel, 11 );
+	else if(RunYear==2017)  		CMS_lumi( nJet_pad1,3,channel, 11 );
+	else if(RunYear==2018)  		CMS_lumi( nJet_pad1,4,channel, 11 );
+
+	c_nJet->cd();
+	TPad *nJet_pad2 = new TPad("nJet_pad2", "nJet_pad2", 0, 0, 1, 0.3);
+	nJet_pad2->SetTopMargin(0);
+	nJet_pad2->SetBottomMargin(0.4);
+	nJet_pad2->Draw();
+	nJet_pad2->cd();
+  	TLine *flatratio_nJet = new TLine(0,1,10,1);
+	TH1F *ratio_nJet = (TH1F*)p_allnJet->Clone("transfer factor");
+	                ratio_nJet->GetYaxis()->SetRangeUser(0.6,1.4);
+	ratio_nJet->SetMarkerStyle(20);
+	ratio_nJet->SetLineColor(kBlack);
+	ratio_nJet->Divide(p_VGnJet);
+	//cout<< "Discrepancy : "<<100*(p_VGnJet->Integral()-p_allnJet->Integral())/p_allnJet->Integral()<<" %" <<endl;
+	ratio_nJet->SetTitle("");
+	ratio_nJet->GetYaxis()->SetTitle("obs./bkg.");
+	ratio_nJet->GetXaxis()->SetTitleOffset(0.9);
+	ratio_nJet->GetXaxis()->SetTitle("Number of jets");
+	ratio_nJet->GetXaxis()->SetLabelFont(63);
+	ratio_nJet->GetXaxis()->SetLabelSize(14);
+	ratio_nJet->GetYaxis()->SetLabelFont(63);
+	ratio_nJet->GetYaxis()->SetLabelSize(11);
+	ratio_nJet->Draw("ep");
+	ratioerror_nJet->SetFillColor(kBlack);
+	ratioerror_nJet->SetFillStyle(3345);
+	ratioerror_nJet->Draw("E2 same");
+	flatratio_nJet->Draw("same");
+  	TLine *ratioValue_nJet = new TLine(0,p_allnJet->Integral()/p_VGnJet->Integral(),10,p_allnJet->Integral()/p_VGnJet->Integral());
+	ratioValue_nJet->SetLineColor(kRed);
+	//ratioValue_nJet->Draw("same");
+	c_nJet->SaveAs(nJetplot.str().c_str());
 
 	// ******** dPhi ************************//
   	gStyle->SetOptStat(0);
@@ -666,10 +836,10 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	leg_mt->Draw("same");
 	p_alldPhiEleMET->Draw("E same");
  	gPad->RedrawAxis();
-	if(RunYear==2016 and preVFP == 1)  	CMS_lumi( dPhi_pad1,1, 11 );
-	else if(RunYear==2016 and preVFP == 0)  CMS_lumi( dPhi_pad1,2, 11 );
-	else if(RunYear==2017)  		CMS_lumi( dPhi_pad1,3, 11 );
-	else if(RunYear==2018)  		CMS_lumi( dPhi_pad1,4, 11 );
+	if(RunYear==2016 and preVFP == 1)  	CMS_lumi( dPhi_pad1,1,channel, 11 );
+	else if(RunYear==2016 and preVFP == 0)  CMS_lumi( dPhi_pad1,2,channel, 11 );
+	else if(RunYear==2017)  		CMS_lumi( dPhi_pad1,3,channel, 11 );
+	else if(RunYear==2018)  		CMS_lumi( dPhi_pad1,4,channel, 11 );
 
 	c_dPhi->cd();
 	TPad *dPhi_pad2 = new TPad("dPhi_pad2", "dPhi_pad2", 0, 0, 1, 0.3);
@@ -679,29 +849,28 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	dPhi_pad2->cd();
   	TLine *flatratio_dPhi = new TLine(0,1,3.2,1);
 	TH1F *ratio_dPhi = (TH1F*)p_alldPhiEleMET->Clone("transfer factor");
-	ratio_dPhi->SetMinimum(0.7);
-	ratio_dPhi->SetMaximum(1.23);
-	//ratio->SetMinimum(0);
-	//ratio->SetMaximum(2);
+	        ratio_dPhi->GetYaxis()->SetRangeUser(0.6,1.4);
+
 	ratio_dPhi->SetMarkerStyle(20);
 	ratio_dPhi->SetLineColor(kBlack);
 	ratio_dPhi->Divide(p_VGdPhiEleMET);
 	//cout<< "Discrepancy : "<<100*(p_VGdPhiEleMET->Integral()-p_alldPhiEleMET->Integral())/p_alldPhiEleMET->Integral()<<" %" <<endl;
 	ratio_dPhi->SetTitle("");
 	ratio_dPhi->GetYaxis()->SetTitle("obs./bkg.");
+	ratio_dPhi->GetXaxis()->SetTitleOffset(0.9);
 	ratio_dPhi->GetXaxis()->SetTitle("#Delta#phi(l, E_{T}^{miss}) (radians)");
 	ratio_dPhi->GetXaxis()->SetLabelFont(63);
 	ratio_dPhi->GetXaxis()->SetLabelSize(14);
 	ratio_dPhi->GetYaxis()->SetLabelFont(63);
-	ratio_dPhi->GetYaxis()->SetLabelSize(14);
+	ratio_dPhi->GetYaxis()->SetLabelSize(11);
 	ratio_dPhi->Draw("ep");
-	//ratioerror_dPhiEleMET->SetFillColor(kBlack);
-	//ratioerror_dPhiEleMET->SetFillStyle(3345);
-	//ratioerror_dPhiEleMET->Draw("E2 same");
+	ratioerror_dPhiEleMET->SetFillColor(kBlack);
+	ratioerror_dPhiEleMET->SetFillStyle(3345);
+	ratioerror_dPhiEleMET->Draw("E2 same");
 	flatratio_dPhi->Draw("same");
   	TLine *ratioValue_dPhi = new TLine(0,p_alldPhiEleMET->Integral()/p_VGdPhiEleMET->Integral(),3.2,p_alldPhiEleMET->Integral()/p_VGdPhiEleMET->Integral());
 	ratioValue_dPhi->SetLineColor(kRed);
-	ratioValue_dPhi->Draw("same");
+	//ratioValue_dPhi->Draw("same");
 	c_dPhi->SaveAs(dPhiplot.str().c_str());
 
 	// ******** MET ************************//
@@ -716,7 +885,6 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	met_pad1->cd();  
 	gPad->SetLogy();
 	p_allMET->GetYaxis()->SetRangeUser(1, 10*p_allMET->GetBinContent(p_allMET->GetMaximumBin()));
-	//p_allMET->GetYaxis()->SetRangeUser(0.01, 1000);
 	p_allMET->SetMinimum(0.5);
 	p_allMET->GetXaxis()->SetRangeUser(0,1000);
 	p_allMET->SetLineColor(1);
@@ -784,10 +952,10 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	leg_mt->Draw("same");
 	p_allMET->Draw("E same");
  	gPad->RedrawAxis();
-	if(RunYear==2016 and preVFP == 1)  	CMS_lumi( met_pad1, 1, 11 );
-	else if(RunYear==2016 and preVFP == 0)  CMS_lumi( met_pad1, 2, 11 );
-	else if(RunYear==2017)  		CMS_lumi( met_pad1, 3, 11 );
-	else if(RunYear==2018)  		CMS_lumi( met_pad1, 4, 11 );
+	if(RunYear==2016 and preVFP == 1)  	CMS_lumi( met_pad1, 1,channel, 11 );
+	else if(RunYear==2016 and preVFP == 0)  CMS_lumi( met_pad1, 2,channel, 11 );
+	else if(RunYear==2017)  		CMS_lumi( met_pad1, 3,channel, 11 );
+	else if(RunYear==2018)  		CMS_lumi( met_pad1, 4,channel, 11 );
 
 	c_met->cd();
 	TPad *met_pad2 = new TPad("met_pad2", "met_pad2", 0, 0, 1, 0.3);
@@ -804,21 +972,22 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	//cout<< p_allMET->Integral()/p_VGMET->Integral()<<endl;
 	ratio_met->SetTitle("");
 	ratio_met->GetYaxis()->SetTitle("obs./bkg.");
-	//ratio_met->GetYaxis()->SetRangeUser(0,2.1);
-	ratio_met->GetYaxis()->SetRangeUser(0.7,1.23);
+	ratio_met->GetXaxis()->SetTitleOffset(0.9);
+	ratio_met->GetXaxis()->SetTitle("p_{T}^{miss} (GeV)");
+	ratio_met->GetYaxis()->SetRangeUser(0.6,1.4);
 	ratio_met->GetXaxis()->SetLabelFont(63);
 	ratio_met->GetXaxis()->SetLabelSize(14);
 	ratio_met->GetYaxis()->SetLabelFont(63);
-	ratio_met->GetYaxis()->SetLabelSize(14);
+	ratio_met->GetYaxis()->SetLabelSize(11);
 	ratio_met->Draw("pe");
-	//ratioerror_MET->SetFillColor(kBlack);
-	//ratioerror_MET->SetFillStyle(3345);
-	//ratioerror_MET->Draw("E2 same");
+	ratioerror_MET->SetFillColor(kBlack);
+	ratioerror_MET->SetFillStyle(3345);
+	ratioerror_MET->Draw("E2 same");
 	flatratio_met->Draw("same");
 
   	TLine *ratioValue_met = new TLine(0,p_allMET->Integral()/p_VGMET->Integral(),1000,p_allMET->Integral()/p_VGMET->Integral());
 	ratioValue_met->SetLineColor(kRed);
-	ratioValue_met->Draw("same");
+	//ratioValue_met->Draw("same");
 
 	c_met->SaveAs(metplot.str().c_str());
 
@@ -902,10 +1071,10 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	leg_mt->Draw("same");
 	p_allLepPt->Draw("E same");
 	gPad->RedrawAxis();
-	if(RunYear==2016 and preVFP == 1)  	CMS_lumi( leppt_pad1,1, 11 );
-	else if(RunYear==2016 and preVFP == 0)  CMS_lumi( leppt_pad1,2, 11 );
-	else if(RunYear==2017)  		CMS_lumi( leppt_pad1,3, 11 );
-	else if(RunYear==2018)  		CMS_lumi( leppt_pad1,4, 11 );
+	if(RunYear==2016 and preVFP == 1)  	CMS_lumi( leppt_pad1,1, channel,11 );
+	else if(RunYear==2016 and preVFP == 0)  CMS_lumi( leppt_pad1,2, channel,11 );
+	else if(RunYear==2017)  		CMS_lumi( leppt_pad1,3, channel,11 );
+	else if(RunYear==2018)  		CMS_lumi( leppt_pad1,4, channel,11 );
 
 	c_leppt->cd();
 	TPad *leppt_pad2 = new TPad("leppt_pad2", "leppt_pad2", 0, 0, 1, 0.3);
@@ -922,22 +1091,22 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	
 	ratio_leppt->SetTitle("");
 	ratio_leppt->GetYaxis()->SetTitle("obs./bkg.");
-	ratio_leppt->GetXaxis()->SetTitle("Lepton Pt (GeV)");
-	ratio_leppt->GetYaxis()->SetRangeUser(0.7,1.23);
-	//ratio_leppt->GetYaxis()->SetRangeUser(0,2.1);
+	ratio_leppt->GetXaxis()->SetTitleOffset(0.9);
+	ratio_leppt->GetXaxis()->SetTitle("Lepton p_{T} (GeV)");
+	ratio_leppt->GetYaxis()->SetRangeUser(0.6,1.4);
 	ratio_leppt->GetXaxis()->SetLabelFont(63);
 	ratio_leppt->GetXaxis()->SetLabelSize(14);
 	ratio_leppt->GetYaxis()->SetLabelFont(63);
-	ratio_leppt->GetYaxis()->SetLabelSize(14);
+	ratio_leppt->GetYaxis()->SetLabelSize(11);
 	ratio_leppt->Draw("ep");
-	//ratioerror_LepPt->SetFillColor(kBlack);
-	//ratioerror_LepPt->SetFillStyle(3345);
-	//ratioerror_LepPt->Draw("E2 same");
+	ratioerror_LepPt->SetFillColor(kBlack);
+	ratioerror_LepPt->SetFillStyle(3345);
+	ratioerror_LepPt->Draw("E2 same");
 	flatratio_leppt->Draw("same");
 
   	TLine *ratioValue_leppt = new TLine(25,p_allLepPt->Integral()/p_VGLepPt->Integral(),800,p_allLepPt->Integral()/p_VGLepPt->Integral());
 	ratioValue_leppt->SetLineColor(kRed);
-	ratioValue_leppt->Draw("same");
+	//ratioValue_leppt->Draw("same");
 	c_leppt->SaveAs(ptplot.str().c_str());
 
 // ******** HT ************************//
@@ -1001,10 +1170,10 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	leg_mt->Draw("same");
 	p_allHT->Draw("E same");
  	gPad->RedrawAxis();
-	if(RunYear==2016 and preVFP == 1)  	CMS_lumi( HT_pad1,1, 11 );
-	else if(RunYear==2016 and preVFP == 0)  CMS_lumi( HT_pad1,2, 11 );
-	else if(RunYear==2017)  		CMS_lumi( HT_pad1,3, 11 );
-	else if(RunYear==2018)  		CMS_lumi( HT_pad1,4, 11 );
+	if(RunYear==2016 and preVFP == 1)  	CMS_lumi( HT_pad1,1, channel,11 );
+	else if(RunYear==2016 and preVFP == 0)  CMS_lumi( HT_pad1,2, channel,11 );
+	else if(RunYear==2017)  		CMS_lumi( HT_pad1,3, channel,11 );
+	else if(RunYear==2018)  		CMS_lumi( HT_pad1,4, channel,11 );
 
 	c_HT->cd();
 	TPad *HT_pad2 = new TPad("HT_pad2", "HT_pad2", 0, 0, 1, 0.3);
@@ -1017,39 +1186,47 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	ratio_HT->SetMarkerStyle(20);
 	ratio_HT->SetLineColor(kBlack);
 	ratio_HT->GetXaxis()->SetRangeUser(0,900);
-	ratio_HT->GetYaxis()->SetRangeUser(0.7,1.23);
+	ratio_HT->GetYaxis()->SetRangeUser(0.6,1.4);
 	//ratio_HT->SetMinimum(0);
 	//ratio_HT->SetMaximum(2);
 	ratio_HT->Divide(p_VGHT);
 	//cout<< p_allHT->Integral()/p_VGHT->Integral()<<endl;
 	ratio_HT->SetTitle("");
 	ratio_HT->GetYaxis()->SetTitle("obs./bkg.");
+	ratio_HT->GetXaxis()->SetTitleOffset(0.9);
+	ratio_HT->GetXaxis()->SetTitle("H_{T} (GeV)");
 	ratio_HT->GetXaxis()->SetLabelFont(63);
 	ratio_HT->GetXaxis()->SetLabelSize(14);
 	ratio_HT->GetYaxis()->SetLabelFont(63);
-	ratio_HT->GetYaxis()->SetLabelSize(14);
+	ratio_HT->GetYaxis()->SetLabelSize(11);
 	ratio_HT->Draw("ep");
-	//ratioerror_HT->SetFillColor(kBlack);
-	//ratioerror_HT->SetFillStyle(3345);
-	//ratioerror_HT->Draw("E2 same");
+	ratioerror_HT->SetFillColor(kBlack);
+	ratioerror_HT->SetFillStyle(3345);
+	ratioerror_HT->Draw("E2 same");
 	flatratio_HT->Draw("same");
 
   	TLine *ratioValue_ht = new TLine(0,p_allHT->Integral()/p_VGHT->Integral(),1000,p_allHT->Integral()/p_VGHT->Integral());
 	ratioValue_ht->SetLineColor(kRed);
-	ratioValue_ht->Draw("same");
+	//ratioValue_ht->Draw("same");
 	c_HT->SaveAs(htplot.str().c_str());
 
-	TH1F *p_allnBJet  = (TH1F*)file_sig->Get("p_nBJet");
-	TH1F *p_VGnBJet   = (TH1F*)file_VG->Get("p_nBJet");
-	TH1F *p_rarenBJet = (TH1F*)file_rare->Get("p_nBJet");
-	TH1F *p_elenBJet  = (TH1F*)file_ele->Get("p_nBJet");
-	TH1F *p_jetnBJet  = (TH1F*)file_jet->Get("p_nBJet");
-	TH1F *p_qcdnBJet  = (TH1F*)file_qcd->Get("p_nBJet");
-	TCanvas *can_BJet = new TCanvas("can_BJet","",600,600);
-	can_BJet->cd();
+// ******** nBJet ************************//
+	gStyle->SetOptStat(0);
+	TCanvas *c_nBJet = new TCanvas("nBJet", "nBJet",600,600);
+	setCanvas(c_nBJet); 
+	c_nBJet->cd();
+	TPad *nBJet_pad1 = new TPad("nBJet_pad1", "nBJet_pad1", 0, 0.3, 1, 1.0);
+	setTopPad(nBJet_pad1); 
+	nBJet_pad1->SetBottomMargin(0);
+	nBJet_pad1->Draw();  
+	nBJet_pad1->cd();  
+	gPad->SetLogy();
+	p_allnBJet->GetXaxis()->SetRangeUser(0,900);
+	p_allnBJet->SetMinimum(5);
+	p_allnBJet->SetMaximum(10*p_allnBJet->GetBinContent(p_allnBJet->GetMaximumBin()));
 	p_allnBJet->SetLineColor(1);
 	p_allnBJet->SetMarkerStyle(20);
-	p_allnBJet->Draw();
+	p_allnBJet->Draw("P");
 	p_VGnBJet->SetFillStyle(1001);
 	p_VGnBJet->SetLineColor(kMagenta);
 	p_VGnBJet->SetFillColor(kMagenta);
@@ -1065,16 +1242,67 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	p_jetnBJet->SetFillStyle(1001);
 	p_jetnBJet->SetLineColor(kGreen);
 	p_jetnBJet->SetFillColor(kGreen);
+	
 	p_elenBJet->Add(p_rarenBJet); // ele 2nd
 	p_jetnBJet->Add(p_elenBJet);  // jet 3rd
 	p_qcdnBJet->Add(p_jetnBJet);  // qcd 4th
 	p_VGnBJet->Add(p_qcdnBJet);   // VG  5th
+
+	for(int ibin(1); ibin < p_VGnBJet->GetSize(); ibin++){
+		error_nBJet->SetPoint(ibin-1,p_VGnBJet->GetBinCenter(ibin), p_VGnBJet->GetBinContent(ibin));
+		float prederror = p_VGnBJet->GetBinError(ibin);
+		error_nBJet->SetPointError(ibin-1,(p_VGnBJet->GetBinLowEdge(ibin+1)-p_VGnBJet->GetBinLowEdge(ibin))/2,prederror);
+		ratioerror_nBJet->SetPoint(ibin-1,p_VGnBJet->GetBinCenter(ibin), 1); 
+		ratioerror_nBJet->SetPointError(ibin-1,(p_VGnBJet->GetBinLowEdge(ibin+1)-p_VGnBJet->GetBinLowEdge(ibin))/2, prederror/p_VGnBJet->GetBinContent(ibin)); 
+	}
 	p_VGnBJet->Draw("hist same");
 	p_qcdnBJet->Draw("hist same");
 	p_jetnBJet->Draw("hist same");
 	p_elenBJet->Draw("hist same");
 	p_rarenBJet->Draw("hist same");
-	p_allnBJet->Draw("EP same");
+	leg_mt->Draw("same");
+	p_allnBJet->Draw("E same");
+ 	gPad->RedrawAxis();
+	if(RunYear==2016 and preVFP == 1)  	CMS_lumi( nBJet_pad1,1, channel,11 );
+	else if(RunYear==2016 and preVFP == 0)  CMS_lumi( nBJet_pad1,2, channel,11 );
+	else if(RunYear==2017)  		CMS_lumi( nBJet_pad1,3, channel,11 );
+	else if(RunYear==2018)  		CMS_lumi( nBJet_pad1,4, channel, 11 );
+
+	c_nBJet->cd();
+	TPad *nBJet_pad2 = new TPad("nBJet_pad2", "nBJet_pad2", 0, 0, 1, 0.3);
+	nBJet_pad2->SetTopMargin(0);
+	nBJet_pad2->SetBottomMargin(0.4);
+	nBJet_pad2->Draw();
+	nBJet_pad2->cd();
+  	TLine *flatratio_nBJet = new TLine(0,1,6,1);
+	TH1F *ratio_nBJet=(TH1F*)p_allnBJet->Clone("transfer factor");
+	ratio_nBJet->SetMarkerStyle(20);
+	ratio_nBJet->SetLineColor(kBlack);
+	ratio_nBJet->GetXaxis()->SetRangeUser(0,900);
+	ratio_nBJet->GetYaxis()->SetRangeUser(0.6,1.4);
+	ratio_nBJet->Divide(p_VGnBJet);
+	//cout<< p_allnBJet->Integral()/p_VGnBJet->Integral()<<endl;
+	ratio_nBJet->SetTitle("");
+	ratio_nBJet->GetYaxis()->SetTitle("obs./bkg.");
+	ratio_nBJet->GetXaxis()->SetTitleOffset(0.9);
+	ratio_nBJet->GetXaxis()->SetTitle("Number of b-jets");
+	ratio_nBJet->GetXaxis()->SetLabelFont(63);
+	ratio_nBJet->GetXaxis()->SetLabelSize(14);
+	ratio_nBJet->GetYaxis()->SetLabelFont(63);
+	ratio_nBJet->GetYaxis()->SetLabelSize(11);
+
+	ratio_nBJet->Draw("ep");
+	ratioerror_nBJet->SetFillColor(kBlack);
+	ratioerror_nBJet->SetFillStyle(3345);
+	ratioerror_nBJet->Draw("E2 same");
+	flatratio_nBJet->Draw("same");
+
+  	TLine *ratioValue_nbjet = new TLine(0,p_allnBJet->Integral()/p_VGnBJet->Integral(),5,p_allnBJet->Integral()/p_VGnBJet->Integral());
+	ratioValue_nbjet->SetLineColor(kRed);
+	//ratioValue_nbjet->Draw("same");
+	c_nBJet->SaveAs(nBJetplot.str().c_str());
+
+
 	cout<<"\n\n\n";
 	cout<<"=========================================================="<<endl;
 	cout<<"\n";
@@ -1088,6 +1316,7 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	cout<<"Photon Pt, 	data/MC = "<< p_allPhoEt->Integral()/p_VGPhoEt->Integral()<<endl;
 	cout<<"Lepton Pt, 	data/MC = "<< p_allLepPt->Integral()/p_VGLepPt->Integral()<<endl;
 	cout<<"dPhi, 		data/MC = "<< p_alldPhiEleMET->Integral()/p_VGdPhiEleMET->Integral()<<endl;
+	cout<<"nJet, 		data/MC = "<< p_allnJet->Integral()/p_VGnJet->Integral()<<endl;
 	cout<<"\n";
 	cout<<"=========================================================="<<endl;
 

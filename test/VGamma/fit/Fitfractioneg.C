@@ -23,7 +23,7 @@
 #include "TRandom3.h"
 #include "TPad.h"
 #include "TGraphErrors.h"
-
+#include "TROOT.h"
 #ifndef __CINT__
 #include "RooGlobalFunc.h"
 #endif
@@ -50,11 +50,9 @@
 #include "../../../include/analysis_tools.h"
 #include "../../../include/tdrstyle.C"
 
-int RunYear = 2017;
-bool preVFP = false;
 std::string whichVFP;
 
-int Fitfractioneg(int ih,int metlow, int methigh, int leplow, int lephigh, int isocut){
+int Fitfractioneg(int ih,int metlow, int methigh, int leplow, int lephigh, int isocut, int RunYear, bool preVFP){
 	setTDRStyle();
 	gROOT->SetBatch(kTRUE);
 	gStyle->SetOptStat(0);
@@ -264,10 +262,10 @@ int Fitfractioneg(int ih,int metlow, int methigh, int leplow, int lephigh, int i
 	leg->AddEntry(p_VGAMMA, "V#gamma","l");
 	leg->Draw("same");
  	gPad->RedrawAxis();
-	if(RunYear==2016 and preVFP == 1)       CMS_lumi( canpt_pad1,1, 11 );
-        else if(RunYear==2016 and preVFP == 0)  CMS_lumi( canpt_pad1,2, 11 );
-        else if(RunYear==2017)                  CMS_lumi( canpt_pad1,3, 11 );
-        else if(RunYear==2018)                  CMS_lumi( canpt_pad1,4, 11 );
+	if(RunYear==2016 and preVFP == 1)       CMS_lumi( canpt_pad1,1,1, 11 );
+        else if(RunYear==2016 and preVFP == 0)  CMS_lumi( canpt_pad1,2,1, 11 );
+        else if(RunYear==2017)                  CMS_lumi( canpt_pad1,3,1, 11 );
+        else if(RunYear==2018)                  CMS_lumi( canpt_pad1,4,1, 11 );
 
 
   	TLatex chantex;

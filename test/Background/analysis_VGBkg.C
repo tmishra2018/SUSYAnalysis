@@ -254,6 +254,7 @@ void analysis_VGBkg(){
 	//   start filling ///
 	for(unsigned ievt(0); ievt < mctree->GetEntries(); ievt++){
 		mctree->GetEntry(ievt);
+		if(nJet <1)continue;  // suggestion from convenors
 		p_PU->Fill(nVertex,PUweight);
 
 		double scalefactor(1);

@@ -51,6 +51,7 @@
 #include "../../../include/tdrstyle.C"
 #include "../../../include/analysis_tools.h"
 #include "../../../include/analysis_fakes.h"
+#include "TROOT.h"
 
 #define NTOY 1000
 #define NBIN 9
@@ -90,23 +91,17 @@ void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 	cout<< " RunYear " << RunYear <<  "  "<< whichVFP << "  channel "<< channel <<endl;
 
 	TChain *sigtree = new TChain("signalTree");
-	//if(channel == 1)sigtree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_egsignal_DoubleEG_ReMiniAOD_FullEcal_newEta.root");
 	if(channel == 1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
-	else if(channel ==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
+	else if(channel ==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
 
 	TChain *controltree = new TChain("jetTree");
-	//if(channel == 1)controltree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_egsignal_DoubleEG_ReMiniAOD_FullEcal_newEta.root");
 	if(channel == 1)controltree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
-	else if(channel ==2)controltree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
+	else if(channel ==2)controltree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
 
 	std::stringstream fakerate_filename;
 	fakerate_filename.str("");
-	//if(channel == 1) fakerate_filename << "/uscms_data/d3/mengleis/SUSYAnalysis/test/jetFakePho/result/JetFakeRate-DoubleEG-";
-	//if(channel == 2) fakerate_filename << "/uscms_data/d3/mengleis/SUSYAnalysis/test/jetFakePho/result/JetFakeRate-MuonEG-";
-	//if(channel == 1) fakerate_filename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<whichVFP<<"/JetFakeRate-DoubleEG-";  // some issue here
-        //if(channel == 2) fakerate_filename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<whichVFP<<"/JetFakeRate-MuonEG-";
-	if(channel == 1) fakerate_filename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<whichVFP<<"/Upto-170-JetFakeRate-DoubleEG-";  // some issue here
-        if(channel == 2) fakerate_filename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<whichVFP<<"/Upto-170-JetFakeRate-MuonEG-";
+	if(channel == 1) fakerate_filename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<whichVFP<<"/JetFakeRate-DoubleEG-";  // some issue here
+        if(channel == 2) fakerate_filename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<whichVFP<<"/JetFakeRate-MuonEG-";
 
 	if(detType == 1)fakerate_filename << "EB.txt";
 	else if(detType == 2)fakerate_filename << "EE.txt";
@@ -131,7 +126,6 @@ void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 
 	std::ostringstream elefake_config;
 	elefake_config.str("");
-	//if(detType == 1) elefake_config << "/uscms_data/d3/mengleis/SUSYAnalysis/test/eleFakePho/DataResult/EleFakeRate-ByPtVtx-EB.txt";
 	if(detType == 1) elefake_config << "/eos/uscms/store/user/tmishra/elefakepho/DataResult"<<RunYear<<whichVFP<<"/EleFakeRate-Data-ByPtVtx-EB.txt";
 	else if(detType == 2) elefake_config << "/eos/uscms/store/user/tmishra/elefakepho/DataResult"<<RunYear<<whichVFP<<"/EleFakeRate-Data-ByPtVtx-EE.txt";
 	
@@ -199,9 +193,8 @@ void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 	//************ Proxy Tree **********************//
 	//e fake photon background events
 	TChain *proxytree = new TChain("proxyTree");
-	//if(channel == 1)proxytree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_egsignal_DoubleEG_ReMiniAOD_FullEcal_newEta.root");
 	if(channel == 1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
-	else if(channel ==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
+	else if(channel ==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
 
 	float proxyphoEt(0);
 	float proxyphoEta(0);
@@ -562,10 +555,10 @@ cout << "chiSquare:  " << fit->GetChisquare() << std::endl;
 	new_controlPhoEt->Draw("EP same");
 	new_fakesPhoEt->Draw("EP same");
 	
-        if(RunYear==2016 and ISpreVFP == 1)       CMS_lumi( can_pad1, 1, 11 );
-        else if(RunYear==2016 and ISpreVFP == 0)  CMS_lumi( can_pad1, 2, 11 );
-        else if(RunYear==2017)                    CMS_lumi( can_pad1, 3, 11 );
-        else if(RunYear==2018)                    CMS_lumi( can_pad1, 4, 11 );
+        if(RunYear==2016 and ISpreVFP == 1)       CMS_lumi( can_pad1, 1, ichannel, 11 );
+        else if(RunYear==2016 and ISpreVFP == 0)  CMS_lumi( can_pad1, 2, ichannel, 11 );
+        else if(RunYear==2017)                    CMS_lumi( can_pad1, 3, ichannel, 11 );
+        else if(RunYear==2018)                    CMS_lumi( can_pad1, 4, ichannel, 11 );
 	
 	
 	

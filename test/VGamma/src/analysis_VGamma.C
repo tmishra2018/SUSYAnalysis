@@ -74,12 +74,8 @@ bool passFilter(int filter){
   return passfilter;
 }
 
-int RunYear = 2016;
-bool preVFP = false;
-bool doEB = false;
 
-
-void analysis_VGamma(int RunYear, const char *Sample){//main 
+void analysis_VGamma(int RunYear, bool preVFP, const char *Sample){//main 
   
   std::string whichVFP;
   if(RunYear==2016 and preVFP == 1) whichVFP = "preVFP";
@@ -95,8 +91,7 @@ void analysis_VGamma(int RunYear, const char *Sample){//main
   char* inputfile = new char[300];
 
   if (strstr(Sample, "DYJetsToLL") != NULL or strstr(Sample, "TTJets") != NULL or strstr(Sample, "WJetsToLNu"))
-        //sprintf(inputfile,"/eos/uscms/store/user/msun/copied/TTJets_TuneCUETP8M2T4_13TeV-amcatnloFXFX-pythia8.root");
-        sprintf(inputfile,"/eos/uscms/store/group/lpcsusyphotons/Tribeni/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());
+        sprintf(inputfile,"/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());
   else
         sprintf(inputfile,"/eos/uscms/store/user/tmishra/InputFilesMC/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());
   es->Add(inputfile);
@@ -104,8 +99,7 @@ void analysis_VGamma(int RunYear, const char *Sample){//main
   logfile << "VG";
   logfile << "muon MiniIso" << std::endl;
 
-  const unsigned nEvts = 859634;
-  //const unsigned nEvts = es->GetEntries()/100.;
+  const unsigned nEvts = es->GetEntries();
   logfile << "Total events : " << nEvts << std::endl;
   
   int npassEGselection(0), npassdR(0), npassZ(0), npassMETFilter(0), npassPho(0), npassEle(0), npassHLTPho(0);
@@ -828,8 +822,9 @@ void analysis_VGamma(int RunYear, const char *Sample){//main
 
 int main(int argc, char** argv)
 {
-    if(argc < 2)
+    if(argc < 3)
       cout << "You have to provide two arguments!!\n";
-    analysis_VGamma(atoi(argv[1]),argv[2]);
+    bool preVFP = (atoi(argv[2]) == 1);
+    analysis_VGamma(atoi(argv[1]), preVFP, argv[3]);
     return 0;
 }

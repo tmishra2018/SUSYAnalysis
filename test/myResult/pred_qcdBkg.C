@@ -83,10 +83,8 @@ void pred_qcdBkg(){
 
 	// Corrections on electron proxy sample as described in Section 5.3.3 in AN
 	TFile *scaleFile;
-	if(channelType == 1)scaleFile = TFile::Open("../script/qcd_eg_scale.root");
-        else if(channelType == 2)scaleFile = TFile::Open("../script/qcd_mg_scale.root");
-	//if(channelType == 1)scaleFile = TFile::Open(Form("/eos/uscms/store/user/tmishra/fakeLep/qcd_eg_scale_%d%s.root",RunYear,whichVFP.c_str()));
-	//else if(channelType == 2)scaleFile = TFile::Open(Form("/eos/uscms/store/user/tmishra/fakeLep/qcd_mg_scale_%d%s.root",RunYear,whichVFP.c_str()));
+	if(channelType == 1)scaleFile = TFile::Open(Form("/eos/uscms/store/user/tmishra/fakeLep/qcd_eg_scale_%d%s.root",RunYear,whichVFP.c_str()));
+	else if(channelType == 2)scaleFile = TFile::Open(Form("/eos/uscms/store/user/tmishra/fakeLep/qcd_mg_scale_%d%s.root",RunYear,whichVFP.c_str()));
 	TH1D *p_scale = 0;
 	if(channelType == 1)p_scale = (TH1D*)scaleFile->Get("transfer_factor");
 	else if(channelType == 2)p_scale = (TH1D*)scaleFile->Get("transfer_factor");
@@ -179,16 +177,10 @@ void pred_qcdBkg(){
        TChain *fakeEtree = new TChain("fakeLepTree","fakeLepTree");
 
        if(channelType==1)fakeEtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
-       //if(channelType==1)fakeEtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s_HoverE-OLD.root",RunYear,whichVFP.c_str()));
-       if(channelType==2)fakeEtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
-
-	// fake lep from Legacy = 28 and UL = 41 ::::   please check :::
-
-       //if(channelType==1)fakeEtree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_egsignal_DoubleEG_ReMiniAOD_FullEcal_newEta.root");
-       //if(channelType==2)fakeEtree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_mgsignal_MuonEG_FullEcal.root");
+       if(channelType==2)fakeEtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
 
        int   run(0);
-       Long_t event(0);
+       Long64_t event(0);
        int   lumis(0);
        float phoEt(0);
   float phoEta(0);
@@ -206,7 +198,9 @@ void pred_qcdBkg(){
   float dRPhoLep(0);
 //	float threeMass(0);
   float HT(0);
-  float nJet(0);
+  float nJetFloat(0);
+  int nJetInt(0);
+
   
   fakeEtree->SetBranchAddress("run",       &run);	
   fakeEtree->SetBranchAddress("event",     &event);
@@ -227,10 +221,13 @@ void pred_qcdBkg(){
   fakeEtree->SetBranchAddress("dRPhoLep",  &dRPhoLep);
 //	fakeEtree->SetBranchAddress("threeMass", &threeMass);
   fakeEtree->SetBranchAddress("HT",        &HT);
-  fakeEtree->SetBranchAddress("nJet",      &nJet);
+  if (channelType == 1) fakeEtree->SetBranchAddress("nJet", &nJetFloat);
+  else fakeEtree->SetBranchAddress("nJet", &nJetInt);
 
 	for(unsigned ievt(0); ievt < fakeEtree->GetEntries(); ievt++){
 		fakeEtree->GetEntry(ievt);
+		if (channelType == 1 && nJetFloat <1 ) continue;
+                if (channelType == 2 && nJetInt <1 ) continue; // suggestion from convenors
 //		if(ievt%1000 ==0)std::cout <<"event " << ievt << std::endl;
 
 		double w_qcd = 1.; 
@@ -239,10 +236,8 @@ void pred_qcdBkg(){
 
 		// Corrections on electron proxy sample, not on muon proxy sample as described in Section 4.3.3 in AN
 		if(channelType == 1){ // eg channel
-			w_qcd = factorQCD;
-			w_qcd_up = factorQCDUP;
-			//w_qcd = factorQCD*p_scale->GetBinContent(p_scale->FindBin(lepPt));
-			//w_qcd_up = factorQCDUP*p_scale->GetBinContent(p_scale->FindBin(lepPt));
+			w_qcd = factorQCD*p_scale->GetBinContent(p_scale->FindBin(lepPt));
+			w_qcd_up = factorQCDUP*p_scale->GetBinContent(p_scale->FindBin(lepPt));
 			w_qcd_unweight = factorQCD;
 		}
 		else{
@@ -280,7 +275,8 @@ void pred_qcdBkg(){
 		p_Mt->Fill(sigMT, w_qcd);
 		p_HT->Fill(HT, w_qcd);
 		p_dPhiEleMET->Fill(fabs(dPhiLepMET), w_qcd);
-		p_nJet->Fill(nJet, w_qcd);	
+		if (channelType == 1) p_nJet->Fill(nJetFloat, w_qcd);
+                if (channelType == 2) p_nJet->Fill(nJetInt, w_qcd);
 	
 		int SigBinIndex(-1);
 		SigBinIndex = Bin.findSignalBin(sigMET, HT, phoEt); 

@@ -9,7 +9,7 @@ void pred_eleBkg(){
 
 	init_weight( ichannel, bgtype); 
 
-  gSystem->Load("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/lib/libAnaClasses.so");
+  gSystem->Load("../../lib/libAnaClasses.so");
   int channelType = ichannel; // eg = 1; mg =2;
 	//*********** histo list **********************//
 	TH1F *prefit_PhoEt = (TH1F*)file_prefit->Get("p_PhoEt");

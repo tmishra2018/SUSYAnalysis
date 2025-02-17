@@ -59,7 +59,7 @@ bool passEleSignalSelection(float eta, float sigma, float dEta, float dPhi, floa
 
 void analysis_fake(){//main 
 
-  gSystem->Load("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/lib/libAnaClasses.so");
+  gSystem->Load("../../lib/libAnaClasses.so");
 
   char outputname[100] = "/eos/uscms/store/user/tmishra/fakeLep/test_egsignal_QCDfake_2.root";
   ofstream logfile;

@@ -1,11 +1,11 @@
 ichannel 2
-anatype 1
+anatype 2
 lowMt 0
-highMt -1
-lowMET 40
-highMET 70
+highMt 100
+lowMET 0
+highMET -1
 lowPt 0
 highPt 1000
 lepIso 4
-RunYear 2016
+RunYear 2018
 preVFP 0

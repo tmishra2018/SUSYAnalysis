@@ -29,7 +29,7 @@
 
 void analysis_Z(){//main  
 
-  gSystem->Load("/uscms/home/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/lib/libAnaClasses.so");
+  gSystem->Load("../../../lib/libAnaClasses.so");
 
   char outputname[100] = "plotZ_DoubleMu_eg.root";
   ofstream logfile;

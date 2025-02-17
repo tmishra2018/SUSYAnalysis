@@ -60,7 +60,7 @@ void analysis_ISR(int RunYear, const char *Era){//main
   logfile << "analysis_mg()" << std::endl;
 
   TChain* es = new TChain("ggNtuplizer/EventTree");
-  es->Add(Form("/eos/uscms/store/user/lpcsusyphotons/Tribeni/MuonEG/MuonEG_%d%s.root",RunYear,Era));
+  es->Add(Form("/eos/uscms/store/user/lpcsusyphotons/SoftPhoton/Tribeni/MuonEG/MuonEG_%d%s.root",RunYear,Era));
 
   const unsigned nEvts = es->GetEntries(); 
   float MCweight = 1;	
@@ -155,8 +155,8 @@ void analysis_ISR(int RunYear, const char *Era){//main
   int METFilter(0);
   logfile << "RunType: " << datatype << std::endl;
 
-  std::cout << "Total evetns : " << nEvts << std::endl;
-  logfile << "Total evetns : " << nEvts << std::endl;
+  std::cout << "Total events : " << nEvts << std::endl;
+  logfile << "Total events : " << nEvts << std::endl;
 	for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
 
 		if (ievt%100000==0) std::cout << " -- Processing event " << ievt << std::endl;
@@ -240,7 +240,7 @@ void analysis_ISR(int RunYear, const char *Era){//main
 			bool hasLep(false);
 			std::vector<recoMuon>::iterator signalLep = Muon.begin();
 			for(std::vector<recoMuon>::iterator itMu = Muon.begin(); itMu != Muon.end(); itMu++){
-				if(itMu->getPt() < 25)continue;
+				if(itMu->getPt() < 20)continue;
 				if(!itMu->passHLTSelection())continue;
 				if(itMu->passSignalSelection()){
 					if(!hasLep){

@@ -136,8 +136,7 @@ void analysis_eleBkg(){
 	// background estimated from data, with proxyTree
 	TChain *proxytree = new TChain("proxyTree");
                 if(channelType==1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
-                //if(channelType==1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s_isFakeProxyOLD.root",RunYear,whichVFP.c_str()));
-                if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
+                if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
 	float phoEt(0);
 	float phoEta(0);
 	float phoPhi(0);
@@ -151,7 +150,9 @@ void analysis_eleBkg(){
 	int   nVertex(0);
 	float dRPhoLep(0);
 	float HT(0);
-	float nJet(0);
+	float nJetFloat(0);
+	int nJetInt(0);
+
 	int   nBJet(0);	
 	
 	proxytree->SetBranchAddress("phoEt",     &phoEt);
@@ -167,11 +168,14 @@ void analysis_eleBkg(){
 	proxytree->SetBranchAddress("nVertex",   &nVertex);
 	proxytree->SetBranchAddress("dRPhoLep",  &dRPhoLep);
 	proxytree->SetBranchAddress("HT",        &HT);
-	proxytree->SetBranchAddress("nJet",      &nJet);
 	proxytree->SetBranchAddress("nBJet",     &nBJet);
+	if (channelType == 1) proxytree->SetBranchAddress("nJet", &nJetFloat);
+	else proxytree->SetBranchAddress("nJet", &nJetInt);
 
 	for (unsigned ievt(0); ievt<proxytree->GetEntries(); ++ievt){//loop on entries
 		proxytree->GetEntry(ievt);
+		if (channelType == 1 && nJetFloat <1 ) continue; // suggestion from convenors
+		if (channelType == 2 && nJetInt <1 ) continue;
 		p_PU->Fill(nVertex);
 		/** cut flow *****/
 		if(phoEt < 35 || fabs(phoEta) > 1.4442)continue;
@@ -192,7 +196,10 @@ void analysis_eleBkg(){
 		p_LepPt->Fill(lepPt, w_ele);
 		p_LepEta->Fill(lepEta, w_ele);
 		p_dPhiEleMET->Fill(fabs(dPhiLepMET), w_ele);
-		p_nJet->Fill(nJet, w_ele);
+		if (channelType == 1) p_nJet->Fill(nJetFloat, w_ele);
+                if (channelType == 2) p_nJet->Fill(nJetInt, w_ele);
+
+		//p_nJet->Fill(nJet, w_ele);
 		p_nBJet->Fill(nBJet, w_ele);
 		// ttbar events when nBJets >= 1
 		if(nBJet >= 1){

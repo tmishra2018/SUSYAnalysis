@@ -1,4 +1,4 @@
-// g++ `root-config --cflags` /uscms/home/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/lib/libAnaClasses.so analysis_mgGJet.C -o analysis_mgGJet.exe `root-config --libs`
+// g++ `root-config --cflags` ../../../lib/libAnaClasses.so analysis_mgGJet.C -o analysis_mgGJet.exe `root-config --libs`
 
 
 #include<string>
@@ -60,7 +60,7 @@ void analysis_mgGJet(int RunYear){//main
   if(datatype == MC && mcType == MCType::NOMC){std::cout << "wrong MC type" << std::endl; throw;} 
   logfile << "mcType" << mcType << std::endl;
 
-  //************ Signal Tree **********************//
+  //************ Signal Tree **********************
   TTree *egtree = new TTree("egTree","egTree");
   float mg_phoEt(0);
   float mg_phoEta(0);
@@ -182,7 +182,7 @@ void analysis_mgGJet(int RunYear){//main
       		ishadCandidate = true;
 	}
     	if(!itpho->fireL1Trg(12) && !itpho->fireL1Trg(17)) ismgCandidate=false;   // HLT_Mu17_Photon* || HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v3
-	// this looks not to correct for 2017, 2018
+	// this looks incorrect for 2017, 2018
     	if(ismgCandidate && !hasmgCandidate){
 			mg_phoEt = itpho->getCalibEt();
 			mg_phoEta = itpho->getEta();

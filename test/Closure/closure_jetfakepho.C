@@ -4,7 +4,7 @@
 #include<fstream>
 #include<sstream>
 #include<algorithm>
-
+#include "TROOT.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TF1.h"
@@ -26,13 +26,10 @@
 #include "TGraphErrors.h"
 
 #include "../../include/analysis_rawData.h"
-#include "../../include/analysis_jet.h"
 #include "../../include/analysis_photon.h"
 #include "../../include/analysis_muon.h"
 #include "../../include/analysis_ele.h"
-#include "../../include/analysis_mcData.h"
-#include "../../include/analysis_tools.h"
-#include "../../include/analysis_fakes.h"
+#include "../../include/analysis_commoncode.h"
 
 //#define NTOY 1000
 #define NTOY 1
@@ -47,10 +44,15 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
   gSystem->Load("../../lib/libAnaClasses.so");
   int channelType = ichannel; // eg = 1; mg =2;
 
+  int lepPtCut = 25;
+  if (ichannel == 2) lepPtCut = 20;
+
   std::string whichVFP;
   if(RunYear==2016 and preVFP == true) whichVFP = "preVFP";
   if(RunYear==2016 and preVFP == false) whichVFP = "postVFP";
   if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
+  
+  gStyle->SetTitleXOffset(2.5);
 
   gROOT->SetBatch(kTRUE);
   gRandom = new TRandom3(0);
@@ -175,7 +177,7 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
                         else if(RunYear == 2018)                        weight = lumi_2018_MuonEG*1000*crosssection/ntotalevent;}
 
 		/** cut flow *****/
-		if(phoEt < 35 || lepPt < 25)continue;
+		if(phoEt < 35 || lepPt < lepPtCut)continue;
 		if(fabs(phoEta) > 1.4442 || fabs(lepEta) > 2.5)continue;
 
 
@@ -320,7 +322,7 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 		if(proxyHT > MAXHT)proxyHT = MAXHT;	
 		
 		/** cut flow *****/
-		if(proxyphoEt < 35 || proxylepPt < 25)continue;
+		if(proxyphoEt < 35 || proxylepPt < lepPtCut)continue;
 		if(fabs(proxyphoEta) > 1.4442 || fabs(proxylepEta) > 2.5)continue;
 		double w_jet(1);
 		w_jet = fitfunc_num->Eval(proxyphoEt)/fitfunc_den->Eval(proxyphoEt);
@@ -427,7 +429,7 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 		
 
 		/** cut flow *****/
-		if(rarephoEt < 35 || rarelepPt < 25)continue;
+		if(rarephoEt < 35 || rarelepPt < lepPtCut)continue;
 		if(fabs(rarephoEta) > 1.4442 || fabs(rarelepEta) > 2.5)continue;
 		double w_jet(1);
 		w_jet = fitfunc_num->Eval(rarephoEt)/fitfunc_den->Eval(rarephoEt);
@@ -529,13 +531,14 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	TGraphErrors *ratioerror_HT = new TGraphErrors(nBkgHTBins);
 
 	gStyle->SetOptStat(0);
-	TCanvas *c_pt = new TCanvas("Photon_Pt", "Photon P_{T}",600,600);
+	TCanvas *c_pt = new TCanvas("Photon_Pt", "",600,600);
 	c_pt->cd();
-	TPad *pt_pad1 = new TPad("pt_pad1", "pt_pad1", 0, 0.3, 1, 1.0);
-	pt_pad1->SetBottomMargin(0.1);
+	TPad *pt_pad1 = new TPad("pt_pad1", "pt_pad1", 0, 0.35, 1, 1.0);
+	pt_pad1->SetBottomMargin(0);
 	pt_pad1->Draw();  
 	pt_pad1->cd();  
 	gPad->SetLogy();
+	p_PhoEt->SetTitle("");
 	p_PhoEt->GetXaxis()->SetRangeUser(35,200);
 	p_PhoEt->Draw();
 	p_PhoEt->SetLineColor(kBlack);
@@ -548,13 +551,14 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	DY_PhoEt->SetFillColor(kYellow);
 	pred_PhoEt->Draw("hist same");
 	DY_PhoEt->Draw("hist same");
-	TLegend *leg =  new TLegend(0.6,0.7,0.9,0.9);
-	leg->SetFillStyle(0);
-	gStyle->SetLegendBorderSize(1);
-	gStyle->SetLegendFillColor(0);
+	  TLegend *leg =  new TLegend(0.5,0.55,0.9,0.8);
+        leg->SetFillStyle(0);
+        gStyle->SetLegendBorderSize(1);
+        gStyle->SetLegendFillColor(0);
+	
 	leg->AddEntry(p_PhoEt,"observed");
-	leg->AddEntry(pred_PhoEt,"DY");
-	leg->AddEntry(DY_PhoEt,"WJet");
+        leg->AddEntry(pred_PhoEt,"W+jets");
+        leg->AddEntry(DY_PhoEt,"DY");
 	leg->AddEntry(error_PhoEt, "Syst. Unc.");
 	leg->Draw("same");
 	
@@ -570,8 +574,23 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
   error_PhoEt->SetFillStyle(3345);
 	error_PhoEt->Draw("E2 same");
 
+        TLatex chantex;
+        chantex.SetNDC();
+        chantex.SetTextFont(42);
+        chantex.SetTextSize(0.07);
+        if(channelType==1) chantex.DrawLatex(0.58,0.82," e + #gamma");
+        if(channelType==2) chantex.DrawLatex(0.58,0.82," #mu + #gamma");
+        gPad->RedrawAxis();
+        if(RunYear==2016 and preVFP == 1)       CMS_lumi( pt_pad1, 1, ichannel, 11 );
+        else if(RunYear==2016 and preVFP == 0)  CMS_lumi( pt_pad1, 2, ichannel, 11 );
+        else if(RunYear==2017)                  CMS_lumi( pt_pad1, 3, ichannel, 11 );
+        else if(RunYear==2018)                  CMS_lumi( pt_pad1, 4, ichannel, 11 );
+
 	c_pt->cd();
-	TPad *pt_pad2 = new TPad("pt_pad2", "pt_pad2", 0, 0.05, 1, 0.25);
+	TPad *pt_pad2 = new TPad("pt_pad2", "pt_pad2", 0, 0, 1, 0.35);
+	pt_pad2->SetTopMargin(0);
+        pt_pad2->SetBottomMargin(0.3);
+
 	pt_pad2->Draw();
 	pt_pad2->cd();
   TLine *flatratio = new TLine(35,1,200,1);
@@ -582,19 +601,25 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	ratio->SetLineColor(kBlack);
 	ratio->Divide(pred_PhoEt);
 	ratio->SetTitle("");
-	ratio->GetYaxis()->SetTitle("observed/bkg");
+	ratio->GetXaxis()->SetTitleOffset(1.0);
+	ratio->GetYaxis()->SetTitleOffset(0.5);
+
+	ratio->GetYaxis()->SetTitleSize(0.08);
+	ratio->GetXaxis()->SetTitleSize(0.08);
+	ratio->GetXaxis()->SetTitle("p_{T}^{#gamma} (GeV)");
+        ratio->GetYaxis()->SetTitle("#frac{Simulation}{Prediction} ");
 	ratio->GetXaxis()->SetLabelFont(63);
 	ratio->GetXaxis()->SetLabelSize(14);
 	ratio->GetYaxis()->SetLabelFont(63);
-	ratio->GetYaxis()->SetLabelSize(14);
+	ratio->GetYaxis()->SetLabelSize(11);
 	ratio->Draw();
 	ratioerror_PhoEt->SetFillColor(15);
 	ratioerror_PhoEt->SetFillStyle(3345);
 	ratioerror_PhoEt->Draw("E2 same");
 	ratio->Draw("same");
 	flatratio->Draw("same");
-	if(channelType==1) 	c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/closure_jetfakepho_PhotonEt_eg_%d%s.pdf",RunYear,whichVFP.c_str()));
-	if(channelType==2) 	c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/closure_jetfakepho_PhotonEt_mg_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==1) 	c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_PhotonEt_eg_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==2) 	c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_PhotonEt_mg_%d%s.pdf",RunYear,whichVFP.c_str()));
 
 
 
@@ -602,8 +627,8 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	gStyle->SetOptStat(0);
 	TCanvas *c_met = new TCanvas("MET", "MET",600,600);
 	c_met->cd();
-	TPad *met_pad1 = new TPad("met_pad1", "met_pad1", 0, 0.3, 1, 1.0);
-	met_pad1->SetBottomMargin(0.1);
+	TPad *met_pad1 = new TPad("met_pad1", "met_pad1", 0, 0.35, 1, 1.0);
+	met_pad1->SetBottomMargin(0);
 	met_pad1->Draw();  
 	met_pad1->cd();  
 	gPad->SetLogy();
@@ -612,6 +637,8 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	p_MET->GetXaxis()->SetRangeUser(0,400);
 	p_MET->SetLineColor(1);
 	p_MET->SetMarkerStyle(20);
+	p_MET->SetTitle("");
+
 	p_MET->Draw("P");
 	DY_MET->SetFillStyle(1001);
 	DY_MET->SetLineColor(kYellow-4);
@@ -628,7 +655,7 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	}
 	cout<<"direct simulation "<< p_MET->Integral()<<endl;
 //      cout<<"DY " <<DY_MET->Integral()<<endl;
-        cout<<"t#bar{t}/ WW/ WZ "<<pred_MET->Integral()<<endl;
+        cout<<"DY and W + jets "<<pred_MET->Integral()<<endl;
 	cout<<"Ratio "<<p_MET->Integral()/pred_MET->Integral()<<endl;
 
 	pred_MET->Draw("hist same");
@@ -639,38 +666,66 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	leg->Draw("same");
 	p_MET->Draw("E same");
 
+	if(channelType==1) chantex.DrawLatex(0.58,0.82," e + #gamma");
+        if(channelType==2) chantex.DrawLatex(0.58,0.82," #mu + #gamma");
+        //TLine *line_met = new TLine(70,0,70,10000);
+        TLine *line_met = new TLine(70,0.05,70,1000*p_MET->GetBinContent(p_MET->GetMaximumBin()));
+        line_met->SetLineStyle(2);
+        line_met->Draw("same");
+        TLatex* latex = new TLatex();
+        latex->SetTextSize(0.05);
+        latex->DrawLatex(20, 60000,"control");
+        latex->DrawLatex(20, 30000,"region");
+        gPad->RedrawAxis();
+        if(RunYear==2016 and preVFP == 1)       CMS_lumi( met_pad1, 1, ichannel, 11 );
+        else if(RunYear==2016 and preVFP == 0)  CMS_lumi( met_pad1, 2, ichannel, 11 );
+        else if(RunYear==2017)                  CMS_lumi( met_pad1, 3, ichannel, 11 );
+        else if(RunYear==2018)                  CMS_lumi( met_pad1, 4, ichannel, 11 );
+
 	c_met->cd();
-	TPad *met_pad2 = new TPad("met_pad2", "met_pad2", 0, 0.05, 1, 0.25);
+	TPad *met_pad2 = new TPad("met_pad2", "met_pad2", 0, 0, 1, 0.35);
+	met_pad2->SetTopMargin(0);
+        met_pad2->SetBottomMargin(0.3);
+
 	met_pad2->Draw();
 	met_pad2->cd();
   TLine *flatratio_met = new TLine(0,1,400,1);
 	TH1F *ratio_met=(TH1F*)p_MET->Clone("transfer factor");
 	ratio_met->GetXaxis()->SetRangeUser(0,400);
-	ratio_met->SetLineColor(kBlack);
-	ratio_met->SetMarkerStyle(20);
-	ratio_met->Divide(pred_MET);
-	ratio_met->SetTitle("");
-	ratio_met->GetYaxis()->SetTitle("observed/bkg");
-	ratio_met->GetYaxis()->SetRangeUser(0,2);
+
+        ratio_met->GetYaxis()->SetNdivisions(504);
+        ratio_met->SetLineColor(kBlack);
+        ratio_met->SetMarkerStyle(20);
+        ratio_met->Divide(pred_MET);
+        ratio_met->SetTitle("");
+	ratio_met->GetXaxis()->SetTitleOffset(1.0);
+        ratio_met->GetYaxis()->SetTitleOffset(0.5);
+
+        ratio_met->GetYaxis()->SetTitleSize(0.08);
+        ratio_met->GetXaxis()->SetTitleSize(0.08);
+
+        ratio_met->GetXaxis()->SetTitle("p_{T}^{miss} (GeV)");
+        ratio_met->GetYaxis()->SetTitle("#frac{Simulation}{Prediction} ");
+	ratio_met->GetYaxis()->SetRangeUser(0,2.1);
 	ratio_met->GetXaxis()->SetLabelFont(63);
 	ratio_met->GetXaxis()->SetLabelSize(14);
 	ratio_met->GetYaxis()->SetLabelFont(63);
-	ratio_met->GetYaxis()->SetLabelSize(14);
+	ratio_met->GetYaxis()->SetLabelSize(11);
 	ratio_met->Draw();
 	ratioerror_MET->SetFillColor(15);
 	ratioerror_MET->SetFillStyle(3345);
 	ratioerror_MET->Draw("E2 same");
 	ratio_met->Draw("same");
 	flatratio_met->Draw("same");
-	if(channelType==1) 	c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/closure_jetfakepho_MET_eg_%d%s.pdf",RunYear,whichVFP.c_str()));
-	if(channelType==2) 	c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/closure_jetfakepho_MET_mg_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==1) 	c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_MET_eg_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==2) 	c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_MET_mg_%d%s.pdf",RunYear,whichVFP.c_str()));
 
 // ******** Mt ************************//
 	gStyle->SetOptStat(0);
 	TCanvas *c_mt = new TCanvas("Mt", "Mt",600,600);
 	c_mt->cd();
-	TPad *mt_pad1 = new TPad("mt_pad1", "mt_pad1", 0, 0.3, 1, 1.0);
-	mt_pad1->SetBottomMargin(0.1);
+	TPad *mt_pad1 = new TPad("mt_pad1", "mt_pad1", 0, 0.35, 1, 1.0);
+	mt_pad1->SetBottomMargin(0);
 	mt_pad1->Draw();  
 	mt_pad1->cd();  
 	gPad->SetLogy();
@@ -679,6 +734,7 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	p_Mt->GetXaxis()->SetRangeUser(0,400);
 	p_Mt->SetLineColor(1);
 	p_Mt->SetMarkerStyle(20);
+	p_Mt->SetTitle("");
 	p_Mt->Draw("P");
 	DY_Mt->SetFillStyle(1001);
 	DY_Mt->SetLineColor(kYellow-4);
@@ -701,8 +757,19 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	leg->Draw("same");
 	p_Mt->Draw("E same");
 
+	if(channelType==1) chantex.DrawLatex(0.58,0.82," e + #gamma");
+        if(channelType==2) chantex.DrawLatex(0.58,0.82," #mu + #gamma");
+        gPad->RedrawAxis();
+        if(RunYear==2016 and preVFP == 1)       CMS_lumi( mt_pad1, 1, ichannel, 11 );
+        else if(RunYear==2016 and preVFP == 0)  CMS_lumi( mt_pad1, 2, ichannel, 11 );
+        else if(RunYear==2017)                  CMS_lumi( mt_pad1, 3, ichannel, 11 );
+        else if(RunYear==2018)                  CMS_lumi( mt_pad1, 4, ichannel, 11 );
+
 	c_mt->cd();
-	TPad *mt_pad2 = new TPad("mt_pad2", "mt_pad2", 0, 0.05, 1, 0.25);
+	TPad *mt_pad2 = new TPad("mt_pad2", "mt_pad2", 0, 0, 1, 0.35);
+	mt_pad2->SetTopMargin(0);
+        mt_pad2->SetBottomMargin(0.3);
+
 	mt_pad2->Draw();
 	mt_pad2->cd();
   TLine *flatratio_mt = new TLine(0,1,400,1);
@@ -710,31 +777,38 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	ratio_mt->SetMarkerStyle(20);
 	ratio_mt->SetLineColor(kBlack);
 	ratio_mt->GetXaxis()->SetRangeUser(0,400);
-	ratio_mt->GetYaxis()->SetRangeUser(0,2);
+	ratio_mt->GetYaxis()->SetRangeUser(0,2.1);
 	ratio_mt->SetMinimum(0);
 	ratio_mt->SetMaximum(2);
 	ratio_mt->Divide(pred_Mt);
 	ratio_mt->SetTitle("");
-	ratio_mt->GetYaxis()->SetTitle("observed/bkg");
+	ratio_mt->GetXaxis()->SetTitleOffset(1.0);
+        ratio_mt->GetYaxis()->SetTitleOffset(0.5);
+
+        ratio_mt->GetYaxis()->SetTitleSize(0.08);
+        ratio_mt->GetXaxis()->SetTitleSize(0.08);
+
+	ratio_mt->GetXaxis()->SetTitle("M_{T} (GeV)");
+        ratio_mt->GetYaxis()->SetTitle("#frac{Simulation}{Prediction} ");
 	ratio_mt->GetXaxis()->SetLabelFont(63);
 	ratio_mt->GetXaxis()->SetLabelSize(14);
 	ratio_mt->GetYaxis()->SetLabelFont(63);
-	ratio_mt->GetYaxis()->SetLabelSize(14);
+	ratio_mt->GetYaxis()->SetLabelSize(11);
 	ratio_mt->Draw();
 	ratioerror_Mt->SetFillColor(15);
 	ratioerror_Mt->SetFillStyle(3345);
 	ratioerror_Mt->Draw("E2 same");
 	ratio_mt->Draw("same");
 	flatratio_mt->Draw("same");
-	if(channelType==1)	c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/closure_jetfakepho_MT_eg_%d%s.pdf",RunYear,whichVFP.c_str()));
-	if(channelType==2)	c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/closure_jetfakepho_MT_mg_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==1)	c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_MT_eg_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==2)	c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_MT_mg_%d%s.pdf",RunYear,whichVFP.c_str()));
 
 // ******** HT ************************//
 	gStyle->SetOptStat(0);
 	TCanvas *c_HT = new TCanvas("HT", "HT",600,600);
 	c_HT->cd();
-	TPad *HT_pad1 = new TPad("HT_pad1", "HT_pad1", 0, 0.3, 1, 1.0);
-	HT_pad1->SetBottomMargin(0.1);
+	TPad *HT_pad1 = new TPad("HT_pad1", "HT_pad1", 0, 0.35, 1, 1.0);
+	HT_pad1->SetBottomMargin(0);
 	HT_pad1->Draw();  
 	HT_pad1->cd();  
 	gPad->SetLogy();
@@ -742,6 +816,7 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	p_HT->SetMinimum(1);
 	p_HT->SetLineColor(1);
 	p_HT->SetMarkerStyle(20);
+	p_HT->SetTitle("");
 	p_HT->Draw("P");
 	DY_HT->SetFillStyle(1001);
 	DY_HT->SetLineColor(kYellow-4);
@@ -763,9 +838,20 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	error_HT->Draw("E2 same");
 	leg->Draw("same");
 	p_HT->Draw("E same");
+	
+	    if(channelType==1) chantex.DrawLatex(0.58,0.82," e + #gamma");
+          if(channelType==2) chantex.DrawLatex(0.58,0.82," #mu + #gamma");
+        gPad->RedrawAxis();
+        if(RunYear==2016 and preVFP == 1)       CMS_lumi( HT_pad1, 1, ichannel, 11 );
+        else if(RunYear==2016 and preVFP == 0)  CMS_lumi( HT_pad1, 2, ichannel, 11 );
+        else if(RunYear==2017)                  CMS_lumi( HT_pad1, 3, ichannel, 11 );
+        else if(RunYear==2018)                  CMS_lumi( HT_pad1, 4, ichannel, 11 );
 
 	c_HT->cd();
-	TPad *HT_pad2 = new TPad("HT_pad2", "HT_pad2", 0, 0.05, 1, 0.25);
+	TPad *HT_pad2 = new TPad("HT_pad2", "HT_pad2", 0, 0, 1, 0.35);
+	HT_pad2->SetTopMargin(0);
+        HT_pad2->SetBottomMargin(0.3);
+
 	HT_pad2->Draw();
 	HT_pad2->cd();
   TLine *flatratio_HT = new TLine(0,1,400,1);
@@ -773,23 +859,31 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	ratio_HT->SetMarkerStyle(20);
 	ratio_HT->SetLineColor(kBlack);
 	ratio_HT->GetXaxis()->SetRangeUser(0,400);
-	ratio_HT->GetYaxis()->SetRangeUser(0,2);
+	ratio_HT->GetYaxis()->SetRangeUser(0,2.1);
 	ratio_HT->SetMinimum(0);
 	ratio_HT->SetMaximum(2);
 	ratio_HT->Divide(pred_HT);
+	ratio_HT->GetXaxis()->SetTitleOffset(1.0);
+        ratio_HT->GetYaxis()->SetTitleOffset(0.5);
+
+        ratio_HT->GetYaxis()->SetTitleSize(0.08);
+        ratio_HT->GetXaxis()->SetTitleSize(0.08);
+
 	ratio_HT->SetTitle("");
-	ratio_HT->GetYaxis()->SetTitle("observed/bkg");
+	ratio_HT->GetXaxis()->SetTitle("H_{T} (GeV)");
+
+        ratio_HT->GetYaxis()->SetTitle("#frac{Simulation}{Prediction} ");
 	ratio_HT->GetXaxis()->SetLabelFont(63);
 	ratio_HT->GetXaxis()->SetLabelSize(14);
 	ratio_HT->GetYaxis()->SetLabelFont(63);
-	ratio_HT->GetYaxis()->SetLabelSize(14);
+	ratio_HT->GetYaxis()->SetLabelSize(11);
 	ratio_HT->Draw();
 	ratioerror_HT->SetFillColor(15);
 	ratioerror_HT->SetFillStyle(3345);
 	ratioerror_HT->Draw("E2 same");
 	flatratio_HT->Draw("same");
-	if(channelType==1)	c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/closure_jetfakepho_HT_eg_%d%s.pdf",RunYear,whichVFP.c_str()));
-	if(channelType==2)	c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/closure_jetfakepho_HT_mg_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==1)	c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_HT_eg_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==2)	c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_HT_mg_%d%s.pdf",RunYear,whichVFP.c_str()));
 
 }
 

@@ -5,10 +5,10 @@ bool apply_HEMveto=false;
 
 void analysis_eg(int RunYear, const char *Era){//main
 
-  gSystem->Load("/uscms/home/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/lib/libAnaClasses.so");
+  gSystem->Load("../lib/libAnaClasses.so");
 
   ofstream logfile;
-  logfile.open(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.log",RunYear,Era),ios::trunc);
+  logfile.open(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/logs/resTree_egsignal_DoubleEG_%d%s.log",RunYear,Era),ios::trunc);
 
   logfile << "analysis_eg()" << std::endl;
   logfile << "medium eleID+miniIso" << std::endl;
@@ -20,12 +20,11 @@ void analysis_eg(int RunYear, const char *Era){//main
   bool  isMC(false);
   if(datatype == MC || datatype == MCDoubleEG2016 || datatype == MCMuonEG2016||  datatype == MCSingleElectron2016 || datatype == MCSingleMuon2016||  datatype == MCDoubleMuon2016 || datatype == MCMET2016)isMC=true;
   TChain* es = new TChain("ggNtuplizer/EventTree");
-  es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/Tribeni/DoubleEG/DoubleEG_%d%s.root",RunYear,Era));
+  es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/DoubleEG/DoubleEG_%d%s.root",RunYear,Era));
 
   if(RunYear==2018) apply_HEMveto=true; 
   
-  const unsigned nEvts = es->GetEntries()/10.;
-  //const unsigned nEvts = es->GetEntries();
+  const unsigned nEvts = es->GetEntries();
   logfile << "Total event: " << nEvts << std::endl;
   std::cout << "Total event: " << nEvts << std::endl;
   logfile << "Output file: " << "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_"<<RunYear<<Era<<".root" << std::endl;
@@ -313,8 +312,8 @@ void analysis_eg(int RunYear, const char *Era){//main
 
   int passHEM(0);
 
-  std::cout << "Total evetns : " << nEvts << std::endl;
-  logfile << "Total evetns : " << nEvts << std::endl;
+  std::cout << "Total events : " << nEvts << std::endl;
+  logfile << "Total events : " << nEvts << std::endl;
 	for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
 
 		if (ievt%1000000==0) std::cout << " -- Processing event " << ievt << std::endl;
@@ -387,8 +386,6 @@ void analysis_eg(int RunYear, const char *Era){//main
 				if(itpho->getR9() < R9EBCut)continue;
 				if(!itpho->passHLTSelection())continue;
 				if(!itpho->passBasicSelection())continue;
-				//bool passSigma = itpho->passSigmaOLD(1);
-				//bool passChIso = itpho->passChIsoOLD(1);
 				bool passSigma = itpho->passSigma(1);
 				bool passChIso = itpho->passChIso(1);
 				bool PixelVeto = itpho->PixelSeed()==0? true: false;
@@ -450,8 +447,6 @@ void analysis_eg(int RunYear, const char *Era){//main
 
 				if(itEle->getCalibPt() < 25)continue;
 				//  collection for jets->Lep fake
-				//if(itEle->isFakeProxy())fakeLepCollection.push_back(itEle);	
-				//if(itEle->isFakeProxyOLD())fakeLepCollection.push_back(itEle);	
 				if((itEle->isEB() && itEle->getR9() < R9EBCut) || (itEle->isEE() && itEle->getR9() < R9EECut))continue;
 
 				if(!itEle->passHLTSelection())continue;

@@ -40,7 +40,7 @@ float relExtraDY = 1.2;
 float extraOverCmsTextSize  = 0.76;
 
 void 
-CMS_lumi( TPad* pad, int iPeriod, int iPosX )
+CMS_lumi( TPad* pad, int iPeriod, int ichannel, int iPosX )
 {            
   bool outOfFrame    = false;
   if( iPosX/10==0 ) 
@@ -69,18 +69,19 @@ CMS_lumi( TPad* pad, int iPeriod, int iPosX )
   pad->cd();
 
   TString lumiText;
-  if( iPeriod==0 )
+  if (iPeriod == 0)
     lumiText += "(13 TeV)";
-  else if( iPeriod==1 )
-    lumiText += "19.52 fb^{-1} (13 TeV)";
-  else if ( iPeriod==2 )
+  else if (iPeriod == 1)
+    lumiText += "19.5 fb^{-1} (13 TeV)";
+  else if (iPeriod == 2)
     lumiText += "16.81 fb^{-1} (13 TeV)";
-  else if ( iPeriod==3 )
-    lumiText += "41.48 fb^{-1} (13 TeV)";
-  else if ( iPeriod==4 )
-    lumiText += "59.83 fb^{-1} (13 TeV)";
+  else if (iPeriod == 3)
+    lumiText += (ichannel == 1) ? "41.46 fb^{-1} (13 TeV)" : (ichannel == 2) ? "27.1 fb^{-1} (13 TeV)" : "(13 TeV)";
+  else if (iPeriod == 4)
+    lumiText += "59.81 fb^{-1} (13 TeV)";
+  else
+    lumiText += "(13 TeV)"; // Fallback for unexpected iPeriod
 
-  //lumiText += "35.9 fb^{-1} (13 TeV)";
 
   TLatex latex;
   latex.SetNDC();

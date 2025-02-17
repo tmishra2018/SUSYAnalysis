@@ -132,7 +132,6 @@ void analysis_bgtemplate(int RunYear, const char *Era){//main
         passPixelIssue++;
 
         if(MET > 70.0)continue;
-	if(MET < 40.0)continue; // added temporarily
         if(!raw.passHLT())continue;
 
         std::vector< std::vector<recoMuon>::iterator > bgMuCollection;

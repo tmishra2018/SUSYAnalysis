@@ -134,18 +134,6 @@ void pred_rareBkg(){
 	else if(channelType == 2)chainname << "mgTree";
   	TChain *mctree = new TChain(chainname.str().c_str(), chainname.str().c_str());
 	
-/*	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str())); //
-	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_ZGToLLG_%d%s.root",RunYear,whichVFP.c_str())); //
-	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGToLNuG_%d%s.root",RunYear,whichVFP.c_str())); //
-	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGJet40_%d%s.root",RunYear,whichVFP.c_str())); //
-	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGJet130_%d%s.root",RunYear,whichVFP.c_str())); //
-*/
-//      mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_VGamma_WG35_VetoEle.root");
-//      mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_VGamma_WG50_VetoEle.root");
-//      mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_VGamma_WG130_VetoEle.root");
-//      mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_VGamma_ZG_VetoEle.root");
-//      mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_VGamma_DY.root");
-
 	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_TTGJets_%d%s.root",RunYear,whichVFP.c_str())); // looks correct
 	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_TTJets_%d%s.root",RunYear,whichVFP.c_str())); // 25% more
 	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WWG_%d%s.root",RunYear,whichVFP.c_str())); // 10 times larger
@@ -153,14 +141,6 @@ void pred_rareBkg(){
 	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WW_%d%s.root",RunYear,whichVFP.c_str()));     // ~ 0 entries
 	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WZ_%d%s.root",RunYear,whichVFP.c_str()));     // 0 entries
 
-/*
-	mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_VGamma_TTG_VetoEle.root");
-	mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_VGamma_WWG_VetoEle.root");
-	mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_VGamma_WZG_VetoEle.root");
-	mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_VGamma_WW_VetoEle.root");
-	mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_VGamma_WZ_VetoEle.root");
-	mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_VGamma_TT_VetoEle.root");
-*/
 	float crosssection(0);
 	float ntotalevent(0);
 	float PUweight(1);
@@ -179,7 +159,8 @@ void pred_rareBkg(){
   	float dRPhoLep(0);
   	float HT(0);
   	float nJet(0);
-	int   nISRJet(0);
+	float nISRJetFloat(0);
+        int nISRJetInt(0);
 	float ISRPt(0);
 	float sigMETJESup(0);
 	float sigMETJESdo(0);
@@ -220,7 +201,8 @@ void pred_rareBkg(){
   	mctree->SetBranchAddress("dRPhoLep",  &dRPhoLep);
   	mctree->SetBranchAddress("HT",        &HT);
   	mctree->SetBranchAddress("nJet",      &nJet);
-  	mctree->SetBranchAddress("nISRJet",   &nISRJet);
+	if (channelType == 1) mctree->SetBranchAddress("nISRJet", &nISRJetInt);
+  	else mctree->SetBranchAddress("nISRJet", &nISRJetFloat);
   	mctree->SetBranchAddress("ISRJetPt",     &ISRPt);
 	mctree->SetBranchAddress("sigMETJESup",     &sigMETJESup);
 	mctree->SetBranchAddress("sigMETJESdo",     &sigMETJESdo);
@@ -245,6 +227,7 @@ void pred_rareBkg(){
 
 	for(unsigned ievt(0); ievt < mctree->GetEntries(); ievt++){
 		mctree->GetEntry(ievt);
+		if(nJet <1)continue;  // added temporarily
 		p_PU->Fill(nVertex,PUweight);
 		double scalefactor(0);
 		double scalefactorup(0);

@@ -26,7 +26,7 @@
 #include "TGraphErrors.h"
 void plot_bkg(){//main  
 
-  gSystem->Load("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/lib/libAnaClasses.so");
+  gSystem->Load("../../lib/libAnaClasses.so");
 
 	TFile *file_sig = TFile::Open("signalTree_sig.root");
 	TFile *file_qcd = TFile::Open("signalTree_qcd.root");

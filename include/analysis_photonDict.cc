@@ -1,6 +1,7 @@
 // Do NOT change. Changes will be lost next time file is generated
 
 #define R__DICTIONARY_FILENAME analysis_photonDict
+#define R__NO_DEPRECATION
 
 /*******************************************************************/
 #include <stddef.h>
@@ -9,7 +10,7 @@
 #include <string.h>
 #include <assert.h>
 #define G__DICTIONARY
-#include "RConfig.h"
+#include "ROOT/RConfig.hxx"
 #include "TClass.h"
 #include "TDictAttributeMap.h"
 #include "TInterpreter.h"
@@ -33,9 +34,6 @@
 
 #include "TDataMember.h"
 
-// Since CINT ignores the std namespace, we need to do so in this file.
-namespace std {} using namespace std;
-
 // Header files passed as explicit arguments
 #include "analysis_rawData.h"
 #include "analysis_photon.h"
@@ -45,6 +43,9 @@ namespace std {} using namespace std;
 
 // Header files passed via #pragma extra_include
 
+// The generated code does not explicitly qualify STL entities
+namespace std {} using namespace std;
+
 namespace {
   void TriggerDictionaryInitialization_analysis_photonDict_Impl() {
     static const char* headers[] = {
@@ -53,28 +54,26 @@ namespace {
 "analysis_ele.h",
 "analysis_muon.h",
 "analysis_scalefactor.h",
-0
+nullptr
     };
     static const char* includePaths[] = {
-"/cvmfs/cms.cern.ch/slc7_amd64_gcc700/lcg/root/6.12.07-gnimlf7/include",
-"/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/include/",
-0
+"/cvmfs/cms.cern.ch/el9_amd64_gcc12/lcg/root/6.30.03-ca7ca986842b225f6fc22ae84d705ed8/include/",
+"/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/include/",
+nullptr
     };
     static const char* fwdDeclCode = R"DICTFWDDCLS(
 #line 1 "analysis_photonDict dictionary forward declarations' payload"
 #pragma clang diagnostic ignored "-Wkeyword-compat"
 #pragma clang diagnostic ignored "-Wignored-attributes"
 #pragma clang diagnostic ignored "-Wreturn-type-c-linkage"
-extern int __Cling_Autoloading_Map;
+extern int __Cling_AutoLoading_Map;
 )DICTFWDDCLS";
     static const char* payloadCode = R"DICTPAYLOAD(
 #line 1 "analysis_photonDict dictionary payload"
 
-#ifndef G__VECTOR_HAS_CLASS_ITERATOR
-  #define G__VECTOR_HAS_CLASS_ITERATOR 1
-#endif
 
 #define _BACKWARD_BACKWARD_WARNING_H
+// Inline headers
 #include "analysis_rawData.h"
 #include "analysis_photon.h"
 #include "analysis_ele.h"
@@ -83,14 +82,14 @@ extern int __Cling_Autoloading_Map;
 
 #undef  _BACKWARD_BACKWARD_WARNING_H
 )DICTPAYLOAD";
-    static const char* classesHeaders[]={
-nullptr};
-
+    static const char* classesHeaders[] = {
+nullptr
+};
     static bool isInitialized = false;
     if (!isInitialized) {
       TROOT::RegisterModule("analysis_photonDict",
         headers, includePaths, payloadCode, fwdDeclCode,
-        TriggerDictionaryInitialization_analysis_photonDict_Impl, {}, classesHeaders);
+        TriggerDictionaryInitialization_analysis_photonDict_Impl, {}, classesHeaders, /*hasCxxModule*/false);
       isInitialized = true;
     }
   }

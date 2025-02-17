@@ -166,7 +166,7 @@
 		//if(ievt==0) cout<<Year<< " "<<crosssection<<" "<<ntotalevent<<" "<<weight<<endl;
 		//cout<<"weight is "<<weight<<endl;
 		/** cut flow *****/
-		if(phoEt < 35 || lepPt < 25)continue;
+		if ((ichannel == 1 && (phoEt < 35 || lepPt < 25)) || (ichannel == 2 && (phoEt < 35 || lepPt < 20))) continue;
 		if(fabs(phoEta) > 1.4442 || fabs(lepEta) > 2.5)continue;
 
 //******* ori *****************
@@ -234,7 +234,28 @@
 		p_nJet->Fill(nJet, weight);
 		
 	}        
+	
+	// checking the ele-fake-pho events from direct simulation for each years. 
+	TFile *outputFile;
+	if (channelType == 1) 
+    		outputFile = new TFile(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/Ele_fake_pho_Direct-Simulation_eg_%d%s.root", Year, whichVFP.c_str()), "RECREATE");
 
+	if (channelType == 2) 
+    		outputFile = new TFile(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/Ele_fake_pho_Direct-Simulation_mg_%d%s.root", Year, whichVFP.c_str()), "RECREATE");
+
+
+	p_PhoEt->Write();
+	p_PhoEta->Write();
+	p_LepPt->Write();
+	p_LepEta->Write();
+	p_MET->Write();
+	p_Mt->Write();
+	p_HT->Write();
+	p_dPhiEleMET->Write();
+	p_nJet->Write();
+
+	outputFile->Close();
+	delete outputFile;
 
 	// Fake Tree //
 	//*********** histo list **********************//
@@ -350,7 +371,7 @@
 		if(proxyHT > MAXHT)proxyHT = MAXHT;	
 		
 		/** cut flow *****/
-		if(proxyphoEt < 35 || proxylepPt < 25)continue;
+		if ((ichannel == 1 && (proxyphoEt < 35 || proxylepPt < 25)) || (ichannel == 2 && (proxyphoEt < 35 || proxylepPt < 20))) continue;
 		if(fabs(proxyphoEta) > 1.4442 || fabs(proxylepEta) > 2.5)continue;
 		// Here, it is already cases where it is fake by proxy events means, so we apply the weight for fake rate
 		double w_ele = h_nominal_fakerate(proxyphoEt, proxynVertex, fabs(proxyphoEta));
@@ -458,7 +479,7 @@
 		
 
 		/** cut flow *****/
-		if(rarephoEt < 35 || rarelepPt < 25)continue;
+		if ((ichannel == 1 && (rarephoEt < 35 || rarelepPt < 25)) || (ichannel == 2 && (rarephoEt < 35 || rarelepPt < 20))) continue;
 		if(fabs(rarephoEta) > 1.4442 || fabs(rarelepEta) > 2.5)continue;
 		double w_ele = h_nominal_fakerate(rarephoEt, rarenVertex, fabs(rarephoEta));
 		// ele fake photon weight * XSec weight
@@ -603,10 +624,10 @@
   	if(channelType==1) chantex.DrawLatex(0.58,0.82," e + #gamma");
   	if(channelType==2) chantex.DrawLatex(0.58,0.82," #mu + #gamma");
  	gPad->RedrawAxis();
-	if(Year==2016 and ISpreVFP == 1)       CMS_lumi( pt_pad1, 1, 11 );
-        else if(Year==2016 and ISpreVFP == 0)  CMS_lumi( pt_pad1, 2, 11 );
-        else if(Year==2017)                  CMS_lumi( pt_pad1, 3, 11 );
-        else if(Year==2018)                  CMS_lumi( pt_pad1, 4, 11 );
+	if(Year==2016 and ISpreVFP == 1)       CMS_lumi( pt_pad1, 1,ichannel, 11 );
+        else if(Year==2016 and ISpreVFP == 0)  CMS_lumi( pt_pad1, 2,ichannel, 11 );
+        else if(Year==2017)                  CMS_lumi( pt_pad1, 3,ichannel, 11 );
+        else if(Year==2018)                  CMS_lumi( pt_pad1, 4,ichannel, 11 );
 		
 	p_PhoEt->Draw("same");
 	for(int ibin(1); ibin < pred_PhoEt->GetSize(); ibin++){
@@ -635,6 +656,8 @@
 	// from signal events - predicted events
 	ratio->Divide(pred_PhoEt);
 	ratio->SetTitle("");
+	ratio->GetXaxis()->SetTitleOffset(0.9);
+	ratio->GetXaxis()->SetTitle("p_{T}^{#gamma} (GeV)");
 	ratio->GetYaxis()->SetTitle("#frac{Simulation}{Prediction} ");
 	ratio->GetYaxis()->SetNdivisions(504);
 	ratio->Draw();
@@ -700,15 +723,13 @@
 	line_met->Draw("same");
 	TLatex* latex = new TLatex();
 	latex->SetTextSize(0.05);
-	//latex->DrawLatex(20, 6000,"control");
-	//latex->DrawLatex(20, 3000,"region");
 	latex->DrawLatex(20, 60000,"control");
 	latex->DrawLatex(20, 30000,"region");
  	gPad->RedrawAxis();
-	if(Year==2016 and ISpreVFP == 1)       CMS_lumi( met_pad1, 1, 11 );
-        else if(Year==2016 and ISpreVFP == 0)  CMS_lumi( met_pad1, 2, 11 );
-        else if(Year==2017)                  CMS_lumi( met_pad1, 3, 11 );
-        else if(Year==2018)                  CMS_lumi( met_pad1, 4, 11 );
+	if(Year==2016 and ISpreVFP == 1)       CMS_lumi( met_pad1, 1,ichannel, 11 );
+        else if(Year==2016 and ISpreVFP == 0)  CMS_lumi( met_pad1, 2,ichannel, 11 );
+        else if(Year==2017)                  CMS_lumi( met_pad1, 3,ichannel, 11 );
+        else if(Year==2018)                  CMS_lumi( met_pad1, 4,ichannel, 11 );
 
 	c_met->cd();
 	TPad *met_pad2 = new TPad("met_pad2", "met_pad2", 0, 0, 1, 0.35);
@@ -723,6 +744,8 @@
 	ratio_met->SetMarkerStyle(20);
 	ratio_met->Divide(pred_MET);
 	ratio_met->SetTitle("");
+	ratio_met->GetXaxis()->SetTitleOffset(0.9);
+	ratio_met->GetXaxis()->SetTitle("p_{T}^{miss} (GeV)");
 	ratio_met->GetYaxis()->SetTitle("#frac{Simulation}{Prediction} ");
 	ratio_met->GetYaxis()->SetRangeUser(0.4,1.7);
 	ratio_met->Draw();
@@ -782,10 +805,10 @@
   	if(channelType==1) chantex.DrawLatex(0.58,0.82," e + #gamma");
   	if(channelType==2) chantex.DrawLatex(0.58,0.82," #mu + #gamma");
  	gPad->RedrawAxis();
-	if(Year==2016 and ISpreVFP == 1)       CMS_lumi( mt_pad1, 1, 11 );
-        else if(Year==2016 and ISpreVFP == 0)  CMS_lumi( mt_pad1, 2, 11 );
-        else if(Year==2017)                  CMS_lumi( mt_pad1, 3, 11 );
-        else if(Year==2018)                  CMS_lumi( mt_pad1, 4, 11 );
+	if(Year==2016 and ISpreVFP == 1)       CMS_lumi( mt_pad1, 1,ichannel, 11 );
+        else if(Year==2016 and ISpreVFP == 0)  CMS_lumi( mt_pad1, 2,ichannel, 11 );
+        else if(Year==2017)                  CMS_lumi( mt_pad1, 3,ichannel, 11 );
+        else if(Year==2018)                  CMS_lumi( mt_pad1, 4,ichannel, 11 );
 
 	c_mt->cd();
 	TPad *mt_pad2 = new TPad("mt_pad2", "mt_pad2", 0, 0, 1, 0.35);
@@ -803,6 +826,8 @@
 	ratio_mt->SetMaximum(2);
 	ratio_mt->Divide(pred_Mt);
 	ratio_mt->SetTitle("");
+	ratio_mt->GetXaxis()->SetTitleOffset(0.9);
+	ratio_mt->GetXaxis()->SetTitle("M_{T} (GeV)");
 	ratio_mt->GetYaxis()->SetTitle("#frac{Simulation}{Prediction} ");
 	ratio_mt->Draw();
 	ratioerror_Mt->SetFillColor(12);
@@ -857,10 +882,10 @@
 	  if(channelType==1) chantex.DrawLatex(0.58,0.82," e + #gamma");
 	  if(channelType==2) chantex.DrawLatex(0.58,0.82," #mu + #gamma");
  	gPad->RedrawAxis();
-	if(Year==2016 and ISpreVFP == 1)       CMS_lumi( HT_pad1, 1, 11 );
-        else if(Year==2016 and ISpreVFP == 0)  CMS_lumi( HT_pad1, 2, 11 );
-        else if(Year==2017)                  CMS_lumi( HT_pad1, 3, 11 );
-        else if(Year==2018)                  CMS_lumi( HT_pad1, 4, 11 );
+	if(Year==2016 and ISpreVFP == 1)       CMS_lumi( HT_pad1, 1, ichannel, 11 );
+        else if(Year==2016 and ISpreVFP == 0)  CMS_lumi( HT_pad1, 2, ichannel, 11 );
+        else if(Year==2017)                  CMS_lumi( HT_pad1, 3, ichannel, 11 );
+        else if(Year==2018)                  CMS_lumi( HT_pad1, 4, ichannel, 11 );
 
 	c_HT->cd();
 	TPad *HT_pad2 = new TPad("HT_pad2", "HT_pad2", 0, 0, 1, 0.35);
@@ -876,6 +901,8 @@
 	ratio_HT->GetYaxis()->SetNdivisions(504);
 	ratio_HT->Divide(pred_HT);
 	ratio_HT->SetTitle("");
+	ratio_HT->GetXaxis()->SetTitleOffset(0.9);
+	ratio_HT->GetXaxis()->SetTitle("H_{T} (GeV)");
 	ratio_HT->GetYaxis()->SetTitle("#frac{Simulation}{Prediction} ");
 	ratio_HT->Draw();
 	ratioerror_HT->SetFillColor(12);

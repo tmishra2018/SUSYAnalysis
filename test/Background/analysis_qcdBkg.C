@@ -58,9 +58,6 @@ void analysis_qcdBkg(){
 	// make this ON when you have to derive the QCD and VGamma scales
 	// reading scale factor from sf files
 	TFile *scaleFile;
-		//if(channelType == 1)scaleFile = TFile::Open("../script/qcd_eg_scale.root");
-        	//else if(channelType == 2)scaleFile = TFile::Open("../script/qcd_mg_scale.root");
-	
 		if(channelType == 1)scaleFile = TFile::Open(Form("/eos/uscms/store/user/tmishra/fakeLep/qcd_eg_scale_%d%s.root",RunYear,whichVFP.c_str()));
 		else if(channelType == 2)scaleFile = TFile::Open(Form("/eos/uscms/store/user/tmishra/fakeLep/qcd_mg_scale_%d%s.root",RunYear,whichVFP.c_str()));
 	TH1D *p_scale = 0;
@@ -107,8 +104,7 @@ void analysis_qcdBkg(){
   // fake lepton is predicted from data, fakeLeptree
 
   if(channelType==1)fakeEtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
-  //if(channelType==1)fakeEtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s_HoverE-OLD.root",RunYear,whichVFP.c_str()));
-  if(channelType==2)fakeEtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
+  if(channelType==2)fakeEtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
   float phoEt(0);
   float phoEta(0);
   float phoPhi(0);
@@ -124,7 +120,8 @@ void analysis_qcdBkg(){
   int   nVertex(0);
   float dRPhoLep(0);
   float HT(0);
-  float nJet(0);
+  float nJetFloat(0);
+  int nJetInt(0);
   int   nBJet(0); 
  
   fakeEtree->SetBranchAddress("phoEt",     &phoEt);
@@ -142,26 +139,29 @@ void analysis_qcdBkg(){
   fakeEtree->SetBranchAddress("nVertex",   &nVertex);
   fakeEtree->SetBranchAddress("dRPhoLep",  &dRPhoLep);
   fakeEtree->SetBranchAddress("HT",        &HT);
-  fakeEtree->SetBranchAddress("nJet",      &nJet);
   fakeEtree->SetBranchAddress("nBJet",     &nBJet);
+  if (channelType == 1) fakeEtree->SetBranchAddress("nJet", &nJetFloat);
+  else fakeEtree->SetBranchAddress("nJet", &nJetInt);
+
 
   for(unsigned ievt(0); ievt < fakeEtree->GetEntries(); ievt++){
 		fakeEtree->GetEntry(ievt);
-
+		if (channelType == 1 && nJetFloat <1 ) continue;
+                if (channelType == 2 && nJetInt <1 ) continue; // suggestion from convenors
 		double w_qcd = 0; 
 		double w_qcd_up = 0; 
 		double w_qcd_unweight = 0;
 		// weights used for fake lepton
-		if(channelType == 1){
+		//if(channelType == 1){
 			w_qcd = factorQCD*p_scale->GetBinContent(p_scale->FindBin(lepPt));
 			w_qcd_up = factorQCDUP*p_scale->GetBinContent(p_scale->FindBin(lepPt));
 			w_qcd_unweight = factorQCD;
-		}
-		else{
-			w_qcd = factorQCD;
-			w_qcd_up = factorQCDUP;
-			w_qcd_unweight = factorQCD;
-		}
+		//}
+		//else{
+		//	w_qcd = factorQCD;
+		//	w_qcd_up = factorQCDUP;
+		//	w_qcd_unweight = factorQCD;
+		//}
 	
 		p_PU->Fill(nVertex);
 		/** cut flow *****/
@@ -188,7 +188,9 @@ void analysis_qcdBkg(){
 		p_Mt->Fill(sigMT, w_qcd);
 		p_HT->Fill(HT, w_qcd);
 		p_dPhiEleMET->Fill(fabs(dPhiLepMET), w_qcd);
-		p_nJet->Fill(nJet, w_qcd);	
+		//p_nJet->Fill(nJet, w_qcd);	
+		if (channelType == 1) p_nJet->Fill(nJetFloat, w_qcd);
+                if (channelType == 2) p_nJet->Fill(nJetInt, w_qcd);
 		p_nBJet->Fill(nBJet, w_qcd);
 
 		if(nBJet >= 1){

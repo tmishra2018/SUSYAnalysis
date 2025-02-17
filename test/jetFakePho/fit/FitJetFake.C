@@ -81,7 +81,7 @@ int FitJetFake(float lowercut, float uppercut, int detType, float loweta, float 
 	else sprintf(uppername, "Inf");
 
 	std::cout << "start fitting " << std::endl;
-	gSystem->Load("/uscms/home/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/lib/libAnaClasses.so");
+	gSystem->Load("../../../lib/libAnaClasses.so");
 	ofstream myfile;
 	std::string  outputType, outputName, outputT;
 	// Channel looking for
@@ -120,9 +120,8 @@ int FitJetFake(float lowercut, float uppercut, int detType, float loweta, float 
 	TChain *datatree = new TChain("hadronTree");
 	
 	switch(eventType){
-		//case 1: datatree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_egsignal_DoubleEG_ReMiniAOD_FullEcal.root"); break;
 		case 1: datatree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str())); break;
-		case 2: datatree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str())); break;
+		case 2: datatree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str())); break;
 		case 3: datatree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_DYJetsToLL_%d.root",RunYear));
 			datatree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WJetsToLNu_%d.root",RunYear));
 			datatree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_QCD_DoubleEM_%d.root",RunYear));
@@ -135,7 +134,7 @@ int FitJetFake(float lowercut, float uppercut, int detType, float loweta, float 
 	if(eventType == 1 || eventType == 3)mcTreename << "egTree";
 	else if(eventType == 2 || eventType == 4)mcTreename << "mgTree";
 	TChain *mctree = new TChain(mcTreename.str().c_str());
-        mctree->Add(Form("/eos/uscms/store/user/tmishra/jetfakepho/files/plot_hadron_GJet_%d%s.root",RunYear,whichVFP.c_str()));
+	mctree->Add(Form("/eos/uscms/store/user/tmishra/jetfakepho/files/plot_hadron_GJet_%d%s.root",RunYear,whichVFP.c_str()));
         //mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/plot_hadron_GJet.root");
 
 
@@ -503,6 +502,7 @@ int FitJetFake(float lowercut, float uppercut, int detType, float loweta, float 
 
 	std::cout << "target " << h_target->Integral(1,nBinTotal) << std::endl;
 
+
 	for(unsigned iUpper(0); iUpper<nUpper; iUpper++){
 		for(unsigned iLower(0); iLower<nLower; iLower++){
 			double iteratorUncertainty(1), lastUpdatePurity(1);
@@ -626,12 +626,6 @@ int FitJetFake(float lowercut, float uppercut, int detType, float loweta, float 
 					leg->AddEntry(mc_predict[iLower][iUpper], "hadrons");
 					leg->Draw("same");
 					can[iLower][iUpper]->SaveAs(Hist1Dname.str().c_str());
-					
-					mc_sig->Write();
-					h_bg[iLower][iUpper]->Write();	
-					h_target->Write();
-					//result[iLower][iUpper]->Write();
-					//mc_predict[iLower][iUpper]->Write();
 				}
 				if(fracBkg >0 && fracBkg < 1)fracHad2D->Fill(SigmaCutLower[iLower]+0.00005, SigmaCutUpper[iUpper]+0.00005, num*fracBkg/den);
 				if(fracBkg >0 && fracBkg < 1)fracHad1D->Fill(num*fracBkg/den);
@@ -670,6 +664,6 @@ int FitJetFake(float lowercut, float uppercut, int detType, float loweta, float 
 	} 
 	myfile.close();
 	logfile.close();
-//	outputfile->Write();
+	outputfile->Write();
 	return 1;
 }

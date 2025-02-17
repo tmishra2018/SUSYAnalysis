@@ -29,7 +29,7 @@
 
 
 void analysis_SMMC(){//main  
-  gSystem->Load("/uscms/home/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/lib/libAnaClasses.so");
+  gSystem->Load("../lib/libAnaClasses.so");
   TChain* es = new TChain("ggNtuplizer/EventTree");
   es->Add("/eos/uscms/store/group/lpcsusyhad/Tribeni/WGToLNuG/WGToLNuG_2017.root");
 

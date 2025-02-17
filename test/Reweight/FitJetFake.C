@@ -55,11 +55,8 @@
 bool useMC = true;
 bool doIterate = false;
 
-int RunYear=2018;
-bool preVFP=false;
 
-int FitJetFake(float lowercut, float uppercut, int detType){
-
+int FitJetFake(float lowercut, float uppercut, int detType, int RunYear, bool preVFP) {
 	setTDRStyle();   
 	time_t now = time(0);
 
@@ -81,8 +78,6 @@ int FitJetFake(float lowercut, float uppercut, int detType){
 	std::ostringstream datasetname;
 	datasetname.str("");
 	datasetname << "/eos/uscms/store/user/tmishra/jetfakepho/files/plot_hadron_ISR_"<<RunYear<<whichVFP<<".root";
-	//datasetname << "/eos/uscms/store/user/tmishra/jetfakepho/files/plot_hadron_ISR_"<<RunYear<<".root";
-	//datasetname << "/uscms_data/d3/mengleis/test/plot_hadron_ISR.root";
 	// made with analysis_mgHadron.C
 	char lowername[4];
 	sprintf(lowername, "%d", (int)lowercut);
@@ -99,25 +94,17 @@ int FitJetFake(float lowercut, float uppercut, int detType){
         Double_t SigmaCutLower_EE[]={0.0272,0.0273,0.0274,0.0275,0.0276,0.0277,0.0278,0.0279,0.028,0.0281};
         Double_t SigmaCutUpper_EE[]={0.035,0.036,0.037,0.038,0.039,0.04};
 
-	//Double_t SigmaCutLower_EB[]={0.0103,0.0104,0.0105,0.0106,0.0107,0.0108,0.0109,0.0110,0.0111,0.0112};
-	//Double_t SigmaCutUpper_EB[]={0.0140,0.0145,0.0150,0.0155,0.0160,0.0165,0.0170,0.0175,0.0180,0.0185};
-	//Double_t SigmaCutLower_EE[]={0.03013,0.0302,0.0303,0.0304,0.0305,0.0306,0.0307,0.0308,0.0309,0.031};
-	//Double_t SigmaCutUpper_EE[]={0.035,0.036,0.037,0.038,0.039,0.04};
 	std::vector<double> SigmaCutLower;
 	std::vector<double> SigmaCutUpper;
 	SigmaCutLower.clear();
 	SigmaCutUpper.clear();
 	if(detType == 1){
-		// StandardCut = 0.0103;
-		// StandardIso = 1.295;
 		StandardCut = 0.0106;
 		StandardIso = 1.694;
 		for(unsigned i(0); i<sizeof(SigmaCutLower_EB)/sizeof(Double_t); i++)SigmaCutLower.push_back(SigmaCutLower_EB[i]);
 		for(unsigned i(0); i<sizeof(SigmaCutUpper_EB)/sizeof(Double_t); i++)SigmaCutUpper.push_back(SigmaCutUpper_EB[i]);
 	}
 	else if(detType == 2){
-		//StandardCut = 0.03013;
-		//StandardIso = 1.011;
 		StandardCut = 0.0272;
                 StandardIso = 2.089;
 		for(unsigned i(0); i<sizeof(SigmaCutLower_EE)/sizeof(Double_t); i++)SigmaCutLower.push_back(SigmaCutLower_EE[i]);

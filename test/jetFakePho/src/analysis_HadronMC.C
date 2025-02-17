@@ -27,9 +27,8 @@
 #include "../../../include/analysis_tools.h"
 #include "../../../include/analysis_mcData.h"
 
-bool ISpreVFP=false;
 
-void analysis_HadronMC(int RunYear){//main
+void analysis_HadronMC(int RunYear, bool ISpreVFP){//main
 
         std::string whichVFP;
         if(RunYear==2016 and ISpreVFP == true) whichVFP = "preVFP";
@@ -230,6 +229,7 @@ void analysis_HadronMC(int RunYear){//main
 }
 int main(int argc, char** argv)
 {
-    analysis_HadronMC(atoi(argv[1]));
+    bool ISpreVFP = (atoi(argv[2]) == 1);
+    analysis_HadronMC(atoi(argv[1]), ISpreVFP);
     return 0;
 }

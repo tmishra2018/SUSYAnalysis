@@ -37,7 +37,8 @@
 #include "../../include/analysis_scalefactor.h"
 #include "../../include/tdrstyle.C"
 
-// change the file /uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/test/Background/BkgPredConfig.txt
+// ../../include/analysis_scalefactor.h
+// change the file /uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/Background/BkgPredConfig.txt
 //bool doEB=false;
 int RunYear = 2016;
 bool preVFP = 1;
@@ -60,9 +61,7 @@ void plot_ISRweight(){//main
 	gROOT->SetBatch(kTRUE);
 	esfScaleFactor  objectESF;
 
-	//Double_t plotEtBins[]={35,50,80,100,125,150,200,250,300,400,450,800};
 	Double_t plotEtBins[]={0,50,100,150,200,250,300,800};
-	Double_t plotPtBins[]={25, 35,50,100,150,200,250,300,400,600,800};
 	TH1F *p_phoEt_data     = new TH1F("p_phoEt_data","",7,plotEtBins);
 	TH1F *p_JetPt_data     = new TH1F("p_JetPt_data","",7,plotEtBins);
 	TH1F *p_JetPt_total    = new TH1F("p_JetPt_total","",7,plotEtBins);

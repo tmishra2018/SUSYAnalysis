@@ -41,7 +41,7 @@ void analysis_elefakepho(int RunYear, const char *Era){//main
   logfile << "analysis_elefakepho()" << std::endl;
 
   RunType datatype(MC);                              // Run Type
-  TFile *f = TFile::Open(Form("/eos/uscms/store/group/lpcsusyphotons/Tribeni/DYJetsToLL/DYJetsToLL_%d%s.root",RunYear,Era));
+  TFile *f = TFile::Open(Form("/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/DYJetsToLL/DYJetsToLL_%d%s.root",RunYear,Era));
   TTree *es =(TTree*)f->Get("ggNtuplizer/EventTree");
 
   TFile *output = TFile::Open(Form("/eos/uscms/store/user/tmishra/elefakepho/files/plot_elefakepho_DYTnP_dR05_%d%s.root",RunYear,Era),"RECREATE");
@@ -184,7 +184,6 @@ void analysis_elefakepho(int RunYear, const char *Era){//main
         passPixelIssue++;
 
         if(MET > 70.0)continue;
-        if(MET < 40.0)continue; // added temporarily
         //if(!raw.passHLT())continue;
 				if(RunYear==2016 && ((raw.HLTEleMuX >> 4) &1) ==0)continue;  //HLT_Ele27_WPTight_Gsf_v
 				if(RunYear==2017 && ((raw.HLTEleMuX >> 3) &1) ==0)continue;  //HLT_Ele35_WPTight_Gsf_v

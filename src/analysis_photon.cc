@@ -193,15 +193,13 @@ bool recoPhoton::passSignalSelection(){
   bool passCut(true);
   
   if(Calibp4_.Et() < 35.0){passCut = false; return passCut;} 
-//if(!isLoose()){passCut = false; return passCut;}
+  if(!isLoose()){passCut = false; return passCut;}
   else passCut = true;
 
   return passCut; 
 }
 
 bool recoPhoton::passBasicSelection(){
-  // WP = 1 for Loose
-  //bool passCut = (passHoverEOLD(1) && passNeuIsoOLD(1) && passPhoIsoOLD(1));
   bool passCut = (passHoverE(1) && passNeuIso(1) && passPhoIso(1));
 	if(getChIso() > 20)passCut = false;
   return passCut;

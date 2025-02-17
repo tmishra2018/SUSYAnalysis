@@ -33,8 +33,7 @@ void analysis_sig(){
 	TChain *sigtree = new TChain("signalTree");
 	// signatree from data
                 if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
-                //if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s_isFakeProxyOLD.root",RunYear,whichVFP.c_str()));
-                if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
+                if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
 
 	float phoEt(0);
 	float phoEta(0);
@@ -49,7 +48,8 @@ void analysis_sig(){
 	float HT(0);
 	int   nVertex(0);
 	float dRPhoLep(0);
-	float nJet(0);
+	float nJetFloat(0);
+  	int nJetInt(0);
 	int   nBJet(0);	
 	sigtree->SetBranchAddress("phoEt",     &phoEt);
 	sigtree->SetBranchAddress("phoEta",    &phoEta);
@@ -59,16 +59,19 @@ void analysis_sig(){
 	sigtree->SetBranchAddress("lepPhi",    &lepPhi);
 	sigtree->SetBranchAddress("sigMT",     &sigMT);
 	sigtree->SetBranchAddress("sigMET",    &sigMET);
-  sigtree->SetBranchAddress("HT",        &HT);
+  	sigtree->SetBranchAddress("HT",        &HT);
 	sigtree->SetBranchAddress("dPhiLepMET",&dPhiLepMET);
 	sigtree->SetBranchAddress("sigMETPhi", &sigMETPhi);
 	sigtree->SetBranchAddress("nVertex",   &nVertex);
 	sigtree->SetBranchAddress("dRPhoLep",  &dRPhoLep);
-	sigtree->SetBranchAddress("nJet",      &nJet);
 	sigtree->SetBranchAddress("nBJet",     &nBJet);
+	if (channelType == 1) sigtree->SetBranchAddress("nJet", &nJetFloat);
+  	else sigtree->SetBranchAddress("nJet", &nJetInt);
 
 	for (unsigned ievt(0); ievt<sigtree->GetEntries(); ++ievt){//loop on entries
 		sigtree->GetEntry(ievt);
+		if (channelType == 1 && nJetFloat <1 ) continue; // suggestion from convenors
+                if (channelType == 2 && nJetInt <1 ) continue;
 		p_PU->Fill(nVertex);
 		/** cut flow *****/
 		if(phoEt < 35 || fabs(phoEta) > 1.4442)continue;
@@ -87,8 +90,10 @@ void analysis_sig(){
 		p_Mt->Fill(sigMT);
 		p_HT->Fill(HT);
 		p_dPhiEleMET->Fill(fabs(dPhiLepMET));
-		p_nJet->Fill(nJet);
+		//p_nJet->Fill(nJet);
 		p_nBJet->Fill(nBJet);
+		if (channelType == 1) p_nJet->Fill(nJetFloat);
+                if (channelType == 2) p_nJet->Fill(nJetInt);
 
 		if(nBJet >= 1){
 			p_PhoEt_TT->Fill(phoEt);

@@ -12,17 +12,29 @@
 #endif
 #include<iostream>
 #include<fstream>
+#include <filesystem>
+namespace fs = std::filesystem;
+
 class esfScaleFactor{
   public:
 
     esfScaleFactor(){
 		int RunYear=0;
 		bool preVFP=0;
-		// new files
-        	std::ifstream configfile("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/test/Result/SigConfig.txt");
-        	//std::ifstream configfile("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/test/Background/BkgPredConfig.txt");
+
+		std::string current_path = std::filesystem::current_path().string();
+        	std::string configFilePath;
+
+        	if (current_path.find("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/myResult") != std::string::npos) {
+            		configFilePath = "/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/myResult/SigConfig.txt";}
+        	else if (current_path.find("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/Background") != std::string::npos) {
+            		configFilePath = "/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/Background/BkgPredConfig.txt";} 
+		else {	std::cerr << "Error: Unknown execution path!" << std::endl;
+            		return;}
+        	std::ifstream configfile(configFilePath);
         	std::string conftype;
         	double confvalue;
+
         	if(configfile.is_open()){
         		for(int i(0); i<11; i++){
                         	configfile >> conftype >> confvalue;
@@ -30,7 +42,7 @@ class esfScaleFactor{
                         	if(conftype.find("preVFP")!=std::string::npos)preVFP = confvalue;
           		}
         	}
-        	configfile.close();
+        	configfile.close(); 
 
 		TFile *electronIDFile=0;
 		TFile *photonIDFile=0;
@@ -40,37 +52,37 @@ class esfScaleFactor{
 		TFile *muonTRGFile=0;
 		
 		if((RunYear==2016 and preVFP==1) or RunYear==678){
-			electronIDFile = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/SFs/2016preVFP/egammaEffi.txt_Ele_Medium_EGM2D_UL16_preVFP.root");
-			photonIDFile   = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/SFs/2016preVFP/egammaEffi.txt_EGM2D_Pho_Loose_UL16_preVFP.root");
-			muonIDFile     = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/SFs/2016preVFP/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ID.root");
+			electronIDFile = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/SFs/2016preVFP/egammaEffi.txt_Ele_Medium_EGM2D_UL16_preVFP.root");
+			photonIDFile   = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/SFs/2016preVFP/egammaEffi.txt_EGM2D_Pho_Loose_UL16_preVFP.root");
+			muonIDFile     = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/SFs/2016preVFP/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ID.root");
 			photonTRGFile  = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/diphoton_pholeg_2016preVFP.root");
 			electronTRGFile = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/diphoton_eleg_2016preVFP.root");
 			muonTRGFile = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/muonphoton_trigger_2016preVFP.root");
 		}
 		else if(RunYear==2016 and preVFP==0){
 			// pt range 500 GeV and eta range 2.5
-			electronIDFile = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/SFs/2016/egammaEffi.txt_Ele_Medium_EGM2D_UL16_postVFP.root");
+			electronIDFile = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/SFs/2016/egammaEffi.txt_Ele_Medium_EGM2D_UL16_postVFP.root");
 			// pt range 500 GeV and eta range 2.5
-			photonIDFile   = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/SFs/2016/egammaEffi.txt_EGM2D_Pho_Loose_UL16_postVFP.root");
+			photonIDFile   = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/SFs/2016/egammaEffi.txt_EGM2D_Pho_Loose_UL16_postVFP.root");
 			// pt range 120 GeV and eta range 2.4
-			muonIDFile     = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/SFs/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ID.root");
+			muonIDFile     = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/SFs/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ID.root");
 			photonTRGFile  = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/diphoton_pholeg_2016postVFP.root");
 			electronTRGFile = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/diphoton_eleg_2016postVFP.root");
 			muonTRGFile = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/muonphoton_trigger_2016postVFP.root");
 		}
 			
 		else if(RunYear==2017){
-			electronIDFile = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/SFs/2017/egammaEffi.txt_Ele_Medium_EGM2D_UL17.root");
-			photonIDFile   = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/SFs/2017/egammaEffi.txt_EGM2D_PHO_Loose_UL17.root");
-			muonIDFile     = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/SFs/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ID.root");
+			electronIDFile = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/SFs/2017/egammaEffi.txt_Ele_Medium_EGM2D_UL17.root");
+			photonIDFile   = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/SFs/2017/egammaEffi.txt_EGM2D_PHO_Loose_UL17.root");
+			muonIDFile     = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/SFs/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ID.root");
 			photonTRGFile  = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/diphoton_pholeg_2017.root");
 			electronTRGFile = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/diphoton_eleg_2017.root");
 			muonTRGFile = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/muonphoton_trigger_2016postVFP.root");
 		}
 		else if(RunYear==2018){
-			electronIDFile = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/SFs/2018/egammaEffi.txt_Ele_Medium_EGM2D_UL18.root");
-			photonIDFile   = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/SFs/2018/egammaEffi.txt_EGM2D_Pho_Loose_UL18.root");
-			muonIDFile     = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/SFs/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root");
+			electronIDFile = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/SFs/2018/egammaEffi.txt_Ele_Medium_EGM2D_UL18.root");
+			photonIDFile   = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/SFs/2018/egammaEffi.txt_EGM2D_Pho_Loose_UL18.root");
+			muonIDFile     = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/SFs/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root");
 			photonTRGFile  = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/diphoton_pholeg_2018.root");
 			electronTRGFile = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/diphoton_eleg_2018.root");
 			muonTRGFile = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/muonphoton_trigger_2016postVFP.root");
@@ -78,11 +90,6 @@ class esfScaleFactor{
 	
 		TFile *muonIsoFile    = TFile::Open("/uscms/home/mengleis/work/SUSY2016/SUSYAnalysis/sf/TnP_NUM_MiniIsoTight_DENOM_MediumID_VAR_map_pt_eta.root");
 		TFile *muonIPFile     = TFile::Open("/uscms/home/mengleis/work/SUSY2016/SUSYAnalysis/sf/TnP_NUM_TightIP2D_DENOM_MediumID_VAR_map_pt_eta.root");
-		// to be produced by self
-		//TFile *photonTRGFile  = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/diphoton_pholeg_2016.root"); 
-		//TFile *electronTRGFile  = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/diphoton_eleg_2016.root");
-		//TFile *muonTRGFile    = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/muonphoton_trigger_2016.root");
-		//TFile *muonTRGFile    = TFile::Open("/uscms/home/mengleis/work/SUSY2016/SUSYAnalysis/sf/muonphoton_trigger.root");
 		TFile *eleR9File          = TFile::Open("/uscms/home/mengleis/work/SUSY2016/SUSYAnalysis/sf/R9_SF.root");
 		
 		TFile *fastelectronIDFile = TFile::Open("/uscms/home/mengleis/work/SUSY2016/SUSYAnalysis/sf/sf_el_mediumCB.root");
@@ -119,7 +126,7 @@ class esfScaleFactor{
       std::cout << "no muon ESF file" << std::endl;
     }
 		else{
-			muonIDESF    = (TH2F*)muonIDFile->Get("NUM_MediumID_DEN_TrackerMuons_abseta_pt");
+			muonIDESF    = (TH2F*)muonIDFile->Get("NUM_MediumPromptID_DEN_TrackerMuons_abseta_pt");
 			muonIDFast   = (TH2F*)fastmuonIDFile->Get("histo2D");
 			muonISOFast  = (TH2F*)fastmuonIsoFile->Get("histo2D");
 			muonIPFast   = (TH2F*)fastmuonIPFile->Get("histo2D");

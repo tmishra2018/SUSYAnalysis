@@ -1,0 +1,25 @@
+
+Processing plot_eventct.C+(18)...
+Year : 	2017	
+Bin Number efakePho jetFakePho QCD VGamma rare :
+
+
+
+eg channel : 		
+elefakePho :   181.947
+jetfakePho :   127.481
+jetfakeLep :   68.9575
+VGamma :       348.296
+Rare :         425.845
+total SM backgrounds:	1152.53	Total data  894
+Discrepancy :  28.918 % 
+
+
+mg channel : 		
+elefakePho :   251.097
+jetfakePho :   189.758
+jetfakeLep :   46.5157
+VGamma :       420.596
+Rare :         543.727
+total SM backgrounds:	1451.69	Total data  1124
+Discrepancy :  29.1542 % 

@@ -1,7 +1,0 @@
-/eos/uscms/store/group/lpcsusyhad/Tribeni/SingleElectron/SingleElectron_2016B.root
-/eos/uscms/store/group/lpcsusyhad/Tribeni/SingleElectron/SingleElectron_2016C.root
-/eos/uscms/store/group/lpcsusyhad/Tribeni/SingleElectron/SingleElectron_2016D.root
-/eos/uscms/store/group/lpcsusyhad/Tribeni/SingleElectron/SingleElectron_2016E.root
-/eos/uscms/store/group/lpcsusyhad/Tribeni/SingleElectron/SingleElectron_2016F.root
-/eos/uscms/store/group/lpcsusyhad/Tribeni/SingleElectron/SingleElectron_2016G.root
-/eos/uscms/store/group/lpcsusyhad/Tribeni/SingleElectron/SingleElectron_2016H.root

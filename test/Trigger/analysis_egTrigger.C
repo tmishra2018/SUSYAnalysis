@@ -198,6 +198,8 @@ void analysis_egTrigger(int RunYear, const char *Era){//main
 				if(DeltaR(tagEle->getEta(), tagEle->getPhi(), itpho->getEta(), itpho->getPhi())<0.05){
 					phoMatchele = itpho; 
 					tagMatchLead = (itpho->fireDoubleTrg(5) || itpho->fireDoubleTrg(6));
+
+
 					if(tagMatchLead){
 						for(std::vector<recoEle>::iterator itEle = Ele.begin(); itEle != Ele.end(); itEle++){
 							if(DeltaR(phoMatchele->getEta(), phoMatchele->getPhi(), itEle->getEta(), itEle->getPhi()) < 0.1)continue;
@@ -210,9 +212,16 @@ void analysis_egTrigger(int RunYear, const char *Era){//main
 								trailEle = itEle;
 							}
 						}
-					}
-					continue;
+					} continue; // skip the rest of the code in the current iteration of the outer for loop, when tagMatchLead == true
+
+
 				} // check if the tag fires the leading leg
+
+
+
+
+
+
 				if(!itpho->isEB() && !itpho->isEE())continue;
 				if(itpho->getR9() < 0.5)continue;
 				if(itpho->isLoose()){

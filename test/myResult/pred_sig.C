@@ -32,8 +32,7 @@ void pred_sig(){
 	//************ Signal Tree **********************//
 	TChain *sigtree = new TChain("signalTree");
         if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
-        //if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s_isFakeProxyOLD.root",RunYear,whichVFP.c_str()));
-        if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
+        if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
 
   	int   run(0);
   	Long64_t  event(0);
@@ -51,7 +50,8 @@ void pred_sig(){
 	float HT(0);
 	int   nVertex(0);
 	float dRPhoLep(0);
-	float nJet(0);
+	float nJetFloat(0);
+        int nJetInt(0);
 	int   nBJet(0);	
  	sigtree->SetBranchAddress("run",       &run);
   	sigtree->SetBranchAddress("event",     &event);
@@ -69,11 +69,14 @@ void pred_sig(){
 	sigtree->SetBranchAddress("sigMETPhi", &sigMETPhi);
 	sigtree->SetBranchAddress("nVertex",   &nVertex);
 	sigtree->SetBranchAddress("dRPhoLep",  &dRPhoLep);
-	sigtree->SetBranchAddress("nJet",      &nJet);
+	if (channelType == 1) sigtree->SetBranchAddress("nJet", &nJetFloat);
+        else sigtree->SetBranchAddress("nJet", &nJetInt);
 	sigtree->SetBranchAddress("nBJet",     &nBJet);
 
 	for (unsigned ievt(0); ievt<sigtree->GetEntries(); ++ievt){//loop on entries
 		sigtree->GetEntry(ievt);
+		if (channelType == 1 && nJetFloat <1 ) continue; // suggestion from convenors
+                if (channelType == 2 && nJetInt <1 ) continue;
 		p_PU->Fill(nVertex);
 		/** cut flow *****/
 		if(phoEt < 35 || fabs(phoEta) > 1.4442)continue;
@@ -96,7 +99,8 @@ void pred_sig(){
 		p_Mt->Fill(sigMT);
 		p_HT->Fill(HT);
 		p_dPhiEleMET->Fill(fabs(dPhiLepMET));
-		p_nJet->Fill(nJet);
+		if (channelType == 1) p_nJet->Fill(nJetFloat);
+                if (channelType == 2) p_nJet->Fill(nJetInt);
 
 		int SigBinIndex(-1);
 		SigBinIndex = Bin.findSignalBin(sigMET, HT, phoEt); 

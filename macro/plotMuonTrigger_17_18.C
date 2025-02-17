@@ -17,7 +17,7 @@
 #include "TMath.h"
 #include "../include/tdrstyle.C"
 
-int RunYear = 2016;
+int RunYear = 2017;
 bool preVFP = false;
 
 void plotMuonTrigger_17_18(){//main  
@@ -26,7 +26,7 @@ void plotMuonTrigger_17_18(){//main
 	gStyle->SetPaintTextFormat("4.4f");
 	setTDRStyle();   
   	Double_t xaxis2d[] = {35,40,45,60,200};
-  	Double_t yaxis2d[] = {25,38,45,60,200};
+  	Double_t yaxis2d[] = {20,38,45,60,200};
 	TProfile2D *p_HLTeff_Z  = new TProfile2D("p_HLTeff_Z", "#mu#gamma trigger efficiency;#gamma p_{T} (GeV); #mu p_{T} (GeV)",4,xaxis2d,4,yaxis2d);
 	TProfile2D *p_HLTeff_mg = new TProfile2D("p_HLTeff_mg","MET dataset",4,xaxis2d,4,yaxis2d);
 	TProfile2D *p_HLTeff_DY = new TProfile2D("p_HLTeff_DY","DY efficiency",4,xaxis2d,4,yaxis2d);
@@ -115,10 +115,10 @@ void plotMuonTrigger_17_18(){//main
 	p_crosseff->GetXaxis()->SetTitle("#gamma p_{T} (GeV)");
 	// efficiency from data
 	p_crosseff->Draw("E colz text");
-        if(RunYear==2016 and preVFP == 1)       CMS_lumi(canZ, 1, 11);
-        else if(RunYear==2016 and preVFP == 0)  CMS_lumi(canZ, 2, 11);
-        else if(RunYear==2017)                  CMS_lumi(canZ, 3, 11);
-        else if(RunYear==2018)                  CMS_lumi(canZ, 4, 11);
+        if(RunYear==2016 and preVFP == 1)       CMS_lumi(canZ, 1, 2, 11);
+        else if(RunYear==2016 and preVFP == 0)  CMS_lumi(canZ, 2, 2, 11);
+        else if(RunYear==2017)                  CMS_lumi(canZ, 3, 2, 11);
+        else if(RunYear==2018)                  CMS_lumi(canZ, 4, 2, 11);
 	canZ->SaveAs(Form("/eos/uscms/store/user/tmishra/Trigger/mgTrigger_efficiency_%d%s.pdf",RunYear,whichVFP.c_str()));
 
 	// mgTree is used for DY mc
@@ -167,10 +167,10 @@ void plotMuonTrigger_17_18(){//main
 	gPad->SetLogy();
 	gStyle->SetPaintTextFormat("4.4f");
 	p_mgESF->Draw("E colz text");
-        if(RunYear==2016 and preVFP == 1)       CMS_lumi(canESF, 1, 11);
-        else if(RunYear==2016 and preVFP == 0)  CMS_lumi(canESF, 2, 11);
-        else if(RunYear==2017)                  CMS_lumi(canESF, 3, 11);
-        else if(RunYear==2018)                  CMS_lumi(canESF, 4, 11);
+        if(RunYear==2016 and preVFP == 1)       CMS_lumi(canESF, 1,2, 11);
+        else if(RunYear==2016 and preVFP == 0)  CMS_lumi(canESF, 2,2, 11);
+        else if(RunYear==2017)                  CMS_lumi(canESF, 5,2, 11);
+        else if(RunYear==2018)                  CMS_lumi(canESF, 4,2, 11);
 
 	canESF->SaveAs(Form("/eos/uscms/store/user/tmishra/Trigger/mgTrigger_ESF_%d%s.pdf",RunYear,whichVFP.c_str()));
 	

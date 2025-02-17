@@ -33,7 +33,7 @@
 
 void analysis_qcd(){//main 
 
-  gSystem->Load("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/lib/libAnaClasses.so");
+  gSystem->Load("../../lib/libAnaClasses.so");
 
   char outputname[100] = "/eos/uscms/store/user/tmishra/fakeLep/fakelep_QCD.root";
   ofstream logfile;

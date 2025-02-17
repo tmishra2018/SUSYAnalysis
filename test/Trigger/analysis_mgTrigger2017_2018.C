@@ -34,9 +34,8 @@
 #include "../../src/analysis_muon.cc"
 #include "../../src/analysis_photon.cc"
 
-bool useData = false;
 
-void analysis_mgTrigger2017_2018(int RunYear, const char *Era){//main  
+void analysis_mgTrigger2017_2018(bool useData, int RunYear, const char *Era){//main  
 
 	gSystem->Load("../../lib/libAnaClasses.so");
 
@@ -53,7 +52,7 @@ void analysis_mgTrigger2017_2018(int RunYear, const char *Era){//main
 
 
 	TChain* es = new TChain("ggNtuplizer/EventTree");
-	if(!useData) es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/Tribeni/DYJetsToLL/DYJetsToLL_%d%s.root",RunYear,Era));
+	if(!useData) es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/DYJetsToLL/DYJetsToLL_%d%s.root",RunYear,Era));
 	else es->Add(Form("/eos/uscms/store/user/tmishra/InputFilesDATA/%d/SingleMuon/SingleMuon_%d%s.root",RunYear,RunYear,Era));
 
 	TFile *outputfile;
@@ -173,7 +172,7 @@ void analysis_mgTrigger2017_2018(int RunYear, const char *Era){//main
 				if(itLeadMu->passSignalSelection()){
 					if(!hasMu){ itIsoMu = itLeadMu; hasMu = true; }
 				}
-				if(!itLeadMu->isLoose() || itLeadMu->getPt() < 25.0 )continue;
+				if(!itLeadMu->isLoose() || itLeadMu->getPt() < 20.0 )continue;
 				tagMuVec.push_back(itLeadMu);
 			}
 
@@ -292,8 +291,9 @@ outputfile->Write();
 
 int main(int argc, char** argv)
 {
-    if(argc < 3)
+    if(argc < 4)
       cout << "You have to provide two arguments!!\n";
-    analysis_mgTrigger2017_2018(atoi(argv[1]), argv[2]);
+    bool useData = (atoi(argv[1]) == 1);
+    analysis_mgTrigger2017_2018(useData, atoi(argv[2]), argv[3]);
     return 0;
 }

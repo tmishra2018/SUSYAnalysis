@@ -78,6 +78,8 @@ inline bool isTight() {
 }
 
 bool passSignalSelection();
+bool passSignalSelection_Not_MiniIso();
+bool passSignalSelection_dxy_0p02();
 bool passHLTSelection();
 bool isFakeProxy();
 

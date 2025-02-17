@@ -74,7 +74,7 @@ bool passFilter(int filter){
   return passfilter;
 }
 
-int RunYear = 2017;
+//int RunYear = 2017;
 bool preVFP = false;
 bool doEB = false;
 
@@ -95,7 +95,7 @@ void analysis_VGamma_Year17_18(int RunYear, const char *Sample){//main
   char* inputfile = new char[300];
 
   if (strstr(Sample, "DYJetsToLL") != NULL or strstr(Sample, "TTJets") != NULL or strstr(Sample, "WJetsToLNu"))
-        sprintf(inputfile,"/eos/uscms/store/group/lpcsusyphotons/Tribeni/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());
+        sprintf(inputfile,"/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());
   else
         sprintf(inputfile,"/eos/uscms/store/user/tmishra/InputFilesMC/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());
   es->Add(inputfile);

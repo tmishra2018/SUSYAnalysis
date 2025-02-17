@@ -29,17 +29,13 @@
 #include "../../include/analysis_mcData.h"
 #include "../../include/analysis_tools.h"
 
-bool isQCD = true;
-bool isGJet = false;
-int RunYear = 2016;
-bool preVFP = false;
-void analysis_egMC(){//main 
-
-  gSystem->Load("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/lib/libAnaClasses.so");
+void analysis_egMC(bool isQCD, bool isGJet, int RunYear, bool preVFP){ 
+  gSystem->Load("../../lib/libAnaClasses.so");
 
   ofstream logfile;
   std::string whichVFP;
   if(RunYear==2016 and preVFP == true) whichVFP = "preVFP";
+  else if(RunYear==2016 and preVFP == false) whichVFP = "postVFP";
   else whichVFP = "";
   	
   if(isQCD ==true)  logfile.open(Form("/eos/uscms/store/user/tmishra/fakeLep/fakelep_egsignal_QCD_%d%s.log",RunYear,whichVFP.c_str())); 
@@ -482,4 +478,20 @@ void analysis_egMC(){//main
 	outputfile->Write();
 	outputfile->Close();
 	logfile.close();
+}
+int main(int argc, char** argv)
+{
+    if (argc < 5) {
+        cout << "You have to provide four arguments!\n";
+        return 1;
+    }
+
+    bool isQCD = (atoi(argv[1]) == 1);   
+    bool isGJet = (atoi(argv[2]) == 1);  
+    int RunYear = atoi(argv[3]);         
+    bool preVFP = (atoi(argv[4]) == 1); 
+
+    analysis_egMC(isQCD, isGJet, RunYear, preVFP);
+
+    return 0;  
 }

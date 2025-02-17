@@ -1,4 +1,6 @@
 #include<string>
+#include <TROOT.h>
+#include <TApplication.h>
 #include "../../include/analysis_commoncode.h"
 #define NTOY 1000
 bool useGaussFit;
@@ -122,7 +124,7 @@ void analysis_jetBkg(){
 		TChain *jettree = new TChain("jetTree");
 
                 if(channelType==1)jettree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
-                if(channelType==2)jettree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
+                if(channelType==2)jettree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
 	
 		float phoEt(0);
 		float phoEta(0);
@@ -138,7 +140,8 @@ void analysis_jetBkg(){
 		int   nVertex(0);
 		float dRPhoLep(0);
 		float HT(0);
-		float nJet(0);
+		float nJetFloat(0);
+        	int nJetInt(0);
 		int   nBJet(0);	
 	
 		jettree->SetBranchAddress("phoEt",     &phoEt);
@@ -155,11 +158,14 @@ void analysis_jetBkg(){
 		jettree->SetBranchAddress("nVertex",   &nVertex);
 		jettree->SetBranchAddress("dRPhoLep",  &dRPhoLep);
 		jettree->SetBranchAddress("HT",        &HT);
-		jettree->SetBranchAddress("nJet",      &nJet);
 		jettree->SetBranchAddress("nBJet",     &nBJet);
+		if (channelType == 1) jettree->SetBranchAddress("nJet", &nJetFloat);
+        	else jettree->SetBranchAddress("nJet", &nJetInt);
 	 
 		for (unsigned ievt(0); ievt<jettree->GetEntries(); ++ievt){//loop on entries
 			jettree->GetEntry(ievt);
+			if (channelType == 1 && nJetFloat <1 ) continue; // suggestion from convenors
+                	if (channelType == 2 && nJetInt <1 ) continue;
 			p_PU->Fill(nVertex);
 			/** cut flow *****/
 			if(phoEt < 35 || fabs(phoEta) > 1.4442)continue;
@@ -192,7 +198,9 @@ void analysis_jetBkg(){
 			p_LepPt->Fill(lepPt, w_jet);
 			p_LepEta->Fill(lepEta, w_jet);
 			p_dPhiEleMET->Fill(fabs(dPhiLepMET), w_jet);
-			p_nJet->Fill(nJet, w_jet);
+			if (channelType == 1) p_nJet->Fill(nJetFloat, w_jet);
+                	if (channelType == 2) p_nJet->Fill(nJetInt, w_jet);
+			//p_nJet->Fill(nJet, w_jet);
 			p_nBJet->Fill(nBJet, w_jet);
 
 			if(nBJet >= 1){

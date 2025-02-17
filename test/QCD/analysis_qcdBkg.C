@@ -33,7 +33,7 @@
 void analysis_qcdBkg(){
 
   gROOT->SetBatch(kTRUE);
-  gSystem->Load("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/lib/libAnaClasses.so");
+  gSystem->Load("../../lib/libAnaClasses.so");
 
 	//*********** histo list **********************//
 	std::ostringstream histname;

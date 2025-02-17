@@ -189,16 +189,12 @@ bool recoEle::isFakeProxy(){
   if(isEB()){
 	if(getHoverE() > getCutValueHoverE()){passFakeProxy=false; return passFakeProxy;}  // this cut reduces, ele-fake-photon by 30% wrt 80X old cut 
 	if(fabs(getEoverPInv()) > 0.184){passFakeProxy=false; return passFakeProxy;}
-        //if(getHoverE() > 0.253){passFakeProxy=false; return passFakeProxy;}
-	//if(fabs(getEoverPInv()) > 0.134){passFakeProxy=false; return passFakeProxy;}
 	if(getMissHits() > 1){passFakeProxy=false; return passFakeProxy;}
 	if(!getConvVeto()){passFakeProxy=false; return passFakeProxy;}
   }
   else if(isEE()){
 	if(getHoverE() > getCutValueHoverE()){passFakeProxy=false; return passFakeProxy;}
 	if(fabs(getEoverPInv()) > 0.0721){passFakeProxy=false; return passFakeProxy;}
-        //if(getHoverE() > 0.0878){passFakeProxy=false; return passFakeProxy;}
-	//if(fabs(getEoverPInv()) > 0.13){passFakeProxy=false; return passFakeProxy;}
 	if(getMissHits() > 1){passFakeProxy=false; return passFakeProxy;}
 	if(!getConvVeto()){passFakeProxy=false; return passFakeProxy;}
   }

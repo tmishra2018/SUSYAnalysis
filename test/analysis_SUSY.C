@@ -1,3 +1,9 @@
+//run by root -l  analysis_SUSY.C+
+// g++ `root-config --cflags` ../lib/libAnaClasses.so analysis_SUSY.C -o analysis_SUSY.exe `root-config --libs`
+// ./analysis_SUSY.exe 2016 1
+
+
+
 #include "../include/analysis_commoncode.h"
 #include "../include/analysis_cuts.h"
 
@@ -16,25 +22,25 @@ struct decayChain{
 	std::vector<mcData>::iterator iter; 
   std::vector< std::vector<mcData>::iterator > daughter;
 };
-//int RunYear = 2016;
 
-void analysis_SUSY(){//main  
+
+void analysis_SUSY(int Year, bool ISpreVFP){
+
 
 	gSystem->Load("../lib/libAnaClasses.so");
+	
+	std::string whichVFP;
+  	if(Year==2016 and ISpreVFP == true) whichVFP = "preVFP";
+  	else if(Year==2016 and ISpreVFP == false) whichVFP = "postVFP";
+	else whichVFP = "";
 
+	
 	TChain* es = new TChain("ggNtuplizer/EventTree");
-	//es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/Tribeni/T5WG/T5Wg_%d.root",RunYear));
-	//es->Add("/eos/uscms/store/user/tmishra/InputFilesMC/T5WG/T5WG_2016.root");
-	//es->Add("/eos/uscms/store/user/msun/Signal/T6WG_TuneCUETP8M1_RunIISummer16MiniAOD.root");
-	es->Add("root://cmseos.fnal.gov///store/user/msun/Signal/SMS-T5WG_TuneCUETP8M1_RunIISummer16MiniAOD.root");
-	//es->Add("/eos/uscms/store/user/msun/Signal/SMS-TChiWG_TuneCUETP8M1_RunIISummer16MiniAODv2.root");
+	es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/T5Wg/T5Wg_%d%s.root",Year,whichVFP.c_str()));
 
 	RunType datatype(MC); 
 	std::ostringstream outputname;
-	outputname << "/uscms/home/tmishra/nobackup/signal_trees/resTree_T5WG_2016_may.root";
-	//outputname << "/uscms/home/tmishra/nobackup/signal_trees/resTree_T6WG_2016_march.root";
-	//outputname << "/uscms/home/tmishra/nobackup/signal_trees/resTree_T5WG_2016.root";
-	//outputname << "/uscms/home/tmishra/nobackup/signal_trees/resTree_TChiWG_2016_march.root";
+	outputname << "/uscms/home/tmishra/nobackup/signal_trees/resTree_T5WG_"<<Year<<whichVFP<<".root";
 
 	int SUSYtype(-1);
 	if(outputname.str().find("T5WG") != std::string::npos){
@@ -321,8 +327,7 @@ void analysis_SUSY(){//main
 	int nVtx(0);
 	int jetNumber(0);
 
-	const unsigned nEvts = 355160; 
-	//const unsigned nEvts = es->GetEntries(); 
+	const unsigned nEvts = es->GetEntries(); 
 	std::cout << "total event : " << nEvts << std::endl;
 
 	for(unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
@@ -849,4 +854,18 @@ void analysis_SUSY(){//main
 
 
 	outputfile->Write();
+}
+int main(int argc, char** argv)
+{
+    if (argc < 3) {
+        cout << "You have to provide four arguments!\n";
+        return 1;
+    }
+
+    int RunYear = atoi(argv[1]);
+    bool preVFP = (atoi(argv[2]) == 1);
+
+    analysis_SUSY(RunYear, preVFP);
+
+    return 0;
 }

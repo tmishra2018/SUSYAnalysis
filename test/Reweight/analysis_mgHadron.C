@@ -1,4 +1,4 @@
-//   g++ `root-config --cflags` /uscms/home/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/lib/libAnaClasses.so analysis_mgHadron.C -o analysis_mgHadron.exe `root-config --libs` 
+//   g++ `root-config --cflags` ../../lib/libAnaClasses.so analysis_mgHadron.C -o analysis_mgHadron.exe `root-config --libs` 
 #include<string>
 #include<iostream>
 #include<fstream>
@@ -44,7 +44,7 @@ void analysis_mgHadron(int RunYear, const char *Era){//main
   	if(RunYear==2018) datatype = MuonEG2018;
 
   	TChain* es = new TChain("ggNtuplizer/EventTree");
-  	es->Add(Form("/eos/uscms/store/user/lpcsusyphotons/Tribeni/MuonEG/MuonEG_%d%s.root",RunYear,Era));
+  	es->Add(Form("/eos/uscms/store/user/lpcsusyphotons/SoftPhoton/Tribeni/MuonEG/MuonEG_%d%s.root",RunYear,Era));
 
   	TFile *outputfile;
   	outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/jetfakepho/files/plot_hadron_ISR_%d%s.root",RunYear,Era),"RECREATE");
@@ -228,7 +228,7 @@ void analysis_mgHadron(int RunYear, const char *Era){//main
 		bool hasMu(false);
 		std::vector<recoMuon>::iterator signalMu = Muon.begin();
 		for(std::vector<recoMuon>::iterator itMu = Muon.begin(); itMu != Muon.end(); itMu++){
-			if(itMu->getPt() < 25)continue;
+			if(itMu->getPt() < 20)continue;
 			if(!itMu->passHLTSelection())continue;
 			if(itMu->passSignalSelection()){
 				if(!hasMu){

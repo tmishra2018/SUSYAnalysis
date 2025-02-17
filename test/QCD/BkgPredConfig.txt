@@ -1,9 +1,0 @@
-ichannel 2
-anatype 2
-lowMt 0
-highMt 100
-lowMET 0
-highMET -1
-lowPt 0
-highPt -1
-lepIso 4

@@ -212,13 +212,13 @@ void plotJetFake(){//main
 	if(ichannel == 1) dummy->SetMaximum(0.6);
 	if(ichannel == 2) dummy->SetMaximum(0.3);
 	dummy->Draw();
-//	jetfrac_16preVFP->Draw("P same");
+	jetfrac_16preVFP->Draw("P same");
 	jetfrac_16postVFP->Draw("P same");
 //	jetfracsys->Draw("P same");
 	if(doCompare)jetfrac_menglei->SetFillStyle(0);
 //	if(doCompare)jetfrac_menglei->Draw("P same");
-//	if(doCompare)jetfrac_17->Draw("P same");
-//	if(doCompare)jetfrac_18->Draw("P same");
+	if(doCompare)jetfrac_17->Draw("P same");
+	if(doCompare)jetfrac_18->Draw("P same");
 	//if(useMC)jetfracTrue->Draw("P same");
 	gStyle->SetLegendBorderSize(0);
 	gStyle->SetLegendFillColor(0);
@@ -226,13 +226,13 @@ void plotJetFake(){//main
 	jetfrac_16preVFP->SetFillStyle(0);
 	leg->SetFillStyle(0);
 //	leg->AddEntry(jetfrac_menglei, "2016 : SUS-17-012");
-//	leg->AddEntry(jetfrac_16preVFP, "2016 preVFP");
+	leg->AddEntry(jetfrac_16preVFP, "2016 preVFP");
 	leg->AddEntry(jetfrac_16postVFP, "2016 postVFP");
-	//leg->AddEntry(jetfrac_17, "2017");
-	//leg->AddEntry(jetfrac_18, "2018");
+	leg->AddEntry(jetfrac_17, "2017");
+	leg->AddEntry(jetfrac_18, "2018");
 	//if(useMC)leg->AddEntry(jetfracTrue,"MC truth");
 	leg->Draw("same");
-	CMS_lumi( canvas, 0, 11 );
+	CMS_lumi( canvas, 7,ichannel, 11 );
 //	canvas->cd();
 //	TPad *pad2 = new TPad("pad2", "pad2", 0, 0.05, 1, 0.3);
 //	pad2->Draw();
@@ -250,6 +250,6 @@ void plotJetFake(){//main
 //	if(doCompare)ratio_menglei->SetMarkerColor(kBlue);
 //	if(doCompare)ratio_menglei->Draw("P same");
 //	flatratio->Draw("same");
-	if(ichannel == 1)  	canvas->SaveAs("/eos/uscms/store/user/tmishra/jetfakepho/Plots2016/JetFakePho_DoubleEG_comparison.png");
+	if(ichannel == 1)  	canvas->SaveAs("/eos/uscms/store/user/tmishra/jetfakepho/Plots2016/JetFakePho_DoubleEG_comparison.pdf");
 	if(ichannel == 2)  	canvas->SaveAs("/eos/uscms/store/user/tmishra/jetfakepho/Plots2016/JetFakePho_MuonEG_comparison.pdf");
 }

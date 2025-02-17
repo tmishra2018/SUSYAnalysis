@@ -32,7 +32,6 @@ void analysis_rareBkg(){
 	TFile *outputfile = TFile::Open(outputname.str().c_str(),"RECREATE");
 	outputfile->cd();
 	std::ostringstream histname;
-
 	TH1D *p_PhoEt = new TH1D("p_PhoEt","#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
 	TH1D *p_LepPt = new TH1D("p_LepPt","p_LepPt",nBkgPtBins,bkgPtBins);
 	TH1D *p_MET = new TH1D("p_MET","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
@@ -94,22 +93,25 @@ void analysis_rareBkg(){
 	float ntotalevent(0);
 	float PUweight(1);
 	int   mcType(0);
-  float phoEt(0);
-  float phoEta(0);
-  float phoPhi(0);
-  float lepPt(0);
-  float lepEta(0);
-  float lepPhi(0);
-  float sigMT(0);
-  float sigMET(0);
-  float sigMETPhi(0);
-  float dPhiLepMET(0);
-  int   nVertex(0);
-  float dRPhoLep(0);
-  float HT(0);
-  float nJet(0);
-  int   nBJet(0);
-	int   nISRJet(0);
+  	float phoEt(0);
+  	float phoEta(0);
+  	float phoPhi(0);
+  	float lepPt(0);
+  	float lepEta(0);
+  	float lepPhi(0);
+  	float sigMT(0);
+  	float sigMET(0);
+  	float sigMETPhi(0);
+  	float dPhiLepMET(0);
+  	int   nVertex(0);
+  	float dRPhoLep(0);
+  	float HT(0);
+	float nJet(0);
+  	int   nBJet(0);
+	
+	float nISRJetFloat(0);
+  	int nISRJetInt(0);
+
 	float bosonPt(0);
 	float sigMETJESup(0);
 	float sigMETJESdo(0);
@@ -151,7 +153,9 @@ void analysis_rareBkg(){
   mctree->SetBranchAddress("HT",        &HT);
   mctree->SetBranchAddress("nJet",      &nJet);
   mctree->SetBranchAddress("nBJet",     &nBJet);
-  mctree->SetBranchAddress("nISRJet",   &nISRJet);
+  if (channelType == 1) mctree->SetBranchAddress("nISRJet", &nISRJetInt);
+  else mctree->SetBranchAddress("nISRJet", &nISRJetFloat);
+  
   mctree->SetBranchAddress("ISRJetPt",     &bosonPt);
 	mctree->SetBranchAddress("sigMETJESup",     &sigMETJESup);
 	mctree->SetBranchAddress("sigMETJESdo",     &sigMETJESdo);
@@ -176,6 +180,7 @@ void analysis_rareBkg(){
 
 	for(unsigned ievt(0); ievt < mctree->GetEntries(); ievt++){
 		mctree->GetEntry(ievt);
+		if(nJet <1)continue; // suggestion from convenors
 		p_PU->Fill(nVertex,PUweight);
 		double scalefactor(0);
 		double scalefactorup(0);

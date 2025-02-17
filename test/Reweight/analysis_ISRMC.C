@@ -30,10 +30,7 @@
 #include "../../include/analysis_mcData.h"
 #include "../../include/analysis_tools.h"
 
-int RunYear = 2016;
-bool preVFP = false;
-
-void analysis_ISRMC(int RunYear, const char *Sample){//main  
+void analysis_ISRMC(int RunYear, bool preVFP, const char *Sample){//main  
 
   	gSystem->Load("../../lib/libAnaClasses.so");
 
@@ -55,9 +52,7 @@ void analysis_ISRMC(int RunYear, const char *Sample){//main
 	TChain* es = new TChain("ggNtuplizer/EventTree");
 	char* inputfile = new char[300];
         if (strstr(Sample, "DYJetsToLL") != NULL or strstr(Sample, "TTJets") != NULL or strstr(Sample, "WJetsToLNu"))
-             sprintf(inputfile,"/eos/uscms/store/group/lpcsusyphotons/Tribeni/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());
-        else if (strstr(Sample, "ZGTo2LG") != NULL )
-             sprintf(inputfile,"root://cmseos.fnal.gov//store/user/msun/MCSummer16/ZGTo2LG_RunIISummer16MiniAODv2-TrancheIV_v6-v1.root");
+             sprintf(inputfile,"/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());
         else
              sprintf(inputfile,"/eos/uscms/store/user/tmishra/InputFilesMC/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());
         
@@ -79,7 +74,6 @@ void analysis_ISRMC(int RunYear, const char *Sample){//main
                 std::cout << "TTJets sample !" << std::endl;
                 mcType = MCType::TT;
   	}
-	//else if(strstr(inputfile, "ZGTo2LG") != NULL){
 	else if(strstr(inputfile, "ZGToLLG") != NULL){
                 std::cout << "ZGInclusive sample !" << std::endl;
                 mcType = MCType::ZGInclusive;
@@ -198,8 +192,8 @@ void analysis_ISRMC(int RunYear, const char *Sample){//main
   	int METFilter(0);
   	logfile << "RunType: " << datatype << std::endl;
 
-  	std::cout << "Total evetns : " << nEvts << std::endl;
-  	logfile << "Total evetns : " << nEvts << std::endl;
+  	std::cout << "Total events : " << nEvts << std::endl;
+  	logfile << "Total events : " << nEvts << std::endl;
 	for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
 
 		if (ievt%100000==0) std::cout << " -- Processing event " << ievt << std::endl;
@@ -290,7 +284,7 @@ void analysis_ISRMC(int RunYear, const char *Sample){//main
 			std::vector< std::vector<recoMuon>::iterator > proxyLepCollection;
 			proxyLepCollection.clear();
 			for(std::vector<recoMuon>::iterator itMu = Muon.begin(); itMu != Muon.end(); itMu++){
-				if(itMu->getPt() < 25)continue;
+				if(itMu->getPt() < 20)continue;
 				if(!itMu->passHLTSelection())continue;
 				if(itMu->passSignalSelection()){
 					proxyLepCollection.push_back(itMu);
@@ -399,8 +393,10 @@ void analysis_ISRMC(int RunYear, const char *Sample){//main
 
 int main(int argc, char** argv)
 {
-    if(argc < 2)
+    if(argc < 3)
       cout << "You have to provide two arguments!!\n";
-    analysis_ISRMC(atoi(argv[1]),argv[2]);
+
+    bool preVFP = (atoi(argv[2]) == 1);
+    analysis_ISRMC(atoi(argv[1]), preVFP, argv[3]);
     return 0;
 }

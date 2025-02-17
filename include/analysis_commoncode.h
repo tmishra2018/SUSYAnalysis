@@ -73,70 +73,59 @@ float HTbin1(100),  HTbin2(400);
 float PHOETbin(200);
 int RunYear(2016);
 bool preVFP(1);
-//mengleis
-
-double factor_egQCD(0.237);
-double factorerror_egQCD(0.0474);
-double factor_mgQCD(0.62);
-double factorerror_mgQCD(0.124);
-
-double factor_egVGamma(1.17);
-double factorerror_egVGamma(0.234);
-double factor_mgVGamma(1.33);
-double factorerror_mgVGamma(0.266);
 
 // for 2016 preVFP
 
-double factor_egQCD_2016preVFP(0.398154);
-double factorerror_egQCD_2016preVFP(0.032191);
-double factor_mgQCD_2016preVFP(0.912074);
-double factorerror_mgQCD_2016preVFP(0.0919012);
+double factor_mgQCD_2016preVFP(0.695689);
+double factorerror_mgQCD_2016preVFP(0.104913);
+double factor_mgVGamma_2016preVFP(1.1235);
+double factorerror_mgVGamma_2016preVFP(0.0751961);
 
-double factor_egVGamma_2016preVFP(1.54809);
-double factorerror_egVGamma_2016preVFP(0.0931608);
-double factor_mgVGamma_2016preVFP(1.40733);
-double factorerror_mgVGamma_2016preVFP(0.0684939);
+double factor_egQCD_2016preVFP(0.464027);
+double factorerror_egQCD_2016preVFP(0.0514618);
+double factor_egVGamma_2016preVFP(1.22017);
+double factorerror_egVGamma_2016preVFP(0.120506);
+
 
 // for 2016 postVFP
+double factor_mgQCD_2016postVFP(0.691499);
+double factorerror_mgQCD_2016postVFP(0.142102);
+double factor_mgVGamma_2016postVFP(1.21104);
+double factorerror_mgVGamma_2016postVFP(0.155407);
 
-double factor_egQCD_2016postVFP(0.511481);
-double factorerror_egQCD_2016postVFP(0.0344402);
-double factor_mgQCD_2016postVFP(0.980161);
-double factorerror_mgQCD_2016postVFP(0.131539);
+double factor_egQCD_2016postVFP(0.488104);
+double factorerror_egQCD_2016postVFP(0.0542099);
+double factor_egVGamma_2016postVFP(1.35095);
+double factorerror_egVGamma_2016postVFP(0.143404);
 
-double factor_egVGamma_2016postVFP(1.39163);
-double factorerror_egVGamma_2016postVFP(0.112449);
-double factor_mgVGamma_2016postVFP(1.45883);
-double factorerror_mgVGamma_2016postVFP(0.117483);
 
 // for 2017
 
-double factor_egQCD_2017(0.403763);
-double factorerror_egQCD_2017(0.0264701);
-double factor_mgQCD_2017(0.926775);
-double factorerror_mgQCD_2017(0.136297);
+double factor_mgQCD_2017(0.750253);
+double factorerror_mgQCD_2017(0.172809);
+double factor_mgVGamma_2017(1.06986);
+double factorerror_mgVGamma_2017(0.171718);
 
-double factor_egVGamma_2017(1.45821);
-double factorerror_egVGamma_2017(0.101554);
-double factor_mgVGamma_2017(1.3442);
-double factorerror_mgVGamma_2017(0.11364);
+double factor_egQCD_2017(0.386306);
+double factorerror_egQCD_2017(0.0519161);
+double factor_egVGamma_2017(1.3394);
+double factorerror_egVGamma_2017(0.161848);
+
 
 // for 2018
+double factor_mgQCD_2018(0.677605);
+double factorerror_mgQCD_2018(0.139168);
+double factor_mgVGamma_2018(1.05906);
+double factorerror_mgVGamma_2018(0.137579);
 
-
-double factor_egQCD_2018(0.357835);
-double factorerror_egQCD_2018(0.0227174);
-double factor_mgQCD_2018(0.902506);
-double factorerror_mgQCD_2018(0.145422);
-
-double factor_egVGamma_2018(1.73086);
-double factorerror_egVGamma_2018(0.0858579);
-double factor_mgVGamma_2018(1.32145);
-double factorerror_mgVGamma_2018(0.0842323);
+double factor_egQCD_2018(0.380075);
+double factorerror_egQCD_2018(0.0429955);
+double factor_egVGamma_2018(1.33592);
+double factorerror_egVGamma_2018(0.129009);
 
 bool SetRunConfig(){
 	
-	std::ifstream configfile("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/test/Background/BkgPredConfig.txt");
+	std::ifstream configfile("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/Background/BkgPredConfig.txt");
 	std::string conftype;
 	double confvalue;
 	if(configfile.is_open()){
@@ -163,7 +152,7 @@ bool SetRunConfig(){
 
 bool SetSignalConfig(){
 	
-	std::ifstream configfile("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/test/Result/SigConfig.txt");
+	std::ifstream configfile("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/myResult/SigConfig.txt");
 	std::string conftype;
 	double confvalue;
 	if(configfile.is_open()){
@@ -184,7 +173,7 @@ bool SetSignalConfig(){
 	}
 	configfile.close();
 
-	std::ifstream binfile("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/test/Result/binConfig.txt");
+	std::ifstream binfile("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/myResult/binConfig.txt");
 	if(binfile.is_open()){
 		for(int i(0); i<6; i++){
 			binfile >> conftype >> confvalue;

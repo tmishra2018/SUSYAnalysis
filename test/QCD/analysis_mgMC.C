@@ -29,17 +29,13 @@
 #include "../../include/analysis_mcData.h"
 #include "../../include/analysis_tools.h"
 
-bool isQCD = true;
-bool isGJet = false;
-int RunYear = 2016;
-bool preVFP = true;
+void analysis_mgMC(bool isQCD, bool isGJet, int RunYear, bool preVFP){
 
-void analysis_mgMC(){//main  
-
-  gSystem->Load("/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/lib/libAnaClasses.so");
+  gSystem->Load("../../lib/libAnaClasses.so");
 
   std::string whichVFP;
   if(RunYear==2016 and preVFP == true) whichVFP = "preVFP";
+  else if(RunYear==2016 and preVFP == false) whichVFP = "postVFP";
   else whichVFP = "";
 
   ofstream logfile;
@@ -282,7 +278,7 @@ void analysis_mgMC(){//main
 			miniisoLep.clear();
 			for(std::vector<recoMuon>::iterator itMu = Muon.begin(); itMu != Muon.end(); itMu++){
 				if(itMu->isMedium() && itMu->getPt() > 15 && itMu->getMiniIso() < 0.2)miniisoLep.push_back(itMu);
-				if(itMu->getPt() < 25)continue;
+				if(itMu->getPt() < 20)continue;
 				if(!itMu->passHLTSelection())continue;
 				if(itMu->isFakeProxy())fakeLepCollection.push_back(itMu); // muon proxies
 				if(itMu->passSignalSelection()){
@@ -462,4 +458,20 @@ void analysis_mgMC(){//main
   outputfile->Write();
   outputfile->Close();
   logfile.close();
+}
+int main(int argc, char** argv)
+{
+    if (argc < 5) {
+        cout << "You have to provide four arguments!\n";
+        return 1;
+    }
+
+    bool isQCD = (atoi(argv[1]) == 1);
+    bool isGJet = (atoi(argv[2]) == 1);
+    int RunYear = atoi(argv[3]);
+    bool preVFP = (atoi(argv[4]) == 1);
+
+    analysis_mgMC(isQCD, isGJet, RunYear, preVFP);
+
+    return 0;
 }

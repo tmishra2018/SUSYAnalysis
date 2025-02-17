@@ -15,11 +15,11 @@ cd ${_CONDOR_SCRATCH_DIR}
 echo "source /cvmfs/cms.cern.ch/cmsset_default.sh"
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 
-echo "scramv1 project CMSSW CMSSW_10_2_22"
-scramv1 project CMSSW CMSSW_10_2_22
+echo "scramv1 project CMSSW CMSSW_14_0_7"
+scramv1 project CMSSW CMSSW_14_0_7
 
-echo "cd CMSSW_10_2_22/src/"
-cd CMSSW_10_2_22/src/
+echo "cd CMSSW_14_0_7/src/"
+cd CMSSW_14_0_7/src/
 
 echo "eval `scramv1 runtime -sh`"
 eval `scramv1 runtime -sh`
@@ -68,4 +68,4 @@ then
 fi
 
 rm *.txt  *.png
-cd ${_CONDOR_SCRATCH_DIR} && rm -rf CMSSW_10_2_22 
+cd ${_CONDOR_SCRATCH_DIR} && rm -rf CMSSW_14_0_7

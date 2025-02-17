@@ -13,10 +13,23 @@ br_susy = br_susy/0.5
 #br_susy = 1
 n_channels = int(sys.argv[1])*2
 RunYear = sys.argv[2]
-#n_channels = 36
+preVFP = sys.argv[3]
 
-#susy_in = ROOT.TFile('/uscms/home/tmishra/nobackup/signal_trees/signalTree_T5WG_2016.root','read')
-susy_in = ROOT.TFile('/uscms/home/tmishra/nobackup/signal_trees/signalTree_T5WG_'+RunYear+'.root','read')
+if RunYear == '2016' and preVFP == '1':
+    whichVFP = 'preVFP'
+elif RunYear == '2016' and preVFP == '0':
+    whichVFP = 'postVFP'
+else:
+    whichVFP = ''
+
+if RunYear == '2016':
+    output_file_path = f'/eos/uscms/store/user/tmishra/CombinedLimit/T5WG/cards/cards_{RunYear}_{whichVFP}/'
+else:
+    output_file_path = f'/eos/uscms/store/user/tmishra/CombinedLimit/T5WG/cards/cards_{RunYear}/'
+
+
+susy_in = ROOT.TFile(f'/uscms/homes/m/mengleis/work/SUSY2016/SUSYAnalysis/test/Result/signalTree_T5WG.root', 'read')
+#susy_in = ROOT.TFile(f'/uscms/home/tmishra/nobackup/signal_trees/signalTree_T5WG_{RunYear}{whichVFP}.root', 'read')
 syst_names = ['jes','jer','esf','scale','eleshape','jetshape','qcdshape','xs','lumi','isr']
 
 h_SUSYmass = susy_in.Get('SUSYMass')
@@ -27,7 +40,7 @@ for i in range(1, n_channels + 1):
         h_rates['h_chan' + str(i) + '_syserr_' + j] = susy_in.Get('h_chan' + str(i) + '_syserr_' + j)
 h_rates['t5wg_h_syserr_PU'] = susy_in.Get('t5wg_h_syserr_PU')
 
-file_template = open('counting_exp_XXX_YYY_{}_{}.txt'.format(n_channels,RunYear), 'r')
+file_template = open('logs/counting_exp_XXX_YYY_{}_{}{}.txt'.format(n_channels,RunYear,whichVFP), 'r')
 lines = [line for line in file_template.readlines()]
 
 low_p = 2 
@@ -37,11 +50,7 @@ for i in range(1, h_SUSYmass.GetXaxis().GetNbins() + 1):
     for j in range(1, h_SUSYmass.GetYaxis().GetNbins() + 1):
         if(h_SUSYmass.GetBinContent(i,j) <= 0):
             continue
-        file_out = open(
-            '/tmp/tribeni/counting_t5Wg_'
-            + str(int(h_SUSYmass.GetXaxis().GetBinCenter(i))) + '_'
-            + str(int(h_SUSYmass.GetYaxis().GetBinCenter(j))) + '.txt', 'w'
-            )
+        file_out = open(f"{output_file_path}counting_t5Wg_{int(h_SUSYmass.GetXaxis().GetBinCenter(i))}_{int(h_SUSYmass.GetYaxis().GetBinCenter(j))}.txt", 'w')
         avg_jes = 0
         avg_jer = 0
         avg_esf = 0
@@ -121,5 +130,4 @@ for i in range(1, h_SUSYmass.GetXaxis().GetNbins() + 1):
             file_out.write(l)
 
         file_out.close()
-print low_p, high_p
-
+#print(low_p, high_p)

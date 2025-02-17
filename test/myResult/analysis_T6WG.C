@@ -1,15 +1,14 @@
-// By Tribeni
 #include "../../include/analysis_commoncode.h"
 #include "TProfile2D.h"
 #include "analysis_PU.C"
-
+#include <TROOT.h> 
 void analysis_T6WG(){//main  
 
 	SetSignalConfig();
 	//binning Bin(NBIN, METbin1, METbin2, METbin3, HTbin1, HTbin2, HTbin3, PHOETbin, PHOETBin2);
 	binning Bin(NBIN, METbin1, METbin2, HTbin1, HTbin2, PHOETbin);
 	esfScaleFactor  objectESF;
-	gROOT->SetBatch();
+	gROOT->SetBatch(true);
   	gSystem->Load("../../lib/libAnaClasses.so");
 	std::string whichVFP;
         if(RunYear==2016 and preVFP == 1) whichVFP = "preVFP";
@@ -22,16 +21,14 @@ void analysis_T6WG(){//main
 	TH1D *p_crosssection_t6wg   = (TH1D*)xSecFile.Get("p_squarkxSec");
 
 	TChain *datachain = new TChain("signalTree");
- 	datachain->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
-	//datachain->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d_May.root",RunYear));
+ 	datachain->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
 	TH1D *p_PU_data = new TH1D("p_PU_data",";N_{vtx};",100,0,100); 
   	datachain->Draw("nVertex >> p_PU_data");
 	p_PU_data->Scale(1.0/p_PU_data->Integral(1,101));
 
 	std::ostringstream histname;
-	//**************   T5WG  ***************************//
-  	TFile *file_t5wg = TFile::Open("/uscms/home/tmishra/nobackup/signal_trees/resTree_T5WG_2016.root");
-  	//TFile *file_t5wg = TFile::Open(Form("/uscms/home/tmishra/nobackup/signal_trees/resTree_T5WG_%d.root",RunYear));
+	//**************   T5WG  **************************
+  	TFile *file_t5wg = TFile::Open(Form("/uscms/home/tmishra/nobackup/signal_trees/resTree_T5WG_%d%s.root",RunYear, whichVFP.c_str()));
   	TTree *tree_t5wg = (TTree*)file_t5wg->Get("SUSYtree");
 	//  float Mgluino_t5wg(0);
 	//  float Mchargino_t5wg(0);
@@ -159,7 +156,7 @@ void analysis_T6WG(){//main
 		
   	TChain *mgtree_t5wg;
   	mgtree_t5wg = new TChain("mgTree","mgTree");
-  	mgtree_t5wg->Add("/uscms/home/tmishra/nobackup/signal_trees/resTree_T5WG_2016.root");
+  	mgtree_t5wg->Add(Form("/uscms/home/tmishra/nobackup/signal_trees/resTree_T5WG_%d%s.root",RunYear, whichVFP.c_str()));
   	float phoEt_t5wg_mg(0);
   	float phoEta_t5wg_mg(0);
   	float lepPt_t5wg_mg(0);
@@ -211,7 +208,7 @@ void analysis_T6WG(){//main
 		mgtree_t5wg->GetEntry(ievt);
 	
 		// cut flow 
-		if(phoEt_t5wg_mg < 35 || lepPt_t5wg_mg < 25)continue;
+		if(phoEt_t5wg_mg < 35 || lepPt_t5wg_mg < 20)continue;
 		if(fabs(phoEta_t5wg_mg) > 1.4442 || fabs(lepEta_t5wg_mg) > 2.5)continue;
     		p_T5WGselect->Fill(Mass1_t5wg_mg, Mass2_t5wg_mg);
 
@@ -269,7 +266,7 @@ void analysis_T6WG(){//main
 
   	TChain *egtree_t5wg;
   	egtree_t5wg = new TChain("egTree","egTree");
-  	egtree_t5wg->Add("/uscms/home/tmishra/nobackup/signal_trees/resTree_T5WG_2016.root");
+  	egtree_t5wg->Add(Form("/uscms/home/tmishra/nobackup/signal_trees/resTree_T5WG_%d%s.root",RunYear, whichVFP.c_str()));
   	float phoEt_t5wg_eg(0);
   	float phoEta_t5wg_eg(0);
   	float lepPt_t5wg_eg(0);
@@ -463,7 +460,7 @@ void analysis_T6WG(){//main
 	outputfile_t5wg->Close();
 
 
-	//****************   TChiWG ***************************//
+	//****************   TChiWG **************************
  /* 	TFile *file_tchiwg = TFile::Open("/uscms/home/tmishra/nobackup/signal_trees/resTree_TChiWG_2016_march.root");
   	TTree *tree_tchiwg = (TTree*)file_tchiwg->Get("SUSYtree");
   	float Mchargino_tchiwg(0);

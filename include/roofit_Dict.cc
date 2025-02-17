@@ -1,6 +1,7 @@
 // Do NOT change. Changes will be lost next time file is generated
 
 #define R__DICTIONARY_FILENAME roofit_Dict
+#define R__NO_DEPRECATION
 
 /*******************************************************************/
 #include <stddef.h>
@@ -9,7 +10,7 @@
 #include <string.h>
 #include <assert.h>
 #define G__DICTIONARY
-#include "RConfig.h"
+#include "ROOT/RConfig.hxx"
 #include "TClass.h"
 #include "TDictAttributeMap.h"
 #include "TInterpreter.h"
@@ -33,17 +34,17 @@
 
 #include "TDataMember.h"
 
-// Since CINT ignores the std namespace, we need to do so in this file.
-namespace std {} using namespace std;
-
 // Header files passed as explicit arguments
 #include "RooDCBShape.h"
 #include "RooUserPoly.h"
 
 // Header files passed via #pragma extra_include
 
+// The generated code does not explicitly qualify STL entities
+namespace std {} using namespace std;
+
 namespace ROOT {
-   static void *new_RooDCBShape(void *p = 0);
+   static void *new_RooDCBShape(void *p = nullptr);
    static void *newArray_RooDCBShape(Long_t size, void *p);
    static void delete_RooDCBShape(void *p);
    static void deleteArray_RooDCBShape(void *p);
@@ -53,8 +54,8 @@ namespace ROOT {
    // Function generating the singleton type initializer
    static TGenericClassInfo *GenerateInitInstanceLocal(const ::RooDCBShape*)
    {
-      ::RooDCBShape *ptr = 0;
-      static ::TVirtualIsAProxy* isa_proxy = new ::TInstrumentedIsAProxy< ::RooDCBShape >(0);
+      ::RooDCBShape *ptr = nullptr;
+      static ::TVirtualIsAProxy* isa_proxy = new ::TInstrumentedIsAProxy< ::RooDCBShape >(nullptr);
       static ::ROOT::TGenericClassInfo 
          instance("RooDCBShape", ::RooDCBShape::Class_Version(), "RooDCBShape.h", 24,
                   typeid(::RooDCBShape), ::ROOT::Internal::DefineBehavior(ptr, ptr),
@@ -70,14 +71,14 @@ namespace ROOT {
    }
    TGenericClassInfo *GenerateInitInstance(const ::RooDCBShape*)
    {
-      return GenerateInitInstanceLocal((::RooDCBShape*)0);
+      return GenerateInitInstanceLocal(static_cast<::RooDCBShape*>(nullptr));
    }
    // Static variable to force the class initialization
-   static ::ROOT::TGenericClassInfo *_R__UNIQUE_DICT_(Init) = GenerateInitInstanceLocal((const ::RooDCBShape*)0x0); R__UseDummy(_R__UNIQUE_DICT_(Init));
+   static ::ROOT::TGenericClassInfo *_R__UNIQUE_DICT_(Init) = GenerateInitInstanceLocal(static_cast<const ::RooDCBShape*>(nullptr)); R__UseDummy(_R__UNIQUE_DICT_(Init));
 } // end of namespace ROOT
 
 namespace ROOT {
-   static void *new_RooUserPoly(void *p = 0);
+   static void *new_RooUserPoly(void *p = nullptr);
    static void *newArray_RooUserPoly(Long_t size, void *p);
    static void delete_RooUserPoly(void *p);
    static void deleteArray_RooUserPoly(void *p);
@@ -87,8 +88,8 @@ namespace ROOT {
    // Function generating the singleton type initializer
    static TGenericClassInfo *GenerateInitInstanceLocal(const ::RooUserPoly*)
    {
-      ::RooUserPoly *ptr = 0;
-      static ::TVirtualIsAProxy* isa_proxy = new ::TInstrumentedIsAProxy< ::RooUserPoly >(0);
+      ::RooUserPoly *ptr = nullptr;
+      static ::TVirtualIsAProxy* isa_proxy = new ::TInstrumentedIsAProxy< ::RooUserPoly >(nullptr);
       static ::ROOT::TGenericClassInfo 
          instance("RooUserPoly", ::RooUserPoly::Class_Version(), "RooUserPoly.h", 24,
                   typeid(::RooUserPoly), ::ROOT::Internal::DefineBehavior(ptr, ptr),
@@ -104,14 +105,14 @@ namespace ROOT {
    }
    TGenericClassInfo *GenerateInitInstance(const ::RooUserPoly*)
    {
-      return GenerateInitInstanceLocal((::RooUserPoly*)0);
+      return GenerateInitInstanceLocal(static_cast<::RooUserPoly*>(nullptr));
    }
    // Static variable to force the class initialization
-   static ::ROOT::TGenericClassInfo *_R__UNIQUE_DICT_(Init) = GenerateInitInstanceLocal((const ::RooUserPoly*)0x0); R__UseDummy(_R__UNIQUE_DICT_(Init));
+   static ::ROOT::TGenericClassInfo *_R__UNIQUE_DICT_(Init) = GenerateInitInstanceLocal(static_cast<const ::RooUserPoly*>(nullptr)); R__UseDummy(_R__UNIQUE_DICT_(Init));
 } // end of namespace ROOT
 
 //______________________________________________________________________________
-atomic_TClass_ptr RooDCBShape::fgIsA(0);  // static to hold class pointer
+atomic_TClass_ptr RooDCBShape::fgIsA(nullptr);  // static to hold class pointer
 
 //______________________________________________________________________________
 const char *RooDCBShape::Class_Name()
@@ -122,31 +123,31 @@ const char *RooDCBShape::Class_Name()
 //______________________________________________________________________________
 const char *RooDCBShape::ImplFileName()
 {
-   return ::ROOT::GenerateInitInstanceLocal((const ::RooDCBShape*)0x0)->GetImplFileName();
+   return ::ROOT::GenerateInitInstanceLocal((const ::RooDCBShape*)nullptr)->GetImplFileName();
 }
 
 //______________________________________________________________________________
 int RooDCBShape::ImplFileLine()
 {
-   return ::ROOT::GenerateInitInstanceLocal((const ::RooDCBShape*)0x0)->GetImplFileLine();
+   return ::ROOT::GenerateInitInstanceLocal((const ::RooDCBShape*)nullptr)->GetImplFileLine();
 }
 
 //______________________________________________________________________________
 TClass *RooDCBShape::Dictionary()
 {
-   fgIsA = ::ROOT::GenerateInitInstanceLocal((const ::RooDCBShape*)0x0)->GetClass();
+   fgIsA = ::ROOT::GenerateInitInstanceLocal((const ::RooDCBShape*)nullptr)->GetClass();
    return fgIsA;
 }
 
 //______________________________________________________________________________
 TClass *RooDCBShape::Class()
 {
-   if (!fgIsA.load()) { R__LOCKGUARD(gInterpreterMutex); fgIsA = ::ROOT::GenerateInitInstanceLocal((const ::RooDCBShape*)0x0)->GetClass(); }
+   if (!fgIsA.load()) { R__LOCKGUARD(gInterpreterMutex); fgIsA = ::ROOT::GenerateInitInstanceLocal((const ::RooDCBShape*)nullptr)->GetClass(); }
    return fgIsA;
 }
 
 //______________________________________________________________________________
-atomic_TClass_ptr RooUserPoly::fgIsA(0);  // static to hold class pointer
+atomic_TClass_ptr RooUserPoly::fgIsA(nullptr);  // static to hold class pointer
 
 //______________________________________________________________________________
 const char *RooUserPoly::Class_Name()
@@ -157,26 +158,26 @@ const char *RooUserPoly::Class_Name()
 //______________________________________________________________________________
 const char *RooUserPoly::ImplFileName()
 {
-   return ::ROOT::GenerateInitInstanceLocal((const ::RooUserPoly*)0x0)->GetImplFileName();
+   return ::ROOT::GenerateInitInstanceLocal((const ::RooUserPoly*)nullptr)->GetImplFileName();
 }
 
 //______________________________________________________________________________
 int RooUserPoly::ImplFileLine()
 {
-   return ::ROOT::GenerateInitInstanceLocal((const ::RooUserPoly*)0x0)->GetImplFileLine();
+   return ::ROOT::GenerateInitInstanceLocal((const ::RooUserPoly*)nullptr)->GetImplFileLine();
 }
 
 //______________________________________________________________________________
 TClass *RooUserPoly::Dictionary()
 {
-   fgIsA = ::ROOT::GenerateInitInstanceLocal((const ::RooUserPoly*)0x0)->GetClass();
+   fgIsA = ::ROOT::GenerateInitInstanceLocal((const ::RooUserPoly*)nullptr)->GetClass();
    return fgIsA;
 }
 
 //______________________________________________________________________________
 TClass *RooUserPoly::Class()
 {
-   if (!fgIsA.load()) { R__LOCKGUARD(gInterpreterMutex); fgIsA = ::ROOT::GenerateInitInstanceLocal((const ::RooUserPoly*)0x0)->GetClass(); }
+   if (!fgIsA.load()) { R__LOCKGUARD(gInterpreterMutex); fgIsA = ::ROOT::GenerateInitInstanceLocal((const ::RooUserPoly*)nullptr)->GetClass(); }
    return fgIsA;
 }
 
@@ -221,14 +222,14 @@ namespace ROOT {
    }
    // Wrapper around operator delete
    static void delete_RooDCBShape(void *p) {
-      delete ((::RooDCBShape*)p);
+      delete (static_cast<::RooDCBShape*>(p));
    }
    static void deleteArray_RooDCBShape(void *p) {
-      delete [] ((::RooDCBShape*)p);
+      delete [] (static_cast<::RooDCBShape*>(p));
    }
    static void destruct_RooDCBShape(void *p) {
       typedef ::RooDCBShape current_t;
-      ((current_t*)p)->~current_t();
+      (static_cast<current_t*>(p))->~current_t();
    }
    // Wrapper around a custom streamer member function.
    static void streamer_RooDCBShape(TBuffer &buf, void *obj) {
@@ -267,14 +268,14 @@ namespace ROOT {
    }
    // Wrapper around operator delete
    static void delete_RooUserPoly(void *p) {
-      delete ((::RooUserPoly*)p);
+      delete (static_cast<::RooUserPoly*>(p));
    }
    static void deleteArray_RooUserPoly(void *p) {
-      delete [] ((::RooUserPoly*)p);
+      delete [] (static_cast<::RooUserPoly*>(p));
    }
    static void destruct_RooUserPoly(void *p) {
       typedef ::RooUserPoly current_t;
-      ((current_t*)p)->~current_t();
+      (static_cast<current_t*>(p))->~current_t();
    }
    // Wrapper around a custom streamer member function.
    static void streamer_RooUserPoly(TBuffer &buf, void *obj) {
@@ -287,45 +288,43 @@ namespace {
     static const char* headers[] = {
 "RooDCBShape.h",
 "RooUserPoly.h",
-0
+nullptr
     };
     static const char* includePaths[] = {
-"/cvmfs/cms.cern.ch/slc7_amd64_gcc700/lcg/root/6.12.07-gnimlf7/include",
-"/uscms/homes/t/tmishra/work/CMSSW_10_2_22/src/SUSYAnalysis/include/",
-0
+"/cvmfs/cms.cern.ch/el9_amd64_gcc12/lcg/root/6.30.03-ca7ca986842b225f6fc22ae84d705ed8/include/",
+"/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/include/",
+nullptr
     };
     static const char* fwdDeclCode = R"DICTFWDDCLS(
 #line 1 "roofit_Dict dictionary forward declarations' payload"
 #pragma clang diagnostic ignored "-Wkeyword-compat"
 #pragma clang diagnostic ignored "-Wignored-attributes"
 #pragma clang diagnostic ignored "-Wreturn-type-c-linkage"
-extern int __Cling_Autoloading_Map;
-class __attribute__((annotate(R"ATTRDUMP(Crystal Ball lineshape PDF)ATTRDUMP"))) __attribute__((annotate("$clingAutoload$RooDCBShape.h")))  RooDCBShape;
-class __attribute__((annotate(R"ATTRDUMP(Crystal Ball lineshape PDF)ATTRDUMP"))) __attribute__((annotate("$clingAutoload$RooUserPoly.h")))  RooUserPoly;
+extern int __Cling_AutoLoading_Map;
+class __attribute__((annotate("$clingAutoload$RooDCBShape.h")))  RooDCBShape;
+class __attribute__((annotate("$clingAutoload$RooUserPoly.h")))  RooUserPoly;
 )DICTFWDDCLS";
     static const char* payloadCode = R"DICTPAYLOAD(
 #line 1 "roofit_Dict dictionary payload"
 
-#ifndef G__VECTOR_HAS_CLASS_ITERATOR
-  #define G__VECTOR_HAS_CLASS_ITERATOR 1
-#endif
 
 #define _BACKWARD_BACKWARD_WARNING_H
+// Inline headers
 #include "RooDCBShape.h"
 #include "RooUserPoly.h"
 
 #undef  _BACKWARD_BACKWARD_WARNING_H
 )DICTPAYLOAD";
-    static const char* classesHeaders[]={
+    static const char* classesHeaders[] = {
 "RooDCBShape", payloadCode, "@",
 "RooUserPoly", payloadCode, "@",
-nullptr};
-
+nullptr
+};
     static bool isInitialized = false;
     if (!isInitialized) {
       TROOT::RegisterModule("roofit_Dict",
         headers, includePaths, payloadCode, fwdDeclCode,
-        TriggerDictionaryInitialization_roofit_Dict_Impl, {}, classesHeaders);
+        TriggerDictionaryInitialization_roofit_Dict_Impl, {}, classesHeaders, /*hasCxxModule*/false);
       isInitialized = true;
     }
   }

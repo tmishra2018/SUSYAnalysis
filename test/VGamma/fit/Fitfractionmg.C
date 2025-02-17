@@ -22,7 +22,7 @@
 #include "TRandom3.h"
 #include "TPad.h"
 #include "TGraphErrors.h"
-
+#include "TROOT.h"
 #ifndef __CINT__
 #include "RooGlobalFunc.h"
 #endif
@@ -49,11 +49,11 @@
 #include "../../../include/analysis_tools.h"
 #include "../../../include/tdrstyle.C"
 
-int RunYear = 2017;
-bool preVFP = false;
+//int RunYear = 2017;
+//bool preVFP = false;
 std::string whichVFP;
 
-int Fitfractionmg(int ih,int metlow, int methigh, int leplow, int lephigh, int isocut){
+int Fitfractionmg(int ih,int metlow, int methigh, int leplow, int lephigh, int isocut, int RunYear, bool preVFP){
 	gROOT->SetBatch(kTRUE);
 	gStyle->SetOptStat(0);
 	setTDRStyle();
@@ -111,7 +111,7 @@ int Fitfractionmg(int ih,int metlow, int methigh, int leplow, int lephigh, int i
 	//fake lepton template
   TH1D *p_proxy = (TH1D*)file_qcd->Get("p_dPhiEleMET");
   TH1D *p_MC;
-	if(ih < 500){
+	if(ih < 1000){
 		// VGamma template
 		p_MC = (TH1D*)file_VG->Get("p_dPhiEleMET"); 
 		gRandom = new TRandom3(0);
@@ -245,10 +245,10 @@ int Fitfractionmg(int ih,int metlow, int methigh, int leplow, int lephigh, int i
 	leg->AddEntry(p_combine_error, "Fit uncertainty");
 	leg->Draw("same");
  	gPad->RedrawAxis();
-	if(RunYear==2016 and preVFP == 1)       CMS_lumi( canpt_pad1,1, 11 );
-        else if(RunYear==2016 and preVFP == 0)  CMS_lumi( canpt_pad1,2, 11 );
-        else if(RunYear==2017)                  CMS_lumi( canpt_pad1,3, 11 );
-        else if(RunYear==2018)                  CMS_lumi( canpt_pad1,4, 11 );
+	if(RunYear==2016 and preVFP == 1)       CMS_lumi( canpt_pad1,1,2, 11 );
+        else if(RunYear==2016 and preVFP == 0)  CMS_lumi( canpt_pad1,2,2, 11 );
+        else if(RunYear==2017)                  CMS_lumi( canpt_pad1,3,2, 11 );
+        else if(RunYear==2018)                  CMS_lumi( canpt_pad1,4,2, 11 );
 
   TLatex chantex;
   chantex.SetNDC();

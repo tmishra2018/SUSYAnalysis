@@ -62,7 +62,7 @@ echo 'SaveOutput 1'  >> configFit_Bw_expo.txt
 #./FitKer.exe 1 0 0 40 45 60 120
 
 
-cd /uscms/homes/t/tmishra/work/CMSSW_10_2_22/src
+cd /uscms/homes/t/tmishra/work/CMSSW_14_0_7/src
 
 tar -czvf files.tar.gz SUSYAnalysis/test/eleFakePho/fit/make.sh SUSYAnalysis/test/eleFakePho/fit/command_HTcondor.sh SUSYAnalysis/test/eleFakePho/fit/command_HTcondor.py SUSYAnalysis/test/eleFakePho/fit/FitKer.C SUSYAnalysis/lib/* SUSYAnalysis/include/*.h SUSYAnalysis/src/*.cc SUSYAnalysis/include/tdrstyle.C
 

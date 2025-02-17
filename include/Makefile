@@ -6,7 +6,8 @@ ROOTGLIBS     = $(shell $(ROOTSYS)/bin/root-config --glibs)
 ROOTCFLAGS    = $(shell $(ROOTSYS)/bin/root-config --cflags) 
 
 CXX           = g++ -Wall -Wno-maybe-uninitialized
-CXXFLAGS      = -g -Wall -fPIC -Wno-maybe-uninitialized
+CXXFLAGS      = -g -Wall -fPIC -Wno-maybe-uninitialized -std=c++17 -I../include/
+
 SOFLAGS       = -shared 
 
 CXXFLAGS     += $(ROOTCFLAGS) 

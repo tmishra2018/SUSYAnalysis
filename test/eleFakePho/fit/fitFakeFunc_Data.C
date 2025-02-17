@@ -22,6 +22,7 @@
 #include "TMatrixDSym.h"
 #include "TRandom3.h"
 #include "../../../include/tdrstyle.C"
+#include "TROOT.h"
 
 #ifndef __CINT__
 #include "RooGlobalFunc.h"
@@ -65,7 +66,9 @@ const char*processName ="Data";
 #define MAXVTX 46
 bool doEB = true;
 bool doDrellYan = false;
-int RunYear = 2018;
+int RunYear = 2016;
+bool preVFP = false;
+
 Double_t fakerate_ptDependence(Double_t *x, Double_t *par)
 {
 	double slope = par[0];
@@ -103,10 +106,17 @@ bool isElectron(int PID, int momID){
 }
 
 void fitFakeFunc_Data(){//main 
+
+	 std::string whichVFP;
+        if(RunYear==2016 and preVFP == true) whichVFP = "preVFP";
+        if(RunYear==2016 and preVFP == false) whichVFP = "postVFP";
+        if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
+
+
 	gROOT->SetBatch(1);
 	ofstream resultfile;
-	if(doDrellYan==true) resultfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/result_fitFakeFunc_DY_%d.txt",RunYear));
-        else resultfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/result_fitFakeFunc_Data_%d.txt",RunYear));
+	if(doDrellYan==true) resultfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/result_fitFakeFunc_DY_%d%s.txt",RunYear,whichVFP.c_str()));
+        else resultfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/result_fitFakeFunc_Data_%d%s.txt",RunYear,whichVFP.c_str()));
 	
 	gSystem->Load("../../../lib/libAnaClasses.so");
         gSystem->Load("../../../lib/libRooFitClasses.so");
@@ -132,15 +142,15 @@ void fitFakeFunc_Data(){//main
 
 	/****************************   Data   *********************************/
 	else {
-	Pt_file.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d/EleFakeRate-Data-Bw-ker-pt-60-120.txt",RunYear));
-        Pt_DYfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d/EleFakeRate-Data-DY-ker-pt-60-120.txt",RunYear));
-        Pt_Polfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d/EleFakeRate-Data-Bw-expo-pt-60-120.txt",RunYear));
-        Eta_file.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d/EleFakeRate-Data-Bw-ker-eta-60-120.txt",RunYear));
-        Eta_DYfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d/EleFakeRate-Data-DY-ker-eta-60-120.txt",RunYear));
-        Eta_Polfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d/EleFakeRate-Data-Bw-expo-eta-60-120.txt",RunYear));
-        Vtx_file.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d/EleFakeRate-Data-Bw-ker-vtx-60-120.txt",RunYear));
-        Vtx_DYfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d/EleFakeRate-Data-DY-ker-vtx-60-120.txt",RunYear));
-        Vtx_Polfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d/EleFakeRate-Data-Bw-expo-vtx-60-120.txt",RunYear)); }
+	Pt_file.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-Bw-ker-pt-60-120.txt",RunYear,whichVFP.c_str()));
+        Pt_DYfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-DY-ker-pt-60-120.txt",RunYear,whichVFP.c_str()));
+        Pt_Polfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-Bw-expo-pt-60-120.txt",RunYear,whichVFP.c_str()));
+        Eta_file.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-Bw-ker-eta-60-120.txt",RunYear,whichVFP.c_str()));
+        Eta_DYfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-DY-ker-eta-60-120.txt",RunYear,whichVFP.c_str()));
+        Eta_Polfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-Bw-expo-eta-60-120.txt",RunYear,whichVFP.c_str()));
+        Vtx_file.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-Bw-ker-vtx-60-120.txt",RunYear,whichVFP.c_str()));
+        Vtx_DYfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-DY-ker-vtx-60-120.txt",RunYear,whichVFP.c_str()));
+        Vtx_Polfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-Bw-expo-vtx-60-120.txt",RunYear,whichVFP.c_str())); }
 
 	std::string line;
 	unsigned nPtBins(0);
@@ -391,8 +401,7 @@ void fitFakeFunc_Data(){//main
 	TH1D* invmass_prednum = new TH1D("invmass_prednum", "invmass_prednum",100,40,140);
 	
 	TChain *etree = new TChain("FakeRateTree");
-	etree->Add(Form("/eos/uscms/store/user/tmishra/elefakepho/files/plot_elefakepho_%sTnP_dR05_2016_TagPt30.root",processName));
-	etree->Add(Form("/eos/uscms/store/user/tmishra/elefakepho/files/plot_elefakepho_%sTnP_dR05_%d_PixelIssue_cut_added.root",processName,RunYear));
+	etree->Add(Form("/eos/uscms/store/user/tmishra/elefakepho/files/plot_elefakepho_%sTnP_dR05_%d%s.root",processName,RunYear,whichVFP.c_str()));
 	float invmass=0; 
 	float tagPt=0; 
 	float probePt=0; 
@@ -448,8 +457,7 @@ void fitFakeFunc_Data(){//main
 	invmass_prednum->Sumw2();
  
 	TChain *bgtree = new TChain("BGTree");
-	if(RunYear == 2016) bgtree->Add("/eos/uscms/store/user/tmishra/elefakepho/files/plot_bgtemplate_FullEcal_2016_TagPt30.root");
-	else bgtree->Add(Form("root://cmseos.fnal.gov//store/user/tmishra/elefakepho/files/plot_bgtemplate_FullEcal_%d_PixelIssue_cut_added.root",RunYear));
+	bgtree->Add(Form("/eos/uscms/store/user/tmishra/elefakepho/files/plot_bgtemplate_FullEcal_%d%s.root",RunYear,whichVFP.c_str()));
 	float invmass_bg=0; 
 	float probePt_bg=0; 
 	float probeEta_bg=0; 
@@ -476,8 +484,9 @@ void fitFakeFunc_Data(){//main
 	
 	TH1D  *h_DYinvmass = new TH1D("h_DYinvmass","h_DYinvmass",80,70,110);
 	TChain *DYtree = new TChain("FakeRateTree");
-	if(RunYear == 2016)DYtree->Add("/eos/uscms/store/user/tmishra/elefakepho/files/plot_elefakepho_DYTnP_dR05_2016_TagPt30.root");
-        else DYtree->Add(Form("root://cmseos.fnal.gov//store/user/tmishra/elefakepho/files/plot_elefakepho_DYTnP_dR05_%d_PixelIssue_cut_added.root",RunYear));
+		if (RunYear== 2018) DYtree->Add("/eos/uscms/store/user/tmishra/elefakepho/files/plot_elefakepho_DYTnP_dR05_2017.root");
+		DYtree->Add(Form("/eos/uscms/store/user/tmishra/elefakepho/files/plot_elefakepho_DYTnP_dR05_%d%s.root",RunYear,whichVFP.c_str()));
+
 
 	float DY_invmass=0; 
 	float DY_tagPt=0; 
@@ -801,7 +810,7 @@ void fitFakeFunc_Data(){//main
      	TLegend *leg = new TLegend(0.5,0.6,0.89,0.89);
      	leg->AddEntry(fr_bothcount_pt, "data");
      	leg->AddEntry(fit_fakerate_pt,"fit result");
-//     	leg->AddEntry(fr_pt_sigmaband,"total uncertainty");
+     	leg->AddEntry(fr_pt_sigmaband,"total uncertainty");
      
      	TCanvas *canpt = new TCanvas("canpt","",600,600);
      	canpt->cd();

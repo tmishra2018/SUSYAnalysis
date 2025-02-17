@@ -1,3 +1,4 @@
+#include <TROOT.h>
 #include<string>
 #include<iostream>
 #include<fstream>
@@ -29,10 +30,10 @@
 //#include "../../include/tdrstyle.C"
 #include "../../include/analysis_commoncode.h"
 
-bool total16 = true; // ON and OFF
+bool total16 = false; // ON and OFF
 
 void plot_eventct(int NBIN){//main  
-	gROOT->SetBatch();
+	gROOT->SetBatch(true);
 	gStyle->SetOptStat(0);
 	setTDRStyle();
 	SetSignalConfig();
@@ -284,7 +285,7 @@ void plot_eventct(int NBIN){//main
 
 	double bkgContent(0);
 	double bkgError(0);
-	
+	// first 18 binning mg, next 18 for eg
 	for(int ibin(1); ibin <= NBIN; ibin++){
 		h_elefakepho_norm->SetBinContent(ibin, mg_elefakepho_norm->GetBinContent(ibin));
 		h_elefakepho_controlsample->SetBinContent(ibin,   mg_elefakepho_controlsample->GetBinContent(ibin));
@@ -709,10 +710,10 @@ void plot_eventct(int NBIN){//main
 	latex->DrawLatex(27.5, 5000, "< 200");
 	latex->DrawLatex(30, 5000, "[200,400]");
 	latex->DrawLatex(33.5, 5000, "> 400");
-	if(RunYear==2016 and preVFP == 1)       CMS_lumi( pad1,1, 11 );
-        else if(RunYear==2016 and preVFP == 0)  CMS_lumi( pad1,2, 11 );
-        else if(RunYear==2017)                  CMS_lumi( pad1,3, 11 );
-        else if(RunYear==2018)                  CMS_lumi( pad1,4, 11 );
+	if(RunYear==2016 and preVFP == 1)       CMS_lumi( pad1,1,1, 11 );
+        else if(RunYear==2016 and preVFP == 0)  CMS_lumi( pad1,2,1, 11 );
+        else if(RunYear==2017)                  CMS_lumi( pad1,3,1, 11 );
+        else if(RunYear==2018)                  CMS_lumi( pad1,4,1, 11 );
 
 
 	can->cd();
