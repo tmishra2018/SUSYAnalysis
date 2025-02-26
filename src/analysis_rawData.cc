@@ -28,11 +28,6 @@ bool rawData::passHLT(){
     case MCSingleElectron2017:if(((HLTEleMuX >> 3) &1) !=0)passDataHLT = true; break;  // HLT_Ele35_WPTight_Gsf_v
     case MCSingleElectron2018:if(((HLTEleMuX >> 55) &1) !=0)passDataHLT = true; break; // HLT_Ele32_WPTight_Gsf_v
     
-//  case SingleElectron2016:if(((HLTEleMuX >> 2) &1) !=0)passDataHLT = true; break;    // HLT_Ele27_eta2p1_WPLoose_Gsf_v
-//  case SingleElectron2017:if(((HLTEleMuX >> 59) &1) !=0)passDataHLT = true; break;   // HLT_Ele20_eta2p1_WPLoose_Gsf
-//  case SingleElectron2018:if(((HLTEleMuX >> 59) &1) !=0)passDataHLT = true; break;   // HLT_Ele20_eta2p1_WPLoose_Gsf
-
-
     case SingleMuon2016: if(((HLTEleMuX >> 19) &1)!=0 || ((HLTEleMuX >> 20) &1)!=0)passDataHLT = true; break; // HLT_IsoMu24_v || HLT_IsoTkMu24_v
     case SingleMuon2017: if(((HLTEleMuX >> 56) &1)!=0)passDataHLT = true; break;	// HLT_IsoMu27_v
     case SingleMuon2018: if(((HLTEleMuX >> 19) &1)!=0)passDataHLT = true; break;	// HLT_IsoMu24_v

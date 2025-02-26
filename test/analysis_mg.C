@@ -55,7 +55,7 @@ void analysis_mg(int RunYear, const char *Era){//main
 
 	int nTotal(0),npassHLT(0), npassPho(0), npassLep(0), npassdR(0), npassZ(0), npassMETFilter(0);
 
-  TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,Era),"RECREATE");
+  TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,Era),"RECREATE");
   outputfile->cd();
 
 	TH1D *p_METFilter = new TH1D("p_METFilter","",12,-2,10);	
@@ -346,11 +346,11 @@ void analysis_mg(int RunYear, const char *Era){//main
 			run=raw.run;
 			event=raw.event;
 			lumis=raw.lumis;
+			nTotal+=1;
 
 			if(RunYear==2018 && !passHEMVeto(0,raw)) continue;
                         passHEM++;
 
-			nTotal+=1;
 			if(!raw.passHLT())continue;
 			if(raw.nGoodVtx < 1)continue;
 			npassHLT+=1;

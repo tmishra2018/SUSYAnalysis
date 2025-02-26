@@ -1,3 +1,5 @@
+// g++ `root-config --cflags` plotMuonTrigger.C -o plotMuonTrigger.exe `root-config --libs`
+#include <TROOT.h>
 #include<string>
 #include<iostream>
 #include<fstream>
@@ -16,11 +18,11 @@
 #include "TF1.h"
 #include "TMath.h"
 #include "../include/tdrstyle.C"
+using namespace std;
 
-int RunYear = 2016;
-bool preVFP = true;
 
-void plotMuonTrigger(){//main  
+
+void plotMuonTrigger(int RunYear, bool preVFP){
 	gROOT->SetBatch(kTRUE);
   	gStyle->SetOptStat(0);
 	gStyle->SetPaintTextFormat("4.4f");
@@ -59,10 +61,12 @@ void plotMuonTrigger(){//main
 	mgtree->SetBranchAddress("dR",        &mg_dR);
 	mgtree->SetBranchAddress("phofireHLT",&mg_phofireHLT);
 	mgtree->SetBranchAddress("mufireHLT", &mg_mufireHLT);
-	mgtree->SetBranchAddress("phofireHLT2",&mg_phofireHLT2);
-	mgtree->SetBranchAddress("mufireHLT2", &mg_mufireHLT2);
   	mgtree->SetBranchAddress("passHLT",    &mg_passHLT);
-  	mgtree->SetBranchAddress("passHLT2",   &mg_passHLT2);
+	if(RunYear==2016){
+		mgtree->SetBranchAddress("phofireHLT2",&mg_phofireHLT2);
+		mgtree->SetBranchAddress("mufireHLT2", &mg_mufireHLT2);
+  		mgtree->SetBranchAddress("passHLT2",   &mg_passHLT2);
+	}
 
 	// Ztree from data
 	TChain *Ztree = new TChain("ZTree","ZTree");
@@ -82,30 +86,46 @@ void plotMuonTrigger(){//main
 	Ztree->SetBranchAddress("dR",        &Z_dR);
 	Ztree->SetBranchAddress("phofireHLT",&Z_phofireHLT);
 	Ztree->SetBranchAddress("mufireHLT", &Z_mufireHLT);
-	Ztree->SetBranchAddress("phofireHLT2",&Z_phofireHLT2);
-	Ztree->SetBranchAddress("mufireHLT2", &Z_mufireHLT2);
+	if(RunYear==2016){
+		Ztree->SetBranchAddress("phofireHLT2",&Z_phofireHLT2);
+		Ztree->SetBranchAddress("mufireHLT2", &Z_mufireHLT2);}
 
+
+
+	// Data tree
 	for(unsigned ievt(0); ievt < Ztree->GetEntries(); ievt++){
 		Ztree->GetEntry(ievt);
 		if(fabs(Z_phoEta) > 1.4442)continue;
 		if(Z_phoEt > 200)Z_phoEt = 199;
 		if(Z_muPt > 200)Z_muPt = 199;
-		// [(probePho->fireDoubleTrg(28) || probePho->fireDoubleTrg(29)) && (probeMu->fireSingleTrg(2)] or [probeMu->fireSingleTrg(21) || (probePho->fireDoubleTrg(30)&&(probeMu->fireSingleTrg(22))]
-		// hltMu17Photon30CaloIdLL1ISOHEFilter || hltMu17Photon30CaloIdLL1ISOORHEFilter && hltL3fL1sL1Mu5IsoEG18L1f5L2f7L3Filtered17 || hltL3fL1sL1Mu5IsoEG18ORL1Mu5IsoEG20L1f5L2f7L3Filtered17
-		// hltMu38NoFiltersNoVtxPhoton38CaloIdLHEFilter && hltL3fL1sMu5EG20orMu20EG15L1f5L2NVf16L3NoFiltersNoVtxFiltered38
-		//     sometthing wrong in Z_mufireHLT or Z_mufireHLT2
-//		if((Z_phofireHLT > 0 && Z_mufireHLT > 0) || (Z_phofireHLT2 > 0 && Z_mufireHLT2 > 0))
-		if((Z_phofireHLT > 0 || Z_phofireHLT2 > 0) && (Z_mufireHLT > 0 || Z_mufireHLT2 > 0))
-			p_HLTeff_Z->Fill(Z_phoEt, Z_muPt, 1);
-		else p_HLTeff_Z->Fill(Z_phoEt, Z_muPt, 0);
+		
+		if(RunYear==2016){
+			if((Z_phofireHLT > 0 && Z_mufireHLT > 0) || (Z_phofireHLT2 > 0 && Z_mufireHLT2 > 0))
+				p_HLTeff_Z->Fill(Z_phoEt, Z_muPt, 1);
+			else p_HLTeff_Z->Fill(Z_phoEt, Z_muPt, 0);}
+			// [(probePho->fireDoubleTrg(28) || probePho->fireDoubleTrg(29)) && (probeMu->fireSingleTrg(2)] or [probeMu->fireSingleTrg(21) || (probePho->fireDoubleTrg(30)&&(probeMu->fireSingleTrg(22))]
+			// hltMu17Photon30CaloIdLL1ISOHEFilter || hltMu17Photon30CaloIdLL1ISOORHEFilter && hltL3fL1sL1Mu5IsoEG18L1f5L2f7L3Filtered17 || hltL3fL1sL1Mu5IsoEG18ORL1Mu5IsoEG20L1f5L2f7L3Filtered17
+			// hltMu38NoFiltersNoVtxPhoton38CaloIdLHEFilter && hltL3fL1sMu5EG20orMu20EG15L1f5L2NVf16L3NoFiltersNoVtxFiltered38
+		
+		else if (RunYear==2017 or RunYear==2018){
+			if(Z_phofireHLT > 0 && Z_mufireHLT > 0)
+                        	p_HLTeff_Z->Fill(Z_phoEt, Z_muPt, 1);
+                	else p_HLTeff_Z->Fill(Z_phoEt, Z_muPt, 0);}
+		
 	}
+
+	// for uncertainty
 
 	for(unsigned ievt(0); ievt < mgtree->GetEntries(); ievt++){
 		mgtree->GetEntry(ievt);
-		//if(mg_phoEt > 200)mg_phoEt = 199;
-    		//if(mg_muPt > 200)mg_muPt = 199;
-		if(mg_passHLT > 0 || mg_passHLT2 > 0)p_HLTeff_mg->Fill(mg_phoEt, mg_muPt, 1);
-		else p_HLTeff_mg->Fill(mg_phoEt, mg_muPt, 0);
+		
+		if(RunYear==2016){
+			if(mg_passHLT > 0 || mg_passHLT2 > 0)p_HLTeff_mg->Fill(mg_phoEt, mg_muPt, 1);
+			else p_HLTeff_mg->Fill(mg_phoEt, mg_muPt, 0);}
+		else if (RunYear==2017 or RunYear==2018){
+			if(mg_passHLT > 0)      p_HLTeff_mg->Fill(mg_phoEt, mg_muPt, 1);
+                	else p_HLTeff_mg->Fill(mg_phoEt, mg_muPt, 0);}
+
 	}
 
 	TCanvas *canmg = new TCanvas("canmg","",600,600);
@@ -136,9 +156,10 @@ void plotMuonTrigger(){//main
         else if(RunYear==2018)                  CMS_lumi(canZ, 4, 2, 11);
 	canZ->SaveAs(Form("/eos/uscms/store/user/tmishra/Trigger/mgTrigger_efficiency_%d%s.pdf",RunYear,whichVFP.c_str()));
 
-	// DYtree from DY mc
+	// DYtree from DY MC
 	TChain *DYtree = new TChain("mgTree","mgTree");
-	DYtree->Add(Form("/eos/uscms/store/user/tmishra/Trigger/files/plot_MuonTrigger_DY_%d%s.root",RunYear,whichVFP.c_str()));
+	DYtree->Add(Form("/eos/uscms/store/user/lpcsusyphotons/SoftPhoton/Tribeni/plot_MuonTrigger_DY_%d%s.root",RunYear,whichVFP.c_str()));
+	//DYtree->Add(Form("/eos/uscms/store/user/tmishra/Trigger/files/plot_MuonTrigger_DY_%d%s.root",RunYear,whichVFP.c_str()));
 	float DY_phoEt(0);
 	float DY_phoEta(0);
 	float DY_muPt(0);
@@ -154,17 +175,27 @@ void plotMuonTrigger(){//main
 	DYtree->SetBranchAddress("muMiniIso", &DY_muMiniIso);
 	DYtree->SetBranchAddress("phofireHLT",&DY_phofireHLT);
 	DYtree->SetBranchAddress("mufireHLT", &DY_mufireHLT);
-	DYtree->SetBranchAddress("phofireHLT2",&DY_phofireHLT2);
-	DYtree->SetBranchAddress("mufireHLT2", &DY_mufireHLT2);
+	if(RunYear==2016){
+		DYtree->SetBranchAddress("phofireHLT2",&DY_phofireHLT2);
+		DYtree->SetBranchAddress("mufireHLT2", &DY_mufireHLT2);}
 
+	// MC tree
 	for(unsigned ievt(0); ievt < DYtree->GetEntries(); ievt++){
 		DYtree->GetEntry(ievt);
 		if(DY_phoEt > 200)DY_phoEt = 199;
 		if(DY_muPt > 200)DY_muPt = 199;
-		if((DY_phofireHLT > 0 || DY_phofireHLT2 > 0) && (DY_mufireHLT > 0 || DY_mufireHLT2 > 0))
-	//	if((DY_phofireHLT > 0 && DY_mufireHLT > 0) || (DY_phofireHLT2 > 0 && DY_mufireHLT2 > 0))
-			p_HLTeff_DY->Fill(DY_phoEt, DY_muPt, 1);
-		else p_HLTeff_DY->Fill(DY_phoEt, DY_muPt, 0);
+		
+		if(RunYear==2016){
+			if((DY_phofireHLT > 0 && DY_mufireHLT > 0) || (DY_phofireHLT2 > 0 && DY_mufireHLT2 > 0))
+				p_HLTeff_DY->Fill(DY_phoEt, DY_muPt, 1);
+			else p_HLTeff_DY->Fill(DY_phoEt, DY_muPt, 0);}
+
+		else if (RunYear==2017 or RunYear==2018){
+			if(DY_phofireHLT > 0 && DY_mufireHLT > 0)
+                        	p_HLTeff_DY->Fill(DY_phoEt, DY_muPt, 1);
+               	 	else p_HLTeff_DY->Fill(DY_phoEt, DY_muPt, 0);}
+
+
 	}
   	for(int binx(1); binx <= 4; binx++){
 		for(int biny(1); biny <= 4; biny++){
@@ -182,15 +213,17 @@ void plotMuonTrigger(){//main
 	p_HLTeff_DY->Draw("E colz text");
 
 	TCanvas *canESF = new TCanvas("canESF","",600,600);
-	canESF->SetRightMargin(0.14);
-	gPad->SetLogx();
-	gPad->SetLogy();
-	gStyle->SetPaintTextFormat("4.4f");
+	canESF->cd();
+        canESF->SetRightMargin(0.12);
+        gPad->SetLogx();
+        gPad->SetLogy();
+        gStyle->SetPaintTextFormat("4.2f");
+        gStyle->SetPalette(9, PaletteColors);
 	p_mgESF->Draw("E colz text");
-        if(RunYear==2016 and preVFP == 1)       CMS_lumi(canESF, 1, 11);
-        else if(RunYear==2016 and preVFP == 0)  CMS_lumi(canESF, 2, 11);
-        else if(RunYear==2017)                  CMS_lumi(canESF, 5, 11);
-        else if(RunYear==2018)                  CMS_lumi(canESF, 4, 11);
+        if(RunYear==2016 and preVFP == 1)       CMS_lumi(canESF, 1, 2, 11);
+        else if(RunYear==2016 and preVFP == 0)  CMS_lumi(canESF, 2, 2, 11);
+        else if(RunYear==2017)                  CMS_lumi(canESF, 3, 2, 11);
+        else if(RunYear==2018)                  CMS_lumi(canESF, 4, 2, 11);
 
 	canESF->SaveAs(Form("/eos/uscms/store/user/tmishra/Trigger/mgTrigger_ESF_%d%s.pdf",RunYear,whichVFP.c_str()));
 	
@@ -200,4 +233,12 @@ void plotMuonTrigger(){//main
 	p_mgESF->Write();
 	outputfile->Write();
 	outputfile->Close();
+}
+int main(int argc, char** argv)
+{
+    if(argc < 3)
+      cout << "You have to provide two arguments!!\n";
+    bool preVFP = (atoi(argv[2]) == 1);
+    plotMuonTrigger(atoi(argv[1]), preVFP);
+    return 0;
 }

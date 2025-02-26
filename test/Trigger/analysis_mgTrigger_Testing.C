@@ -1,4 +1,4 @@
-// g++ `root-config --cflags` analysis_mgTrigger2017.C -o analysis_mgTrigger2017.exe `root-config --libs`
+// g++ `root-config --cflags` analysis_mgTrigger.C -o analysis_mgTrigger.exe `root-config --libs`
 #include<string>
 #include<iostream>
 #include<fstream>
@@ -35,29 +35,25 @@
 #include "../../src/analysis_photon.cc"
 
 
-void analysis_mgTrigger2017_2018(bool useData, int RunYear, const char *Era){//main  
+
+void analysis_mgTrigger(int RunYear, const char *Era){
 
 	gSystem->Load("../../lib/libAnaClasses.so");
 
 	ofstream logfile;
-	if (useData) logfile.open(Form("/eos/uscms/store/user/tmishra/Trigger/logs/plot_MuonTrigger_Data_%d%s.log",RunYear,Era));
-	else logfile.open(Form("/eos/uscms/store/user/tmishra/Trigger/logs/plot_MuonTrigger_DY_%d%s.log",RunYear,Era));
-
+	logfile.open(Form("/eos/uscms/store/user/tmishra/Trigger/logs/plot_MuonTrigger_Data_%d%s.log",RunYear,Era));
 	logfile << "analysis_mgTrigger()" << std::endl;
 
 	RunType datatype;
-	if(!useData)     datatype = MC;
-	if(useData && RunYear==2017)    datatype = SingleMuon2017;
-        if(useData && RunYear==2018)    datatype = SingleMuon2018;
-
-
+        if(RunYear==2016)    datatype = SingleMuon2016;
+        if(RunYear==2017)    datatype = SingleMuon2017;
+        if(RunYear==2018)    datatype = SingleMuon2018;
 	TChain* es = new TChain("ggNtuplizer/EventTree");
-	if(!useData) es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/DYJetsToLL/DYJetsToLL_%d%s.root",RunYear,Era));
-	else es->Add(Form("/eos/uscms/store/user/tmishra/InputFilesDATA/%d/SingleMuon/SingleMuon_%d%s.root",RunYear,RunYear,Era));
+        es->Add(Form("/eos/uscms/store/user/tmishra/InputFilesDATA/%d/SingleMuon/SingleMuon_%d%s.root",RunYear,RunYear,Era));
 
 	TFile *outputfile;
-	if (useData) outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/Trigger/files/plot_MuonTrigger_Data_%d%s.root",RunYear,Era),"RECREATE");
-	else outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/Trigger/files/plot_MuonTrigger_DY_%d%s.root",RunYear,Era),"RECREATE");
+        outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/Trigger/files/plot_MuonTrigger_Data_%d%s.root",RunYear,Era),"RECREATE");
+
 	outputfile->cd();
 
 	TTree *Ztree = new TTree("ZTree","ZTree");
@@ -76,6 +72,12 @@ void analysis_mgTrigger2017_2018(bool useData, int RunYear, const char *Era){//m
 	int   Z_mufireL1;
 	int   Z_phofireHLT;
 	int   Z_mufireHLT;
+	
+	int   Z_phofireL1_2;
+	int   Z_mufireL1_2;
+	int   Z_mufireHLT2;
+	int   Z_phofireHLT2;
+	
 	int   Z_nVtx(0);
 	float Z_rho(0); 
 
@@ -96,6 +98,11 @@ void analysis_mgTrigger2017_2018(bool useData, int RunYear, const char *Era){//m
 	Ztree->Branch("mufireHLT", &Z_mufireHLT);
 	Ztree->Branch("nVtx",      &Z_nVtx);
 	Ztree->Branch("rho",       &Z_rho);
+	if(RunYear==2016){
+		Ztree->Branch("phofireL1_2", &Z_phofireL1_2);
+		Ztree->Branch("mufireL1_2",  &Z_mufireL1_2); 
+		Ztree->Branch("phofireHLT2",&Z_phofireHLT2);
+		Ztree->Branch("mufireHLT2", &Z_mufireHLT2);}
 
 	TTree *mgtree = new TTree("mgTree","mgTree");
 	float mg_phoEt(0);
@@ -121,18 +128,19 @@ void analysis_mgTrigger2017_2018(bool useData, int RunYear, const char *Era){//m
 	mgtree->Branch("dR",        &mg_dR);
 	mgtree->Branch("phofireL1", &mg_phofireL1);
 	mgtree->Branch("mufireL1",  &mg_mufireL1); 
-	mgtree->Branch("phofireL1_2",&mg_phofireL1_2);
-	mgtree->Branch("mufireL1_2", &mg_mufireL1_2); 
 	mgtree->Branch("phofireHLT", &mg_phofireHLT);
 	mgtree->Branch("mufireHLT",  &mg_mufireHLT);
-	mgtree->Branch("phofireHLT2",&mg_phofireHLT2);
-	mgtree->Branch("mufireHLT2", &mg_mufireHLT2);
+	if(RunYear==2016){
+		mgtree->Branch("phofireL1_2",&mg_phofireL1_2);
+		mgtree->Branch("mufireL1_2", &mg_mufireL1_2); 
+		mgtree->Branch("phofireHLT2",&mg_phofireHLT2);
+		mgtree->Branch("mufireHLT2", &mg_mufireHLT2);}
 
 	TH1F *p_dimuon = new TH1F("p_dimuon","di-muon invmass; #mu#mu mass(GeV);",200,0,200);
 	TH1F *p_invmass = new TH1F("p_invmass","mu#mu#gamma invmass; #mu#mu#gamma mass(GeV);",60,60,120);
 
 	const unsigned nEvts = es->GetEntries(); 
-	std::cout << "total=" << es->GetEntries() << std::endl;
+	std::cout << "total events = " << es->GetEntries() << std::endl;
 
 	rawData raw(es, datatype);
 	std::vector<recoPhoton> Photon;
@@ -153,7 +161,7 @@ void analysis_mgTrigger2017_2018(bool useData, int RunYear, const char *Era){//m
 			for(int iEle(0); iEle < raw.nEle; iEle++){Ele.push_back(recoEle(raw, iEle));}
 			MET = raw.pfMET;
 
-			if(!raw.passHLT())continue; // HLT_IsoMu27_v
+			if(!raw.passHLT())continue;      // #a1  applied to data only
 			Z_nVtx= raw.nVtx;
 			Z_rho = raw.rho;
 			Z_run = raw.run; 
@@ -168,15 +176,15 @@ void analysis_mgTrigger2017_2018(bool useData, int RunYear, const char *Era){//m
 			DiMuVec.clear();
 			probePhoVec.clear();
 			for(std::vector<recoMuon>::iterator itLeadMu = Muon.begin(); itLeadMu!= Muon.end(); ++itLeadMu){
-				if(!itLeadMu->passHLTSelection())continue; // HLT_IsoMu27
+				if(!itLeadMu->passHLTSelection())continue;  // #a2
 				if(itLeadMu->passSignalSelection()){
 					if(!hasMu){ itIsoMu = itLeadMu; hasMu = true; }
 				}
-				if(!itLeadMu->isLoose() || itLeadMu->getPt() < 20.0 )continue;
+				if(!itLeadMu->isTight() || itLeadMu->getPt() < 20.0 )continue; // #a3
 				tagMuVec.push_back(itLeadMu);
 			}
 
-			for(int iT(0); iT < tagMuVec.size(); iT++){
+			for(unsigned iT(0); iT < tagMuVec.size(); iT++){
 				for(std::vector<recoMuon>::iterator itMu = Muon.begin(); itMu!= Muon.end(); itMu++){
 
 					if( itMu == tagMuVec[iT] )continue;
@@ -207,8 +215,8 @@ void analysis_mgTrigger2017_2018(bool useData, int RunYear, const char *Era){//m
 
 
 
-			for(int iDiMu(0); iDiMu < DiMuVec.size(); iDiMu++){
-				for(int ipho(0); ipho < probePhoVec.size(); ipho++){
+			for(unsigned iDiMu(0); iDiMu < DiMuVec.size(); iDiMu++){
+				for(unsigned ipho(0); ipho < probePhoVec.size(); ipho++){
 
 					std::vector<recoMuon>::iterator tagMu = DiMuVec[iDiMu].first;
 					std::vector<recoMuon>::iterator probeMu = DiMuVec[iDiMu].second;
@@ -233,29 +241,58 @@ void analysis_mgTrigger2017_2018(bool useData, int RunYear, const char *Era){//m
 						Z_phoChIso=probePho->getChIso();
 						Z_phoNeuIso=probePho->getNeuIso();
 						Z_phoSigma=probePho->getSigma();
+						Z_phoR9 = probePho->getR9();
 						Z_muPt=probeMu->getPt();
 						Z_muMiniIso=probeMu->getMiniIso();
+						if(RunYear==2016){
+							if(probePho->fireL1Trg(12))Z_phofireL1=12;
+							else if(probePho->fireL1Trg(17))Z_phofireL1=17;
+							else Z_phofireL1=0;
 
-						if(probePho->fireL1Trg(12))Z_phofireL1=12;
-						else Z_phofireL1=0;
+							if(probeMu->fireL1Trg(12))Z_mufireL1=12;
+							else if(probeMu->fireL1Trg(17))Z_mufireL1=17;
+							else Z_mufireL1=0;
 
-						if(probeMu->fireL1Trg(12))Z_mufireL1=12;
-						else Z_mufireL1=0;
+							if(probePho->fireL1Trg(29))Z_phofireL1_2=29;
+							else Z_phofireL1_2=0;
 
-						if(probePho->fireDoubleTrg(27) || probePho->fireDoubleTrg(36))Z_phofireHLT=1;
-						else Z_phofireHLT=0;
+							if(probeMu->fireL1Trg(29))Z_mufireL1_2=29;
+							else Z_mufireL1_2=0;
 
-						if(probeMu->fireSingleTrg(0) || probeMu->fireSingleTrg(32))Z_mufireHLT=1;
-						else Z_mufireHLT=0;
+            						if(probePho->fireDoubleTrg(28) || probePho->fireDoubleTrg(29))Z_phofireHLT=1;
+							else Z_phofireHLT=0;
 
-            				Ztree->Fill();
+							if(probeMu->fireSingleTrg(2) || probeMu->fireSingleTrg(21))Z_mufireHLT=1;
+							else Z_mufireHLT=0;
+
+            						if(probePho->fireDoubleTrg(30))Z_phofireHLT2=1;
+							else Z_phofireHLT2=0;
+
+							if(probeMu->fireSingleTrg(22))Z_mufireHLT2=1;
+							else Z_mufireHLT2=0;
+						}
+						else if(RunYear==2017 or RunYear==2018){
+							if(probePho->fireL1Trg(12))Z_phofireL1=12;
+                                                	else Z_phofireL1=0;
+
+                                                	if(probeMu->fireL1Trg(12))Z_mufireL1=12;
+                                                	else Z_mufireL1=0;
+
+                                                	if(probePho->fireDoubleTrg(27) || probePho->fireDoubleTrg(36))Z_phofireHLT=1;
+                                                	else Z_phofireHLT=0;
+
+                                                	if(probeMu->fireSingleTrg(0) || probeMu->fireSingleTrg(32))Z_mufireHLT=1;
+                                                	else Z_mufireHLT=0;
+						}
+
+            					Ztree->Fill();
 					}
 				}
 			}
 
-			if(hasMu && probePhoVec.size() > 0){
-				//for(int ipho(0); ipho < probePhoVec.size(); ipho++){
-					std::vector<recoPhoton>::iterator itIsoPho = probePhoVec[0];
+			if(hasMu){
+				for(unsigned ipho(0); ipho < probePhoVec.size(); ipho++){
+					std::vector<recoPhoton>::iterator itIsoPho = probePhoVec[ipho];
 					float dR = DeltaR(itIsoPho->getEta(), itIsoPho->getPhi(),itIsoMu->getEta(), itIsoMu->getPhi());
 					if(dR > 0.8){ 
 						mg_dR = dR;
@@ -264,36 +301,61 @@ void analysis_mgTrigger2017_2018(bool useData, int RunYear, const char *Era){//m
 						mg_phoPhi=itIsoPho->getPhi();
 						mg_muPt=itIsoMu->getPt();
 						mg_muMiniIso=itIsoMu->getMiniIso();
+						if(RunYear==2016){
+							if(itIsoPho->fireL1Trg(12))mg_phofireL1=12;
+							else if(itIsoPho->fireL1Trg(17))mg_phofireL1=17;
+							else mg_phofireL1=0;
 
-						if(itIsoPho->fireL1Trg(12))mg_phofireL1=12;
-						else mg_phofireL1=0;
-
-						if(itIsoMu->fireL1Trg(12))mg_mufireL1=12;
-						else mg_mufireL1=0;
-
-						if(itIsoPho->fireDoubleTrg(27) || itIsoPho->fireDoubleTrg(36))mg_phofireHLT=1;
-						else mg_phofireHLT=0;
+							if(itIsoMu->fireL1Trg(12))mg_mufireL1=12;
+							else if(itIsoMu->fireL1Trg(17))mg_mufireL1=17;
+							else mg_mufireL1=0;
 						
-						if(itIsoMu->fireSingleTrg(0) || itIsoMu->fireSingleTrg(32))mg_mufireHLT=1;
-						else mg_mufireHLT=0;
+							if(itIsoPho->fireL1Trg(29))mg_phofireL1_2=29;
+							else mg_phofireL1_2=0;
+
+							if(itIsoMu->fireL1Trg(29))mg_mufireL1_2=29;
+							else mg_mufireL1_2=0;
+
+							if(itIsoPho->fireDoubleTrg(28) || itIsoPho->fireDoubleTrg(29))mg_phofireHLT=1;
+							else mg_phofireHLT=0;
+
+							if(itIsoMu->fireSingleTrg(2) || itIsoMu->fireSingleTrg(21))mg_mufireHLT=1;
+							else mg_mufireHLT=0;
+
+							if(itIsoPho->fireDoubleTrg(30))mg_phofireHLT2=1;
+							else mg_phofireHLT2=0;
+
+							if(itIsoMu->fireSingleTrg(22))mg_mufireHLT2=1;
+							else mg_mufireHLT2=0;
+						}
+						else if(RunYear==2017 or RunYear==2018){
+							if(itIsoPho->fireL1Trg(12))mg_phofireL1=12;
+                                                	else mg_phofireL1=0;
+
+                                                	if(itIsoMu->fireL1Trg(12))mg_mufireL1=12;
+                                                	else mg_mufireL1=0;
+
+                                                	if(itIsoPho->fireDoubleTrg(27) || itIsoPho->fireDoubleTrg(36))mg_phofireHLT=1;
+                                                	else mg_phofireHLT=0;
+
+                                                	if(itIsoMu->fireSingleTrg(0) || itIsoMu->fireSingleTrg(32))mg_mufireHLT=1;
+                                                	else mg_mufireHLT=0;
+						}
 
 						mgtree->Fill();
 					}
-			//	}
+				}
 			}
 
 
-    }
-
-outputfile->Write();
+    	}
+	outputfile->Write();
 }
-
 
 int main(int argc, char** argv)
 {
-    if(argc < 4)
+    if(argc < 3)
       cout << "You have to provide two arguments!!\n";
-    bool useData = (atoi(argv[1]) == 1);
-    analysis_mgTrigger2017_2018(useData, atoi(argv[2]), argv[3]);
+    analysis_mgTrigger(atoi(argv[1]), argv[2]);
     return 0;
 }

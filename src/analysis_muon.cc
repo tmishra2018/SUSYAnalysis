@@ -32,6 +32,7 @@ bool recoMuon::passHLTSelection(){
     case MCDoubleEG2017: passHLT = true; break;
     case MCDoubleEG2018: passHLT = true; break;
  
+    //
     case MuonEG2016: if(fireSingleTrg(2) || fireSingleTrg(21) || fireSingleTrg(22))passHLT = true; break; // HLT_Mu17_Photon || HLT_Mu17_Photon || HLT_Mu38NoFiltersNoVtx_Photon38 
     case MuonEG2017: if(fireSingleTrg(0) || fireSingleTrg(32))passHLT = true; break; // HLT_Mu17_Photon30_IsoCaloId || HLT_Mu43NoFiltersNoVtx_Photon43_CaloIdL
     case MuonEG2018: if(fireSingleTrg(0) || fireSingleTrg(32))passHLT = true; break; // HLT_Mu17_Photon30_IsoCaloId || HLT_Mu43NoFiltersNoVtx_Photon43_CaloIdL

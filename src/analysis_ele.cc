@@ -38,20 +38,11 @@ bool recoEle::passHLTSelection(){
     case SingleElectron2016: if(fireTrgs(12))passHLT = true; break; // HLT_Ele27_WPTight_Gsf
     case SingleElectron2017: if(fireTrgs(46))passHLT = true; break; // HLT_Ele35_WPTight_Gsf
     case SingleElectron2018: if(fireTrgs(13))passHLT = true; break; // HLT_Ele32_WPTight_Gsf  
-    //case SingleElectron2017: if(fireTrgs(12))passHLT = true; break; // HLT_Ele27_WPTight_Gsf
 
     case MCSingleElectron2016: if(fireTrgs(12))passHLT = true; break; // HLT_Ele27_WPTight_Gsf
     case MCSingleElectron2017: if(fireTrgs(46))passHLT = true; break; // HLT_Ele35_WPTight_Gsf
     case MCSingleElectron2018: if(fireTrgs(13))passHLT = true; break; // HLT_Ele32_WPTight_Gsf  
-    //case MCSingleElectron2017: if(fireTrgs(12))passHLT = true; break; // HLT_Ele27_WPTight_Gsf
 
-/*  case SingleElectron2016: if(fireTrgs(10))passHLT = true; break; // HLT_Ele27_eta2p1_WPLoose_Gsf
-    case SingleElectron2017: if(fireTrgs(42))passHLT = true; break; // HLT_Ele20_eta2p1_WPLoose_Gsf
-    case SingleElectron2018: if(fireTrgs(42))passHLT = true; break; // HLT_Ele20_eta2p1_WPLoose_Gsf
-    case MCSingleElectron2016: if(fireTrgs(10))passHLT = true; break;
-    case MCSingleElectron2017: if(fireTrgs(42))passHLT = true; break;
-    case MCSingleElectron2018: if(fireTrgs(42))passHLT = true; break;
-*/
     case SingleMuon2016: passHLT = true; break;
     case DoubleMuon2016: passHLT = true; break;
     case MCSingleMuon2016: passHLT = true; break;

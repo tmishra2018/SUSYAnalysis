@@ -1,3 +1,5 @@
+// g++ `root-config --cflags` analysis_mgTriggerMC.C -o analysis_mgTriggerMC.exe `root-config --libs`
+
 #include<string>
 #include<iostream>
 #include<fstream>
@@ -29,9 +31,11 @@
 #include "../../include/analysis_tools.h"
 #include "../../include/analysis_mcData.h"
 
-int RunYear = 2016;
-bool preVFP = false;
-void analysis_mgTriggerMC(){//main  
+#include "../../src/analysis_rawData.cc"		      
+#include "../../src/analysis_ele.cc"			      
+#include "../../src/analysis_muon.cc"			      
+#include "../../src/analysis_photon.cc"
+void analysis_mgTriggerMC(int RunYear, bool preVFP){
 
 	gSystem->Load("../../lib/libAnaClasses.so");
 	
@@ -48,7 +52,7 @@ void analysis_mgTriggerMC(){//main
 	RunType datatype(MC); 
 
 	TChain* es = new TChain("ggNtuplizer/EventTree");
-	es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/Tribeni/DYJetsToLL/DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
+	es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/DYJetsToLL/DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
 	
 	TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/Trigger/files/plot_MuonTrigger_DY_%d%s.root",RunYear,whichVFP.c_str()),"RECREATE");
 	outputfile->cd();
@@ -79,12 +83,14 @@ void analysis_mgTriggerMC(){//main
 	mgtree->Branch("R9",        &mg_R9);
 	mgtree->Branch("phofireL1", &mg_phofireL1);
 	mgtree->Branch("mufireL1",  &mg_mufireL1); 
-	mgtree->Branch("phofireL1_2",&mg_phofireL1_2);
-	mgtree->Branch("mufireL1_2", &mg_mufireL1_2); 
 	mgtree->Branch("phofireHLT", &mg_phofireHLT);
 	mgtree->Branch("mufireHLT",  &mg_mufireHLT);
-	mgtree->Branch("phofireHLT2",&mg_phofireHLT2);
-	mgtree->Branch("mufireHLT2", &mg_mufireHLT2);
+	
+	if(RunYear==2016){
+		mgtree->Branch("phofireL1_2",&mg_phofireL1_2);
+		mgtree->Branch("mufireL1_2", &mg_mufireL1_2); 
+		mgtree->Branch("phofireHLT2",&mg_phofireHLT2);
+		mgtree->Branch("mufireHLT2", &mg_mufireHLT2);}
 
 	TH1F *p_dimuon = new TH1F("p_dimuon","di-muon invmass; #mu#mu mass(GeV);",200,0,200);
 	TH1F *p_invmass = new TH1F("p_invmass","mu#mu#gamma invmass; #mu#mu#gamma mass(GeV);",60,60,120);
@@ -129,7 +135,7 @@ void analysis_mgTriggerMC(){//main
 			probeMuVec.clear();
 			probePhoVec.clear();
 			for(std::vector<recoMuon>::iterator itMu = Muon.begin(); itMu!= Muon.end(); ++itMu){
-				if(itMu->isMedium() && itMu->getMiniIso() < 0.2 && itMu->getD0() < 0.05 && itMu->getDz() < 0.1){
+				if(itMu->isMedium() && itMu->getMiniIso() < 0.2 && itMu->getD0() < 0.02 && itMu->getDz() < 0.1){
 					for(unsigned it(0); it < mcMuonCollection.size(); it++){
 						std::vector<mcData>::iterator itMcMuon = mcMuonCollection[it];
 						if(DeltaR(itMu->getEta(), itMu->getPhi(), itMcMuon->getEta(), itMcMuon->getPhi()) < 0.1)probeMuVec.push_back(itMu);
@@ -170,33 +176,47 @@ void analysis_mgTriggerMC(){//main
 					mg_muPt=probeMu->getPt();
 					mg_muMiniIso=probeMu->getMiniIso();
 
-					if(probePho->fireL1Trg(12))mg_phofireL1=12;
-					else if(probePho->fireL1Trg(17))mg_phofireL1=17;
-					else mg_phofireL1=0;
 
-					if(probeMu->fireL1Trg(12))mg_mufireL1=12;
-					else if(probeMu->fireL1Trg(17))mg_mufireL1=17;
-					else mg_mufireL1=0;
+					if(RunYear==2016){
+						if(probePho->fireL1Trg(12))mg_phofireL1=12;
+						else if(probePho->fireL1Trg(17))mg_phofireL1=17;
+						else mg_phofireL1=0;
 
-					if(probePho->fireL1Trg(29))mg_phofireL1_2=29;
-					else mg_phofireL1_2=0;
+						if(probeMu->fireL1Trg(12))mg_mufireL1=12;
+						else if(probeMu->fireL1Trg(17))mg_mufireL1=17;
+						else mg_mufireL1=0;
 
-					if(probeMu->fireL1Trg(29))mg_mufireL1_2=29;
-					else mg_mufireL1_2=0;
+						if(probePho->fireL1Trg(29))mg_phofireL1_2=29;
+						else mg_phofireL1_2=0;
 
+						if(probeMu->fireL1Trg(29))mg_mufireL1_2=29;
+						else mg_mufireL1_2=0;
 					
+						if(probeMu->fireSingleTrg(2) || probeMu->fireSingleTrg(21))mg_mufireHLT=1;
+						else mg_mufireHLT=0;
 					
-					if(probeMu->fireSingleTrg(2) || probeMu->fireSingleTrg(21))mg_mufireHLT=1;
-					else mg_mufireHLT=0;
-					
-					if(probeMu->fireSingleTrg(22))mg_mufireHLT2=1;
-					else mg_mufireHLT2=0;
+						if(probeMu->fireSingleTrg(22))mg_mufireHLT2=1;
+						else mg_mufireHLT2=0;
 
-					if(probePho->fireDoubleTrg(28) || probePho->fireDoubleTrg(29))mg_phofireHLT=1;
-					else mg_phofireHLT=0;
+						if(probePho->fireDoubleTrg(28) || probePho->fireDoubleTrg(29))mg_phofireHLT=1;
+						else mg_phofireHLT=0;
 
-					if(probePho->fireDoubleTrg(30))mg_phofireHLT2=1;
-					else mg_phofireHLT2=0;
+						if(probePho->fireDoubleTrg(30))mg_phofireHLT2=1;
+						else mg_phofireHLT2=0;
+					}
+					else if(RunYear==2017 or RunYear==2018) {
+				                if(probePho->fireL1Trg(12))mg_phofireL1=12;
+                                                else mg_phofireL1=0;
+
+                                                if(probeMu->fireL1Trg(12))mg_mufireL1=12;
+                                                else mg_mufireL1=0;
+
+                                                if(probePho->fireDoubleTrg(27) || probePho->fireDoubleTrg(36))mg_phofireHLT=1;
+                                                else mg_phofireHLT=0;
+
+                                                if(probeMu->fireSingleTrg(0) || probeMu->fireSingleTrg(32))mg_mufireHLT=1;
+                                                else mg_mufireHLT=0;
+					}
 
 					mgtree->Fill();
 				}
@@ -205,4 +225,12 @@ void analysis_mgTriggerMC(){//main
     }
 
 outputfile->Write();
+}
+int main(int argc, char** argv)
+{
+    if(argc < 3)
+      cout << "You have to provide two arguments!!\n";
+    bool preVFP = (atoi(argv[2]) == 1);
+    analysis_mgTriggerMC (atoi(argv[1]), preVFP);
+    return 0;
 }

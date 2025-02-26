@@ -52,7 +52,7 @@ enum MCType{
 
 // from XSDB; using k-factor = 1.34 for Wgamma samples
 
-double MC_XS[25] = {1, 551.008/*WGToLNuG*/, 26.5454/*WGJet40*/, 1.083658/*WGJet130*/, 51.53 /*ZGInclusive*/, 6424.0/*DY*/, 3.774/*TTG*/, 0.3369/*WWG*/, 0.07876/*WZG*/, 18610, 0.143, 734.6/*TTBar*/, 75.95/*WW*/, 27.59/*WZ*/, 61526.7/*W*/, 108000000/*QCDEM30*/, 113100.0 /*QCDEM40*/, 1/*MU*/, 874.2/*GJet*/, 0.001027 /*T5Wg_mG-1800_mLSP-800*/, 0.001019 /*TChiWg_mChi-1000_mLSP-1*/, 0.001057/*T5Wg_mG-1800_mLSP-1600*/,   0.005763 /*T5Wg_mG-1500_mLSP-1*/, 1};
+double MC_XS[25] = {1, 551.008/*WGToLNuG*/, 26.5454/*WGJet40*/, 1.083658/*WGJet130*/, 51.53 /*ZGInclusive*/, 6424.0/*DY*/, 3.774/*TTG*/, 0.3369/*WWG*/, 0.07876/*WZG*/, 18610, 0.143, 734.6/*TTBar*/, 75.95/*WW*/, 27.55/*WZ*/, 61526.7/*W*/, 108000000/*QCDEM30*/, 113100.0 /*QCDEM40*/, 1/*MU*/, 874.2/*GJet*/, 0.001027 /*T5Wg_mG-1800_mLSP-800*/, 0.001019 /*TChiWg_mChi-1000_mLSP-1*/, 0.001057/*T5Wg_mG-1800_mLSP-1600*/,   0.005763 /*T5Wg_mG-1500_mLSP-1*/, 1};
 
 
 /* 117400.0 QCDEM40 for 2017*/

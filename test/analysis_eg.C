@@ -20,8 +20,8 @@ void analysis_eg(int RunYear, const char *Era){//main
   bool  isMC(false);
   if(datatype == MC || datatype == MCDoubleEG2016 || datatype == MCMuonEG2016||  datatype == MCSingleElectron2016 || datatype == MCSingleMuon2016||  datatype == MCDoubleMuon2016 || datatype == MCMET2016)isMC=true;
   TChain* es = new TChain("ggNtuplizer/EventTree");
-  es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/DoubleEG/DoubleEG_%d%s.root",RunYear,Era));
-
+  //es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/DoubleEG/DoubleEG_%d%s.root",RunYear,Era));
+  es->Add(Form("/eos/uscms/store/user/lpcsusyphotons/SoftPhoton/Tribeni/DoubleEG/GT36/EGamma_%d%s.root",RunYear,Era));
   if(RunYear==2018) apply_HEMveto=true; 
   
   const unsigned nEvts = es->GetEntries();
@@ -31,7 +31,7 @@ void analysis_eg(int RunYear, const char *Era){//main
 
   int nTotal(0),npassHLT(0), npassPho(0), npassLep(0), npassdR(0), npassZ(0), npassMETFilter(0);
 
-  TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,Era),"RECREATE");
+  TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s_GT36.root",RunYear,Era),"RECREATE");
   outputfile->cd();
   TH1D *p_METFilter = new TH1D("p_METFilter","",12,-2,10);	
   TH1D *p_invmass = new TH1D("p_invmass","",200,0,200);	
@@ -338,10 +338,10 @@ void analysis_eg(int RunYear, const char *Era){//main
 			event=raw.event;
 			lumis=raw.lumis;
 
+			nTotal+=1;
 			if(RunYear==2018 && !passHEMVeto(0,raw)) continue;
         		passHEM++;
 
-			nTotal+=1;
 			if(!raw.passHLT())continue;
 			if(raw.nGoodVtx < 1)continue;
 			npassHLT+=1;
@@ -826,7 +826,7 @@ void analysis_eg(int RunYear, const char *Era){//main
   p_eventcount->Fill(4.5, npassdR);
   p_eventcount->Fill(5.5, npassZ);
   p_eventcount->Fill(6.5, npassMETFilter);
-	if(RunYear==2018) logfile << "pass HEM cut:  " << passHEM*100/nEvts<<endl;
+	if(RunYear==2018) logfile << "pass HEM cut:  " << passHEM << endl;
 	
 	outputfile->Write();
 	outputfile->Close();
