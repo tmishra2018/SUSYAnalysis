@@ -27,7 +27,6 @@
 #include "TGraphAsymmErrors.h"
 #include "TMath.h"
 #include "Math/QuantFuncMathCore.h"
-//#include "../../include/tdrstyle.C"
 #include "../../include/analysis_commoncode.h"
 
 bool total16 = false; // ON and OFF
@@ -453,22 +452,25 @@ void plot_eventct(int NBIN){//main
 		double bkgVGamma = h_elefakepho_norm->GetBinContent(ibin) + h_jetfakepho_norm->GetBinContent(ibin) + h_qcdfakelep_norm->GetBinContent(ibin) + h_VGamma_norm->GetBinContent(ibin);
 
 		if(h_elefakepho_syserr_eleshape->GetBinContent(ibin)>0)bkgError += pow(h_elefakepho_syserr_eleshape->GetBinContent(ibin), 2);
+		
 		if(h_jetfakepho_syserr_jetshape->GetBinContent(ibin)>0)bkgError += pow(h_jetfakepho_syserr_jetshape->GetBinContent(ibin), 2);
+		
 		if(h_qcdfakelep_syserr_scale->GetBinContent(ibin)   >0)bkgError += pow(h_qcdfakelep_syserr_scale->GetBinContent(ibin), 2);
 		if(h_qcdfakelep_syserr_qcdshape->GetBinContent(ibin)>0)bkgError += pow(h_qcdfakelep_syserr_qcdshape->GetBinContent(ibin), 2);
-								                                          															
+		
 		if(h_VGamma_syserr_jes->GetBinContent(ibin) >0)bkgError += pow(h_VGamma_syserr_jes->GetBinContent(ibin), 2);
 		if(h_VGamma_syserr_jer->GetBinContent(ibin) >0)bkgError += pow(h_VGamma_syserr_jer->GetBinContent(ibin), 2);
 		if(h_VGamma_syserr_esf->GetBinContent(ibin)  >0)bkgError += pow(h_VGamma_syserr_esf->GetBinContent(ibin), 2);
 		if(h_VGamma_syserr_scale->GetBinContent(ibin)>0)bkgError += pow(h_VGamma_syserr_scale->GetBinContent(ibin), 2);
 		if(h_VGamma_syserr_isr->GetBinContent(ibin)  >0)bkgError += pow(h_VGamma_syserr_isr->GetBinContent(ibin), 2);
+		
 		if(h_rare_syserr_jes->GetBinContent(ibin)    >0)bkgError += pow(h_rare_syserr_jes->GetBinContent(ibin), 2);
 		if(h_rare_syserr_jer->GetBinContent(ibin)    >0)bkgError += pow(h_rare_syserr_jer->GetBinContent(ibin), 2);
 		if(h_rare_syserr_esf->GetBinContent(ibin)    >0)bkgError += pow(h_rare_syserr_esf->GetBinContent(ibin), 2);
 		if(h_rare_syserr_xs->GetBinContent(ibin)     >0)bkgError += pow(h_rare_syserr_xs->GetBinContent(ibin), 2);
 		if(h_rare_syserr_lumi->GetBinContent(ibin)   >0)bkgError += pow(h_rare_syserr_lumi->GetBinContent(ibin), 2);
 
-		bkgError = sqrt(bkgError);
+		bkgError = sqrt(bkgError); // total systematic error
 		h_bkg->SetBinContent(ibin, bkgContent);
 
 		//printing ........
@@ -498,13 +500,15 @@ void plot_eventct(int NBIN){//main
 		h_bkg_elefakepho->SetBinContent(ibin, bkgelefakepho);
 		h_bkg_jetfakepho->SetBinContent(ibin, bkgjetfakepho);
 		h_bkg_VGamma->SetBinContent(ibin, bkgVGamma);
-		h_bkg->SetBinError( ibin, totalerror[ibin-1]);
+		h_bkg->SetBinError( ibin, bkgError);
 		error_bkg->SetPoint(ibin-1, ibin -1 + 0.5, bkgContent);
-		error_bkg->SetPointError(ibin-1, 0.5, totalerror[ibin-1]);
+		error_bkg->SetPointError(ibin-1, 0.5, bkgError);
 		error_ratio->SetPoint(ibin-1, ibin -1 + 0.5, 1);
-		error_ratio->SetPointError(ibin-1, 0.5, totalerror[ibin-1]/bkgContent);
+		error_ratio->SetPointError(ibin-1, 0.5, bkgError/bkgContent);
 	
 		if(ibin==1) cout<<"Bin Number efakePho jetFakePho QCD VGamma rare :"<<endl<<endl;
+
+
 		//cout<<ibin<<"\t"<<h_elefakepho_norm->GetBinContent(ibin)<<"\t"<<h_jetfakepho_norm->GetBinContent(ibin)<<"\t"<<h_qcdfakelep_norm->GetBinContent(ibin)<<"\t"<<h_VGamma_norm->GetBinContent(ibin)<<"\t"<<h_rare_norm->GetBinContent(ibin)<<"\t"<<h_elefakepho_norm->GetBinContent(ibin) + h_jetfakepho_norm->GetBinContent(ibin) + h_qcdfakelep_norm->GetBinContent(ibin) + h_VGamma_norm->GetBinContent(ibin) + h_rare_norm->GetBinContent(ibin)<<"\t"<<h_sig->GetBinContent(ibin)<<endl;
 	}
 	
@@ -607,7 +611,7 @@ void plot_eventct(int NBIN){//main
 	h_sig->GetYaxis()->SetRangeUser(0.05,1000000);
 	h_sig->GetXaxis()->SetRangeUser(0,37);
 	h_sig->GetYaxis()->SetTitle("Events / bin");
-	h_sig->GetYaxis()->SetTitleOffset(1.0);
+	h_sig->GetYaxis()->SetTitleOffset(1.4);
 	h_sig->Draw("P");
   h_bkg->SetFillColor(kAzure-9);
 	h_bkg->SetLineColor(kAzure-9);
@@ -736,10 +740,10 @@ void plot_eventct(int NBIN){//main
 	ratio->GetXaxis()->SetTitle("Search bin number");
 	ratio->GetYaxis()->SetTitle("#frac{Obs.}{Bkg.}");
 	ratio->GetXaxis()->SetRangeUser(0,37);
-	ratio->GetYaxis()->SetTitleOffset(1.0);
+	ratio->GetYaxis()->SetTitleOffset(1.4);
 	ratio->SetLineColor(kBlack);
 	//ratio->Divide(h_bkg);
-	ratio->GetYaxis()->SetRangeUser(0,4);
+	ratio->GetYaxis()->SetRangeUser(0,2.0);
 	ratio->Draw("AP");
   error_ratio->SetFillColor(12);
   error_ratio->SetFillStyle(3345);

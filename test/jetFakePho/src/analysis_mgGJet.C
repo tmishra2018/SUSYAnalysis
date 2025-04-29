@@ -30,9 +30,8 @@
 #include "../../../include/analysis_tools.h"
 #include "../../../include/analysis_mcData.h"
 
-bool preVFP=false;
 
-void analysis_mgGJet(int RunYear){//main  
+void analysis_mgGJet(int RunYear, bool preVFP){//main  
 
   gSystem->Load("../../../lib/libAnaClasses.so");
 
@@ -240,6 +239,7 @@ outputfile->Write();
 
 int main(int argc, char** argv)
 {
-    analysis_mgGJet(atoi(argv[1]));
+    bool preVFP = (atoi(argv[2]) == 1);
+    analysis_mgGJet(atoi(argv[1]), preVFP);
     return 0;
 }

@@ -295,66 +295,51 @@ void analysis_VGBkg(){
                         else if(RunYear == 2017)                        XS_weight = lumi_2017_MuonEG*1000*crosssection/ntotalevent;
                         else if(RunYear == 2018)                        XS_weight = lumi_2018_MuonEG*1000*crosssection/ntotalevent;}
 
-                /*double reweightF(1);
-		double Normalization=1;
+		double reweightF=1.0;
+                double Normalization=1.0;
 		
 		if(RunYear==2016 && preVFP==1){
-			if(ISRJetPt < 50)reweightF = 0.925997; 
-                        else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.06149;
-                        else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.914626;
-                        else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.769654;
-                        else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.81176;
-                        else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.823717;
-                        else if(ISRJetPt >= 300)reweightF = 0.749379;
-			Normalization = 1.0273957;     }
+                        if(ISRJetPt < 50)reweightF = 1.07048;
+                         else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.33745;
+                         else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 1.11197;
+                         else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.921799;
+                         else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 1.02533;
+                         else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.986267;
+                         else if(ISRJetPt >= 300)reweightF = 0.857941;
+                         Normalization = 0.853805;    }
 
-	        else if(RunYear==2016 && preVFP==0){
-			if(ISRJetPt < 50)reweightF = 1.0078;
-                 	else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.18628;
-                 	else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.940295;
-                 	else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.926074;
-                 	else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.856512;
-                 	else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.752113;
-                 	else if(ISRJetPt >= 300)reweightF = 0.671831;   
-			Normalization = 0.955131;	}
+                else if(RunYear==2016 && preVFP==0){
+                        if(ISRJetPt < 50)reweightF = 1.0823;
+                        else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.36705;
+                        else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 1.03422;
+                        else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.996796;
+                        else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.90385;
+                        else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.780053;
+                        else if(ISRJetPt >= 300)reweightF = 0.705875;
+                        Normalization = 0.854942;    }
 
-		else if(RunYear==2017){
-			if(ISRJetPt < 50)reweightF = 0.933817;
-		        else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.05006;
-                 	else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.916321;
-                 	else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.809937;
-                 	else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.903668;
-                 	else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.749578;
-                 	else if(ISRJetPt >= 300)reweightF = 0.868441;
-                 	Normalization = 1.0435;    }
+                else if(RunYear==2017){
+                        if(ISRJetPt < 50)reweightF = 1.0457;
+                        else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.28507;
+                        else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 1.05021;
+                        else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.895376;
+                        else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.986146;
+                        else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.792056;
+                        else if(ISRJetPt >= 300)reweightF = 0.929084;
+                        Normalization = 0.889139;    }
 
-		else if(RunYear==2018){
-			if(ISRJetPt < 50)reweightF = 1.03041;
-                 	else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.09768;
-                 	else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.82165;
-                 	else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.793166;
-                 	else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.711279;
-                 	else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.817255;
-                 	else if(ISRJetPt >= 300)reweightF = 0.760731;
-                 	Normalization = 1.01506;    }
+                else if(RunYear==2018){
+                        if(ISRJetPt < 50)reweightF = 1.17242;
+                        else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.33113;
+                        else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.957966;
+                        else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.921558;
+                        else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.805571;
+                        else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.904798;
+                        else if(ISRJetPt >= 300)reweightF = 0.828803;
+                        Normalization = 0.860178;    }
+		 
+                  ISRWeight = reweightF*Normalization;
 
-                //ISRWeight = reweightF*Normalization;
-                */
-                ISRWeight = 1.0; // releasing ISR weight for checking
-		
-		// Using Menglei's ISR weight for checking
-                // Menglei's ISR
-                //  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                /*		Normalization = 0.98;
-                                if(ISRJetPt < 50)reweightF = 1.015;
-                                else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.110;
-                                else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.845;
-                                else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.715;
-                                else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF =   0.730;
-                                else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF =   0.732;
-                                else if(ISRJetPt >= 300)reweightF =  0.642;
-                                ISRWeight = reweightF*Normalization;*/
-                //  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 		// check all weights used

@@ -123,8 +123,6 @@ for RunYear in "${RunYears[@]}"; do
             root -l -q pred_sig.C++ > "logs/data_mg_${RunYear}.log"
         fi
 
-
-
         if [ "$RunYear" -eq 2016 ]; then
             rm "logs/eventcount_${RunYear}${VFP_string}.txt"
             root -l -q "plot_eventct.C+($NBIN)" >> "logs/eventcount_${RunYear}${VFP_string}.txt"
@@ -137,14 +135,26 @@ for RunYear in "${RunYears[@]}"; do
 
 # ======================================================================================================	
 
-	#root -l -q Signal-samples/analysis_TChiWG.C++  # Run it here as it takes the values from SigConfig.txt
+ 	root -l -q Signal-samples/analysis_TChiWG.C++  # Run it here as it takes the values from SigConfig.txt
 	
-        #if [ "$RunYear" -eq 2016 ]; then
-	#	mkdir -p /eos/uscms/store/user/tmishra/CombinedLimit/T5WG/cards/cards_${RunYear}_${VFP_string}
-	#else
-	#	mkdir -p /eos/uscms/store/user/tmishra/CombinedLimit/T5WG/cards/cards_${RunYear}             
-	#fi
-        #python3 writeT5WGcard.py ${NBIN} ${RunYear} ${preVFP}                   # takes input from Signal-samples/analysis_TChiWG.C      
+        if [ "$RunYear" -eq 2016 ]; then
+		rm /eos/uscms/store/user/tmishra/CombinedLimit/T5WG/cards/cards_${RunYear}${VFP_string}/*
+		rm /eos/uscms/store/user/tmishra/CombinedLimit/T6WG/cards/cards_${RunYear}${VFP_string}/*
+		rm /eos/uscms/store/user/tmishra/CombinedLimit/TChiWG/cards/cards_${RunYear}${VFP_string}/*
+		mkdir -p /eos/uscms/store/user/tmishra/CombinedLimit/T5WG/cards/cards_${RunYear}${VFP_string}
+		mkdir -p /eos/uscms/store/user/tmishra/CombinedLimit/T6WG/cards/cards_${RunYear}${VFP_string}
+		mkdir -p /eos/uscms/store/user/tmishra/CombinedLimit/TChiWG/cards/cards_${RunYear}${VFP_string}
+	else
+		rm /eos/uscms/store/user/tmishra/CombinedLimit/T5WG/cards/cards_${RunYear}/*
+		rm /eos/uscms/store/user/tmishra/CombinedLimit/T6WG/cards/cards_${RunYear}/*
+		rm /eos/uscms/store/user/tmishra/CombinedLimit/TChiWG/cards/cards_${RunYear}/*
+		mkdir -p /eos/uscms/store/user/tmishra/CombinedLimit/T5WG/cards/cards_${RunYear}             
+		mkdir -p /eos/uscms/store/user/tmishra/CombinedLimit/T6WG/cards/cards_${RunYear}             
+		mkdir -p /eos/uscms/store/user/tmishra/CombinedLimit/TChiWG/cards/cards_${RunYear}             
+	fi
+        python3 writeT5WGcard.py ${NBIN} ${RunYear} ${preVFP}                   # takes input from Signal-samples/analysis_TChiWG.C      
+        python3 writeT6WGcard.py ${NBIN} ${RunYear} ${preVFP}                   
+        python3 writeTChiWGcard.py ${NBIN} ${RunYear} ${preVFP}                     
 
 
     done
@@ -152,3 +162,5 @@ done
 
 echo "All tasks completed successfully. do the limit plots.. "
 cd  /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/HiggsAnalysis/CombinedLimit/tools
+#cmsenv
+#bash MakeImpactPlot.sh

@@ -73,7 +73,7 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
   TFile *outputfile = TFile::Open(outputname.str().c_str(),"RECREATE");
   outputfile->cd();
   TTree *tree = new TTree("SUSYtree","SUSYtree");
-	float Mgluino(0);
+	float MsGsQ(0);
   float Mchargino(0);
   float Mneutralino(0);
   float mcPhotonEt(0);
@@ -116,7 +116,7 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
   double MT_(0), ThreeBodyMass_(0);
 	int   nVertex(0);
 
-  tree->Branch("Mgluino",        &Mgluino);  // MsGsQ changed to Mgluino
+  tree->Branch("MsGsQ",        &MsGsQ);
   tree->Branch("Mchargino",      &Mchargino);
   tree->Branch("Mneutralino",    &Mneutralino);
 	tree->Branch("nVertex",        &nVertex);
@@ -191,8 +191,10 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 	float eg_dPhiLepMETJESdo(0);
 	float eg_dPhiLepMETJERup(0);
 	float eg_dPhiLepMETJERdo(0);
+	Double_t  eg_L1ECALPrefire(1.0);
 
-  egtree->Branch("Mgluino",    &Mgluino);
+
+  egtree->Branch("MsGsQ",    &MsGsQ);
   egtree->Branch("Mchargino",  &Mchargino);
   egtree->Branch("Mneutralino",&Mneutralino);
   egtree->Branch("phoEt",     &eg_phoEt);
@@ -224,6 +226,8 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 	egtree->Branch("dPhiLepMETJERdo", &eg_dPhiLepMETJERdo);
 	egtree->Branch("HTJESup",     &eg_HTJESup);
 	egtree->Branch("HTJESdo",     &eg_HTJESdo);
+	egtree->Branch("L1ECALPrefire",     &eg_L1ECALPrefire);
+
 
   TTree *mgtree = new TTree("mgTree","mgTree");
   float mg_phoEt(0);
@@ -255,8 +259,9 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 	float mg_dPhiLepMETJESdo(0);
 	float mg_dPhiLepMETJERup(0);
 	float mg_dPhiLepMETJERdo(0);
+	Double_t  mg_L1ECALPrefire(1.0);
 
-  mgtree->Branch("Mgluino",    &Mgluino);
+  mgtree->Branch("MsGsQ",    &MsGsQ);
   mgtree->Branch("Mchargino",  &Mchargino);
   mgtree->Branch("Mneutralino",&Mneutralino);
   mgtree->Branch("phoEt",     &mg_phoEt);
@@ -288,6 +293,8 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 	mgtree->Branch("dPhiLepMETJERdo", &mg_dPhiLepMETJERdo);
 	mgtree->Branch("HTJESup",     &mg_HTJESup);
 	mgtree->Branch("HTJESdo",     &mg_HTJESdo);
+	mgtree->Branch("L1ECALPrefire",     &mg_L1ECALPrefire);
+
 
   	rawData raw(es, datatype);
   	std::vector<mcData>  MCData;
@@ -315,7 +322,7 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
   
       if (ievt%100000==0) std::cout << " -- Processing event " << ievt << std::endl;
 
-			Mgluino=-1;
+			MsGsQ=-1;
   			Mchargino=-1;
   			Mneutralino=-1;
 			mcPhotonEt=0;
@@ -469,7 +476,7 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 		nJet += 1;
 		HT += itJet->getPt();
      }
-     Mgluino=sGsQMass;	
+     MsGsQ=sGsQMass;	
      Mchargino=charginoMass;
      Mneutralino=neutralinoMass;
      if(hasGenPho){
@@ -620,8 +627,7 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 								eg_HTJESup += itJet->getPt()*(1+itJet->getPtUnc());
 								eg_HTJESdo += itJet->getPt()*(1-itJet->getPtUnc());
 							}	
-
-
+							eg_L1ECALPrefire=raw.L1ECALPrefire;
 							egtree->Fill();
 
 					}// Z mass Filter
@@ -675,6 +681,7 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 						mg_HTJESup += itJet->getPt()*(1+itJet->getPtUnc());
 						mg_HTJESdo += itJet->getPt()*(1-itJet->getPtUnc());
 					}	
+					mg_L1ECALPrefire=raw.L1ECALPrefire;
 					mgtree->Fill();
 			 }//dR Filter
 		 }//Candidate Filter

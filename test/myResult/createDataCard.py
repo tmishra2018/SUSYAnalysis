@@ -17,7 +17,7 @@ preVFP = sys.argv[3]
 n_processes= 6
 # 5 bkgrounds, 1 susy process
 pro_names = ['SUSY','elefakepho', 'jetfakepho', 'qcdfakelep','VGamma','rare']
-syst_names = ['jes','esf','scale','e_to_pho_syst','j_to_pho_syst','fakelep_shape','xs','lumi','isr']
+syst_names = ['jes','jer','esf','scale','e_to_pho_syst','j_to_pho_syst','fakelep_shape','xs','lumi','isr']
 
 
 
@@ -50,6 +50,7 @@ file_out.write('imax {:2d} number of channels\n'.format(n_channels))
 file_out.write("jmax 5  number of backgrounds\n")
 file_out.write("kmax *  number of nuisance parameters\n")
 file_out.write("------------\n")
+file_out.write("shapes * * FAKE\n")
 
 file_out.write('{:16s}'.format('bin'))
 for i in range(1,n_channels+1):
@@ -247,6 +248,7 @@ for ich in range(1,n_channels+1):
 for ich in range(1,n_channels+1):
     nevt = h_rates['h_qcdfakelep_controlsample'].GetBinContent(ich)
     fakerate = h_rates['h_qcdfakelep_transferfactor'].GetBinContent(ich)
+    # print(ich, nevt, fakerate)
     # number of events in control sample and fake rate
     file_out.write('{:22s} {:3s} {:6d}'.format('j_to_lep_'  + RunYear + whichVFP + '_stat'+str(ich),'gmN',int(nevt)))
     for k in range(1,n_channels+1):

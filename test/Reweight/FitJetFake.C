@@ -153,7 +153,6 @@ int FitJetFake(float lowercut, float uppercut, int detType, int RunYear, bool pr
 
 	//************ Signal Tree **********************//
 	TChain *mctree = new TChain("egTree");
-	//mctree->Add("/uscms_data/d3/mengleis/Sep1/plot_hadron_mgGJet.root");
 	mctree->Add(Form("/eos/uscms/store/user/tmishra/jetfakepho/files/plot_hadron_mgGJet_%d%s.root",RunYear,whichVFP.c_str()));
 	// made with ../jetFakePho/src/analysis_mgGJet.C
 	float mc_phoEt(0);

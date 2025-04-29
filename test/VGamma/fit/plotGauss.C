@@ -72,17 +72,27 @@ void plotGauss(int RunYear, int preVFP, int isQCD, int ichannel){
 	float lowRange,highRange;
 	for(unsigned i(0);  i < 1; i++){
 		vgammascalefile >> leplow >> lephigh >> fakescale >> fakescaleerror >> vgammascale >> vgammascaleerror;
+		if(ichannel == 1){
 			if(isQCD==1){
 				lowRange = 0.7*fakescale;
 				highRange = 1.3*fakescale;}
 			else{
 				lowRange = 0.7*vgammascale;
 				highRange = 1.3*vgammascale;}
+		}
+		else{
+			if(isQCD==1){
+				lowRange = 0.95*fakescale;
+				highRange = 1.05*fakescale;}
+			else{
+				lowRange = 0.95*vgammascale;
+				highRange = 1.05*vgammascale;}
+		}
 	}
 	cout<<"lowRange = "<<lowRange <<" highRange :"<<highRange<<endl;
 
 	TH1F *p_frac_0;
-	p_frac_0 = new TH1F("p_frac_0","",100,lowRange,highRange);
+	p_frac_0 = new TH1F("p_frac_0","",200,lowRange,highRange);
 
 	float highest(0), lowest(1);
 	float fittingerror(0), systematicerror(0), totalerror(0);
@@ -134,7 +144,7 @@ void plotGauss(int RunYear, int preVFP, int isQCD, int ichannel){
 	float sigma = MyFit1->GetParameter(2);
 	cout << "Fit results - Mu: " << mu << ", Sigma: " << sigma << endl;
 	p_frac_0->Fit("gaus", "", "", mu - 0.1, mu + 0.1);
-	//p_frac_0->Fit("gaus", "", "", mu - sigma, mu + sigma);
+	//p_frac_0->Fit("gaus", "", "", mu - 2*sigma, mu + 2*sigma);
 
 	MyFit1 = p_frac_0->GetFunction("gaus");
 	float Mu = MyFit1->GetParameter(1);
@@ -145,7 +155,6 @@ void plotGauss(int RunYear, int preVFP, int isQCD, int ichannel){
 	if(p_frac_0->GetFunction("gaus")->GetParameter(1) + systematicerror > highest)highest=p_frac_0->GetFunction("gaus")->GetParameter(1) + systematicerror;
 	if(p_frac_0->GetFunction("gaus")->GetParameter(1) - systematicerror < lowest)lowest=p_frac_0->GetFunction("gaus")->GetParameter(1) - systematicerror;
 	totalerror = sqrt(systematicerror*systematicerror + fittingerror*fittingerror);
-
 
 	std::string whichVFP, bkg, channel;
 	if(ichannel == 1)	channel="eg";

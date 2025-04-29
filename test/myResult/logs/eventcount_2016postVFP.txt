@@ -1,25 +1,300 @@
 
-Processing plot_eventct.C+(18)...
-Year : 	2016	postVFP
-Bin Number efakePho jetFakePho QCD VGamma rare :
+Processing plot_eventct_NoData.C+(18)...
+1	2.02	4.28
+2	3.97	3.53
+3	0.91	10.10
+4	2.16	0.99
+5	12.97	11.53
+6	27.80	84.86
+7	17.82	0.00
+8	0.00	0.00
+9	75.29	75.29
+10	2.11	4.82
+11	1.59	5.37
+12	7.85	5.93
+13	2.84	2.84
+14	2.03	3.30
+15	6.00	7.46
+16	0.00	0.00
+17	13.25	0.00
+18	44.72	10.78
+19	1.63	5.33
+20	5.46	8.63
+21	10.70	53.83
+22	0.78	15.00
+23	2.68	2.89
+24	3.69	2.11
+25	0.00	0.00
+26	0.00	0.00
+27	0.00	0.00
+28	5.72	6.31
+29	6.49	13.77
+30	9.51	10.58
+31	2.26	3.63
+32	2.23	0.73
+33	7.30	1.10
+34	0.00	0.00
+35	0.00	0.00
+36	0.00	0.00
+\begin{table}[h]
+\centering
+  \resizebox{\linewidth}{!}{
+  \begin{tabular}{|c|c|c|c|c|c|}
+  \hline
+  Source of Uncertainties & $e\rightarrow\gamma$ fakes & $\text{jet}\rightarrow\gamma$ fakes & $\text{jet}\rightarrow l$ fakes & $V+\gamma$ & rare EWK \\
+  \hline
+  Cross section & - & - & - & - & 50 \\
+  ID, trigger ESF & - & - & - & 1-9.6 & 1.4-9.1 \\
+  ISR corrections & - & - & - & 3.2-65.7 & - \\
+  Integrated luminosity & - & - & - & - & 2.6 \\
+  Jet energy resolution & - & - & - & 0-84.9 & 0-61.5 \\
+  Jet energy scale & - & - & - & 0-75.3 & 0-21 \\
+  e-fake-photon shape & 10.8-16.2 & - & - & - & - \\
+  jet-fake-photon shape & - & 7.1-86.8 & 0.3-52.9 & - & - \\
+  normalization scale & - & - & 10.3-22.9 & 10.8-13.7 & - \\
+  \hline
+  \end{tabular}
+  }
+  \caption{Systematic uncertainties of the SM backgrounds.}
+  \label{table:ch4-systematic}
+\end{table}
 
+Processing plot_eventct_NoData.C+(18)...
+1	2.02	4.28
+2	3.97	3.53
+3	0.91	10.10
+4	2.16	0.99
+5	12.97	11.53
+6	27.80	84.86
+7	17.82	0.00
+8	0.00	0.00
+9	75.29	75.29
+10	2.11	4.82
+11	1.59	5.37
+12	7.85	5.93
+13	2.84	2.84
+14	2.03	3.30
+15	6.00	7.46
+16	0.00	0.00
+17	13.25	0.00
+18	44.72	10.78
+19	1.63	5.33
+20	5.46	8.63
+21	10.70	53.83
+22	0.78	15.00
+23	2.68	2.89
+24	3.69	2.11
+25	0.00	0.00
+26	0.00	0.00
+27	0.00	0.00
+28	5.72	6.31
+29	6.49	13.77
+30	9.51	10.58
+31	2.26	3.63
+32	2.23	0.73
+33	7.30	1.10
+34	0.00	0.00
+35	0.00	0.00
+36	0.00	0.00
+\begin{table}[h]
+\centering
+  \resizebox{\linewidth}{!}{
+  \begin{tabular}{|c|c|c|c|c|c|}
+  \hline
+  Source of Uncertainties & $e\rightarrow\gamma$ fakes & $\text{jet}\rightarrow\gamma$ fakes & $\text{jet}\rightarrow l$ fakes & $V+\gamma$ & rare EWK \\
+  \hline
+  Cross section & - & - & - & - & 50 \\
+  ID, trigger ESF & - & - & - & 1-9.6 & 1.4-9.1 \\
+  ISR corrections & - & - & - & 3.2-65.7 & - \\
+  Integrated luminosity & - & - & - & - & 2.6 \\
+  Jet energy resolution & - & - & - & 0-84.9 & 0-61.5 \\
+  Jet energy scale & - & - & - & 0-75.3 & 0-21 \\
+  e-fake-photon shape & 10.8-16.2 & - & - & - & - \\
+  jet-fake-photon shape & - & 7.1-86.8 & 0.3-52.9 & - & - \\
+  normalization scale & - & - & 10.3-22.9 & 10.8-13.7 & - \\
+  \hline
+  \end{tabular}
+  }
+  \caption{Systematic uncertainties of the SM backgrounds.}
+  \label{table:ch4-systematic}
+\end{table}
 
+Processing plot_eventct_NoData.C+(18)...
+1	2.02	4.28
+2	3.97	3.53
+3	0.91	10.10
+4	2.16	0.99
+5	12.97	11.53
+6	27.80	84.86
+7	17.82	0.00
+8	0.00	0.00
+9	75.29	75.29
+10	2.11	4.82
+11	1.59	5.37
+12	7.85	5.93
+13	2.84	2.84
+14	2.03	3.30
+15	6.00	7.46
+16	0.00	0.00
+17	13.25	0.00
+18	44.72	10.78
+19	1.63	5.33
+20	5.46	8.63
+21	10.70	53.83
+22	0.78	15.00
+23	2.68	2.89
+24	3.69	2.11
+25	0.00	0.00
+26	0.00	0.00
+27	0.00	0.00
+28	5.72	6.31
+29	6.49	13.77
+30	9.51	10.58
+31	2.26	3.63
+32	2.23	0.73
+33	7.30	1.10
+34	0.00	0.00
+35	0.00	0.00
+36	0.00	0.00
+\begin{table}[h]
+\centering
+  \resizebox{\linewidth}{!}{
+  \begin{tabular}{|c|c|c|c|c|c|}
+  \hline
+  Source of Uncertainties & $e\rightarrow\gamma$ fakes & $\text{jet}\rightarrow\gamma$ fakes & $\text{jet}\rightarrow l$ fakes & $V+\gamma$ & rare EWK \\
+  \hline
+  Cross section & - & - & - & - & 50 \\
+  ID, trigger ESF & - & - & - & 1-9.6 & 1.4-9.1 \\
+  ISR corrections & - & - & - & 3.2-65.7 & - \\
+  Integrated luminosity & - & - & - & - & 2.6 \\
+  Jet energy resolution & - & - & - & 0-84.9 & 0-61.5 \\
+  Jet energy scale & - & - & - & 0-75.3 & 0-21 \\
+  e-fake-photon shape & 10.8-16.2 & - & - & - & - \\
+  jet-fake-photon shape & - & 7.1-86.8 & 0.3-52.9 & - & - \\
+  normalization scale & - & - & 10.3-22.9 & 10.8-13.7 & - \\
+  \hline
+  \end{tabular}
+  }
+  \caption{Systematic uncertainties of the SM backgrounds.}
+  \label{table:ch4-systematic}
+\end{table}
 
-eg channel : 		
-elefakePho :   63.6091
-jetfakePho :   35.688
-jetfakeLep :   24.285
-VGamma :       72.4197
-Rare :         130.429
-total SM backgrounds:	326.431	Total data  308
-Discrepancy :  5.98402 % 
+Processing plot_eventct_NoData.C+(18)...
+1	2.02	4.28
+2	3.97	3.53
+3	0.91	10.10
+4	2.16	0.99
+5	12.97	11.53
+6	27.80	84.86
+7	17.82	0.00
+8	0.00	0.00
+9	75.29	75.29
+10	2.11	4.82
+11	1.59	5.37
+12	7.85	5.93
+13	2.84	2.84
+14	2.03	3.30
+15	6.00	7.46
+16	0.00	0.00
+17	13.25	0.00
+18	44.72	10.78
+19	1.63	5.33
+20	5.46	8.63
+21	10.70	53.83
+22	0.78	15.00
+23	2.68	2.89
+24	3.69	2.11
+25	0.00	0.00
+26	0.00	0.00
+27	0.00	0.00
+28	5.72	6.31
+29	6.49	13.77
+30	9.51	10.58
+31	2.26	3.63
+32	2.23	0.73
+33	7.30	1.10
+34	0.00	0.00
+35	0.00	0.00
+36	0.00	0.00
+\begin{table}[h]
+\centering
+  \resizebox{\linewidth}{!}{
+  \begin{tabular}{|c|c|c|c|c|c|}
+  \hline
+  Source of Uncertainties & $e\rightarrow\gamma$ fakes & $\text{jet}\rightarrow\gamma$ fakes & $\text{jet}\rightarrow l$ fakes & $V+\gamma$ & rare EWK \\
+  \hline
+  Cross section & - & - & - & - & 50 \\
+  ID, trigger ESF & - & - & - & 1-9.6 & 1.4-9.1 \\
+  ISR corrections & - & - & - & 3.2-65.7 & - \\
+  Integrated luminosity & - & - & - & - & 2.6 \\
+  Jet energy resolution & - & - & - & 0-84.9 & 0-61.5 \\
+  Jet energy scale & - & - & - & 0-75.3 & 0-21 \\
+  e-fake-photon shape & 10.8-16.2 & - & - & - & - \\
+  jet-fake-photon shape & - & 7.1-86.8 & 0.3-52.9 & - & - \\
+  normalization scale & - & - & 10.3-22.9 & 10.8-13.7 & - \\
+  \hline
+  \end{tabular}
+  }
+  \caption{Systematic uncertainties of the SM backgrounds.}
+  \label{table:ch4-systematic}
+\end{table}
 
-
-mg channel : 		
-elefakePho :   114.358
-jetfakePho :   73.0082
-jetfakeLep :   15.213
-VGamma :       121.977
-Rare :         256.465
-total SM backgrounds:	581.021	Total data  508
-Discrepancy :  14.3743 % 
+Processing plot_eventct_NoData.C+(18)...
+1	2.02	4.28
+2	3.97	3.53
+3	0.91	10.10
+4	2.16	0.99
+5	12.97	11.53
+6	27.80	84.86
+7	17.82	0.00
+8	0.00	0.00
+9	75.29	75.29
+10	2.11	4.82
+11	1.59	5.37
+12	7.85	5.93
+13	2.84	2.84
+14	2.03	3.30
+15	6.00	7.46
+16	0.00	0.00
+17	13.25	0.00
+18	44.72	10.78
+19	1.63	5.33
+20	5.46	8.63
+21	10.70	53.83
+22	0.78	15.00
+23	2.68	2.89
+24	3.69	2.11
+25	0.00	0.00
+26	0.00	0.00
+27	0.00	0.00
+28	5.72	6.31
+29	6.49	13.77
+30	9.51	10.58
+31	2.26	3.63
+32	2.23	0.73
+33	7.30	1.10
+34	0.00	0.00
+35	0.00	0.00
+36	0.00	0.00
+\begin{table}[h]
+\centering
+  \resizebox{\linewidth}{!}{
+  \begin{tabular}{|c|c|c|c|c|c|}
+  \hline
+  Source of Uncertainties & $e\rightarrow\gamma$ fakes & $\text{jet}\rightarrow\gamma$ fakes & $\text{jet}\rightarrow l$ fakes & $V+\gamma$ & rare EWK \\
+  \hline
+  Cross section & - & - & - & - & 50 \\
+  ID, trigger ESF & - & - & - & 1-9.6 & 1.4-9.1 \\
+  ISR corrections & - & - & - & 3.2-65.7 & - \\
+  Integrated luminosity & - & - & - & - & 2.6 \\
+  Jet energy resolution & - & - & - & 0-84.9 & 0-61.5 \\
+  Jet energy scale & - & - & - & 0-75.3 & 0-21 \\
+  e-fake-photon shape & 10.8-16.2 & - & - & - & - \\
+  jet-fake-photon shape & - & 7.1-86.8 & 0.3-52.9 & - & - \\
+  normalization scale & - & - & 10.3-22.9 & 10.8-13.7 & - \\
+  \hline
+  \end{tabular}
+  }
+  \caption{Systematic uncertainties of the SM backgrounds.}
+  \label{table:ch4-systematic}
+\end{table}

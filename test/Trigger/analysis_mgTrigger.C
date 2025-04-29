@@ -80,6 +80,8 @@ void analysis_mgTrigger(int RunYear, const char *Era){
 	
 	int   Z_nVtx(0);
 	float Z_rho(0); 
+	float Z_dimuonmass(0);
+	float Z_InvMass(0);
 
 	Ztree->Branch("runN",      &Z_run);
 	Ztree->Branch("phoEt",     &Z_phoEt);
@@ -98,11 +100,13 @@ void analysis_mgTrigger(int RunYear, const char *Era){
 	Ztree->Branch("mufireHLT", &Z_mufireHLT);
 	Ztree->Branch("nVtx",      &Z_nVtx);
 	Ztree->Branch("rho",       &Z_rho);
-	if(RunYear==2016){
-		Ztree->Branch("phofireL1_2", &Z_phofireL1_2);
-		Ztree->Branch("mufireL1_2",  &Z_mufireL1_2); 
-		Ztree->Branch("phofireHLT2",&Z_phofireHLT2);
-		Ztree->Branch("mufireHLT2", &Z_mufireHLT2);}
+	Ztree->Branch("phofireL1_2", &Z_phofireL1_2);
+	Ztree->Branch("mufireL1_2",  &Z_mufireL1_2); 
+	Ztree->Branch("phofireHLT2",&Z_phofireHLT2);
+	Ztree->Branch("mufireHLT2", &Z_mufireHLT2);
+	
+	Ztree->Branch("Z_dimuonmass", &Z_dimuonmass);
+	Ztree->Branch("Z_InvMass", &Z_InvMass);
 
 	TTree *mgtree = new TTree("mgTree","mgTree");
 	float mg_phoEt(0);
@@ -130,11 +134,10 @@ void analysis_mgTrigger(int RunYear, const char *Era){
 	mgtree->Branch("mufireL1",  &mg_mufireL1); 
 	mgtree->Branch("phofireHLT", &mg_phofireHLT);
 	mgtree->Branch("mufireHLT",  &mg_mufireHLT);
-	if(RunYear==2016){
-		mgtree->Branch("phofireL1_2",&mg_phofireL1_2);
-		mgtree->Branch("mufireL1_2", &mg_mufireL1_2); 
-		mgtree->Branch("phofireHLT2",&mg_phofireHLT2);
-		mgtree->Branch("mufireHLT2", &mg_mufireHLT2);}
+	mgtree->Branch("phofireL1_2",&mg_phofireL1_2);
+	mgtree->Branch("mufireL1_2", &mg_mufireL1_2); 
+	mgtree->Branch("phofireHLT2",&mg_phofireHLT2);
+	mgtree->Branch("mufireHLT2", &mg_mufireHLT2);
 
 	TH1F *p_dimuon = new TH1F("p_dimuon","di-muon invmass; #mu#mu mass(GeV);",200,0,200);
 	TH1F *p_invmass = new TH1F("p_invmass","mu#mu#gamma invmass; #mu#mu#gamma mass(GeV);",60,60,120);
@@ -188,8 +191,10 @@ void analysis_mgTrigger(int RunYear, const char *Era){
 				for(std::vector<recoMuon>::iterator itMu = Muon.begin(); itMu!= Muon.end(); itMu++){
 
 					if( itMu == tagMuVec[iT] )continue;
-					bool sameCharge = ((tagMuVec[iT]->isPosi() && itMu->isPosi()) || (!tagMuVec[iT]->isPosi() && !itMu->isPosi()));        
-					if( sameCharge || !itMu->isMedium() || itMu->getMiniIso() > 0.2 )continue; 
+					bool sameCharge = ((tagMuVec[iT]->isPosi() && itMu->isPosi()) || (!tagMuVec[iT]->isPosi() && !itMu->isPosi()));       
+					// added the D0 and Dz cuts as comments from Muon POG
+					if( sameCharge || !itMu->isMedium() || itMu->getMiniIso() > 0.2 || itMu->getD0() > 0.02 || itMu->getDz() > 0.1 )continue; 
+					//if( sameCharge || !itMu->isMedium() || itMu->getMiniIso() > 0.2 )continue; 
 					float dimuonmass = (tagMuVec[iT]->getP4()+itMu->getP4()).M(); 
 					p_dimuon->Fill(dimuonmass);
 					if(dimuonmass > 35)DiMuVec.push_back(std::make_pair(tagMuVec[iT],itMu));
@@ -233,7 +238,9 @@ void analysis_mgTrigger(int RunYear, const char *Era){
 			//		}
 
 					if(dimuonmass < 80 && InvMass > 60 && InvMass < 120){
-      
+      						Z_dimuonmass = dimuonmass;
+						Z_InvMass = InvMass;
+
 						Z_dR = dR1<dR2? dR1: dR2; 
 						Z_phoEt = probePho->getEt();
 						Z_phoEta=probePho->getEta();
@@ -278,11 +285,17 @@ void analysis_mgTrigger(int RunYear, const char *Era){
                                                 	if(probeMu->fireL1Trg(12))Z_mufireL1=12;
                                                 	else Z_mufireL1=0;
 
-                                                	if(probePho->fireDoubleTrg(27) || probePho->fireDoubleTrg(36))Z_phofireHLT=1;
+                                                	if(probePho->fireDoubleTrg(27)) Z_phofireHLT=1;
                                                 	else Z_phofireHLT=0;
 
-                                                	if(probeMu->fireSingleTrg(0) || probeMu->fireSingleTrg(32))Z_mufireHLT=1;
+                                                	if(probeMu->fireSingleTrg(0)) Z_mufireHLT=1;
                                                 	else Z_mufireHLT=0;
+                                                	
+							if(probePho->fireDoubleTrg(36)) Z_phofireHLT2=1;
+                                                	else Z_phofireHLT2=0;
+
+                                                	if(probeMu->fireSingleTrg(32)) Z_mufireHLT2=1;
+                                                	else Z_mufireHLT2=0;
 						}
 
             					Ztree->Fill();
@@ -335,11 +348,17 @@ void analysis_mgTrigger(int RunYear, const char *Era){
                                                 	if(itIsoMu->fireL1Trg(12))mg_mufireL1=12;
                                                 	else mg_mufireL1=0;
 
-                                                	if(itIsoPho->fireDoubleTrg(27) || itIsoPho->fireDoubleTrg(36))mg_phofireHLT=1;
+                                                	if(itIsoPho->fireDoubleTrg(27)) mg_phofireHLT=1;
                                                 	else mg_phofireHLT=0;
 
-                                                	if(itIsoMu->fireSingleTrg(0) || itIsoMu->fireSingleTrg(32))mg_mufireHLT=1;
+                                                	if(itIsoMu->fireSingleTrg(0)) mg_mufireHLT=1;
                                                 	else mg_mufireHLT=0;
+                                                	
+							if(itIsoPho->fireDoubleTrg(36)) mg_phofireHLT2=1;
+                                                	else mg_phofireHLT2=0;
+
+                                                	if(itIsoMu->fireSingleTrg(32)) mg_mufireHLT2=1;
+                                                	else mg_mufireHLT2=0;
 						}
 
 						mgtree->Fill();

@@ -230,6 +230,7 @@ void pred_jetBkg(){
 		float nJetFloat(0);
                 int nJetInt(0);
 
+
 		//jettree->SetBranchAddress("run",       &run);	
 		//jettree->SetBranchAddress("event",     &event);
 		//jettree->SetBranchAddress("lumis",     &lumis);
@@ -263,10 +264,11 @@ void pred_jetBkg(){
                 }
 
 	 
-		for (unsigned ievt(0); ievt<jettree->GetEntries(); ++ievt){//loop on entries
+		for (unsigned ievt(0); ievt<jettree->GetEntries(); ++ievt){
 			jettree->GetEntry(ievt);
-			if (channelType == 1 && nJetFloat <1 ) continue; // suggestion from convenors
+			if (channelType == 1 && nJetFloat <1 ) continue; // NEW
                         if (channelType == 2 && nJetInt <1 ) continue;
+			
 			p_PU->Fill(nVertex);
 			/** cut flow *****/
 			if(phoEt < 35 || fabs(phoEta) > 1.4442)continue;

@@ -123,7 +123,8 @@ void analysis_qcdBkg(){
   float nJetFloat(0);
   int nJetInt(0);
   int   nBJet(0); 
- 
+
+
   fakeEtree->SetBranchAddress("phoEt",     &phoEt);
   fakeEtree->SetBranchAddress("phoEta",    &phoEta);
   fakeEtree->SetBranchAddress("phoPhi",    &phoPhi);
@@ -151,17 +152,9 @@ void analysis_qcdBkg(){
 		double w_qcd = 0; 
 		double w_qcd_up = 0; 
 		double w_qcd_unweight = 0;
-		// weights used for fake lepton
-		//if(channelType == 1){
 			w_qcd = factorQCD*p_scale->GetBinContent(p_scale->FindBin(lepPt));
 			w_qcd_up = factorQCDUP*p_scale->GetBinContent(p_scale->FindBin(lepPt));
 			w_qcd_unweight = factorQCD;
-		//}
-		//else{
-		//	w_qcd = factorQCD;
-		//	w_qcd_up = factorQCDUP;
-		//	w_qcd_unweight = factorQCD;
-		//}
 	
 		p_PU->Fill(nVertex);
 		/** cut flow *****/
@@ -236,9 +229,9 @@ void analysis_qcdBkg(){
 	}	
 	for(int ibin(1); ibin < p_MET->GetSize(); ibin++){
 		double syserror(0);
-		syserror += p_MET->GetBinError(ibin)* p_MET->GetBinError(ibin);
-		syserror += pow((normup_MET->GetBinContent(ibin)-p_MET->GetBinContent(ibin)),2);
-		syserror += pow((unweight_MET->GetBinContent(ibin)-p_MET->GetBinContent(ibin)),2);
+		syserror += p_MET->GetBinError(ibin)* p_MET->GetBinError(ibin);// stat
+		syserror += pow((normup_MET->GetBinContent(ibin)-p_MET->GetBinContent(ibin)),2); // error of normalisation scale and lepton pt scaling
+		syserror += pow((unweight_MET->GetBinContent(ibin)-p_MET->GetBinContent(ibin)),2); // central value w/o error of normalisation and no pt scaling
 		p_MET->SetBinError(ibin,sqrt(syserror));
 	}	
 	for(int ibin(1); ibin < p_Mt->GetSize(); ibin++){

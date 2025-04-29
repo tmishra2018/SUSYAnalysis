@@ -88,6 +88,7 @@ void analysis_VGamma_Year17_18(int RunYear, const char *Sample){//main
 	
   ofstream logfile;
   logfile.open(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_%s_%d%s.log",Sample,RunYear,whichVFP.c_str()));
+
   logfile << "analysis_VGamma()" << std::endl;
 
   RunType datatype(MC);
@@ -159,6 +160,18 @@ void analysis_VGamma_Year17_18(int RunYear, const char *Sample){//main
 
   if(datatype == MC && mcType == MCType::NOMC){std::cout << "wrong MC type" << std::endl; throw;} 
   logfile << "mcType" << mcType << std::endl;
+
+
+  float eg_Z_mass(0);
+  float eg_Z_lep1_pt(0);
+  float eg_Z_lep2_pt(0);
+
+  float mg_Z_mass(0);
+  float mg_Z_lep1_pt(0);
+  float mg_Z_lep2_pt(0);
+
+  bool eg_hasZCandidate = false;
+  bool mg_hasZCandidate = false;
 
   float crosssection = MC_XS[mcType];
   float ntotalevent = es->GetEntries();
@@ -265,7 +278,11 @@ void analysis_VGamma_Year17_18(int RunYear, const char *Sample){//main
   egtree->Branch("mcMomPID", &eg_mcMomPID);
   egtree->Branch("mcGMomPID", &eg_mcGMomPID);
   egtree->Branch("mcStatus", &eg_mcStatus);
-	egtree->Branch("llmass",   &llmass);
+  egtree->Branch("llmass",   &llmass);
+  egtree->Branch("Z_mass", &eg_Z_mass);
+  egtree->Branch("Z_lep1_pt", &eg_Z_lep1_pt);
+  egtree->Branch("Z_lep2_pt", &eg_Z_lep2_pt);
+  egtree->Branch("hasZCandidate", &eg_hasZCandidate);
 
   TTree *mgtree = new TTree("mgTree","mgTree");
   float mg_phoEt(0);
@@ -356,7 +373,12 @@ void analysis_VGamma_Year17_18(int RunYear, const char *Sample){//main
   mgtree->Branch("mcMomPID", &mg_mcMomPID);
   mgtree->Branch("mcGMomPID", &mg_mcGMomPID);
   mgtree->Branch("mcStatus", &mg_mcStatus);
-	mgtree->Branch("llmass",   &llmass);
+  mgtree->Branch("llmass",   &llmass);
+  mgtree->Branch("Z_mass", &mg_Z_mass);
+  mgtree->Branch("Z_lep1_pt", &mg_Z_lep1_pt);
+  mgtree->Branch("Z_lep2_pt", &mg_Z_lep2_pt);
+  mgtree->Branch("hasZCandidate", &mg_hasZCandidate);
+
 //*********** histo list **********************//
   rawData raw(es, datatype);
   std::vector<mcData>  MCData;
@@ -364,6 +386,11 @@ void analysis_VGamma_Year17_18(int RunYear, const char *Sample){//main
   std::vector<recoMuon>   Muon;
   std::vector<recoEle>   Ele;
   std::vector<recoJet>   JetCollection;
+
+  std::vector<recoEle>::iterator ZLep1_e = Ele.begin();
+  std::vector<recoEle>::iterator ZLep2_e = Ele.begin();
+  std::vector<recoMuon>::iterator ZLep1_mu = Muon.begin();
+  std::vector<recoMuon>::iterator ZLep2_mu = Muon.begin();
 /*********************************************/
   float MET(0);
   float METPhi(0);
@@ -596,6 +623,43 @@ void analysis_VGamma_Year17_18(int RunYear, const char *Sample){//main
 				}
 
                  		ISRWeight = reweightF*Normalization;
+std::vector<std::pair<recoEle, recoEle>> ZeeCandidates;
+std::vector<std::pair<recoMuon, recoMuon>> ZmmCandidates;
+
+for (std::vector<recoEle>::iterator itEle1 = Ele.begin(); itEle1 != Ele.end(); ++itEle1) {
+    for (std::vector<recoEle>::iterator itEle2 = itEle1 + 1; itEle2 != Ele.end(); ++itEle2) {
+        if (itEle1->passSignalSelection() && itEle2->passSignalSelection()) {
+            if ((itEle1->isPosi() && itEle2->isPosi()) || (!itEle1->isPosi() && !itEle2->isPosi())) continue;
+            float dimass = (itEle1->getP4() + itEle2->getP4()).M();
+            if (fabs(dimass - 91.1876) < 10) {
+                ZeeCandidates.emplace_back(*itEle1, *itEle2);
+                goto EndZSearch;
+            }
+        }
+    }
+}
+
+for (std::vector<recoMuon>::iterator itMu1 = Muon.begin(); itMu1 != Muon.end(); ++itMu1) {
+    for (std::vector<recoMuon>::iterator itMu2 = itMu1 + 1; itMu2 != Muon.end(); ++itMu2) {
+        if (itMu1->passSignalSelection() && itMu2->passSignalSelection()) {
+            if ((itMu1->isPosi() && itMu2->isPosi()) || (!itMu1->isPosi() && !itMu2->isPosi())) continue;
+            float dimuonmass = (itMu1->getP4() + itMu2->getP4()).M();
+            if (fabs(dimuonmass - 91.1876) < 10) {
+                ZmmCandidates.emplace_back(*itMu1, *itMu2);
+                goto EndZSearch;
+            }
+        }
+    }
+}
+EndZSearch:
+
+bool hasZCandidate = (!ZeeCandidates.empty() || !ZmmCandidates.empty());
+int totalZCandidates = ZeeCandidates.size() + ZmmCandidates.size();
+
+if (totalZCandidates > 1)
+    std::cout << "More than one Z candidate found in this event: " << totalZCandidates << std::endl;
+
+
 
 ///*************************   eg filters *****************************//
         if(hasegPho && hasEle && (((raw.HLTPho >> 14)&1)==1)){ // Year = 2016 Year = 2017
@@ -681,15 +745,38 @@ void analysis_VGamma_Year17_18(int RunYear, const char *Sample){//main
 										eg_mcStatus.push_back(itMC->getStatus());
 									}
 								}
-
-                egtree->Fill();
+eg_hasZCandidate = false;
+eg_Z_mass = -1;
+eg_Z_lep1_pt = -1;
+eg_Z_lep2_pt = -1;
+if (hasZCandidate) {
+    for (auto& pair : ZeeCandidates) {
+        if (&pair.first != &(*signalEle) && &pair.second != &(*signalEle)) {
+            eg_hasZCandidate = true;
+            eg_Z_mass = (pair.first.getP4() + pair.second.getP4()).M();
+            eg_Z_lep1_pt = pair.first.getPt();
+            eg_Z_lep2_pt = pair.second.getPt();
+            break;
+        }
+    }
+    if (!eg_hasZCandidate) {
+        for (auto& pair : ZmmCandidates) {
+            eg_hasZCandidate = true;
+            eg_Z_mass = (pair.first.getP4() + pair.second.getP4()).M();
+            eg_Z_lep1_pt = pair.first.getPt();
+            eg_Z_lep2_pt = pair.second.getPt();
+            break;
+        }
+    }
+}
+                						egtree->Fill();
  
               }//MET Filter
             }// Z mass Filter
           }//dR filter
         }// ele + pho candidate
        
-//**********************  mg filter **************************************//         
+//**********************  mg filter **************************************         
  
        if(hasmgPho && hasMu && (((raw.HLTEleMuX >> 8)&1)!=0 || ((raw.HLTEleMuX >> 57)&1)!=0) && !hasDoubleEG){ // Year = 2017
 					double dRmg = DeltaR(mgsignalPho->getEta(), mgsignalPho->getPhi(), signalMu->getEta(), signalMu->getPhi());
@@ -778,6 +865,30 @@ void analysis_VGamma_Year17_18(int RunYear, const char *Sample){//main
 						 	}
 						  }
 						}
+mg_hasZCandidate = false;
+mg_Z_mass = -1;
+mg_Z_lep1_pt = -1;
+mg_Z_lep2_pt = -1;
+if (hasZCandidate) {
+    for (auto& pair : ZmmCandidates) {
+        if (&pair.first != &(*signalMu) && &pair.second != &(*signalMu)) {
+            mg_hasZCandidate = true;
+            mg_Z_mass = (pair.first.getP4() + pair.second.getP4()).M();
+            mg_Z_lep1_pt = pair.first.getPt();
+            mg_Z_lep2_pt = pair.second.getPt();
+            break;
+        }
+    }
+    if (!mg_hasZCandidate) {
+        for (auto& pair : ZeeCandidates) {
+            mg_hasZCandidate = true;
+            mg_Z_mass = (pair.first.getP4() + pair.second.getP4()).M();
+            mg_Z_lep1_pt = pair.first.getPt();
+            mg_Z_lep2_pt = pair.second.getPt();
+            break;
+        }
+    }
+}
 
 				 		mgtree->Fill();
            }//MET Filter

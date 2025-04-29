@@ -66,7 +66,7 @@
 
 
 int MINVTX = 0;
-bool doEB = false;
+bool doEB = true;
 //const char*processName ="Data"; bool doDrellYan = false;
 
 const char*processName ="DY"; bool doDrellYan = true;
@@ -840,6 +840,8 @@ void fitFakeFunc(int RunYear, bool preVFP){//main
 				float w_ele = h_toymc_pt[i]->Eval(etreeEt[iEvt])*h_toymc_vtx[i]->Eval(etreeVtx[iEvt])*weight_eta;
 				invmass_prednum->Fill(etreeInvmass[iEvt], w_ele); 
 			}
+
+			cout<< "random_totalnum[i]"<< random_totalnum[i] <<"invmass_prednum->Integral(lowBinNumber,highBinNumber)"<<invmass_prednum->Integral(lowBinNumber,highBinNumber)<<endl;
 //			invmass_prednum->Sumw2();
 			if(invmass_prednum->Integral(lowBinNumber,highBinNumber) > 0 && invmass_prednum->Integral(lowBinNumber,highBinNumber) < 1e20){
 				myfile << random_totalnum[i]/invmass_prednum->Integral(lowBinNumber,highBinNumber) << " " << data1 << " " << data2 << " " << data3 <<  " " << data4 << " " << data5 << std::endl;

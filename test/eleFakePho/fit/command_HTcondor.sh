@@ -33,19 +33,19 @@ voms-proxy-init --voms cms --valid 168:00 -out ~/.globus/gridproxy.cert
 
 if [ ${year} == 2016 -a ${isData} == 1 -a ${preVFP} == 1 ]
 then
-        xrdcp -f *.png         root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataFitting16preVFP
+        xrdcp -f *.png         root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataFitting2016preVFP
         xrdcp -f Ele*.txt      root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataResult16preVFP
 elif [ ${year} == 2016 -a ${isData} == 1 -a ${preVFP} == 0 ]
 then
-        xrdcp -f *.png         root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataFitting16postVFP
+        xrdcp -f *.png         root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataFitting2016postVFP
         xrdcp -f Ele*.txt      root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataResult16postVFP
 elif [ ${year} == 2017 -a ${isData} == 1 ]
 then
-	xrdcp -f *.png        root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataFitting17
+	xrdcp -f *.png        root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataFitting2017
 	xrdcp -f Ele*.txt     root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataResult17
 elif [ ${year} == 2018 -a ${isData} == 1 ]
 then
-	xrdcp -f *.png        root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataFitting18
+	xrdcp -f *.png        root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataFitting2018
 	xrdcp -f Ele*.txt     root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataResult18
 fi
 

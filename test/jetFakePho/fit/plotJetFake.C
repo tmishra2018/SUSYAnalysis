@@ -250,6 +250,6 @@ void plotJetFake(){//main
 //	if(doCompare)ratio_menglei->SetMarkerColor(kBlue);
 //	if(doCompare)ratio_menglei->Draw("P same");
 //	flatratio->Draw("same");
-	if(ichannel == 1)  	canvas->SaveAs("/eos/uscms/store/user/tmishra/jetfakepho/Plots2016/JetFakePho_DoubleEG_comparison.pdf");
-	if(ichannel == 2)  	canvas->SaveAs("/eos/uscms/store/user/tmishra/jetfakepho/Plots2016/JetFakePho_MuonEG_comparison.pdf");
+	if(ichannel == 1)  	canvas->SaveAs("/eos/uscms/store/user/tmishra/jetfakepho/Plots2016preVFP/JetFakePho_DoubleEG_comparison.pdf");
+	if(ichannel == 2)  	canvas->SaveAs("/eos/uscms/store/user/tmishra/jetfakepho/Plots2016preVFP/JetFakePho_MuonEG_comparison.pdf");
 }

@@ -66,7 +66,7 @@ void pred_VGBkg(){
 		}
 	}
 
-	//*********** histo list **********************//
+	//*********** histo list **********************
 	std::ostringstream outputname;
 	outputname << "/uscms_data/d3/tmishra/Output/";
 	switch(anatype){
@@ -206,9 +206,10 @@ void pred_VGBkg(){
   	TChain *mctree = new TChain(chainname.str().c_str(), chainname.str().c_str());
 	
 	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGJet40_%d%s.root",RunYear,whichVFP.c_str()));
+	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGToLNuG_%d%s.root",RunYear,whichVFP.c_str()));
   	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGJet130_%d%s.root",RunYear,whichVFP.c_str()));
-  	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGToLNuG_%d%s.root",RunYear,whichVFP.c_str()));
-  	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_ZGToLLG_%d%s.root",RunYear,whichVFP.c_str()));
+  	
+	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_ZGToLLG_%d%s.root",RunYear,whichVFP.c_str()));
   	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
 	
 	float crosssection(0);
@@ -252,6 +253,7 @@ void pred_VGBkg(){
   	std::vector<float> *mcPt=0;
   	std::vector<int> *mcMomPID=0;
 	//  std::vector<int> *mcGMomPID=0;
+
 	
 	mctree->SetBranchAddress("crosssection",&crosssection);
 	mctree->SetBranchAddress("ntotalevent", &ntotalevent);
@@ -296,7 +298,7 @@ void pred_VGBkg(){
 
 	for(unsigned ievt(0); ievt < mctree->GetEntries(); ievt++){
 		mctree->GetEntry(ievt);
-		if(nJet <1)continue;  // added temporarily
+		if(nJet <1)continue;  // NEW
 		p_PU->Fill(nVertex,PUweight);
 		double scalefactor(0);
 		double scalefactorup(0);
@@ -336,38 +338,49 @@ void pred_VGBkg(){
         		else if(RunYear == 2018) 			XS_weight = lumi_2018_MuonEG*1000*crosssection/ntotalevent;
         		else if(RunYear == 678) 			XS_weight = lumi_678_MuonEG*1000*crosssection/ntotalevent;}
 
-		// Using Menglei's ISR weight for checking
-		// Menglei's ISR
-		// 	 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-				double reweightF=1.0;
-                		double Normalization=1.0;
+		double reweightF=1.0;
+                double Normalization=1.0;
+		if(RunYear==2016 && preVFP==1){
+                        if(ISRJetPt < 50)reweightF = 1.07048;
+                         else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.33745;
+                         else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 1.11197;
+                         else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.921799;
+                         else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 1.02533;
+                         else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.986267;
+                         else if(ISRJetPt >= 300)reweightF = 0.857941;
+                         Normalization = 0.853805;    }
 
-                /*              if(ISRJetPt < 50)reweightF = 1.015;
-                                else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.110;
-                                else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.845;
-                                else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.715;
-                                else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF =   0.730;
-                                else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF =   0.732;
-                                else if(ISRJetPt >= 300)reweightF =  0.642;
-                                ISRWeight = reweightF*Normalization;*/
-		// 	 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                else if(RunYear==2016 && preVFP==0){
+                        if(ISRJetPt < 50)reweightF = 1.0823;
+                        else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.36705;
+                        else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 1.03422;
+                        else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.996796;
+                        else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.90385;
+                        else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.780053;
+                        else if(ISRJetPt >= 300)reweightF = 0.705875;
+                        Normalization = 0.854942;    }
 
+                else if(RunYear==2017){
+                        if(ISRJetPt < 50)reweightF = 1.0457;
+                        else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.28507;
+                        else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 1.05021;
+                        else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.895376;
+                        else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.986146;
+                        else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.792056;
+                        else if(ISRJetPt >= 300)reweightF = 0.929084;
+                        Normalization = 0.889139;    }
 
-		  if(RunYear==2016 && preVFP==1){
-                        if(ISRJetPt < 50)reweightF = 0.925997; 
-                        else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.06149;
-                        else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.914626;
-                        else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.769654;
-                        else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.81176;
-                        else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.823717;
-                        else if(ISRJetPt >= 300)reweightF = 0.749379;
-   	                Normalization = 1.0273957;     }
-		  //ISRWeight = reweightF*Normalization;
-		  ISRWeight = 1.0;
-		  factorMC = 1.0;
-		  factorMCUP = 1.0;
-		  scalefactor = 1.0;
-		  scalefactorup = 1.0;
+                else if(RunYear==2018){
+                        if(ISRJetPt < 50)reweightF = 1.17242;
+                        else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.33113;
+                        else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.957966;
+                        else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.921558;
+                        else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.805571;
+                        else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.904798;
+                        else if(ISRJetPt >= 300)reweightF = 0.828803;
+                        Normalization = 0.860178;    }
+
+		ISRWeight = reweightF*Normalization;
 		float weight = PUweight*XS_weight*scalefactor*ISRWeight*factorMC;
 		float weight_scaleup = PUweight*XS_weight*scalefactorup*ISRWeight*factorMC;
 		float weight_normup = PUweight*XS_weight*scalefactor*ISRWeight*factorMCUP;
@@ -394,7 +407,6 @@ void pred_VGBkg(){
 			if((*mcPID)[phoIndex] == 22 && (fabs((*mcMomPID)[phoIndex]) <= 6 || fabs((*mcMomPID)[phoIndex]) == 21 || fabs((*mcMomPID)[phoIndex]) == 999 || fabs((*mcMomPID)[phoIndex])== 11 || fabs((*mcMomPID)[phoIndex])== 13 || fabs((*mcMomPID)[phoIndex])== 15 || fabs((*mcMomPID)[phoIndex])== 23 || fabs((*mcMomPID)[phoIndex])== 24)  )istruepho=true;
 		}
 		//if(!istruepho)continue;
-
 		p_MET->Fill(sigMET, weight);
 		jesup_MET->Fill(sigMETJESup, weight);
 		jesdo_MET->Fill(sigMETJESdo, weight);
@@ -427,6 +439,7 @@ void pred_VGBkg(){
 			h_VGamma_esfUp->Fill( SigBinIndex, weight_scaleup); 
 			h_VGamma_isrAlter->Fill( SigBinIndex, weight_noisr);
 		}
+
 		if(Bin.findSignalBin(sigMETJESup, HTJESup,  phoEt)>=0)h_VGamma_jesUp->Fill( Bin.findSignalBin(sigMETJESup, HTJESup,  phoEt), weight );
 		if(Bin.findSignalBin(sigMETJESdo, HTJESdo,phoEt)>=0)h_VGamma_jesDown->Fill( Bin.findSignalBin(sigMETJESdo, HTJESdo,phoEt),  weight);
 		if(Bin.findSignalBin(sigMETJERup, HT, phoEt)>=0)h_VGamma_jerUp->Fill( Bin.findSignalBin(sigMETJERup, HT, phoEt),  weight);
@@ -470,6 +483,7 @@ void pred_VGBkg(){
 		isrup_HT->Fill(HT, weight_noisr);
 		isrup_dPhiEleMET->Fill(fabs(dPhiLepMET), weight_noisr);
 	}
+
 
 	for(int ibin(1); ibin < p_PhoEt->GetSize(); ibin++){
 		double syserror(0);
@@ -527,12 +541,12 @@ void pred_VGBkg(){
 		syserror += pow(jererror,2);
 		p_dPhiEleMET->SetBinError(ibin,sqrt(syserror));
 	}	
-	//cout<<"each bin VGammma content"<<endl;
 	float binSum=0;
+	cout<< "bin nominalsig jesUp jesDown jerUp jerDown max(jesuperror, jesdoerror) max(jeruperror, jerdoerror) max_jes_jer  max_jes_jer/2.0"<<endl;
 	for(int contbin(1); contbin <=NBIN; contbin++){
 		binSum= binSum+h_VGamma_norm->GetBinContent(contbin);
 		float nominalsig = h_VGamma_norm->GetBinContent(contbin); 
-		//cout<<contbin <<" "<< nominalsig<<endl;
+
 		float jesuperror = fabs(h_VGamma_jesUp->GetBinContent(contbin)- nominalsig);
 		float jesdoerror = fabs(h_VGamma_jesDown->GetBinContent(contbin)- nominalsig);
 		float jeruperror = fabs(h_VGamma_jerUp->GetBinContent(contbin)- nominalsig);
@@ -543,6 +557,37 @@ void pred_VGBkg(){
 		
 		h_VGamma_syserr_jes->SetBinContent(contbin, max(jesuperror,jesdoerror));
 		h_VGamma_syserr_jer->SetBinContent(contbin, max(jeruperror,jerdoerror));
+		
+		// added by hand
+    		if (std::max(jeruperror, jerdoerror) > nominalsig || std::max(jesuperror, jesdoerror) > nominalsig) {
+        		// Correcting logic to set the bin content
+        		float max_jes_jer = std::max({h_VGamma_jesUp->GetBinContent(contbin),
+                                      h_VGamma_jesDown->GetBinContent(contbin),
+                                      h_VGamma_jerUp->GetBinContent(contbin),
+                                      h_VGamma_jerDown->GetBinContent(contbin)});
+        		std::cout <<"Bin: " << contbin << "\tNominal: " << nominalsig << "\tjesUp: "
+			<< h_VGamma_jesUp->GetBinContent(contbin) << "\tjesDown: "
+			<< h_VGamma_jesDown->GetBinContent(contbin) << "\tjerUp: "
+			<< h_VGamma_jerUp->GetBinContent(contbin) << "\tjerDown: "
+			<< h_VGamma_jerDown->GetBinContent(contbin) << "\t"
+                  	<< std::max(jesuperror, jesdoerror) << "\t"
+                  	<< std::max(jeruperror, jerdoerror) << "\t"
+                  	<< std::max(std::max(jesuperror, jesdoerror), std::max(jeruperror, jerdoerror)) << "\t" 
+			<< max_jes_jer / 2.0 << std::endl;
+
+        		h_VGamma_norm->SetBinContent(contbin, max_jes_jer / 2.0);
+			nominalsig = h_VGamma_norm->GetBinContent(contbin); // update after set
+
+        		// Recalculate errors
+        		jesuperror = fabs(h_VGamma_jesUp->GetBinContent(contbin) - nominalsig);
+        		jesdoerror = fabs(h_VGamma_jesDown->GetBinContent(contbin) - nominalsig);
+        		jeruperror = fabs(h_VGamma_jerUp->GetBinContent(contbin) - nominalsig);
+        		jerdoerror = fabs(h_VGamma_jerDown->GetBinContent(contbin) - nominalsig);
+        		h_VGamma_syserr_jes->SetBinContent(contbin, std::max(jesuperror, jesdoerror));
+        		h_VGamma_syserr_jer->SetBinContent(contbin, std::max(jeruperror, jerdoerror));
+
+		}
+
 		h_VGamma_syserr_esf->SetBinContent(contbin, esfuperror);
 		h_VGamma_syserr_scale->SetBinContent(contbin, normerror);
 		h_VGamma_syserr_eleshape->SetBinContent(contbin, -1);
@@ -552,7 +597,9 @@ void pred_VGBkg(){
 		h_VGamma_syserr_lumi->SetBinContent(contbin, -1);      
 		h_VGamma_syserr_isr->SetBinContent(contbin, isrerror);      
 	}
-
+	for(int contbin(1); contbin <=NBIN; contbin++){
+		cout<<contbin <<"\t" << h_VGamma_norm->GetBinContent(contbin) << "\t" << h_VGamma_syserr_jes->GetBinContent(contbin) << "\t" << h_VGamma_syserr_jer->GetBinContent(contbin)<< endl;
+	}
 	cout<<"total entries : "<<binSum<<endl;
 	outputfile->Write();
 	outputfile->Close();

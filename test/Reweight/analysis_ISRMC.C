@@ -300,7 +300,7 @@ void analysis_ISRMC(int RunYear, bool preVFP, const char *Sample){//main
 			if(hasPho && hasLep){
 				double dRlepphoton = DeltaR(signalPho->getEta(), signalPho->getPhi(), signalLep->getEta(), signalLep->getPhi());
 				if(dRlepphoton > 0.8){
-					if(raw.passMETFilter(METFilter)){ 
+					if(raw.passMETFilter(RunYear, METFilter)){ 
 						
 						bool foundZG(false); 
 						std::vector<recoMuon>::iterator trailLep=Muon.begin();	

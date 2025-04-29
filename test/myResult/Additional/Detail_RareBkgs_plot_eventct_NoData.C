@@ -1,0 +1,1204 @@
+#include <TROOT.h>
+#include<string>
+#include<iostream>
+#include<fstream>
+#include<sstream>
+#include<algorithm>
+
+#include "TFile.h"
+#include "TTree.h"
+#include "TF1.h"
+#include "TF3.h"
+#include "TH1D.h"
+#include "TH2F.h"
+#include "TCanvas.h"
+#include "TStyle.h"
+#include "TString.h"
+#include "TChain.h"
+#include "TSystem.h"
+#include "TMath.h"
+#include "TLegend.h"
+#include "TLine.h"
+#include "TLatex.h"
+#include "TProfile.h"
+#include "TLorentzVector.h"
+#include "TRandom3.h"
+#include "TGraphErrors.h"
+#include "TGraphAsymmErrors.h"
+#include "TMath.h"
+#include "Math/QuantFuncMathCore.h"
+//#include "../../include/tdrstyle.C"
+#include "../../include/analysis_commoncode.h"
+
+bool total16 = false; // ON and OFF
+void Detail_RareBkgs_plot_eventct_NoData(int NBIN) { 
+	gROOT->SetBatch(true);
+	gStyle->SetOptStat(0);
+	setTDRStyle();
+	SetSignalConfig();
+	gStyle->SetErrorX(0);
+  	gSystem->Load("../../lib/libAnaClasses.so");
+
+	std::string whichVFP;
+	
+        if(RunYear==2016 and preVFP == 1) whichVFP = "preVFP";
+        else if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
+        else whichVFP = "";
+        if(RunYear==2016 and total16 == true) whichVFP = "";
+
+
+	cout<<"Year : 	"<<RunYear<<"\t"<<whichVFP<<endl;
+        TFile *mgfile_ele = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_mg_eleBkg_%d%s.root",RunYear,whichVFP.c_str()));
+        TFile *mgfile_jet = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_mg_jetbkg_%d%s.root",RunYear,whichVFP.c_str()));
+        TFile *mgfile_qcd = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_mg_qcd_%d%s.root",RunYear,whichVFP.c_str()));
+        TFile *mgfile_VG  = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_mg_VGBkg_%d%s.root",RunYear,whichVFP.c_str()));
+        TFile *mgfile_ttjets = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_mg_ttjetsBkg_%d%s.root",RunYear,whichVFP.c_str()));
+        TFile *mgfile_ttgjets = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_mg_ttgjetsBkg_%d%s.root",RunYear,whichVFP.c_str()));
+        TFile *mgfile_wwg = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_mg_wwgBkg_%d%s.root",RunYear,whichVFP.c_str()));
+        TFile *mgfile_wzg = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_mg_wzgBkg_%d%s.root",RunYear,whichVFP.c_str()));
+        TFile *mgfile_ww = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_mg_wwBkg_%d%s.root",RunYear,whichVFP.c_str()));
+        TFile *mgfile_wz = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_mg_wzBkg_%d%s.root",RunYear,whichVFP.c_str()));
+        TFile *egfile_ele = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_egamma_eleBkg_%d%s.root",RunYear,whichVFP.c_str()));
+        TFile *egfile_jet = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_egamma_jetbkg_%d%s.root",RunYear,whichVFP.c_str()));
+        TFile *egfile_qcd = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_egamma_qcd_%d%s.root",RunYear,whichVFP.c_str()));
+        TFile *egfile_VG  = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_egamma_VGBkg_%d%s.root",RunYear,whichVFP.c_str()));
+        TFile *egfile_ttjets = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_egamma_ttjetsBkg_%d%s.root",RunYear,whichVFP.c_str()));
+        TFile *egfile_ttgjets = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_egamma_ttgjetsBkg_%d%s.root",RunYear,whichVFP.c_str()));
+        TFile *egfile_wwg = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_egamma_wwgBkg_%d%s.root",RunYear,whichVFP.c_str()));
+        TFile *egfile_wzg = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_egamma_wzgBkg_%d%s.root",RunYear,whichVFP.c_str()));
+        TFile *egfile_ww = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_egamma_wwBkg_%d%s.root",RunYear,whichVFP.c_str()));
+        TFile *egfile_wz = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_egamma_wzBkg_%d%s.root",RunYear,whichVFP.c_str()));
+
+        TFile *mgfile_sig = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_mg_signal_%d%s.root",RunYear,whichVFP.c_str()));
+        TFile *egfile_sig = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_egamma_signal_%d%s.root",RunYear,whichVFP.c_str()));
+
+	TH1D  *eg_sig     = (TH1D*)egfile_sig->Get("p_eventcount");
+	TH1D  *mg_sig     = (TH1D*)mgfile_sig->Get("p_eventcount");
+	TH1D  *h_sig      = new TH1D("h_sig","",NBIN*2,0,NBIN*2);
+	h_sig->SetBinErrorOption(TH1::kPoisson);
+  TGraphAsymmErrors* ratio = new TGraphAsymmErrors();	
+	TH1D  *h_bkg      = new TH1D("h_bkg","",NBIN*2,0,NBIN*2);
+	TH1D  *h_bkg_elefakepho = new TH1D("h_bkg_elefakepho","",NBIN*2,0,NBIN*2);
+	TH1D  *h_bkg_jetfakepho = new TH1D("h_bkg_jetfakepho","",NBIN*2,0,NBIN*2);
+	TH1D  *h_bkg_qcdfakepho = new TH1D("h_bkg_qcdfakepho","",NBIN*2,0,NBIN*2);
+	TH1D  *h_bkg_VGamma     = new TH1D("h_bkg_VGamma",  "",  NBIN*2,0,NBIN*2);
+	TGraphErrors *error_bkg = new TGraphErrors(NBIN*2);	
+	TGraphErrors *error_ratio = new TGraphErrors(NBIN*2);	
+	for(int ibin(1); ibin <= NBIN; ibin++){
+		h_sig->SetBinContent(ibin, mg_sig->GetBinContent(ibin));
+		h_sig->SetBinContent(ibin+NBIN, eg_sig->GetBinContent(ibin));
+	}
+
+
+	TH1D *h_elefakepho_norm           = new TH1D("h_elefakepho_norm",            "h_elefakepho_norm",           NBIN*2,0,NBIN*2); 
+	TH1D *h_elefakepho_controlsample  = new TH1D("h_elefakepho_controlsample",   "h_elefakepho_controlsample",  NBIN*2,0,NBIN*2);
+	TH1D *h_elefakepho_transferfactor = new TH1D("h_elefakepho_transferfactor",  "h_elefakepho_transferfactor", NBIN*2,0,NBIN*2);
+	TH1D *h_elefakepho_syserr_jes     = new TH1D("h_elefakepho_syserr_jes",      "h_elefakepho_syserr_jes",     NBIN*2,0,NBIN*2); 
+	TH1D *h_elefakepho_syserr_jer     = new TH1D("h_elefakepho_syserr_jer",      "h_elefakepho_syserr_jer",     NBIN*2,0,NBIN*2);   
+	TH1D *h_elefakepho_syserr_esf     = new TH1D("h_elefakepho_syserr_esf",      "h_elefakepho_syserr_esf",     NBIN*2,0,NBIN*2); 
+	TH1D *h_elefakepho_syserr_scale   = new TH1D("h_elefakepho_syserr_scale",    "h_elefakepho_syserr_scale",   NBIN*2,0,NBIN*2); 
+	TH1D *h_elefakepho_syserr_eleshape= new TH1D("h_elefakepho_syserr_e_to_pho_syst", "h_elefakepho_syserr_eleshape",NBIN*2,0,NBIN*2); 
+	TH1D *h_elefakepho_syserr_jetshape= new TH1D("h_elefakepho_syserr_j_to_pho_syst", "h_elefakepho_syserr_jetshape",NBIN*2,0,NBIN*2); 
+	TH1D *h_elefakepho_syserr_qcdshape= new TH1D("h_elefakepho_syserr_fakelep_shape", "h_elefakepho_syserr_qcdshape",NBIN*2,0,NBIN*2); 
+	TH1D *h_elefakepho_syserr_xs      = new TH1D("h_elefakepho_syserr_xs",       "h_elefakepho_syserr_xs",      NBIN*2,0,NBIN*2);
+	TH1D *h_elefakepho_syserr_lumi    = new TH1D("h_elefakepho_syserr_lumi",     "h_elefakepho_syserr_lumi",    NBIN*2,0,NBIN*2); 
+	TH1D *h_elefakepho_syserr_isr     = new TH1D("h_elefakepho_syserr_isr",      "h_elefakepho_syserr_isr",     NBIN*2,0,NBIN*2); 
+	                                                                                                          
+	TH1D *h_jetfakepho_norm           = new TH1D("h_jetfakepho_norm",            "h_jetfakepho_norm",           NBIN*2,0,NBIN*2); 
+	TH1D *h_jetfakepho_controlsample  = new TH1D("h_jetfakepho_controlsample",   "h_jetfakepho_controlsample",  NBIN*2,0,NBIN*2);
+	TH1D *h_jetfakepho_transferfactor = new TH1D("h_jetfakepho_transferfactor",  "h_jetfakepho_transferfactor", NBIN*2,0,NBIN*2);
+	TH1D *h_jetfakepho_syserr_jes     = new TH1D("h_jetfakepho_syserr_jes",      "h_jetfakepho_syserr_jes",     NBIN*2,0,NBIN*2); 
+	TH1D *h_jetfakepho_syserr_jer     = new TH1D("h_jetfakepho_syserr_jer",      "h_jetfakepho_syserr_jer",     NBIN*2,0,NBIN*2);   
+	TH1D *h_jetfakepho_syserr_esf     = new TH1D("h_jetfakepho_syserr_esf",      "h_jetfakepho_syserr_esf",     NBIN*2,0,NBIN*2); 
+	TH1D *h_jetfakepho_syserr_scale   = new TH1D("h_jetfakepho_syserr_scale",    "h_jetfakepho_syserr_scale",   NBIN*2,0,NBIN*2); 
+	TH1D *h_jetfakepho_syserr_eleshape= new TH1D("h_jetfakepho_syserr_e_to_pho_syst", "h_jetfakepho_syserr_eleshape",NBIN*2,0,NBIN*2); 
+	TH1D *h_jetfakepho_syserr_jetshape= new TH1D("h_jetfakepho_syserr_j_to_pho_syst", "h_jetfakepho_syserr_jetshape",NBIN*2,0,NBIN*2); 
+	TH1D *h_jetfakepho_syserr_qcdshape= new TH1D("h_jetfakepho_syserr_fakelep_shape", "h_jetfakepho_syserr_qcdshape",NBIN*2,0,NBIN*2); 
+	TH1D *h_jetfakepho_syserr_xs      = new TH1D("h_jetfakepho_syserr_xs",       "h_jetfakepho_syserr_xs",      NBIN*2,0,NBIN*2);
+	TH1D *h_jetfakepho_syserr_lumi    = new TH1D("h_jetfakepho_syserr_lumi",     "h_jetfakepho_syserr_lumi",    NBIN*2,0,NBIN*2); 
+	TH1D *h_jetfakepho_syserr_isr     = new TH1D("h_jetfakepho_syserr_isr",      "h_jetfakepho_syserr_isr",     NBIN*2,0,NBIN*2); 
+	                                                                                                          
+	                                                                             
+	TH1D *h_qcdfakelep_norm           = new TH1D("h_qcdfakelep_norm",            "h_qcdfakelep_norm",           NBIN*2,0,NBIN*2); 
+	TH1D *h_qcdfakelep_controlsample  = new TH1D("h_qcdfakelep_controlsample",   "h_qcdfakelep_controlsample",  NBIN*2,0,NBIN*2);
+	TH1D *h_qcdfakelep_transferfactor = new TH1D("h_qcdfakelep_transferfactor",  "h_qcdfakelep_transferfactor", NBIN*2,0,NBIN*2);
+	TH1D *h_qcdfakelep_syserr_jes     = new TH1D("h_qcdfakelep_syserr_jes",      "h_qcdfakelep_syserr_jes",     NBIN*2,0,NBIN*2); 
+	TH1D *h_qcdfakelep_syserr_jer     = new TH1D("h_qcdfakelep_syserr_jer",      "h_qcdfakelep_syserr_jer",     NBIN*2,0,NBIN*2);   
+	TH1D *h_qcdfakelep_syserr_esf     = new TH1D("h_qcdfakelep_syserr_esf",      "h_qcdfakelep_syserr_esf",     NBIN*2,0,NBIN*2); 
+	TH1D *h_qcdfakelep_syserr_scale   = new TH1D("h_qcdfakelep_syserr_scale",    "h_qcdfakelep_syserr_scale",   NBIN*2,0,NBIN*2); 
+	TH1D *h_qcdfakelep_syserr_eleshape= new TH1D("h_qcdfakelep_syserr_e_to_pho_syst", "h_qcdfakelep_syserr_eleshape",NBIN*2,0,NBIN*2); 
+	TH1D *h_qcdfakelep_syserr_jetshape= new TH1D("h_qcdfakelep_syserr_j_to_pho_syst", "h_qcdfakelep_syserr_jetshape",NBIN*2,0,NBIN*2); 
+	TH1D *h_qcdfakelep_syserr_qcdshape= new TH1D("h_qcdfakelep_syserr_fakelep_shape", "h_qcdfakelep_syserr_qcdshape",NBIN*2,0,NBIN*2); 
+	TH1D *h_qcdfakelep_syserr_xs      = new TH1D("h_qcdfakelep_syserr_xs",       "h_qcdfakelep_syserr_xs",      NBIN*2,0,NBIN*2);
+	TH1D *h_qcdfakelep_syserr_lumi    = new TH1D("h_qcdfakelep_syserr_lumi",     "h_qcdfakelep_syserr_lumi",    NBIN*2,0,NBIN*2); 
+	TH1D *h_qcdfakelep_syserr_isr     = new TH1D("h_qcdfakelep_syserr_isr",      "h_qcdfakelep_syserr_isr",     NBIN*2,0,NBIN*2); 
+	
+	TH1D *h_VGamma_norm           = new TH1D("h_VGamma_norm",             "h_VGamma_norm",           NBIN*2,0,NBIN*2);   
+	TH1D *h_VGamma_syserr_jes     = new TH1D("h_VGamma_syserr_jes",       "h_VGamma_syserr_jes",     NBIN*2,0,NBIN*2);   
+	TH1D *h_VGamma_syserr_jer     = new TH1D("h_VGamma_syserr_jer",       "h_VGamma_syserr_jer",     NBIN*2,0,NBIN*2);   
+	TH1D *h_VGamma_syserr_esf     = new TH1D("h_VGamma_syserr_esf",       "h_VGamma_syserr_esf",     NBIN*2,0,NBIN*2);   
+	TH1D *h_VGamma_syserr_scale   = new TH1D("h_VGamma_syserr_scale",     "h_VGamma_syserr_scale",   NBIN*2,0,NBIN*2);   
+	TH1D *h_VGamma_syserr_eleshape= new TH1D("h_VGamma_syserr_e_to_pho_syst",  "h_VGamma_syserr_eleshape",NBIN*2,0,NBIN*2);   
+	TH1D *h_VGamma_syserr_jetshape= new TH1D("h_VGamma_syserr_j_to_pho_syst",  "h_VGamma_syserr_jetshape",NBIN*2,0,NBIN*2);   
+	TH1D *h_VGamma_syserr_qcdshape= new TH1D("h_VGamma_syserr_fakelep_shape",  "h_VGamma_syserr_qcdshape",NBIN*2,0,NBIN*2);   
+	TH1D *h_VGamma_syserr_xs      = new TH1D("h_VGamma_syserr_xs",        "h_VGamma_syserr_xs",      NBIN*2,0,NBIN*2);   
+	TH1D *h_VGamma_syserr_lumi    = new TH1D("h_VGamma_syserr_lumi",      "h_VGamma_syserr_lumi",    NBIN*2,0,NBIN*2);   
+	TH1D *h_VGamma_syserr_isr     = new TH1D("h_VGamma_syserr_isr",       "h_VGamma_syserr_isr",     NBIN*2,0,NBIN*2);   
+	
+	TH1D *h_ttgjets_norm           = new TH1D("h_ttgjets_norm",              "h_ttgjets_norm",           NBIN*2,0,NBIN*2);   
+	TH1D *h_ttgjets_syserr_jes     = new TH1D("h_ttgjets_syserr_jes",        "h_ttgjets_syserr_jes",     NBIN*2,0,NBIN*2);   
+	TH1D *h_ttgjets_syserr_jer     = new TH1D("h_ttgjets_syserr_jer",        "h_ttgjets_syserr_jer",     NBIN*2,0,NBIN*2);   
+	TH1D *h_ttgjets_syserr_esf     = new TH1D("h_ttgjets_syserr_esf",        "h_ttgjets_syserr_esf",     NBIN*2,0,NBIN*2);   
+	TH1D *h_ttgjets_syserr_scale   = new TH1D("h_ttgjets_syserr_scale",      "h_ttgjets_syserr_scale",   NBIN*2,0,NBIN*2);   
+	TH1D *h_ttgjets_syserr_eleshape= new TH1D("h_ttgjets_syserr_e_to_pho_syst",   "h_ttgjets_syserr_eleshape",NBIN*2,0,NBIN*2);   
+	TH1D *h_ttgjets_syserr_jetshape= new TH1D("h_ttgjets_syserr_j_to_pho_syst",   "h_ttgjets_syserr_jetshape",NBIN*2,0,NBIN*2);   
+	TH1D *h_ttgjets_syserr_qcdshape= new TH1D("h_ttgjets_syserr_fakelep_shape",   "h_ttgjets_syserr_qcdshape",NBIN*2,0,NBIN*2);   
+	TH1D *h_ttgjets_syserr_xs      = new TH1D("h_ttgjets_syserr_xs",         "h_ttgjets_syserr_xs",      NBIN*2,0,NBIN*2);   
+	TH1D *h_ttgjets_syserr_lumi    = new TH1D("h_ttgjets_syserr_lumi",       "h_ttgjets_syserr_lumi",    NBIN*2,0,NBIN*2);   
+	TH1D *h_ttgjets_syserr_isr     = new TH1D("h_ttgjets_syserr_isr",        "h_ttgjets_syserr_isr",     NBIN*2,0,NBIN*2);   
+
+	TH1D *h_ttjets_norm           = new TH1D("h_ttjets_norm",              "h_ttjets_norm",           NBIN*2,0,NBIN*2);   
+	TH1D *h_ttjets_syserr_jes     = new TH1D("h_ttjets_syserr_jes",        "h_ttjets_syserr_jes",     NBIN*2,0,NBIN*2);   
+	TH1D *h_ttjets_syserr_jer     = new TH1D("h_ttjets_syserr_jer",        "h_ttjets_syserr_jer",     NBIN*2,0,NBIN*2);   
+	TH1D *h_ttjets_syserr_esf     = new TH1D("h_ttjets_syserr_esf",        "h_ttjets_syserr_esf",     NBIN*2,0,NBIN*2);   
+	TH1D *h_ttjets_syserr_scale   = new TH1D("h_ttjets_syserr_scale",      "h_ttjets_syserr_scale",   NBIN*2,0,NBIN*2);   
+	TH1D *h_ttjets_syserr_eleshape= new TH1D("h_ttjets_syserr_e_to_pho_syst",   "h_ttjets_syserr_eleshape",NBIN*2,0,NBIN*2);   
+	TH1D *h_ttjets_syserr_jetshape= new TH1D("h_ttjets_syserr_j_to_pho_syst",   "h_ttjets_syserr_jetshape",NBIN*2,0,NBIN*2);   
+	TH1D *h_ttjets_syserr_qcdshape= new TH1D("h_ttjets_syserr_fakelep_shape",   "h_ttjets_syserr_qcdshape",NBIN*2,0,NBIN*2);   
+	TH1D *h_ttjets_syserr_xs      = new TH1D("h_ttjets_syserr_xs",         "h_ttjets_syserr_xs",      NBIN*2,0,NBIN*2);   
+	TH1D *h_ttjets_syserr_lumi    = new TH1D("h_ttjets_syserr_lumi",       "h_ttjets_syserr_lumi",    NBIN*2,0,NBIN*2);   
+	TH1D *h_ttjets_syserr_isr     = new TH1D("h_ttjets_syserr_isr",        "h_ttjets_syserr_isr",     NBIN*2,0,NBIN*2);   
+
+	TH1D *h_wwg_norm           = new TH1D("h_wwg_norm",              "h_wwg_norm",           NBIN*2,0,NBIN*2);   
+	TH1D *h_wwg_syserr_jes     = new TH1D("h_wwg_syserr_jes",        "h_wwg_syserr_jes",     NBIN*2,0,NBIN*2);   
+	TH1D *h_wwg_syserr_jer     = new TH1D("h_wwg_syserr_jer",        "h_wwg_syserr_jer",     NBIN*2,0,NBIN*2);   
+	TH1D *h_wwg_syserr_esf     = new TH1D("h_wwg_syserr_esf",        "h_wwg_syserr_esf",     NBIN*2,0,NBIN*2);   
+	TH1D *h_wwg_syserr_scale   = new TH1D("h_wwg_syserr_scale",      "h_wwg_syserr_scale",   NBIN*2,0,NBIN*2);   
+	TH1D *h_wwg_syserr_eleshape= new TH1D("h_wwg_syserr_e_to_pho_syst",   "h_wwg_syserr_eleshape",NBIN*2,0,NBIN*2);   
+	TH1D *h_wwg_syserr_jetshape= new TH1D("h_wwg_syserr_j_to_pho_syst",   "h_wwg_syserr_jetshape",NBIN*2,0,NBIN*2);   
+	TH1D *h_wwg_syserr_qcdshape= new TH1D("h_wwg_syserr_fakelep_shape",   "h_wwg_syserr_qcdshape",NBIN*2,0,NBIN*2);   
+	TH1D *h_wwg_syserr_xs      = new TH1D("h_wwg_syserr_xs",         "h_wwg_syserr_xs",      NBIN*2,0,NBIN*2);   
+	TH1D *h_wwg_syserr_lumi    = new TH1D("h_wwg_syserr_lumi",       "h_wwg_syserr_lumi",    NBIN*2,0,NBIN*2);   
+	TH1D *h_wwg_syserr_isr     = new TH1D("h_wwg_syserr_isr",        "h_wwg_syserr_isr",     NBIN*2,0,NBIN*2);   
+
+	TH1D *h_wzg_norm           = new TH1D("h_wzg_norm",              "h_wzg_norm",           NBIN*2,0,NBIN*2);   
+	TH1D *h_wzg_syserr_jes     = new TH1D("h_wzg_syserr_jes",        "h_wzg_syserr_jes",     NBIN*2,0,NBIN*2);   
+	TH1D *h_wzg_syserr_jer     = new TH1D("h_wzg_syserr_jer",        "h_wzg_syserr_jer",     NBIN*2,0,NBIN*2);   
+	TH1D *h_wzg_syserr_esf     = new TH1D("h_wzg_syserr_esf",        "h_wzg_syserr_esf",     NBIN*2,0,NBIN*2);   
+	TH1D *h_wzg_syserr_scale   = new TH1D("h_wzg_syserr_scale",      "h_wzg_syserr_scale",   NBIN*2,0,NBIN*2);   
+	TH1D *h_wzg_syserr_eleshape= new TH1D("h_wzg_syserr_e_to_pho_syst",   "h_wzg_syserr_eleshape",NBIN*2,0,NBIN*2);   
+	TH1D *h_wzg_syserr_jetshape= new TH1D("h_wzg_syserr_j_to_pho_syst",   "h_wzg_syserr_jetshape",NBIN*2,0,NBIN*2);   
+	TH1D *h_wzg_syserr_qcdshape= new TH1D("h_wzg_syserr_fakelep_shape",   "h_wzg_syserr_qcdshape",NBIN*2,0,NBIN*2);   
+	TH1D *h_wzg_syserr_xs      = new TH1D("h_wzg_syserr_xs",         "h_wzg_syserr_xs",      NBIN*2,0,NBIN*2);   
+	TH1D *h_wzg_syserr_lumi    = new TH1D("h_wzg_syserr_lumi",       "h_wzg_syserr_lumi",    NBIN*2,0,NBIN*2);   
+	TH1D *h_wzg_syserr_isr     = new TH1D("h_wzg_syserr_isr",        "h_wzg_syserr_isr",     NBIN*2,0,NBIN*2);   
+	
+	TH1D *h_wz_norm           = new TH1D("h_wz_norm",              "h_wz_norm",           NBIN*2,0,NBIN*2);   
+	TH1D *h_wz_syserr_jes     = new TH1D("h_wz_syserr_jes",        "h_wz_syserr_jes",     NBIN*2,0,NBIN*2);   
+	TH1D *h_wz_syserr_jer     = new TH1D("h_wz_syserr_jer",        "h_wz_syserr_jer",     NBIN*2,0,NBIN*2);   
+	TH1D *h_wz_syserr_esf     = new TH1D("h_wz_syserr_esf",        "h_wz_syserr_esf",     NBIN*2,0,NBIN*2);   
+	TH1D *h_wz_syserr_scale   = new TH1D("h_wz_syserr_scale",      "h_wz_syserr_scale",   NBIN*2,0,NBIN*2);   
+	TH1D *h_wz_syserr_eleshape= new TH1D("h_wz_syserr_e_to_pho_syst",   "h_wz_syserr_eleshape",NBIN*2,0,NBIN*2);   
+	TH1D *h_wz_syserr_jetshape= new TH1D("h_wz_syserr_j_to_pho_syst",   "h_wz_syserr_jetshape",NBIN*2,0,NBIN*2);   
+	TH1D *h_wz_syserr_qcdshape= new TH1D("h_wz_syserr_fakelep_shape",   "h_wz_syserr_qcdshape",NBIN*2,0,NBIN*2);   
+	TH1D *h_wz_syserr_xs      = new TH1D("h_wz_syserr_xs",         "h_wz_syserr_xs",      NBIN*2,0,NBIN*2);   
+	TH1D *h_wz_syserr_lumi    = new TH1D("h_wz_syserr_lumi",       "h_wz_syserr_lumi",    NBIN*2,0,NBIN*2);   
+	TH1D *h_wz_syserr_isr     = new TH1D("h_wz_syserr_isr",        "h_wz_syserr_isr",     NBIN*2,0,NBIN*2);   
+	
+	TH1D *h_ww_norm           = new TH1D("h_ww_norm",              "h_ww_norm",           NBIN*2,0,NBIN*2);   
+	TH1D *h_ww_syserr_jes     = new TH1D("h_ww_syserr_jes",        "h_ww_syserr_jes",     NBIN*2,0,NBIN*2);   
+	TH1D *h_ww_syserr_jer     = new TH1D("h_ww_syserr_jer",        "h_ww_syserr_jer",     NBIN*2,0,NBIN*2);   
+	TH1D *h_ww_syserr_esf     = new TH1D("h_ww_syserr_esf",        "h_ww_syserr_esf",     NBIN*2,0,NBIN*2);   
+	TH1D *h_ww_syserr_scale   = new TH1D("h_ww_syserr_scale",      "h_ww_syserr_scale",   NBIN*2,0,NBIN*2);   
+	TH1D *h_ww_syserr_eleshape= new TH1D("h_ww_syserr_e_to_pho_syst",   "h_ww_syserr_eleshape",NBIN*2,0,NBIN*2);   
+	TH1D *h_ww_syserr_jetshape= new TH1D("h_ww_syserr_j_to_pho_syst",   "h_ww_syserr_jetshape",NBIN*2,0,NBIN*2);   
+	TH1D *h_ww_syserr_qcdshape= new TH1D("h_ww_syserr_fakelep_shape",   "h_ww_syserr_qcdshape",NBIN*2,0,NBIN*2);   
+	TH1D *h_ww_syserr_xs      = new TH1D("h_ww_syserr_xs",         "h_ww_syserr_xs",      NBIN*2,0,NBIN*2);   
+	TH1D *h_ww_syserr_lumi    = new TH1D("h_ww_syserr_lumi",       "h_ww_syserr_lumi",    NBIN*2,0,NBIN*2);   
+	TH1D *h_ww_syserr_isr     = new TH1D("h_ww_syserr_isr",        "h_ww_syserr_isr",     NBIN*2,0,NBIN*2);   
+	
+	TH1D *eg_elefakepho_norm           = (TH1D*)egfile_ele->Get("eg_elefakepho_norm");         
+	TH1D *eg_elefakepho_controlsample  = (TH1D*)egfile_ele->Get("eg_elefakepho_controlsample");
+	TH1D *eg_elefakepho_transferfactor = (TH1D*)egfile_ele->Get("eg_elefakepho_transferfactor");
+	TH1D *eg_elefakepho_syserr_jes     = (TH1D*)egfile_ele->Get("eg_elefakepho_syserr_jes");     
+	TH1D *eg_elefakepho_syserr_jer     = (TH1D*)egfile_ele->Get("eg_elefakepho_syserr_jer");  
+	TH1D *eg_elefakepho_syserr_esf     = (TH1D*)egfile_ele->Get("eg_elefakepho_syserr_esf");  
+	TH1D *eg_elefakepho_syserr_scale   = (TH1D*)egfile_ele->Get("eg_elefakepho_syserr_scale");  
+	TH1D *eg_elefakepho_syserr_eleshape= (TH1D*)egfile_ele->Get("eg_elefakepho_syserr_e_to_pho");
+	TH1D *eg_elefakepho_syserr_jetshape= (TH1D*)egfile_ele->Get("eg_elefakepho_syserr_j_to_pho");
+	TH1D *eg_elefakepho_syserr_qcdshape= (TH1D*)egfile_ele->Get("eg_elefakepho_syserr_j_to_lep");
+	TH1D *eg_elefakepho_syserr_xs      = (TH1D*)egfile_ele->Get("eg_elefakepho_syserr_xs");
+	TH1D *eg_elefakepho_syserr_lumi    = (TH1D*)egfile_ele->Get("eg_elefakepho_syserr_lumi");    
+	TH1D *eg_elefakepho_syserr_isr     = (TH1D*)egfile_ele->Get("eg_elefakepho_syserr_isr");    
+	
+	TH1D *eg_jetfakepho_norm           = (TH1D*)egfile_jet->Get("eg_jetfakepho_norm");         
+	TH1D *eg_jetfakepho_controlsample  = (TH1D*)egfile_jet->Get("eg_jetfakepho_controlsample");
+	TH1D *eg_jetfakepho_transferfactor = (TH1D*)egfile_jet->Get("eg_jetfakepho_transferfactor");
+	TH1D *eg_jetfakepho_syserr_jes     = (TH1D*)egfile_jet->Get("eg_jetfakepho_syserr_jes");     
+	TH1D *eg_jetfakepho_syserr_jer     = (TH1D*)egfile_jet->Get("eg_jetfakepho_syserr_jer");  
+	TH1D *eg_jetfakepho_syserr_esf     = (TH1D*)egfile_jet->Get("eg_jetfakepho_syserr_esf");  
+	TH1D *eg_jetfakepho_syserr_scale   = (TH1D*)egfile_jet->Get("eg_jetfakepho_syserr_scale");  
+	TH1D *eg_jetfakepho_syserr_eleshape= (TH1D*)egfile_jet->Get("eg_jetfakepho_syserr_e_to_pho");
+	TH1D *eg_jetfakepho_syserr_jetshape= (TH1D*)egfile_jet->Get("eg_jetfakepho_syserr_j_to_pho");
+	TH1D *eg_jetfakepho_syserr_qcdshape= (TH1D*)egfile_jet->Get("eg_jetfakepho_syserr_j_to_lep");
+	TH1D *eg_jetfakepho_syserr_xs      = (TH1D*)egfile_jet->Get("eg_jetfakepho_syserr_xs");
+	TH1D *eg_jetfakepho_syserr_lumi    = (TH1D*)egfile_jet->Get("eg_jetfakepho_syserr_lumi");    
+	TH1D *eg_jetfakepho_syserr_isr     = (TH1D*)egfile_jet->Get("eg_jetfakepho_syserr_isr");    
+	
+	TH1D *eg_qcdfakelep_norm           = (TH1D*)egfile_qcd->Get("eg_qcdfakelep_norm");         
+	TH1D *eg_qcdfakelep_controlsample  = (TH1D*)egfile_qcd->Get("eg_qcdfakelep_controlsample");
+	TH1D *eg_qcdfakelep_transferfactor = (TH1D*)egfile_qcd->Get("eg_qcdfakelep_transferfactor");
+	TH1D *eg_qcdfakelep_syserr_jes     = (TH1D*)egfile_qcd->Get("eg_qcdfakelep_syserr_jes");     
+	TH1D *eg_qcdfakelep_syserr_jer     = (TH1D*)egfile_qcd->Get("eg_qcdfakelep_syserr_jer");  
+	TH1D *eg_qcdfakelep_syserr_esf     = (TH1D*)egfile_qcd->Get("eg_qcdfakelep_syserr_esf");  
+	TH1D *eg_qcdfakelep_syserr_scale   = (TH1D*)egfile_qcd->Get("eg_qcdfakelep_syserr_scale");  
+	TH1D *eg_qcdfakelep_syserr_eleshape= (TH1D*)egfile_qcd->Get("eg_qcdfakelep_syserr_e_to_pho");
+	TH1D *eg_qcdfakelep_syserr_jetshape= (TH1D*)egfile_qcd->Get("eg_qcdfakelep_syserr_j_to_pho");
+	TH1D *eg_qcdfakelep_syserr_qcdshape= (TH1D*)egfile_qcd->Get("eg_qcdfakelep_syserr_j_to_lep");
+	TH1D *eg_qcdfakelep_syserr_xs      = (TH1D*)egfile_qcd->Get("eg_qcdfakelep_syserr_xs");
+	TH1D *eg_qcdfakelep_syserr_lumi    = (TH1D*)egfile_qcd->Get("eg_qcdfakelep_syserr_lumi");    
+	TH1D *eg_qcdfakelep_syserr_isr     = (TH1D*)egfile_qcd->Get("eg_qcdfakelep_syserr_isr");    
+	
+	TH1D *eg_VGamma_norm           = (TH1D*)egfile_VG->Get("eg_VGamma_norm");         
+	TH1D *eg_VGamma_syserr_jes     = (TH1D*)egfile_VG->Get("eg_VGamma_syserr_jes");     
+	TH1D *eg_VGamma_syserr_jer     = (TH1D*)egfile_VG->Get("eg_VGamma_syserr_jer");  
+	TH1D *eg_VGamma_syserr_esf     = (TH1D*)egfile_VG->Get("eg_VGamma_syserr_esf");  
+	TH1D *eg_VGamma_syserr_scale   = (TH1D*)egfile_VG->Get("eg_VGamma_syserr_scale");  
+	TH1D *eg_VGamma_syserr_eleshape= (TH1D*)egfile_VG->Get("eg_VGamma_syserr_eleshape");
+	TH1D *eg_VGamma_syserr_jetshape= (TH1D*)egfile_VG->Get("eg_VGamma_syserr_jetshape");
+	TH1D *eg_VGamma_syserr_qcdshape= (TH1D*)egfile_VG->Get("eg_VGamma_syserr_qcdshape");
+	TH1D *eg_VGamma_syserr_xs      = (TH1D*)egfile_VG->Get("eg_VGamma_syserr_xs");
+	TH1D *eg_VGamma_syserr_lumi    = (TH1D*)egfile_VG->Get("eg_VGamma_syserr_lumi");    
+	TH1D *eg_VGamma_syserr_isr     = (TH1D*)egfile_VG->Get("eg_VGamma_syserr_isr");    
+	
+	TH1D *eg_ttgjets_norm           = (TH1D*)egfile_ttgjets->Get("eg_ttgjets_norm");         
+	TH1D *eg_ttgjets_syserr_jes     = (TH1D*)egfile_ttgjets->Get("eg_ttgjets_syserr_jes");     
+	TH1D *eg_ttgjets_syserr_jer     = (TH1D*)egfile_ttgjets->Get("eg_ttgjets_syserr_jer");  
+	TH1D *eg_ttgjets_syserr_esf     = (TH1D*)egfile_ttgjets->Get("eg_ttgjets_syserr_esf");  
+	TH1D *eg_ttgjets_syserr_scale   = (TH1D*)egfile_ttgjets->Get("eg_ttgjets_syserr_scale");  
+	TH1D *eg_ttgjets_syserr_eleshape= (TH1D*)egfile_ttgjets->Get("eg_ttgjets_syserr_eleshape");
+	TH1D *eg_ttgjets_syserr_jetshape= (TH1D*)egfile_ttgjets->Get("eg_ttgjets_syserr_jetshape");
+	TH1D *eg_ttgjets_syserr_qcdshape= (TH1D*)egfile_ttgjets->Get("eg_ttgjets_syserr_qcdshape");
+	TH1D *eg_ttgjets_syserr_xs      = (TH1D*)egfile_ttgjets->Get("eg_ttgjets_syserr_xs");
+	TH1D *eg_ttgjets_syserr_lumi    = (TH1D*)egfile_ttgjets->Get("eg_ttgjets_syserr_lumi");    
+	TH1D *eg_ttgjets_syserr_isr     = (TH1D*)egfile_ttgjets->Get("eg_ttgjets_syserr_isr");    
+
+	TH1D *eg_ttjets_norm           = (TH1D*)egfile_ttjets->Get("eg_ttjets_norm");         
+	TH1D *eg_ttjets_syserr_jes     = (TH1D*)egfile_ttjets->Get("eg_ttjets_syserr_jes");     
+	TH1D *eg_ttjets_syserr_jer     = (TH1D*)egfile_ttjets->Get("eg_ttjets_syserr_jer");  
+	TH1D *eg_ttjets_syserr_esf     = (TH1D*)egfile_ttjets->Get("eg_ttjets_syserr_esf");  
+	TH1D *eg_ttjets_syserr_scale   = (TH1D*)egfile_ttjets->Get("eg_ttjets_syserr_scale");  
+	TH1D *eg_ttjets_syserr_eleshape= (TH1D*)egfile_ttjets->Get("eg_ttjets_syserr_eleshape");
+	TH1D *eg_ttjets_syserr_jetshape= (TH1D*)egfile_ttjets->Get("eg_ttjets_syserr_jetshape");
+	TH1D *eg_ttjets_syserr_qcdshape= (TH1D*)egfile_ttjets->Get("eg_ttjets_syserr_qcdshape");
+	TH1D *eg_ttjets_syserr_xs      = (TH1D*)egfile_ttjets->Get("eg_ttjets_syserr_xs");
+	TH1D *eg_ttjets_syserr_lumi    = (TH1D*)egfile_ttjets->Get("eg_ttjets_syserr_lumi");    
+	TH1D *eg_ttjets_syserr_isr     = (TH1D*)egfile_ttjets->Get("eg_ttjets_syserr_isr");    
+
+	TH1D *eg_wwg_norm           = (TH1D*)egfile_wwg->Get("eg_wwg_norm");         
+	TH1D *eg_wwg_syserr_jes     = (TH1D*)egfile_wwg->Get("eg_wwg_syserr_jes");     
+	TH1D *eg_wwg_syserr_jer     = (TH1D*)egfile_wwg->Get("eg_wwg_syserr_jer");  
+	TH1D *eg_wwg_syserr_esf     = (TH1D*)egfile_wwg->Get("eg_wwg_syserr_esf");  
+	TH1D *eg_wwg_syserr_scale   = (TH1D*)egfile_wwg->Get("eg_wwg_syserr_scale");  
+	TH1D *eg_wwg_syserr_eleshape= (TH1D*)egfile_wwg->Get("eg_wwg_syserr_eleshape");
+	TH1D *eg_wwg_syserr_jetshape= (TH1D*)egfile_wwg->Get("eg_wwg_syserr_jetshape");
+	TH1D *eg_wwg_syserr_qcdshape= (TH1D*)egfile_wwg->Get("eg_wwg_syserr_qcdshape");
+	TH1D *eg_wwg_syserr_xs      = (TH1D*)egfile_wwg->Get("eg_wwg_syserr_xs");
+	TH1D *eg_wwg_syserr_lumi    = (TH1D*)egfile_wwg->Get("eg_wwg_syserr_lumi");    
+	TH1D *eg_wwg_syserr_isr     = (TH1D*)egfile_wwg->Get("eg_wwg_syserr_isr");    
+	
+	TH1D *eg_wzg_norm           = (TH1D*)egfile_wzg->Get("eg_wzg_norm");         
+	TH1D *eg_wzg_syserr_jes     = (TH1D*)egfile_wzg->Get("eg_wzg_syserr_jes");     
+	TH1D *eg_wzg_syserr_jer     = (TH1D*)egfile_wzg->Get("eg_wzg_syserr_jer");  
+	TH1D *eg_wzg_syserr_esf     = (TH1D*)egfile_wzg->Get("eg_wzg_syserr_esf");  
+	TH1D *eg_wzg_syserr_scale   = (TH1D*)egfile_wzg->Get("eg_wzg_syserr_scale");  
+	TH1D *eg_wzg_syserr_eleshape= (TH1D*)egfile_wzg->Get("eg_wzg_syserr_eleshape");
+	TH1D *eg_wzg_syserr_jetshape= (TH1D*)egfile_wzg->Get("eg_wzg_syserr_jetshape");
+	TH1D *eg_wzg_syserr_qcdshape= (TH1D*)egfile_wzg->Get("eg_wzg_syserr_qcdshape");
+	TH1D *eg_wzg_syserr_xs      = (TH1D*)egfile_wzg->Get("eg_wzg_syserr_xs");
+	TH1D *eg_wzg_syserr_lumi    = (TH1D*)egfile_wzg->Get("eg_wzg_syserr_lumi");    
+	TH1D *eg_wzg_syserr_isr     = (TH1D*)egfile_wzg->Get("eg_wzg_syserr_isr");    
+	
+	TH1D *eg_wz_norm           = (TH1D*)egfile_wz->Get("eg_wz_norm");         
+	TH1D *eg_wz_syserr_jes     = (TH1D*)egfile_wz->Get("eg_wz_syserr_jes");     
+	TH1D *eg_wz_syserr_jer     = (TH1D*)egfile_wz->Get("eg_wz_syserr_jer");  
+	TH1D *eg_wz_syserr_esf     = (TH1D*)egfile_wz->Get("eg_wz_syserr_esf");  
+	TH1D *eg_wz_syserr_scale   = (TH1D*)egfile_wz->Get("eg_wz_syserr_scale");  
+	TH1D *eg_wz_syserr_eleshape= (TH1D*)egfile_wz->Get("eg_wz_syserr_eleshape");
+	TH1D *eg_wz_syserr_jetshape= (TH1D*)egfile_wz->Get("eg_wz_syserr_jetshape");
+	TH1D *eg_wz_syserr_qcdshape= (TH1D*)egfile_wz->Get("eg_wz_syserr_qcdshape");
+	TH1D *eg_wz_syserr_xs      = (TH1D*)egfile_wz->Get("eg_wz_syserr_xs");
+	TH1D *eg_wz_syserr_lumi    = (TH1D*)egfile_wz->Get("eg_wz_syserr_lumi");    
+	TH1D *eg_wz_syserr_isr     = (TH1D*)egfile_wz->Get("eg_wz_syserr_isr");    
+	
+	TH1D *eg_ww_norm           = (TH1D*)egfile_ww->Get("eg_ww_norm");         
+	TH1D *eg_ww_syserr_jes     = (TH1D*)egfile_ww->Get("eg_ww_syserr_jes");     
+	TH1D *eg_ww_syserr_jer     = (TH1D*)egfile_ww->Get("eg_ww_syserr_jer");  
+	TH1D *eg_ww_syserr_esf     = (TH1D*)egfile_ww->Get("eg_ww_syserr_esf");  
+	TH1D *eg_ww_syserr_scale   = (TH1D*)egfile_ww->Get("eg_ww_syserr_scale");  
+	TH1D *eg_ww_syserr_eleshape= (TH1D*)egfile_ww->Get("eg_ww_syserr_eleshape");
+	TH1D *eg_ww_syserr_jetshape= (TH1D*)egfile_ww->Get("eg_ww_syserr_jetshape");
+	TH1D *eg_ww_syserr_qcdshape= (TH1D*)egfile_ww->Get("eg_ww_syserr_qcdshape");
+	TH1D *eg_ww_syserr_xs      = (TH1D*)egfile_ww->Get("eg_ww_syserr_xs");
+	TH1D *eg_ww_syserr_lumi    = (TH1D*)egfile_ww->Get("eg_ww_syserr_lumi");    
+	TH1D *eg_ww_syserr_isr     = (TH1D*)egfile_ww->Get("eg_ww_syserr_isr");    
+	
+	TH1D *mg_elefakepho_norm           = (TH1D*)mgfile_ele->Get("mg_elefakepho_norm");         
+	TH1D *mg_elefakepho_controlsample  = (TH1D*)mgfile_ele->Get("mg_elefakepho_controlsample");
+	TH1D *mg_elefakepho_transferfactor = (TH1D*)mgfile_ele->Get("mg_elefakepho_transferfactor");
+	TH1D *mg_elefakepho_syserr_jes     = (TH1D*)mgfile_ele->Get("mg_elefakepho_syserr_jes");     
+	TH1D *mg_elefakepho_syserr_jer     = (TH1D*)mgfile_ele->Get("mg_elefakepho_syserr_jer");  
+	TH1D *mg_elefakepho_syserr_esf     = (TH1D*)mgfile_ele->Get("mg_elefakepho_syserr_esf");  
+	TH1D *mg_elefakepho_syserr_scale   = (TH1D*)mgfile_ele->Get("mg_elefakepho_syserr_scale");  
+	TH1D *mg_elefakepho_syserr_eleshape= (TH1D*)mgfile_ele->Get("mg_elefakepho_syserr_e_to_pho");
+	TH1D *mg_elefakepho_syserr_jetshape= (TH1D*)mgfile_ele->Get("mg_elefakepho_syserr_j_to_pho");
+	TH1D *mg_elefakepho_syserr_qcdshape= (TH1D*)mgfile_ele->Get("mg_elefakepho_syserr_j_to_lep");
+	TH1D *mg_elefakepho_syserr_xs      = (TH1D*)mgfile_ele->Get("mg_elefakepho_syserr_xs");
+	TH1D *mg_elefakepho_syserr_lumi    = (TH1D*)mgfile_ele->Get("mg_elefakepho_syserr_lumi");    
+	TH1D *mg_elefakepho_syserr_isr     = (TH1D*)mgfile_ele->Get("mg_elefakepho_syserr_isr");    
+	
+	TH1D *mg_jetfakepho_norm           = (TH1D*)mgfile_jet->Get("mg_jetfakepho_norm");         
+	TH1D *mg_jetfakepho_controlsample  = (TH1D*)mgfile_jet->Get("mg_jetfakepho_controlsample");
+	TH1D *mg_jetfakepho_transferfactor = (TH1D*)mgfile_jet->Get("mg_jetfakepho_transferfactor");
+	TH1D *mg_jetfakepho_syserr_jes     = (TH1D*)mgfile_jet->Get("mg_jetfakepho_syserr_jes");     
+	TH1D *mg_jetfakepho_syserr_jer     = (TH1D*)mgfile_jet->Get("mg_jetfakepho_syserr_jer");  
+	TH1D *mg_jetfakepho_syserr_esf     = (TH1D*)mgfile_jet->Get("mg_jetfakepho_syserr_esf");  
+	TH1D *mg_jetfakepho_syserr_scale   = (TH1D*)mgfile_jet->Get("mg_jetfakepho_syserr_scale");  
+	TH1D *mg_jetfakepho_syserr_eleshape= (TH1D*)mgfile_jet->Get("mg_jetfakepho_syserr_e_to_pho");
+	TH1D *mg_jetfakepho_syserr_jetshape= (TH1D*)mgfile_jet->Get("mg_jetfakepho_syserr_j_to_pho");
+	TH1D *mg_jetfakepho_syserr_qcdshape= (TH1D*)mgfile_jet->Get("mg_jetfakepho_syserr_j_to_lep");
+	TH1D *mg_jetfakepho_syserr_xs      = (TH1D*)mgfile_jet->Get("mg_jetfakepho_syserr_xs");
+	TH1D *mg_jetfakepho_syserr_lumi    = (TH1D*)mgfile_jet->Get("mg_jetfakepho_syserr_lumi");    
+	TH1D *mg_jetfakepho_syserr_isr     = (TH1D*)mgfile_jet->Get("mg_jetfakepho_syserr_isr");    
+	
+	TH1D *mg_qcdfakelep_norm           = (TH1D*)mgfile_qcd->Get("mg_qcdfakelep_norm");         
+	TH1D *mg_qcdfakelep_controlsample  = (TH1D*)mgfile_qcd->Get("mg_qcdfakelep_controlsample");
+	TH1D *mg_qcdfakelep_transferfactor = (TH1D*)mgfile_qcd->Get("mg_qcdfakelep_transferfactor");
+	TH1D *mg_qcdfakelep_syserr_jes     = (TH1D*)mgfile_qcd->Get("mg_qcdfakelep_syserr_jes");     
+	TH1D *mg_qcdfakelep_syserr_jer     = (TH1D*)mgfile_qcd->Get("mg_qcdfakelep_syserr_jer");  
+	TH1D *mg_qcdfakelep_syserr_esf     = (TH1D*)mgfile_qcd->Get("mg_qcdfakelep_syserr_esf");  
+	TH1D *mg_qcdfakelep_syserr_scale   = (TH1D*)mgfile_qcd->Get("mg_qcdfakelep_syserr_scale");  
+	TH1D *mg_qcdfakelep_syserr_eleshape= (TH1D*)mgfile_qcd->Get("mg_qcdfakelep_syserr_e_to_pho");
+	TH1D *mg_qcdfakelep_syserr_jetshape= (TH1D*)mgfile_qcd->Get("mg_qcdfakelep_syserr_j_to_pho");
+	TH1D *mg_qcdfakelep_syserr_qcdshape= (TH1D*)mgfile_qcd->Get("mg_qcdfakelep_syserr_j_to_lep");
+	TH1D *mg_qcdfakelep_syserr_xs      = (TH1D*)mgfile_qcd->Get("mg_qcdfakelep_syserr_xs");
+	TH1D *mg_qcdfakelep_syserr_lumi    = (TH1D*)mgfile_qcd->Get("mg_qcdfakelep_syserr_lumi");    
+	TH1D *mg_qcdfakelep_syserr_isr     = (TH1D*)mgfile_qcd->Get("mg_qcdfakelep_syserr_isr");    
+	
+	TH1D *mg_VGamma_norm           = (TH1D*)mgfile_VG->Get("mg_VGamma_norm");         
+	TH1D *mg_VGamma_syserr_jes     = (TH1D*)mgfile_VG->Get("mg_VGamma_syserr_jes");     
+	TH1D *mg_VGamma_syserr_jer     = (TH1D*)mgfile_VG->Get("mg_VGamma_syserr_jer");  
+	TH1D *mg_VGamma_syserr_esf     = (TH1D*)mgfile_VG->Get("mg_VGamma_syserr_esf");  
+	TH1D *mg_VGamma_syserr_scale   = (TH1D*)mgfile_VG->Get("mg_VGamma_syserr_scale");  
+	TH1D *mg_VGamma_syserr_eleshape= (TH1D*)mgfile_VG->Get("mg_VGamma_syserr_eleshape");
+	TH1D *mg_VGamma_syserr_jetshape= (TH1D*)mgfile_VG->Get("mg_VGamma_syserr_jetshape");
+	TH1D *mg_VGamma_syserr_qcdshape= (TH1D*)mgfile_VG->Get("mg_VGamma_syserr_qcdshape");
+	TH1D *mg_VGamma_syserr_xs      = (TH1D*)mgfile_VG->Get("mg_VGamma_syserr_xs");
+	TH1D *mg_VGamma_syserr_lumi    = (TH1D*)mgfile_VG->Get("mg_VGamma_syserr_lumi");    
+	TH1D *mg_VGamma_syserr_isr     = (TH1D*)mgfile_VG->Get("mg_VGamma_syserr_isr");    
+	
+	TH1D *mg_ttgjets_norm           = (TH1D*)mgfile_ttgjets->Get("mg_ttgjets_norm");         
+	TH1D *mg_ttgjets_syserr_jes     = (TH1D*)mgfile_ttgjets->Get("mg_ttgjets_syserr_jes");     
+	TH1D *mg_ttgjets_syserr_jer     = (TH1D*)mgfile_ttgjets->Get("mg_ttgjets_syserr_jer");  
+	TH1D *mg_ttgjets_syserr_esf     = (TH1D*)mgfile_ttgjets->Get("mg_ttgjets_syserr_esf");  
+	TH1D *mg_ttgjets_syserr_scale   = (TH1D*)mgfile_ttgjets->Get("mg_ttgjets_syserr_scale");  
+	TH1D *mg_ttgjets_syserr_eleshape= (TH1D*)mgfile_ttgjets->Get("mg_ttgjets_syserr_eleshape");
+	TH1D *mg_ttgjets_syserr_jetshape= (TH1D*)mgfile_ttgjets->Get("mg_ttgjets_syserr_jetshape");
+	TH1D *mg_ttgjets_syserr_qcdshape= (TH1D*)mgfile_ttgjets->Get("mg_ttgjets_syserr_qcdshape");
+	TH1D *mg_ttgjets_syserr_xs      = (TH1D*)mgfile_ttgjets->Get("mg_ttgjets_syserr_xs");
+	TH1D *mg_ttgjets_syserr_lumi    = (TH1D*)mgfile_ttgjets->Get("mg_ttgjets_syserr_lumi");    
+	TH1D *mg_ttgjets_syserr_isr     = (TH1D*)mgfile_ttgjets->Get("mg_ttgjets_syserr_isr");    
+
+	TH1D *mg_ttjets_norm           = (TH1D*)mgfile_ttjets->Get("mg_ttjets_norm");         
+	TH1D *mg_ttjets_syserr_jes     = (TH1D*)mgfile_ttjets->Get("mg_ttjets_syserr_jes");     
+	TH1D *mg_ttjets_syserr_jer     = (TH1D*)mgfile_ttjets->Get("mg_ttjets_syserr_jer");  
+	TH1D *mg_ttjets_syserr_esf     = (TH1D*)mgfile_ttjets->Get("mg_ttjets_syserr_esf");  
+	TH1D *mg_ttjets_syserr_scale   = (TH1D*)mgfile_ttjets->Get("mg_ttjets_syserr_scale");  
+	TH1D *mg_ttjets_syserr_eleshape= (TH1D*)mgfile_ttjets->Get("mg_ttjets_syserr_eleshape");
+	TH1D *mg_ttjets_syserr_jetshape= (TH1D*)mgfile_ttjets->Get("mg_ttjets_syserr_jetshape");
+	TH1D *mg_ttjets_syserr_qcdshape= (TH1D*)mgfile_ttjets->Get("mg_ttjets_syserr_qcdshape");
+	TH1D *mg_ttjets_syserr_xs      = (TH1D*)mgfile_ttjets->Get("mg_ttjets_syserr_xs");
+	TH1D *mg_ttjets_syserr_lumi    = (TH1D*)mgfile_ttjets->Get("mg_ttjets_syserr_lumi");    
+	TH1D *mg_ttjets_syserr_isr     = (TH1D*)mgfile_ttjets->Get("mg_ttjets_syserr_isr");    
+
+	TH1D *mg_wzg_norm           = (TH1D*)mgfile_wzg->Get("mg_wzg_norm");         
+	TH1D *mg_wzg_syserr_jes     = (TH1D*)mgfile_wzg->Get("mg_wzg_syserr_jes");     
+	TH1D *mg_wzg_syserr_jer     = (TH1D*)mgfile_wzg->Get("mg_wzg_syserr_jer");  
+	TH1D *mg_wzg_syserr_esf     = (TH1D*)mgfile_wzg->Get("mg_wzg_syserr_esf");  
+	TH1D *mg_wzg_syserr_scale   = (TH1D*)mgfile_wzg->Get("mg_wzg_syserr_scale");  
+	TH1D *mg_wzg_syserr_eleshape= (TH1D*)mgfile_wzg->Get("mg_wzg_syserr_eleshape");
+	TH1D *mg_wzg_syserr_jetshape= (TH1D*)mgfile_wzg->Get("mg_wzg_syserr_jetshape");
+	TH1D *mg_wzg_syserr_qcdshape= (TH1D*)mgfile_wzg->Get("mg_wzg_syserr_qcdshape");
+	TH1D *mg_wzg_syserr_xs      = (TH1D*)mgfile_wzg->Get("mg_wzg_syserr_xs");
+	TH1D *mg_wzg_syserr_lumi    = (TH1D*)mgfile_wzg->Get("mg_wzg_syserr_lumi");    
+	TH1D *mg_wzg_syserr_isr     = (TH1D*)mgfile_wzg->Get("mg_wzg_syserr_isr");    
+
+	TH1D *mg_wwg_norm           = (TH1D*)mgfile_wwg->Get("mg_wwg_norm");         
+	TH1D *mg_wwg_syserr_jes     = (TH1D*)mgfile_wwg->Get("mg_wwg_syserr_jes");     
+	TH1D *mg_wwg_syserr_jer     = (TH1D*)mgfile_wwg->Get("mg_wwg_syserr_jer");  
+	TH1D *mg_wwg_syserr_esf     = (TH1D*)mgfile_wwg->Get("mg_wwg_syserr_esf");  
+	TH1D *mg_wwg_syserr_scale   = (TH1D*)mgfile_wwg->Get("mg_wwg_syserr_scale");  
+	TH1D *mg_wwg_syserr_eleshape= (TH1D*)mgfile_wwg->Get("mg_wwg_syserr_eleshape");
+	TH1D *mg_wwg_syserr_jetshape= (TH1D*)mgfile_wwg->Get("mg_wwg_syserr_jetshape");
+	TH1D *mg_wwg_syserr_qcdshape= (TH1D*)mgfile_wwg->Get("mg_wwg_syserr_qcdshape");
+	TH1D *mg_wwg_syserr_xs      = (TH1D*)mgfile_wwg->Get("mg_wwg_syserr_xs");
+	TH1D *mg_wwg_syserr_lumi    = (TH1D*)mgfile_wwg->Get("mg_wwg_syserr_lumi");    
+	TH1D *mg_wwg_syserr_isr     = (TH1D*)mgfile_wwg->Get("mg_wwg_syserr_isr");    
+
+	TH1D *mg_wz_norm           = (TH1D*)mgfile_wz->Get("mg_wz_norm");         
+	TH1D *mg_wz_syserr_jes     = (TH1D*)mgfile_wz->Get("mg_wz_syserr_jes");     
+	TH1D *mg_wz_syserr_jer     = (TH1D*)mgfile_wz->Get("mg_wz_syserr_jer");  
+	TH1D *mg_wz_syserr_esf     = (TH1D*)mgfile_wz->Get("mg_wz_syserr_esf");  
+	TH1D *mg_wz_syserr_scale   = (TH1D*)mgfile_wz->Get("mg_wz_syserr_scale");  
+	TH1D *mg_wz_syserr_eleshape= (TH1D*)mgfile_wz->Get("mg_wz_syserr_eleshape");
+	TH1D *mg_wz_syserr_jetshape= (TH1D*)mgfile_wz->Get("mg_wz_syserr_jetshape");
+	TH1D *mg_wz_syserr_qcdshape= (TH1D*)mgfile_wz->Get("mg_wz_syserr_qcdshape");
+	TH1D *mg_wz_syserr_xs      = (TH1D*)mgfile_wz->Get("mg_wz_syserr_xs");
+	TH1D *mg_wz_syserr_lumi    = (TH1D*)mgfile_wz->Get("mg_wz_syserr_lumi");    
+	TH1D *mg_wz_syserr_isr     = (TH1D*)mgfile_wz->Get("mg_wz_syserr_isr");    
+	
+	TH1D *mg_ww_norm           = (TH1D*)mgfile_ww->Get("mg_ww_norm");         
+	TH1D *mg_ww_syserr_jes     = (TH1D*)mgfile_ww->Get("mg_ww_syserr_jes");     
+	TH1D *mg_ww_syserr_jer     = (TH1D*)mgfile_ww->Get("mg_ww_syserr_jer");  
+	TH1D *mg_ww_syserr_esf     = (TH1D*)mgfile_ww->Get("mg_ww_syserr_esf");  
+	TH1D *mg_ww_syserr_scale   = (TH1D*)mgfile_ww->Get("mg_ww_syserr_scale");  
+	TH1D *mg_ww_syserr_eleshape= (TH1D*)mgfile_ww->Get("mg_ww_syserr_eleshape");
+	TH1D *mg_ww_syserr_jetshape= (TH1D*)mgfile_ww->Get("mg_ww_syserr_jetshape");
+	TH1D *mg_ww_syserr_qcdshape= (TH1D*)mgfile_ww->Get("mg_ww_syserr_qcdshape");
+	TH1D *mg_ww_syserr_xs      = (TH1D*)mgfile_ww->Get("mg_ww_syserr_xs");
+	TH1D *mg_ww_syserr_lumi    = (TH1D*)mgfile_ww->Get("mg_ww_syserr_lumi");    
+	TH1D *mg_ww_syserr_isr     = (TH1D*)mgfile_ww->Get("mg_ww_syserr_isr");    
+	
+	double bkgContent(0);
+	double bkgError(0);
+	// first 18 binning mg, next 18 for eg
+	for(int ibin(1); ibin <= NBIN; ibin++){
+		h_elefakepho_norm->SetBinContent(ibin, mg_elefakepho_norm->GetBinContent(ibin));
+		h_elefakepho_controlsample->SetBinContent(ibin,   mg_elefakepho_controlsample->GetBinContent(ibin));
+		h_elefakepho_transferfactor->SetBinContent(ibin,  mg_elefakepho_transferfactor->GetBinContent(ibin));
+		h_elefakepho_syserr_jes->SetBinContent(ibin,      mg_elefakepho_syserr_jes->GetBinContent(ibin));      
+		h_elefakepho_syserr_jer->SetBinContent(ibin,      mg_elefakepho_syserr_jer->GetBinContent(ibin)); 
+		h_elefakepho_syserr_esf->SetBinContent(ibin,      mg_elefakepho_syserr_esf->GetBinContent(ibin));      
+		h_elefakepho_syserr_scale->SetBinContent(ibin,    mg_elefakepho_syserr_scale->GetBinContent(ibin));    
+		h_elefakepho_syserr_eleshape->SetBinContent(ibin, mg_elefakepho_syserr_eleshape->GetBinContent(ibin));
+		h_elefakepho_syserr_jetshape->SetBinContent(ibin, mg_elefakepho_syserr_jetshape->GetBinContent(ibin));
+		h_elefakepho_syserr_qcdshape->SetBinContent(ibin, mg_elefakepho_syserr_qcdshape->GetBinContent(ibin));
+		h_elefakepho_syserr_xs->SetBinContent(ibin,       mg_elefakepho_syserr_xs->GetBinContent(ibin));       
+		h_elefakepho_syserr_lumi->SetBinContent(ibin,     mg_elefakepho_syserr_lumi->GetBinContent(ibin));     
+		h_elefakepho_syserr_isr->SetBinContent(ibin,      mg_elefakepho_syserr_isr->GetBinContent(ibin));     
+																																																																																																							
+		h_jetfakepho_norm->SetBinContent(ibin,            mg_jetfakepho_norm->GetBinContent(ibin));            
+		h_jetfakepho_controlsample->SetBinContent(ibin,   mg_jetfakepho_controlsample->GetBinContent(ibin));
+		h_jetfakepho_transferfactor->SetBinContent(ibin,  mg_jetfakepho_transferfactor->GetBinContent(ibin));
+		h_jetfakepho_syserr_jes->SetBinContent(ibin,      mg_jetfakepho_syserr_jes->GetBinContent(ibin));      
+		h_jetfakepho_syserr_jer->SetBinContent(ibin,      mg_jetfakepho_syserr_jer->GetBinContent(ibin));      
+		h_jetfakepho_syserr_esf->SetBinContent(ibin,      mg_jetfakepho_syserr_esf->GetBinContent(ibin));      
+		h_jetfakepho_syserr_scale->SetBinContent(ibin,    mg_jetfakepho_syserr_scale->GetBinContent(ibin));    
+		h_jetfakepho_syserr_eleshape->SetBinContent(ibin, mg_jetfakepho_syserr_eleshape->GetBinContent(ibin));
+		h_jetfakepho_syserr_jetshape->SetBinContent(ibin, mg_jetfakepho_syserr_jetshape->GetBinContent(ibin));
+		h_jetfakepho_syserr_qcdshape->SetBinContent(ibin, mg_jetfakepho_syserr_qcdshape->GetBinContent(ibin));
+		h_jetfakepho_syserr_xs->SetBinContent(ibin,       mg_jetfakepho_syserr_xs->GetBinContent(ibin));       
+		h_jetfakepho_syserr_lumi->SetBinContent(ibin,     mg_jetfakepho_syserr_lumi->GetBinContent(ibin));     
+		h_jetfakepho_syserr_isr->SetBinContent(ibin,     mg_jetfakepho_syserr_isr->GetBinContent(ibin));     
+																														
+		h_qcdfakelep_norm->SetBinContent(ibin,            mg_qcdfakelep_norm->GetBinContent(ibin));            
+		h_qcdfakelep_controlsample->SetBinContent(ibin,   mg_qcdfakelep_controlsample->GetBinContent(ibin));
+		h_qcdfakelep_transferfactor->SetBinContent(ibin,  mg_qcdfakelep_transferfactor->GetBinContent(ibin));
+		h_qcdfakelep_syserr_jes->SetBinContent(ibin,      mg_qcdfakelep_syserr_jes->GetBinContent(ibin));      
+		h_qcdfakelep_syserr_jer->SetBinContent(ibin,      mg_qcdfakelep_syserr_jer->GetBinContent(ibin));      
+		h_qcdfakelep_syserr_esf->SetBinContent(ibin,      mg_qcdfakelep_syserr_esf->GetBinContent(ibin));      
+		h_qcdfakelep_syserr_scale->SetBinContent(ibin,    mg_qcdfakelep_syserr_scale->GetBinContent(ibin));    
+		h_qcdfakelep_syserr_eleshape->SetBinContent(ibin, mg_qcdfakelep_syserr_eleshape->GetBinContent(ibin));
+		h_qcdfakelep_syserr_jetshape->SetBinContent(ibin, mg_qcdfakelep_syserr_jetshape->GetBinContent(ibin));
+		h_qcdfakelep_syserr_qcdshape->SetBinContent(ibin, mg_qcdfakelep_syserr_qcdshape->GetBinContent(ibin));
+		h_qcdfakelep_syserr_xs->SetBinContent(ibin,       mg_qcdfakelep_syserr_xs->GetBinContent(ibin));       
+		h_qcdfakelep_syserr_lumi->SetBinContent(ibin,     mg_qcdfakelep_syserr_lumi->GetBinContent(ibin));     
+		h_qcdfakelep_syserr_isr->SetBinContent(ibin,     mg_qcdfakelep_syserr_isr->GetBinContent(ibin));     
+																
+		h_VGamma_norm->SetBinContent(ibin,                mg_VGamma_norm->GetBinContent(ibin));            
+		h_VGamma_syserr_jes->SetBinContent(ibin,          mg_VGamma_syserr_jes->GetBinContent(ibin));      
+		h_VGamma_syserr_jer->SetBinContent(ibin,          mg_VGamma_syserr_jer->GetBinContent(ibin));      
+		h_VGamma_syserr_esf->SetBinContent(ibin,          mg_VGamma_syserr_esf->GetBinContent(ibin));      
+		h_VGamma_syserr_scale->SetBinContent(ibin,        mg_VGamma_syserr_scale->GetBinContent(ibin));    
+		h_VGamma_syserr_eleshape->SetBinContent(ibin,     mg_VGamma_syserr_eleshape->GetBinContent(ibin));
+		h_VGamma_syserr_jetshape->SetBinContent(ibin,     mg_VGamma_syserr_jetshape->GetBinContent(ibin));
+		h_VGamma_syserr_qcdshape->SetBinContent(ibin,     mg_VGamma_syserr_qcdshape->GetBinContent(ibin));
+		h_VGamma_syserr_xs->SetBinContent(ibin,           mg_VGamma_syserr_xs->GetBinContent(ibin));       
+		h_VGamma_syserr_lumi->SetBinContent(ibin,         mg_VGamma_syserr_lumi->GetBinContent(ibin));     
+		h_VGamma_syserr_isr->SetBinContent(ibin,          mg_VGamma_syserr_isr->GetBinContent(ibin));     
+																
+		h_ttgjets_norm->SetBinContent(ibin,                  mg_ttgjets_norm->GetBinContent(ibin));            
+		h_ttgjets_syserr_jes->SetBinContent(ibin,            mg_ttgjets_syserr_jes->GetBinContent(ibin));      
+		h_ttgjets_syserr_jer->SetBinContent(ibin,            mg_ttgjets_syserr_jer->GetBinContent(ibin));      
+		h_ttgjets_syserr_esf->SetBinContent(ibin,            mg_ttgjets_syserr_esf->GetBinContent(ibin));      
+		h_ttgjets_syserr_scale->SetBinContent(ibin,          mg_ttgjets_syserr_scale->GetBinContent(ibin));   
+		h_ttgjets_syserr_eleshape->SetBinContent(ibin,       mg_ttgjets_syserr_eleshape->GetBinContent(ibin));   
+		h_ttgjets_syserr_jetshape->SetBinContent(ibin,       mg_ttgjets_syserr_jetshape->GetBinContent(ibin)); 
+		h_ttgjets_syserr_qcdshape->SetBinContent(ibin,       mg_ttgjets_syserr_qcdshape->GetBinContent(ibin)); 
+		h_ttgjets_syserr_xs->SetBinContent(ibin,             mg_ttgjets_syserr_xs->GetBinContent(ibin));       
+		h_ttgjets_syserr_lumi->SetBinContent(ibin,           mg_ttgjets_syserr_lumi->GetBinContent(ibin));     
+		h_ttgjets_syserr_isr->SetBinContent(ibin,           mg_ttgjets_syserr_isr->GetBinContent(ibin));     
+
+		h_ttjets_norm->SetBinContent(ibin,                  mg_ttjets_norm->GetBinContent(ibin));            
+		h_ttjets_syserr_jes->SetBinContent(ibin,            mg_ttjets_syserr_jes->GetBinContent(ibin));      
+		h_ttjets_syserr_jer->SetBinContent(ibin,            mg_ttjets_syserr_jer->GetBinContent(ibin));      
+		h_ttjets_syserr_esf->SetBinContent(ibin,            mg_ttjets_syserr_esf->GetBinContent(ibin));      
+		h_ttjets_syserr_scale->SetBinContent(ibin,          mg_ttjets_syserr_scale->GetBinContent(ibin));   
+		h_ttjets_syserr_eleshape->SetBinContent(ibin,       mg_ttjets_syserr_eleshape->GetBinContent(ibin));   
+		h_ttjets_syserr_jetshape->SetBinContent(ibin,       mg_ttjets_syserr_jetshape->GetBinContent(ibin)); 
+		h_ttjets_syserr_qcdshape->SetBinContent(ibin,       mg_ttjets_syserr_qcdshape->GetBinContent(ibin)); 
+		h_ttjets_syserr_xs->SetBinContent(ibin,             mg_ttjets_syserr_xs->GetBinContent(ibin));       
+		h_ttjets_syserr_lumi->SetBinContent(ibin,           mg_ttjets_syserr_lumi->GetBinContent(ibin));     
+		h_ttjets_syserr_isr->SetBinContent(ibin,           mg_ttjets_syserr_isr->GetBinContent(ibin));     
+
+		h_wwg_norm->SetBinContent(ibin,                  mg_wwg_norm->GetBinContent(ibin));            
+		h_wwg_syserr_jes->SetBinContent(ibin,            mg_wwg_syserr_jes->GetBinContent(ibin));      
+		h_wwg_syserr_jer->SetBinContent(ibin,            mg_wwg_syserr_jer->GetBinContent(ibin));      
+		h_wwg_syserr_esf->SetBinContent(ibin,            mg_wwg_syserr_esf->GetBinContent(ibin));      
+		h_wwg_syserr_scale->SetBinContent(ibin,          mg_wwg_syserr_scale->GetBinContent(ibin));   
+		h_wwg_syserr_eleshape->SetBinContent(ibin,       mg_wwg_syserr_eleshape->GetBinContent(ibin));   
+		h_wwg_syserr_jetshape->SetBinContent(ibin,       mg_wwg_syserr_jetshape->GetBinContent(ibin)); 
+		h_wwg_syserr_qcdshape->SetBinContent(ibin,       mg_wwg_syserr_qcdshape->GetBinContent(ibin)); 
+		h_wwg_syserr_xs->SetBinContent(ibin,             mg_wwg_syserr_xs->GetBinContent(ibin));       
+		h_wwg_syserr_lumi->SetBinContent(ibin,           mg_wwg_syserr_lumi->GetBinContent(ibin));     
+		h_wwg_syserr_isr->SetBinContent(ibin,           mg_wwg_syserr_isr->GetBinContent(ibin));     
+		
+		h_wzg_norm->SetBinContent(ibin,                  mg_wzg_norm->GetBinContent(ibin));            
+		h_wzg_syserr_jes->SetBinContent(ibin,            mg_wzg_syserr_jes->GetBinContent(ibin));      
+		h_wzg_syserr_jer->SetBinContent(ibin,            mg_wzg_syserr_jer->GetBinContent(ibin));      
+		h_wzg_syserr_esf->SetBinContent(ibin,            mg_wzg_syserr_esf->GetBinContent(ibin));      
+		h_wzg_syserr_scale->SetBinContent(ibin,          mg_wzg_syserr_scale->GetBinContent(ibin));   
+		h_wzg_syserr_eleshape->SetBinContent(ibin,       mg_wzg_syserr_eleshape->GetBinContent(ibin));   
+		h_wzg_syserr_jetshape->SetBinContent(ibin,       mg_wzg_syserr_jetshape->GetBinContent(ibin)); 
+		h_wzg_syserr_qcdshape->SetBinContent(ibin,       mg_wzg_syserr_qcdshape->GetBinContent(ibin)); 
+		h_wzg_syserr_xs->SetBinContent(ibin,             mg_wzg_syserr_xs->GetBinContent(ibin));       
+		h_wzg_syserr_lumi->SetBinContent(ibin,           mg_wzg_syserr_lumi->GetBinContent(ibin));     
+		h_wzg_syserr_isr->SetBinContent(ibin,           mg_wzg_syserr_isr->GetBinContent(ibin));     
+		
+		h_wz_norm->SetBinContent(ibin,                  mg_wz_norm->GetBinContent(ibin));            
+		h_wz_syserr_jes->SetBinContent(ibin,            mg_wz_syserr_jes->GetBinContent(ibin));      
+		h_wz_syserr_jer->SetBinContent(ibin,            mg_wz_syserr_jer->GetBinContent(ibin));      
+		h_wz_syserr_esf->SetBinContent(ibin,            mg_wz_syserr_esf->GetBinContent(ibin));      
+		h_wz_syserr_scale->SetBinContent(ibin,          mg_wz_syserr_scale->GetBinContent(ibin));   
+		h_wz_syserr_eleshape->SetBinContent(ibin,       mg_wz_syserr_eleshape->GetBinContent(ibin));   
+		h_wz_syserr_jetshape->SetBinContent(ibin,       mg_wz_syserr_jetshape->GetBinContent(ibin)); 
+		h_wz_syserr_qcdshape->SetBinContent(ibin,       mg_wz_syserr_qcdshape->GetBinContent(ibin)); 
+		h_wz_syserr_xs->SetBinContent(ibin,             mg_wz_syserr_xs->GetBinContent(ibin));       
+		h_wz_syserr_lumi->SetBinContent(ibin,           mg_wz_syserr_lumi->GetBinContent(ibin));     
+		h_wz_syserr_isr->SetBinContent(ibin,           mg_wz_syserr_isr->GetBinContent(ibin));     
+		
+		h_ww_norm->SetBinContent(ibin,                  mg_ww_norm->GetBinContent(ibin));            
+		h_ww_syserr_jes->SetBinContent(ibin,            mg_ww_syserr_jes->GetBinContent(ibin));      
+		h_ww_syserr_jer->SetBinContent(ibin,            mg_ww_syserr_jer->GetBinContent(ibin));      
+		h_ww_syserr_esf->SetBinContent(ibin,            mg_ww_syserr_esf->GetBinContent(ibin));      
+		h_ww_syserr_scale->SetBinContent(ibin,          mg_ww_syserr_scale->GetBinContent(ibin));   
+		h_ww_syserr_eleshape->SetBinContent(ibin,       mg_ww_syserr_eleshape->GetBinContent(ibin));   
+		h_ww_syserr_jetshape->SetBinContent(ibin,       mg_ww_syserr_jetshape->GetBinContent(ibin)); 
+		h_ww_syserr_qcdshape->SetBinContent(ibin,       mg_ww_syserr_qcdshape->GetBinContent(ibin)); 
+		h_ww_syserr_xs->SetBinContent(ibin,             mg_ww_syserr_xs->GetBinContent(ibin));       
+		h_ww_syserr_lumi->SetBinContent(ibin,           mg_ww_syserr_lumi->GetBinContent(ibin));     
+		h_ww_syserr_isr->SetBinContent(ibin,           mg_ww_syserr_isr->GetBinContent(ibin));     
+		
+		h_elefakepho_norm->SetBinContent(ibin+NBIN, eg_elefakepho_norm->GetBinContent(ibin));
+		h_elefakepho_controlsample->SetBinContent(ibin+NBIN,   eg_elefakepho_controlsample->GetBinContent(ibin));
+		h_elefakepho_transferfactor->SetBinContent(ibin+NBIN,  eg_elefakepho_transferfactor->GetBinContent(ibin));
+		h_elefakepho_syserr_jes->SetBinContent(ibin+NBIN,      eg_elefakepho_syserr_jes->GetBinContent(ibin));      
+		h_elefakepho_syserr_jer->SetBinContent(ibin+NBIN,      eg_elefakepho_syserr_jer->GetBinContent(ibin)); 
+		h_elefakepho_syserr_esf->SetBinContent(ibin+NBIN,      eg_elefakepho_syserr_esf->GetBinContent(ibin));      
+		h_elefakepho_syserr_scale->SetBinContent(ibin+NBIN,    eg_elefakepho_syserr_scale->GetBinContent(ibin));    
+		h_elefakepho_syserr_eleshape->SetBinContent(ibin+NBIN, eg_elefakepho_syserr_eleshape->GetBinContent(ibin));
+		h_elefakepho_syserr_jetshape->SetBinContent(ibin+NBIN, eg_elefakepho_syserr_jetshape->GetBinContent(ibin));
+		h_elefakepho_syserr_qcdshape->SetBinContent(ibin+NBIN, eg_elefakepho_syserr_qcdshape->GetBinContent(ibin));
+		h_elefakepho_syserr_xs->SetBinContent(ibin+NBIN,       eg_elefakepho_syserr_xs->GetBinContent(ibin));       
+		h_elefakepho_syserr_lumi->SetBinContent(ibin+NBIN,     eg_elefakepho_syserr_lumi->GetBinContent(ibin));     
+		h_elefakepho_syserr_isr->SetBinContent(ibin+NBIN,     eg_elefakepho_syserr_isr->GetBinContent(ibin));     
+																																																																																																							
+		h_jetfakepho_norm->SetBinContent(ibin+NBIN,            eg_jetfakepho_norm->GetBinContent(ibin));            
+		h_jetfakepho_controlsample->SetBinContent(ibin+NBIN,   eg_jetfakepho_controlsample->GetBinContent(ibin));
+		h_jetfakepho_transferfactor->SetBinContent(ibin+NBIN,  eg_jetfakepho_transferfactor->GetBinContent(ibin));
+		h_jetfakepho_syserr_jes->SetBinContent(ibin+NBIN,      eg_jetfakepho_syserr_jes->GetBinContent(ibin));      
+		h_jetfakepho_syserr_jer->SetBinContent(ibin+NBIN,      eg_jetfakepho_syserr_jer->GetBinContent(ibin));      
+		h_jetfakepho_syserr_esf->SetBinContent(ibin+NBIN,      eg_jetfakepho_syserr_esf->GetBinContent(ibin));      
+		h_jetfakepho_syserr_scale->SetBinContent(ibin+NBIN,    eg_jetfakepho_syserr_scale->GetBinContent(ibin));    
+		h_jetfakepho_syserr_eleshape->SetBinContent(ibin+NBIN, eg_jetfakepho_syserr_eleshape->GetBinContent(ibin));
+		h_jetfakepho_syserr_jetshape->SetBinContent(ibin+NBIN, eg_jetfakepho_syserr_jetshape->GetBinContent(ibin));
+		h_jetfakepho_syserr_qcdshape->SetBinContent(ibin+NBIN, eg_jetfakepho_syserr_qcdshape->GetBinContent(ibin));
+		h_jetfakepho_syserr_xs->SetBinContent(ibin+NBIN,       eg_jetfakepho_syserr_xs->GetBinContent(ibin));       
+		h_jetfakepho_syserr_lumi->SetBinContent(ibin+NBIN,     eg_jetfakepho_syserr_lumi->GetBinContent(ibin));     
+		h_jetfakepho_syserr_isr->SetBinContent(ibin+NBIN,     eg_jetfakepho_syserr_isr->GetBinContent(ibin));     
+																														
+		h_qcdfakelep_norm->SetBinContent(ibin+NBIN,            eg_qcdfakelep_norm->GetBinContent(ibin));            
+		h_qcdfakelep_controlsample->SetBinContent(ibin+NBIN,   eg_qcdfakelep_controlsample->GetBinContent(ibin));
+		h_qcdfakelep_transferfactor->SetBinContent(ibin+NBIN,  eg_qcdfakelep_transferfactor->GetBinContent(ibin));
+		h_qcdfakelep_syserr_jes->SetBinContent(ibin+NBIN,      eg_qcdfakelep_syserr_jes->GetBinContent(ibin));      
+		h_qcdfakelep_syserr_jer->SetBinContent(ibin+NBIN,      eg_qcdfakelep_syserr_jer->GetBinContent(ibin));      
+		h_qcdfakelep_syserr_esf->SetBinContent(ibin+NBIN,      eg_qcdfakelep_syserr_esf->GetBinContent(ibin));      
+		h_qcdfakelep_syserr_scale->SetBinContent(ibin+NBIN,    eg_qcdfakelep_syserr_scale->GetBinContent(ibin));    
+		h_qcdfakelep_syserr_eleshape->SetBinContent(ibin+NBIN, eg_qcdfakelep_syserr_eleshape->GetBinContent(ibin));
+		h_qcdfakelep_syserr_jetshape->SetBinContent(ibin+NBIN, eg_qcdfakelep_syserr_jetshape->GetBinContent(ibin));
+		h_qcdfakelep_syserr_qcdshape->SetBinContent(ibin+NBIN, eg_qcdfakelep_syserr_qcdshape->GetBinContent(ibin));
+		h_qcdfakelep_syserr_xs->SetBinContent(ibin+NBIN,       eg_qcdfakelep_syserr_xs->GetBinContent(ibin));       
+		h_qcdfakelep_syserr_lumi->SetBinContent(ibin+NBIN,     eg_qcdfakelep_syserr_lumi->GetBinContent(ibin));     
+		h_qcdfakelep_syserr_isr->SetBinContent(ibin+NBIN,     eg_qcdfakelep_syserr_isr->GetBinContent(ibin));     
+																
+		h_VGamma_norm->SetBinContent(ibin+NBIN,                eg_VGamma_norm->GetBinContent(ibin));            
+		h_VGamma_syserr_jes->SetBinContent(ibin+NBIN,          eg_VGamma_syserr_jes->GetBinContent(ibin));      
+		h_VGamma_syserr_jer->SetBinContent(ibin+NBIN,          eg_VGamma_syserr_jer->GetBinContent(ibin));      
+		h_VGamma_syserr_esf->SetBinContent(ibin+NBIN,          eg_VGamma_syserr_esf->GetBinContent(ibin));      
+		h_VGamma_syserr_scale->SetBinContent(ibin+NBIN,        eg_VGamma_syserr_scale->GetBinContent(ibin));    
+		h_VGamma_syserr_eleshape->SetBinContent(ibin+NBIN,     eg_VGamma_syserr_eleshape->GetBinContent(ibin));
+		h_VGamma_syserr_jetshape->SetBinContent(ibin+NBIN,     eg_VGamma_syserr_jetshape->GetBinContent(ibin));
+		h_VGamma_syserr_qcdshape->SetBinContent(ibin+NBIN,     eg_VGamma_syserr_qcdshape->GetBinContent(ibin));
+		h_VGamma_syserr_xs->SetBinContent(ibin+NBIN,           eg_VGamma_syserr_xs->GetBinContent(ibin));       
+		h_VGamma_syserr_lumi->SetBinContent(ibin+NBIN,         eg_VGamma_syserr_lumi->GetBinContent(ibin));     
+		h_VGamma_syserr_isr->SetBinContent(ibin+NBIN,          eg_VGamma_syserr_isr->GetBinContent(ibin));     
+																
+		h_ttjets_norm->SetBinContent(ibin+NBIN,                  eg_ttjets_norm->GetBinContent(ibin));            
+		h_ttjets_syserr_jes->SetBinContent(ibin+NBIN,            eg_ttjets_syserr_jes->GetBinContent(ibin));      
+		h_ttjets_syserr_jer->SetBinContent(ibin+NBIN,            eg_ttjets_syserr_jer->GetBinContent(ibin));      
+		h_ttjets_syserr_esf->SetBinContent(ibin+NBIN,            eg_ttjets_syserr_esf->GetBinContent(ibin));      
+		h_ttjets_syserr_scale->SetBinContent(ibin+NBIN,          eg_ttjets_syserr_scale->GetBinContent(ibin));   
+		h_ttjets_syserr_eleshape->SetBinContent(ibin+NBIN,       eg_ttjets_syserr_eleshape->GetBinContent(ibin));   
+		h_ttjets_syserr_jetshape->SetBinContent(ibin+NBIN,       eg_ttjets_syserr_jetshape->GetBinContent(ibin)); 
+		h_ttjets_syserr_qcdshape->SetBinContent(ibin+NBIN,       eg_ttjets_syserr_qcdshape->GetBinContent(ibin)); 
+		h_ttjets_syserr_xs->SetBinContent(ibin+NBIN,             eg_ttjets_syserr_xs->GetBinContent(ibin));       
+		h_ttjets_syserr_lumi->SetBinContent(ibin+NBIN,           eg_ttjets_syserr_lumi->GetBinContent(ibin));     
+		h_ttjets_syserr_isr->SetBinContent(ibin+NBIN,           eg_ttjets_syserr_isr->GetBinContent(ibin));     
+
+		h_ttgjets_norm->SetBinContent(ibin+NBIN,                  eg_ttgjets_norm->GetBinContent(ibin));            
+		h_ttgjets_syserr_jes->SetBinContent(ibin+NBIN,            eg_ttgjets_syserr_jes->GetBinContent(ibin));      
+		h_ttgjets_syserr_jer->SetBinContent(ibin+NBIN,            eg_ttgjets_syserr_jer->GetBinContent(ibin));      
+		h_ttgjets_syserr_esf->SetBinContent(ibin+NBIN,            eg_ttgjets_syserr_esf->GetBinContent(ibin));      
+		h_ttgjets_syserr_scale->SetBinContent(ibin+NBIN,          eg_ttgjets_syserr_scale->GetBinContent(ibin));   
+		h_ttgjets_syserr_eleshape->SetBinContent(ibin+NBIN,       eg_ttgjets_syserr_eleshape->GetBinContent(ibin));   
+		h_ttgjets_syserr_jetshape->SetBinContent(ibin+NBIN,       eg_ttgjets_syserr_jetshape->GetBinContent(ibin)); 
+		h_ttgjets_syserr_qcdshape->SetBinContent(ibin+NBIN,       eg_ttgjets_syserr_qcdshape->GetBinContent(ibin)); 
+		h_ttgjets_syserr_xs->SetBinContent(ibin+NBIN,             eg_ttgjets_syserr_xs->GetBinContent(ibin));       
+		h_ttgjets_syserr_lumi->SetBinContent(ibin+NBIN,           eg_ttgjets_syserr_lumi->GetBinContent(ibin));     
+		h_ttgjets_syserr_isr->SetBinContent(ibin+NBIN,           eg_ttgjets_syserr_isr->GetBinContent(ibin));     
+
+		h_wwg_norm->SetBinContent(ibin+NBIN,                  eg_wwg_norm->GetBinContent(ibin));            
+		h_wwg_syserr_jes->SetBinContent(ibin+NBIN,            eg_wwg_syserr_jes->GetBinContent(ibin));      
+		h_wwg_syserr_jer->SetBinContent(ibin+NBIN,            eg_wwg_syserr_jer->GetBinContent(ibin));      
+		h_wwg_syserr_esf->SetBinContent(ibin+NBIN,            eg_wwg_syserr_esf->GetBinContent(ibin));      
+		h_wwg_syserr_scale->SetBinContent(ibin+NBIN,          eg_wwg_syserr_scale->GetBinContent(ibin));   
+		h_wwg_syserr_eleshape->SetBinContent(ibin+NBIN,       eg_wwg_syserr_eleshape->GetBinContent(ibin));   
+		h_wwg_syserr_jetshape->SetBinContent(ibin+NBIN,       eg_wwg_syserr_jetshape->GetBinContent(ibin)); 
+		h_wwg_syserr_qcdshape->SetBinContent(ibin+NBIN,       eg_wwg_syserr_qcdshape->GetBinContent(ibin)); 
+		h_wwg_syserr_xs->SetBinContent(ibin+NBIN,             eg_wwg_syserr_xs->GetBinContent(ibin));       
+		h_wwg_syserr_lumi->SetBinContent(ibin+NBIN,           eg_wwg_syserr_lumi->GetBinContent(ibin));     
+		h_wwg_syserr_isr->SetBinContent(ibin+NBIN,           eg_wwg_syserr_isr->GetBinContent(ibin));     
+
+		h_wzg_norm->SetBinContent(ibin+NBIN,                  eg_wzg_norm->GetBinContent(ibin));            
+		h_wzg_syserr_jes->SetBinContent(ibin+NBIN,            eg_wzg_syserr_jes->GetBinContent(ibin));      
+		h_wzg_syserr_jer->SetBinContent(ibin+NBIN,            eg_wzg_syserr_jer->GetBinContent(ibin));      
+		h_wzg_syserr_esf->SetBinContent(ibin+NBIN,            eg_wzg_syserr_esf->GetBinContent(ibin));      
+		h_wzg_syserr_scale->SetBinContent(ibin+NBIN,          eg_wzg_syserr_scale->GetBinContent(ibin));   
+		h_wzg_syserr_eleshape->SetBinContent(ibin+NBIN,       eg_wzg_syserr_eleshape->GetBinContent(ibin));   
+		h_wzg_syserr_jetshape->SetBinContent(ibin+NBIN,       eg_wzg_syserr_jetshape->GetBinContent(ibin)); 
+		h_wzg_syserr_qcdshape->SetBinContent(ibin+NBIN,       eg_wzg_syserr_qcdshape->GetBinContent(ibin)); 
+		h_wzg_syserr_xs->SetBinContent(ibin+NBIN,             eg_wzg_syserr_xs->GetBinContent(ibin));       
+		h_wzg_syserr_lumi->SetBinContent(ibin+NBIN,           eg_wzg_syserr_lumi->GetBinContent(ibin));     
+		h_wzg_syserr_isr->SetBinContent(ibin+NBIN,           eg_wzg_syserr_isr->GetBinContent(ibin));     
+
+		h_wz_norm->SetBinContent(ibin+NBIN,                  eg_wz_norm->GetBinContent(ibin));            
+		h_wz_syserr_jes->SetBinContent(ibin+NBIN,            eg_wz_syserr_jes->GetBinContent(ibin));      
+		h_wz_syserr_jer->SetBinContent(ibin+NBIN,            eg_wz_syserr_jer->GetBinContent(ibin));      
+		h_wz_syserr_esf->SetBinContent(ibin+NBIN,            eg_wz_syserr_esf->GetBinContent(ibin));      
+		h_wz_syserr_scale->SetBinContent(ibin+NBIN,          eg_wz_syserr_scale->GetBinContent(ibin));   
+		h_wz_syserr_eleshape->SetBinContent(ibin+NBIN,       eg_wz_syserr_eleshape->GetBinContent(ibin));   
+		h_wz_syserr_jetshape->SetBinContent(ibin+NBIN,       eg_wz_syserr_jetshape->GetBinContent(ibin)); 
+		h_wz_syserr_qcdshape->SetBinContent(ibin+NBIN,       eg_wz_syserr_qcdshape->GetBinContent(ibin)); 
+		h_wz_syserr_xs->SetBinContent(ibin+NBIN,             eg_wz_syserr_xs->GetBinContent(ibin));       
+		h_wz_syserr_lumi->SetBinContent(ibin+NBIN,           eg_wz_syserr_lumi->GetBinContent(ibin));     
+		h_wz_syserr_isr->SetBinContent(ibin+NBIN,           eg_wz_syserr_isr->GetBinContent(ibin));     
+
+		h_ww_norm->SetBinContent(ibin+NBIN,                  eg_ww_norm->GetBinContent(ibin));            
+		h_ww_syserr_jes->SetBinContent(ibin+NBIN,            eg_ww_syserr_jes->GetBinContent(ibin));      
+		h_ww_syserr_jer->SetBinContent(ibin+NBIN,            eg_ww_syserr_jer->GetBinContent(ibin));      
+		h_ww_syserr_esf->SetBinContent(ibin+NBIN,            eg_ww_syserr_esf->GetBinContent(ibin));      
+		h_ww_syserr_scale->SetBinContent(ibin+NBIN,          eg_ww_syserr_scale->GetBinContent(ibin));   
+		h_ww_syserr_eleshape->SetBinContent(ibin+NBIN,       eg_ww_syserr_eleshape->GetBinContent(ibin));   
+		h_ww_syserr_jetshape->SetBinContent(ibin+NBIN,       eg_ww_syserr_jetshape->GetBinContent(ibin)); 
+		h_ww_syserr_qcdshape->SetBinContent(ibin+NBIN,       eg_ww_syserr_qcdshape->GetBinContent(ibin)); 
+		h_ww_syserr_xs->SetBinContent(ibin+NBIN,             eg_ww_syserr_xs->GetBinContent(ibin));       
+		h_ww_syserr_lumi->SetBinContent(ibin+NBIN,           eg_ww_syserr_lumi->GetBinContent(ibin));     
+		h_ww_syserr_isr->SetBinContent(ibin+NBIN,           eg_ww_syserr_isr->GetBinContent(ibin));     
+
+
+		h_elefakepho_norm->SetBinError(ibin,            mg_elefakepho_norm->GetBinError(ibin));
+		h_jetfakepho_norm->SetBinError(ibin,            mg_jetfakepho_norm->GetBinError(ibin));            
+		h_qcdfakelep_norm->SetBinError(ibin,            mg_qcdfakelep_norm->GetBinError(ibin));            
+		h_VGamma_norm->SetBinError(ibin,                mg_VGamma_norm->GetBinError(ibin));            
+		h_ttgjets_norm->SetBinError(ibin,                  mg_ttgjets_norm->GetBinError(ibin));            
+		h_ttjets_norm->SetBinError(ibin,                  mg_ttjets_norm->GetBinError(ibin));            
+		h_wwg_norm->SetBinError(ibin,                  mg_wwg_norm->GetBinError(ibin));            
+		h_wzg_norm->SetBinError(ibin,                  mg_wzg_norm->GetBinError(ibin));            
+		h_ww_norm->SetBinError(ibin,                  mg_ww_norm->GetBinError(ibin));            
+		h_wz_norm->SetBinError(ibin,                  mg_wz_norm->GetBinError(ibin));            
+		h_elefakepho_transferfactor->SetBinError(ibin,  mg_elefakepho_transferfactor->GetBinError(ibin));   
+		h_jetfakepho_transferfactor->SetBinError(ibin,  mg_jetfakepho_transferfactor->GetBinError(ibin));   
+		h_qcdfakelep_transferfactor->SetBinError(ibin,  mg_qcdfakelep_transferfactor->GetBinError(ibin));   
+		h_elefakepho_norm->SetBinError(ibin+NBIN,          eg_elefakepho_norm->GetBinError(ibin));
+		h_jetfakepho_norm->SetBinError(ibin+NBIN,          eg_jetfakepho_norm->GetBinError(ibin));            
+		h_qcdfakelep_norm->SetBinError(ibin+NBIN,          eg_qcdfakelep_norm->GetBinError(ibin));            
+		h_VGamma_norm->SetBinError(ibin+NBIN,              eg_VGamma_norm->GetBinError(ibin));            
+		h_ttjets_norm->SetBinError(ibin+NBIN,                eg_ttjets_norm->GetBinError(ibin));            
+		h_ttgjets_norm->SetBinError(ibin+NBIN,                eg_ttgjets_norm->GetBinError(ibin));            
+		h_wwg_norm->SetBinError(ibin+NBIN,                eg_wwg_norm->GetBinError(ibin));            
+		h_wzg_norm->SetBinError(ibin+NBIN,                eg_wzg_norm->GetBinError(ibin));            
+		h_ww_norm->SetBinError(ibin+NBIN,                eg_ww_norm->GetBinError(ibin));            
+		h_wz_norm->SetBinError(ibin+NBIN,                eg_wz_norm->GetBinError(ibin));            
+		h_elefakepho_transferfactor->SetBinError(ibin+NBIN,  eg_elefakepho_transferfactor->GetBinError(ibin));   
+		h_jetfakepho_transferfactor->SetBinError(ibin+NBIN,  eg_jetfakepho_transferfactor->GetBinError(ibin));   
+		h_qcdfakelep_transferfactor->SetBinError(ibin+NBIN,  eg_qcdfakelep_transferfactor->GetBinError(ibin));   
+	}
+
+	double bkgContent_elefakepho(0), bkgContent_jetfakepho(0), bkgContent_jetfakelep(0), bkgContent_VGamma(0), bkgContent_ttjets(0),bkgContent_ttgjets(0), bkgContent_wwg(0),bkgContent_wzg(0),bkgContent_ww(0),bkgContent_wz(0), bkgContent_Total(0), dataEvents(0);
+	double bkgContent_elefakepho_mg(0), bkgContent_jetfakepho_mg(0), bkgContent_jetfakelep_mg(0), bkgContent_VGamma_mg(0), bkgContent_ttgjets_mg(0), bkgContent_ttjets_mg(0),bkgContent_wzg_mg(0), bkgContent_wwg_mg(0), bkgContent_wz_mg(0),bkgContent_ww_mg(0), bkgContent_Total_mg(0), dataEvents_mg(0);
+	
+	for(int ibin(1); ibin <= 2*NBIN; ibin++){
+		bkgContent=0; 
+		bkgError = 0;
+		bkgContent = h_elefakepho_norm->GetBinContent(ibin) + h_jetfakepho_norm->GetBinContent(ibin) + h_qcdfakelep_norm->GetBinContent(ibin) + h_VGamma_norm->GetBinContent(ibin)     + h_ttgjets_norm->GetBinContent(ibin) + h_ttjets_norm->GetBinContent(ibin)+h_wzg_norm->GetBinContent(ibin)+h_wwg_norm->GetBinContent(ibin) + h_wz_norm->GetBinContent(ibin) + h_ww_norm->GetBinContent(ibin)  ;
+		double bkgqcdfakelep = h_qcdfakelep_norm->GetBinContent(ibin);
+		double bkgelefakepho = h_qcdfakelep_norm->GetBinContent(ibin) + h_elefakepho_norm->GetBinContent(ibin);
+		double bkgjetfakepho = h_qcdfakelep_norm->GetBinContent(ibin) + h_elefakepho_norm->GetBinContent(ibin) + h_jetfakepho_norm->GetBinContent(ibin);
+		double bkgVGamma = h_elefakepho_norm->GetBinContent(ibin) + h_jetfakepho_norm->GetBinContent(ibin) + h_qcdfakelep_norm->GetBinContent(ibin) + h_VGamma_norm->GetBinContent(ibin);
+
+		if(h_elefakepho_syserr_eleshape->GetBinContent(ibin)>0)bkgError += pow(h_elefakepho_syserr_eleshape->GetBinContent(ibin), 2);
+		if(h_jetfakepho_syserr_jetshape->GetBinContent(ibin)>0)bkgError += pow(h_jetfakepho_syserr_jetshape->GetBinContent(ibin), 2);
+		if(h_qcdfakelep_syserr_scale->GetBinContent(ibin)   >0)bkgError += pow(h_qcdfakelep_syserr_scale->GetBinContent(ibin), 2);
+		if(h_qcdfakelep_syserr_qcdshape->GetBinContent(ibin)>0)bkgError += pow(h_qcdfakelep_syserr_qcdshape->GetBinContent(ibin), 2);
+								                                          															
+		if(h_VGamma_syserr_jes->GetBinContent(ibin) >0)bkgError += pow(h_VGamma_syserr_jes->GetBinContent(ibin), 2);
+		if(h_VGamma_syserr_jer->GetBinContent(ibin) >0)bkgError += pow(h_VGamma_syserr_jer->GetBinContent(ibin), 2);
+		if(h_VGamma_syserr_esf->GetBinContent(ibin)  >0)bkgError += pow(h_VGamma_syserr_esf->GetBinContent(ibin), 2);
+		if(h_VGamma_syserr_scale->GetBinContent(ibin)>0)bkgError += pow(h_VGamma_syserr_scale->GetBinContent(ibin), 2);
+		if(h_VGamma_syserr_isr->GetBinContent(ibin)  >0)bkgError += pow(h_VGamma_syserr_isr->GetBinContent(ibin), 2);
+		
+		if(h_ttgjets_syserr_jes->GetBinContent(ibin)    >0)bkgError += pow(h_ttgjets_syserr_jes->GetBinContent(ibin), 2);
+		if(h_ttgjets_syserr_jer->GetBinContent(ibin)    >0)bkgError += pow(h_ttgjets_syserr_jer->GetBinContent(ibin), 2);
+		if(h_ttgjets_syserr_esf->GetBinContent(ibin)    >0)bkgError += pow(h_ttgjets_syserr_esf->GetBinContent(ibin), 2);
+		if(h_ttgjets_syserr_xs->GetBinContent(ibin)     >0)bkgError += pow(h_ttgjets_syserr_xs->GetBinContent(ibin), 2);
+		if(h_ttgjets_syserr_lumi->GetBinContent(ibin)   >0)bkgError += pow(h_ttgjets_syserr_lumi->GetBinContent(ibin), 2);
+
+		if(h_ttjets_syserr_jes->GetBinContent(ibin)    >0)bkgError += pow(h_ttjets_syserr_jes->GetBinContent(ibin), 2);
+		if(h_ttjets_syserr_jer->GetBinContent(ibin)    >0)bkgError += pow(h_ttjets_syserr_jer->GetBinContent(ibin), 2);
+		if(h_ttjets_syserr_esf->GetBinContent(ibin)    >0)bkgError += pow(h_ttjets_syserr_esf->GetBinContent(ibin), 2);
+		if(h_ttjets_syserr_xs->GetBinContent(ibin)     >0)bkgError += pow(h_ttjets_syserr_xs->GetBinContent(ibin), 2);
+		if(h_ttjets_syserr_lumi->GetBinContent(ibin)   >0)bkgError += pow(h_ttjets_syserr_lumi->GetBinContent(ibin), 2);
+		
+		if(h_wwg_syserr_jes->GetBinContent(ibin)    >0)bkgError += pow(h_wwg_syserr_jes->GetBinContent(ibin), 2);
+		if(h_wwg_syserr_jer->GetBinContent(ibin)    >0)bkgError += pow(h_wwg_syserr_jer->GetBinContent(ibin), 2);
+		if(h_wwg_syserr_esf->GetBinContent(ibin)    >0)bkgError += pow(h_wwg_syserr_esf->GetBinContent(ibin), 2);
+		if(h_wwg_syserr_xs->GetBinContent(ibin)     >0)bkgError += pow(h_wwg_syserr_xs->GetBinContent(ibin), 2);
+		if(h_wwg_syserr_lumi->GetBinContent(ibin)   >0)bkgError += pow(h_wwg_syserr_lumi->GetBinContent(ibin), 2);
+		
+		if(h_wzg_syserr_jes->GetBinContent(ibin)    >0)bkgError += pow(h_wzg_syserr_jes->GetBinContent(ibin), 2);
+		if(h_wzg_syserr_jer->GetBinContent(ibin)    >0)bkgError += pow(h_wzg_syserr_jer->GetBinContent(ibin), 2);
+		if(h_wzg_syserr_esf->GetBinContent(ibin)    >0)bkgError += pow(h_wzg_syserr_esf->GetBinContent(ibin), 2);
+		if(h_wzg_syserr_xs->GetBinContent(ibin)     >0)bkgError += pow(h_wzg_syserr_xs->GetBinContent(ibin), 2);
+		if(h_wzg_syserr_lumi->GetBinContent(ibin)   >0)bkgError += pow(h_wzg_syserr_lumi->GetBinContent(ibin), 2);
+		
+		if(h_ww_syserr_jes->GetBinContent(ibin)    >0)bkgError += pow(h_ww_syserr_jes->GetBinContent(ibin), 2);
+		if(h_ww_syserr_jer->GetBinContent(ibin)    >0)bkgError += pow(h_ww_syserr_jer->GetBinContent(ibin), 2);
+		if(h_ww_syserr_esf->GetBinContent(ibin)    >0)bkgError += pow(h_ww_syserr_esf->GetBinContent(ibin), 2);
+		if(h_ww_syserr_xs->GetBinContent(ibin)     >0)bkgError += pow(h_ww_syserr_xs->GetBinContent(ibin), 2);
+		if(h_ww_syserr_lumi->GetBinContent(ibin)   >0)bkgError += pow(h_ww_syserr_lumi->GetBinContent(ibin), 2);
+		
+		if(h_wz_syserr_jes->GetBinContent(ibin)    >0)bkgError += pow(h_wz_syserr_jes->GetBinContent(ibin), 2);
+		if(h_wz_syserr_jer->GetBinContent(ibin)    >0)bkgError += pow(h_wz_syserr_jer->GetBinContent(ibin), 2);
+		if(h_wz_syserr_esf->GetBinContent(ibin)    >0)bkgError += pow(h_wz_syserr_esf->GetBinContent(ibin), 2);
+		if(h_wz_syserr_xs->GetBinContent(ibin)     >0)bkgError += pow(h_wz_syserr_xs->GetBinContent(ibin), 2);
+		if(h_wz_syserr_lumi->GetBinContent(ibin)   >0)bkgError += pow(h_wz_syserr_lumi->GetBinContent(ibin), 2);
+		bkgError = sqrt(bkgError);
+		h_bkg->SetBinContent(ibin, bkgContent);
+
+		//printing ........
+		if(ibin<=NBIN){
+			dataEvents_mg 	      = dataEvents_mg + h_sig->GetBinContent(ibin);
+			bkgContent_elefakepho_mg = bkgContent_elefakepho_mg + h_elefakepho_norm->GetBinContent(ibin);
+			bkgContent_jetfakepho_mg = bkgContent_jetfakepho_mg + h_jetfakepho_norm->GetBinContent(ibin);
+			bkgContent_jetfakelep_mg = bkgContent_jetfakelep_mg + h_qcdfakelep_norm->GetBinContent(ibin);
+			bkgContent_VGamma_mg = bkgContent_VGamma_mg + h_VGamma_norm->GetBinContent(ibin);
+			bkgContent_ttgjets_mg = bkgContent_ttgjets_mg + h_ttgjets_norm->GetBinContent(ibin);
+			bkgContent_ttjets_mg = bkgContent_ttjets_mg + h_ttjets_norm->GetBinContent(ibin);
+			bkgContent_wzg_mg = bkgContent_wzg_mg + h_wzg_norm->GetBinContent(ibin);
+			bkgContent_wwg_mg = bkgContent_wwg_mg + h_wwg_norm->GetBinContent(ibin);
+			bkgContent_wz_mg = bkgContent_wz_mg + h_wz_norm->GetBinContent(ibin);
+			bkgContent_ww_mg = bkgContent_ww_mg + h_ww_norm->GetBinContent(ibin);
+			bkgContent_Total_mg = bkgContent_Total_mg + h_elefakepho_norm->GetBinContent(ibin) + h_jetfakepho_norm->GetBinContent(ibin) + h_qcdfakelep_norm->GetBinContent(ibin) + h_VGamma_norm->GetBinContent(ibin) + h_ttgjets_norm->GetBinContent(ibin) + h_ttjets_norm->GetBinContent(ibin) + h_wzg_norm->GetBinContent(ibin) + h_wwg_norm->GetBinContent(ibin)+ h_wz_norm->GetBinContent(ibin) + h_ww_norm->GetBinContent(ibin);
+		}
+		if(ibin>NBIN && ibin <= 2*NBIN){
+			dataEvents 	      = dataEvents + h_sig->GetBinContent(ibin);
+			bkgContent_elefakepho = bkgContent_elefakepho + h_elefakepho_norm->GetBinContent(ibin);
+			bkgContent_jetfakepho = bkgContent_jetfakepho + h_jetfakepho_norm->GetBinContent(ibin);
+			bkgContent_jetfakelep = bkgContent_jetfakelep + h_qcdfakelep_norm->GetBinContent(ibin);
+			bkgContent_VGamma = bkgContent_VGamma + h_VGamma_norm->GetBinContent(ibin);
+			bkgContent_ttgjets = bkgContent_ttgjets + h_ttgjets_norm->GetBinContent(ibin);
+			bkgContent_ttjets = bkgContent_ttjets + h_ttjets_norm->GetBinContent(ibin);
+			bkgContent_wzg = bkgContent_wzg + h_wzg_norm->GetBinContent(ibin);
+			bkgContent_wwg = bkgContent_wwg + h_wwg_norm->GetBinContent(ibin);
+			bkgContent_wz = bkgContent_wz + h_wz_norm->GetBinContent(ibin);
+			bkgContent_ww = bkgContent_ww + h_ww_norm->GetBinContent(ibin);
+			bkgContent_Total = bkgContent_Total + h_elefakepho_norm->GetBinContent(ibin) + h_jetfakepho_norm->GetBinContent(ibin) + h_qcdfakelep_norm->GetBinContent(ibin) + h_VGamma_norm->GetBinContent(ibin) + h_ttgjets_norm->GetBinContent(ibin) + h_ttjets_norm->GetBinContent(ibin) + h_wzg_norm->GetBinContent(ibin) + h_wwg_norm->GetBinContent(ibin)+ h_wz_norm->GetBinContent(ibin)+ h_ww_norm->GetBinContent(ibin);
+		}
+
+		
+		h_bkg_qcdfakepho->SetBinContent(ibin, bkgqcdfakelep);
+		h_bkg_elefakepho->SetBinContent(ibin, bkgelefakepho);
+		h_bkg_jetfakepho->SetBinContent(ibin, bkgjetfakepho);
+		h_bkg_VGamma->SetBinContent(ibin, bkgVGamma);
+		h_bkg->SetBinError( ibin, bkgError);
+		error_bkg->SetPoint(ibin-1, ibin -1 + 0.5, bkgContent);
+		error_bkg->SetPointError(ibin-1, 0.5, bkgError);
+		error_ratio->SetPoint(ibin-1, ibin -1 + 0.5, 1);
+		error_ratio->SetPointError(ibin-1, 0.5, bkgError/bkgContent);
+	
+		if(ibin==1) cout<<"Bin Number efakePho jetFakePho QCD VGamma ttjets ttgjets wwg wzg ww wz :"<<endl<<endl;
+	}
+	
+	cout<<endl<<endl<<"eg channel : 		"<<endl;
+	cout<<"elefakePho :   "<<bkgContent_elefakepho<<endl;
+	cout<<"jetfakePho :   "<<bkgContent_jetfakepho<<endl;
+	cout<<"jetfakeLep :   "<<bkgContent_jetfakelep<<endl;
+	cout<<"VGamma :       "<<bkgContent_VGamma<<endl;
+	cout<<"TTJets :         "<<bkgContent_ttjets << endl;
+	cout<<"TTGJets :         "<<bkgContent_ttgjets <<endl;
+	cout<<"WWG :         "<<bkgContent_wwg <<endl;
+	cout<<"WZG :         "<<bkgContent_wzg <<endl;
+	cout<<"WW :         "<<bkgContent_ww <<endl;
+	cout<<"WZ :         "<<bkgContent_wz <<endl;
+	cout<<"total SM backgrounds:	"<<bkgContent_Total<<"\tTotal data  "<<dataEvents<<endl;
+	cout<<"Discrepancy :  "<<100*(bkgContent_Total-dataEvents)/dataEvents<<" % "<<endl;
+	
+	cout<<endl<<endl<<"mg channel : 		"<<endl;
+	cout<<"elefakePho :   "<<bkgContent_elefakepho_mg<<endl;
+	cout<<"jetfakePho :   "<<bkgContent_jetfakepho_mg<<endl;
+	cout<<"jetfakeLep :   "<<bkgContent_jetfakelep_mg<<endl;
+	cout<<"VGamma :       "<<bkgContent_VGamma_mg<<endl;
+	cout<<"TTJets :         "<<bkgContent_ttjets_mg << endl;
+	cout<<"TTGJets :         "<<bkgContent_ttgjets_mg <<endl;
+	cout<<"WWG :         "<<bkgContent_wwg_mg <<endl;
+	cout<<"WZG :         "<<bkgContent_wzg_mg <<endl;
+	cout<<"WW :         "<<bkgContent_ww_mg <<endl;
+	cout<<"WZ :         "<<bkgContent_wz_mg <<endl;
+	cout<<"total SM backgrounds:	"<<bkgContent_Total_mg<<"\tTotal data  "<<dataEvents_mg<<endl;
+	cout<<"Discrepancy :  "<<100*(bkgContent_Total_mg-dataEvents_mg)/dataEvents_mg<<" % "<<endl;
+	
+	TFile *outputfile = TFile::Open(Form("/uscms_data/d3/tmishra/Output/SignalSystematic_%d%s.root",RunYear,whichVFP.c_str()),"RECREATE");
+	outputfile->cd();
+	h_elefakepho_norm->Write();       
+	h_elefakepho_controlsample->Write();       
+	h_elefakepho_transferfactor->Write();       
+	h_elefakepho_syserr_jes->Write();       
+	h_elefakepho_syserr_jer->Write();       
+	h_elefakepho_syserr_esf->Write();       
+	h_elefakepho_syserr_scale->Write();     
+	h_elefakepho_syserr_eleshape->Write();  
+	h_elefakepho_syserr_jetshape->Write();  
+	h_elefakepho_syserr_qcdshape->Write();  
+	h_elefakepho_syserr_xs->Write();        
+	h_elefakepho_syserr_lumi->Write();      
+	h_elefakepho_syserr_isr->Write();      
+	h_jetfakepho_norm->Write();             
+	h_jetfakepho_controlsample->Write();       
+	h_jetfakepho_transferfactor->Write();       
+	h_jetfakepho_syserr_jes->Write();       
+	h_jetfakepho_syserr_jer->Write();       
+	h_jetfakepho_syserr_esf->Write();       
+	h_jetfakepho_syserr_scale->Write();     
+	h_jetfakepho_syserr_eleshape->Write();  
+	h_jetfakepho_syserr_jetshape->Write();  
+	h_jetfakepho_syserr_qcdshape->Write();  
+	h_jetfakepho_syserr_xs->Write();        
+	h_jetfakepho_syserr_lumi->Write();      
+	h_jetfakepho_syserr_isr->Write();      
+	h_qcdfakelep_norm->Write();             
+	h_qcdfakelep_controlsample->Write();       
+	h_qcdfakelep_transferfactor->Write();       
+	h_qcdfakelep_syserr_jes->Write();       
+	h_qcdfakelep_syserr_jer->Write();       
+	h_qcdfakelep_syserr_esf->Write();       
+	h_qcdfakelep_syserr_scale->Write();     
+	h_qcdfakelep_syserr_eleshape->Write();  
+	h_qcdfakelep_syserr_jetshape->Write();  
+	h_qcdfakelep_syserr_qcdshape->Write();  
+	h_qcdfakelep_syserr_xs->Write();        
+	h_qcdfakelep_syserr_lumi->Write();      
+	h_qcdfakelep_syserr_isr->Write();      
+	h_VGamma_norm->Write();             
+	h_VGamma_syserr_jes->Write();       
+	h_VGamma_syserr_jer->Write();       
+	h_VGamma_syserr_esf->Write();       
+	h_VGamma_syserr_scale->Write();     
+	h_VGamma_syserr_eleshape->Write();  
+	h_VGamma_syserr_jetshape->Write();  
+	h_VGamma_syserr_qcdshape->Write();  
+	h_VGamma_syserr_xs->Write();        
+	h_VGamma_syserr_lumi->Write();      
+	h_VGamma_syserr_isr->Write();      
+	h_ttgjets_norm->Write();             
+	h_ttgjets_syserr_jes->Write();       
+	h_ttgjets_syserr_jer->Write();       
+	h_ttgjets_syserr_esf->Write();       
+	h_ttgjets_syserr_scale->Write();     
+	h_ttgjets_syserr_eleshape->Write();  
+	h_ttgjets_syserr_jetshape->Write();  
+	h_ttgjets_syserr_qcdshape->Write();  
+	h_ttgjets_syserr_xs->Write();        
+	h_ttgjets_syserr_lumi->Write();      
+	h_ttgjets_syserr_isr->Write();      
+
+	h_ttjets_norm->Write();             
+	h_ttjets_syserr_jes->Write();       
+	h_ttjets_syserr_jer->Write();       
+	h_ttjets_syserr_esf->Write();       
+	h_ttjets_syserr_scale->Write();     
+	h_ttjets_syserr_eleshape->Write();  
+	h_ttjets_syserr_jetshape->Write();  
+	h_ttjets_syserr_qcdshape->Write();  
+	h_ttjets_syserr_xs->Write();        
+	h_ttjets_syserr_lumi->Write();      
+	h_ttjets_syserr_isr->Write();      
+	
+	h_wwg_norm->Write();             
+	h_wwg_syserr_jes->Write();       
+	h_wwg_syserr_jer->Write();       
+	h_wwg_syserr_esf->Write();       
+	h_wwg_syserr_scale->Write();     
+	h_wwg_syserr_eleshape->Write();  
+	h_wwg_syserr_jetshape->Write();  
+	h_wwg_syserr_qcdshape->Write();  
+	h_wwg_syserr_xs->Write();        
+	h_wwg_syserr_lumi->Write();      
+	h_wwg_syserr_isr->Write();      
+	
+	h_wzg_norm->Write();             
+	h_wzg_syserr_jes->Write();       
+	h_wzg_syserr_jer->Write();       
+	h_wzg_syserr_esf->Write();       
+	h_wzg_syserr_scale->Write();     
+	h_wzg_syserr_eleshape->Write();  
+	h_wzg_syserr_jetshape->Write();  
+	h_wzg_syserr_qcdshape->Write();  
+	h_wzg_syserr_xs->Write();        
+	h_wzg_syserr_lumi->Write();      
+	h_wzg_syserr_isr->Write();      
+	
+	h_wz_norm->Write();             
+	h_wz_syserr_jes->Write();       
+	h_wz_syserr_jer->Write();       
+	h_wz_syserr_esf->Write();       
+	h_wz_syserr_scale->Write();     
+	h_wz_syserr_eleshape->Write();  
+	h_wz_syserr_jetshape->Write();  
+	h_wz_syserr_qcdshape->Write();  
+	h_wz_syserr_xs->Write();        
+	h_wz_syserr_lumi->Write();      
+	h_wz_syserr_isr->Write();      
+	
+	h_ww_norm->Write();             
+	h_ww_syserr_jes->Write();       
+	h_ww_syserr_jer->Write();       
+	h_ww_syserr_esf->Write();       
+	h_ww_syserr_scale->Write();     
+	h_ww_syserr_eleshape->Write();  
+	h_ww_syserr_jetshape->Write();  
+	h_ww_syserr_qcdshape->Write();  
+	h_ww_syserr_xs->Write();        
+	h_ww_syserr_lumi->Write();      
+	h_ww_syserr_isr->Write();      
+	
+	
+	
+	
+	TCanvas *can = new TCanvas("can", "", 1200, 800);
+	gStyle->SetPadLeftMargin(0.10);
+	can->SetLeftMargin(0.10);
+	can->SetRightMargin(0.04);
+	can->SetTopMargin(0.08);
+	can->SetBottomMargin(0.1);
+	can->cd();
+
+	TPad *pad1;
+    	pad1 = new TPad("pad1", "pad1", 0, 0.35, 1, 1.0);
+
+	setTopPad(pad1);
+	pad1->Draw();
+	pad1->cd();
+
+	setTopPad(pad1); 
+	pad1->Draw();  
+	pad1->cd(); 
+	gPad->SetLogy();
+	h_sig->SetMarkerStyle(20); 
+	h_sig->GetYaxis()->SetRangeUser(0.05,100);
+	//h_sig->GetYaxis()->SetRangeUser(0.05,1000000);
+	h_sig->GetXaxis()->SetRangeUser(0,37);
+	h_sig->GetYaxis()->SetTitle("Events / bin");
+	h_sig->GetYaxis()->SetTitleOffset(1.4);
+	h_bkg->GetYaxis()->SetRangeUser(0.05,100);
+	//h_bkg->GetYaxis()->SetRangeUser(0.05,1000000);
+	h_bkg->GetXaxis()->SetRangeUser(0,37);
+	h_bkg->GetYaxis()->SetTitle("Events / bin");
+	h_bkg->GetYaxis()->SetTitleOffset(1.4);
+	h_sig->Draw("P");
+  	h_bkg->SetFillColor(kAzure-9);
+	h_bkg->SetLineColor(kAzure-9);
+	h_bkg_elefakepho->SetFillColor(kMagenta-9);
+	h_bkg_jetfakepho->SetFillColor(kOrange-9);
+	h_bkg_qcdfakepho->SetFillColor(kYellow-9);
+	h_bkg_VGamma->SetFillColor(kGreen-7);
+	h_bkg_elefakepho->SetLineColor(kMagenta-9);
+	h_bkg_jetfakepho->SetLineColor(kOrange-9);
+	h_bkg_qcdfakepho->SetLineColor(kYellow-9);
+	h_bkg_VGamma->SetLineColor(kGreen-7);
+	h_bkg->Draw("hist same");
+	h_bkg_VGamma->Draw("hist same");
+	h_bkg_jetfakepho->Draw("hist same");
+	h_bkg_elefakepho->Draw("hist same");
+	h_bkg_qcdfakepho->Draw("hist same");
+	h_sig->SetLineWidth(1);
+	h_sig->Draw("E1P same");
+	TLegend *leg =  new TLegend(0.15,0.82,0.92,0.9);
+	leg->SetNColumns(7);
+	leg->SetFillStyle(0);
+	leg->SetBorderSize(0);
+	leg->SetFillColor(0);
+	h_bkg->SetMarkerSize(0);
+	h_bkg_elefakepho->SetMarkerSize(0);
+	h_bkg_jetfakepho->SetMarkerSize(0);
+	h_bkg_qcdfakepho->SetMarkerSize(0);
+	h_bkg_VGamma->SetMarkerSize(0);
+	error_bkg->SetMarkerSize(0);
+	error_bkg->SetLineWidth(0);
+	
+	leg->AddEntry(h_sig,"observed","ep");
+	leg->AddEntry(h_bkg,"t#bar{t}#gamma / WW#gamma / WZ#gamma");
+	leg->AddEntry(h_bkg_elefakepho,"e->#gamma fake");
+	leg->AddEntry(h_bkg_jetfakepho,"j->#gamma fake");
+	leg->AddEntry(h_bkg_qcdfakepho,"fake leptons");
+	leg->AddEntry(h_bkg_VGamma, "W#gamma / Z#gamma");
+	leg->AddEntry(error_bkg, "Unc");
+	leg->Draw("same");
+  error_bkg->SetFillColor(12);
+  error_bkg->SetFillStyle(3345);
+	error_bkg->Draw("E2 same");
+
+	TLine *line_mg_pt1 = new TLine(9,0,9,150000);
+	TLine *line_mg_pt2 = new TLine(18,0,18,150000);
+	TLine *line_eg_pt1 = new TLine(27,0,27,150000);
+	TLine *line_eg_pt2 = new TLine(36,0,36,150000);
+	TLine *line_mg_met1= new TLine(3,0,3,3000);
+	TLine *line_mg_met2= new TLine(6,0,6,3000);
+	TLine *line_mg_met3= new TLine(12,0,12,3000);
+	TLine *line_mg_met4= new TLine(15,0,15,3000);
+	TLine *line_eg_met1= new TLine(21,0,21,3000);
+	TLine *line_eg_met2= new TLine(24,0,24,3000);
+	TLine *line_eg_met3= new TLine(30,0,30,3000);
+	TLine *line_eg_met4= new TLine(33,0,33,3000);
+	line_mg_pt1->SetLineStyle(2);
+	line_mg_pt2->SetLineStyle(2);
+	line_eg_pt1->SetLineStyle(2);
+	line_eg_pt2->SetLineStyle(2);
+	line_mg_met1->SetLineStyle(3);
+	line_mg_met2->SetLineStyle(3);
+	line_mg_met3->SetLineStyle(3);
+	line_mg_met4->SetLineStyle(3);
+	line_eg_met1->SetLineStyle(3);
+	line_eg_met2->SetLineStyle(3);
+	line_eg_met3->SetLineStyle(3);
+	line_eg_met4->SetLineStyle(3);
+	line_mg_pt1->Draw("same");	
+	line_mg_pt2->Draw("same");	
+	line_eg_pt1->Draw("same");	
+	line_eg_pt2->Draw("same");	
+	line_mg_met1->Draw("same");	
+	line_mg_met2->Draw("same");	
+	line_mg_met3->Draw("same");	
+	line_mg_met4->Draw("same");	
+	line_eg_met1->Draw("same");	
+	line_eg_met2->Draw("same");	
+	line_eg_met3->Draw("same");	
+	line_eg_met4->Draw("same");	
+	TLatex* latex = new TLatex();
+	latex->SetTextSize(0.04);
+	latex->DrawLatex(1, 50000,"#mu#gamma, p_{T}^{#gamma} < 200 GeV");
+	latex->DrawLatex(9.5,50000,"#mu#gamma, p_{T}^{#gamma} > 200 GeV");
+	latex->DrawLatex(18.5,50000,"e#gamma, p_{T}^{#gamma} < 200 GeV");
+	latex->DrawLatex(27.5,50000,"e#gamma, p_{T}^{#gamma} > 200 GeV");
+	latex->SetTextSize(0.04);
+	latex->DrawLatex(1, 15000,"p^{miss}_{T} (GeV)");
+//	latex->DrawLatex(9.5, 15000,"p^{miss}_{T}");
+//	latex->DrawLatex(18.5, 15000,"p^{miss}_{T}");
+//	latex->DrawLatex(27.5, 15000,"p^{miss}_{T}");
+	latex->SetTextSize(0.04);
+	latex->DrawLatex(1, 5000, "< 200");
+	latex->DrawLatex(3, 5000, "[200,400]");
+	latex->DrawLatex(6.5, 5000, "> 400");
+	latex->DrawLatex(9.5, 5000, "< 200");
+	latex->DrawLatex(12, 5000, "[200,400]");
+	latex->DrawLatex(15.5, 5000, "> 400");
+	latex->DrawLatex(18.5, 5000, "< 200");
+	latex->DrawLatex(21, 5000, "[200,400]");
+	latex->DrawLatex(24.5, 5000, "> 400");
+	latex->DrawLatex(27.5, 5000, "< 200");
+	latex->DrawLatex(30, 5000, "[200,400]");
+	latex->DrawLatex(33.5, 5000, "> 400");
+	if(RunYear==2016 and preVFP == 1)       CMS_lumi( pad1,1,1, 11 );
+        else if(RunYear==2016 and preVFP == 0)  CMS_lumi( pad1,2,1, 11 );
+        else if(RunYear==2017)                  CMS_lumi( pad1,3,1, 11 );
+        else if(RunYear==2018)                  CMS_lumi( pad1,4,1, 11 );
+
+
+	can->cd();
+	TPad *pad2 = new TPad("pad2", "pad2", 0, 0, 1, 0.35);
+  	pad2->SetBottomMargin(0.3);
+	pad2->Draw();
+	pad2->cd();
+  	TLine *flatratio = new TLine(0,1,37,1);
+	double alpha = 1-0.6827;
+	for(int ibin(1); ibin <= 2*NBIN; ibin++){
+		int N = h_sig->GetBinContent(ibin);
+		ratio->SetPoint(ibin-1, ibin-0.5, N/h_bkg->GetBinContent(ibin));
+		cout<<N/h_bkg->GetBinContent(ibin)<<endl;
+		double L = (N==0)? 0: (ROOT::Math::gamma_quantile(alpha/2, N, 1.));
+		double U = (ROOT::Math::gamma_quantile(1-alpha/2, N+1, 1.));
+		//std::cout << ibin << " N " << N << " L " << L << " U " << U << std::endl;
+    		ratio->SetPointEYlow( ibin-1, (N-L)/h_bkg->GetBinContent(ibin));
+		ratio->SetPointEYhigh(ibin-1, (U-N)/h_bkg->GetBinContent(ibin));
+  	}
+	ratio->SetMarkerStyle(20);
+	ratio->GetXaxis()->SetTitle("Search bin number");
+	ratio->GetYaxis()->SetTitle("#frac{Obs.}{Bkg.}");
+	ratio->GetXaxis()->SetRangeUser(0,37);
+	ratio->GetYaxis()->SetTitleOffset(1.4);
+	ratio->SetLineColor(kBlack);
+	ratio->GetYaxis()->SetRangeUser(0,2.0);
+	ratio->Draw();
+
+
+  	error_ratio->SetFillColor(12);
+  	error_ratio->SetFillStyle(3345);
+	error_ratio->Draw("E2 same");
+	flatratio->Draw("same");
+	can->Update();
+	can->SaveAs(Form("/uscms_data/d3/tmishra/Output/signalCount_%d%s.pdf",RunYear,whichVFP.c_str()));
+
+	h_sig->Write();
+	outputfile->Close();
+
+
+	TH1D *test_h = new TH1D("test_h","",18,0,18);
+	test_h->SetBinErrorOption(TH1::kPoisson);
+	for(unsigned ibin(1); ibin <= 18; ibin++){test_h->SetBinContent(ibin, ibin-1);}
+	for(unsigned ibin(1); ibin <= 18; ibin++){
+		int N = test_h->GetBinContent(ibin);
+	//	double L = (N==0)? 0: (ROOT::Math::gamma_quantile(alpha/2, N, 1.));
+	//	double U = (ROOT::Math::gamma_quantile(1-alpha/2, N+1, 1.));
+		//std::cout << ibin << " N " << N << " L " << L << " U " << U << " GetBinErrorLow " << test_h->GetBinErrorLow(ibin) << " up " << test_h->GetBinErrorUp(ibin) <<  std::endl;
+  }
+
+}

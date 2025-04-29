@@ -318,7 +318,7 @@ void analysis_ISR(int RunYear, const char *Era){//main
 		if(hasHadronPho && hasLep){ 
 			double DeltaPhoLep = DeltaR(hadronPho->getEta(), hadronPho->getPhi(), signalLep->getEta(), signalLep->getPhi());
 			if(DeltaPhoLep > 0.8){
-				if(raw.passMETFilter(METFilter)){
+				if(raw.passMETFilter(RunYear, METFilter)){
 
 					bool foundZG(false); 
 					std::vector<recoMuon>::iterator trailLep=Muon.begin();	

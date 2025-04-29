@@ -1,4 +1,5 @@
 #include "../../include/analysis_commoncode.h"
+#include <algorithm>
 void pred_rareBkg(){
 
 	SetSignalConfig();
@@ -127,7 +128,7 @@ void pred_rareBkg(){
 	TH1D *scaleup_HT = new TH1D("scaleup_HT","HT; HT (GeV);",nSigHTBins, sigHTBins); 
 	TH1D *scaleup_dPhiEleMET = new TH1D("scaleup_dPhiEleMET","dPhiEleMET",32,0,3.2); 
 
-	// ********  MC *************************//
+	// ********  MC *************************
 	std::ostringstream chainname;
 	chainname.str("");
 	if(channelType == 1)chainname << "egTree";
@@ -227,7 +228,7 @@ void pred_rareBkg(){
 
 	for(unsigned ievt(0); ievt < mctree->GetEntries(); ievt++){
 		mctree->GetEntry(ievt);
-		if(nJet <1)continue;  // added temporarily
+		if(nJet <1)continue;  // NEW
 		p_PU->Fill(nVertex,PUweight);
 		double scalefactor(0);
 		double scalefactorup(0);
@@ -266,9 +267,6 @@ void pred_rareBkg(){
                         else if(RunYear == 2018)                        XS_weight = lumi_2018_MuonEG*1000*crosssection/ntotalevent;
 		        else if(RunYear == 678)                         XS_weight = lumi_678_MuonEG*1000*crosssection/ntotalevent;}
 
-		
-		//XS_weight = (lumi_2016preVFP_DoubleEG+lumi_2016postVFP_DoubleEG)*1000*crosssection/ntotalevent;
-		//crosssection = 0.8099;
 		
 		double weight = PUweight*XS_weight*scalefactor;
 		double weight_scaleup = PUweight*XS_weight*scalefactorup;
@@ -459,7 +457,40 @@ void pred_rareBkg(){
 		h_rare_syserr_xs->SetBinContent(contbin, 0.5*h_rare_norm->GetBinContent(contbin));     
 		h_rare_syserr_lumi->SetBinContent(contbin, 0.026*h_rare_norm->GetBinContent(contbin));      
 		h_rare_syserr_isr->SetBinContent(contbin, -1);      
+		// added by hand
+                if (std::max(jeruperror, jerdoerror) > nominalsig || std::max(jesuperror, jesdoerror) > nominalsig) {
+                        // Correcting logic to set the bin content
+                        float max_jes_jer = std::max({h_rare_jesUp->GetBinContent(contbin),
+                                      h_rare_jesDown->GetBinContent(contbin),
+                                      h_rare_jerUp->GetBinContent(contbin),
+                                      h_rare_jerDown->GetBinContent(contbin)});
+                        std::cout <<"Bin: " << contbin << "\tNominal: " << nominalsig << "\tjesUp: "
+                        << h_rare_jesUp->GetBinContent(contbin) << "\tjesDown: "
+                        << h_rare_jesDown->GetBinContent(contbin) << "\tjerUp: "
+                        << h_rare_jerUp->GetBinContent(contbin) << "\tjerDown: "
+                        << h_rare_jerDown->GetBinContent(contbin) << "\t"
+                        << std::max(jesuperror, jesdoerror) << "\t"
+                        << std::max(jeruperror, jerdoerror) << "\t"
+                        << std::max(std::max(jesuperror, jesdoerror), std::max(jeruperror, jerdoerror)) << "\t"
+                        << max_jes_jer / 2.0 << std::endl;
+
+                        h_rare_norm->SetBinContent(contbin, max_jes_jer / 2.0);
+                        nominalsig = h_rare_norm->GetBinContent(contbin); // update after set
+
+                        // Recalculate errors
+                        jesuperror = fabs(h_rare_jesUp->GetBinContent(contbin) - nominalsig);
+                        jesdoerror = fabs(h_rare_jesDown->GetBinContent(contbin) - nominalsig);
+                        jeruperror = fabs(h_rare_jerUp->GetBinContent(contbin) - nominalsig);
+                        jerdoerror = fabs(h_rare_jerDown->GetBinContent(contbin) - nominalsig);
+                        h_rare_syserr_jes->SetBinContent(contbin, std::max(jesuperror, jesdoerror));
+                        h_rare_syserr_jer->SetBinContent(contbin, std::max(jeruperror, jerdoerror));
+
+                }
+
 	}
+	for(int contbin(1); contbin <=NBIN; contbin++){
+		cout<<contbin <<"\t" << h_rare_norm->GetBinContent(contbin) << "\t" << h_rare_syserr_jes->GetBinContent(contbin) << "\t" << h_rare_syserr_jer->GetBinContent(contbin)<< endl;
+        }
 	
 	cout<<"total entries : "<<binSum<<endl;	
 	outputfile->Write();

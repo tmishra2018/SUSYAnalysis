@@ -1,3 +1,4 @@
+
 #include<string>
 #include<iostream>
 #include<fstream>
@@ -43,13 +44,12 @@ bool isHardPhoton(int momID){
 }
 
 bool nisrMatch(float jetEta, float jetPhi, std::vector<mcData>& genParticles){
-
     bool matched=false;
     for(std::vector<mcData>::iterator itMC = genParticles.begin(); itMC!= genParticles.end(); itMC++){
-      if(matched)break;
+      			if(matched)break;
 			bool isPromptFinal(false);
-      int momid = abs(itMC->getMomPID());
-      if(abs(itMC->getPID())<=5 && (momid==6 || momid==23 || momid==24 || momid==25))isPromptFinal = true;
+      			int momid = abs(itMC->getMomPID());
+      			if(abs(itMC->getPID())<=5 && (momid==6 || momid==23 || momid==24 || momid==25))isPromptFinal = true;
 			else if(abs(itMC->getPID()) == 11 && (momid<=6 || momid==23 || momid==24 || momid== 22 || momid== 15))isPromptFinal = true;
 			else if(abs(itMC->getPID()) == 13 && (momid<=6 || momid==23 || momid==24 || momid== 22 || momid== 15))isPromptFinal = true;
 			else if(abs(itMC->getPID()) == 15 && (momid<=6 || momid==23 || momid==24 || momid== 22))isPromptFinal = true;
@@ -57,10 +57,10 @@ bool nisrMatch(float jetEta, float jetPhi, std::vector<mcData>& genParticles){
 			if(!isPromptFinal)continue;
 			if(DeltaR(jetEta, jetPhi, itMC->getEta(), itMC->getPhi()) < 0.3){
 				//std::cout << "match " << itMC->getPID() << " " << itMC->getMomPID() << " status:" << itMC->getStatus() << std::endl; 
-      	matched = true;
+      				matched = true;
 			}
     } // Loop over MC particles
-		return matched;
+    return matched;
 } 
 		
 bool passFilter(int filter){
@@ -158,6 +158,17 @@ void analysis_VGamma(int RunYear, bool preVFP, const char *Sample){//main
   if(datatype == MC && mcType == MCType::NOMC){std::cout << "wrong MC type" << std::endl; throw;} 
   logfile << "mcType" << mcType << std::endl;
 
+  float eg_Z_mass(0);
+  float eg_Z_lep1_pt(0); 
+  float eg_Z_lep2_pt(0);
+  
+  float mg_Z_mass(0);
+  float mg_Z_lep1_pt(0); 
+  float mg_Z_lep2_pt(0);
+  
+  bool eg_hasZCandidate = false;
+  bool mg_hasZCandidate = false;
+  
   float crosssection = MC_XS[mcType];
   float ntotalevent = es->GetEntries();
   float PUweight(1);
@@ -265,6 +276,11 @@ void analysis_VGamma(int RunYear, bool preVFP, const char *Sample){//main
   egtree->Branch("mcStatus", &eg_mcStatus);
   egtree->Branch("llmass",   &llmass);
 
+  egtree->Branch("Z_mass", &eg_Z_mass);
+  egtree->Branch("Z_lep1_pt", &eg_Z_lep1_pt);
+  egtree->Branch("Z_lep2_pt", &eg_Z_lep2_pt);
+  egtree->Branch("hasZCandidate", &eg_hasZCandidate);
+
   TTree *mgtree = new TTree("mgTree","mgTree");
   float mg_phoEt(0);
   float mg_phoEta(0);
@@ -355,6 +371,11 @@ void analysis_VGamma(int RunYear, bool preVFP, const char *Sample){//main
   mgtree->Branch("mcGMomPID", &mg_mcGMomPID);
   mgtree->Branch("mcStatus", &mg_mcStatus);
   mgtree->Branch("llmass",   &llmass);
+  
+  mgtree->Branch("Z_mass", &mg_Z_mass);
+  mgtree->Branch("Z_lep1_pt", &mg_Z_lep1_pt);
+  mgtree->Branch("Z_lep2_pt", &mg_Z_lep2_pt);
+  mgtree->Branch("hasZCandidate", &mg_hasZCandidate);
 
   //*********** histo list **********************//
   TH1F *p_eventcount = new TH1F("p_eventcount","p_eventcount",7,0,7);
@@ -365,6 +386,11 @@ void analysis_VGamma(int RunYear, bool preVFP, const char *Sample){//main
   std::vector<recoEle>   Ele;
   std::vector<recoJet>   JetCollection;
   /*********************************************/
+
+  std::vector<recoEle>::iterator ZLep1_e = Ele.begin();
+  std::vector<recoEle>::iterator ZLep2_e = Ele.begin();
+  std::vector<recoMuon>::iterator ZLep1_mu = Muon.begin();
+  std::vector<recoMuon>::iterator ZLep2_mu = Muon.begin();
   float MET(0);
   float METPhi(0);
   float MET_T1JERUp(0);
@@ -603,10 +629,49 @@ void analysis_VGamma(int RunYear, bool preVFP, const char *Sample){//main
 
        	ISRWeight = reweightF*Normalization;
 
-	///*************************   eg filters *****************************//
+std::vector<std::pair<recoEle, recoEle>> ZeeCandidates;
+std::vector<std::pair<recoMuon, recoMuon>> ZmmCandidates;
+
+for (std::vector<recoEle>::iterator itEle1 = Ele.begin(); itEle1 != Ele.end(); ++itEle1) {
+    for (std::vector<recoEle>::iterator itEle2 = itEle1 + 1; itEle2 != Ele.end(); ++itEle2) { 
+        if (itEle1->passSignalSelection() && itEle2->passSignalSelection()) {
+            if ((itEle1->isPosi() && itEle2->isPosi()) || (!itEle1->isPosi() && !itEle2->isPosi())) continue;
+            float dimass = (itEle1->getP4() + itEle2->getP4()).M();
+            if (fabs(dimass - 91.1876) < 10) {
+                ZeeCandidates.emplace_back(*itEle1, *itEle2);
+		goto EndZSearch;
+            }
+        }
+    }
+}
+
+for (std::vector<recoMuon>::iterator itMu1 = Muon.begin(); itMu1 != Muon.end(); ++itMu1) {
+    for (std::vector<recoMuon>::iterator itMu2 = itMu1 + 1; itMu2 != Muon.end(); ++itMu2) { 
+        if (itMu1->passSignalSelection() && itMu2->passSignalSelection()) {
+            if ((itMu1->isPosi() && itMu2->isPosi()) || (!itMu1->isPosi() && !itMu2->isPosi())) continue;
+            float dimuonmass = (itMu1->getP4() + itMu2->getP4()).M();
+            if (fabs(dimuonmass - 91.1876) < 10) {
+                ZmmCandidates.emplace_back(*itMu1, *itMu2);
+		goto EndZSearch;
+            }
+        }
+    }
+}
+EndZSearch:
+
+bool hasZCandidate = (!ZeeCandidates.empty() || !ZmmCandidates.empty());
+int totalZCandidates = ZeeCandidates.size() + ZmmCandidates.size();
+
+if (totalZCandidates > 1) 
+    std::cout << "More than one Z candidate found in this event: " << totalZCandidates << std::endl;
+
+
+
+	///*************************   eg filters *****************************
 	if(hasegPho) npassPho+=1;
 	if(hasEle)   npassEle+=1;
 	if(((raw.HLTPho >> 14)&1)==1) npassHLTPho+=1;
+
 
         if(hasegPho && hasEle && (((raw.HLTPho >> 14)&1)==1)){ // Year = 2016 Year = 2017
 	  	npassEGselection+=1;
@@ -694,6 +759,32 @@ void analysis_VGamma(int RunYear, bool preVFP, const char *Sample){//main
 						eg_mcStatus.push_back(itMC->getStatus());
 					}
 				}
+
+eg_hasZCandidate = false;
+eg_Z_mass = -1;
+eg_Z_lep1_pt = -1;
+eg_Z_lep2_pt = -1;
+if (hasZCandidate) {
+    for (auto& pair : ZeeCandidates) {
+        if (&pair.first != &(*signalEle) && &pair.second != &(*signalEle)) {
+            eg_hasZCandidate = true;
+            eg_Z_mass = (pair.first.getP4() + pair.second.getP4()).M();
+            eg_Z_lep1_pt = pair.first.getPt();
+            eg_Z_lep2_pt = pair.second.getPt();
+            break;
+        }
+    }
+    if (!eg_hasZCandidate) {
+        for (auto& pair : ZmmCandidates) {
+            eg_hasZCandidate = true;
+            eg_Z_mass = (pair.first.getP4() + pair.second.getP4()).M();
+            eg_Z_lep1_pt = pair.first.getPt();
+            eg_Z_lep2_pt = pair.second.getPt();
+            break;
+        }
+    }
+}
+
                 		egtree->Fill();
  
               }//MET Filter
@@ -790,6 +881,30 @@ void analysis_VGamma(int RunYear, bool preVFP, const char *Sample){//main
 						 	}
 						  }
 						}
+mg_hasZCandidate = false;
+mg_Z_mass = -1;
+mg_Z_lep1_pt = -1;
+mg_Z_lep2_pt = -1;
+if (hasZCandidate) {
+    for (auto& pair : ZmmCandidates) {
+        if (&pair.first != &(*signalMu) && &pair.second != &(*signalMu)) {
+            mg_hasZCandidate = true;
+            mg_Z_mass = (pair.first.getP4() + pair.second.getP4()).M();
+            mg_Z_lep1_pt = pair.first.getPt();
+            mg_Z_lep2_pt = pair.second.getPt();
+            break;
+        }
+    }
+    if (!mg_hasZCandidate) {
+        for (auto& pair : ZeeCandidates) {
+            mg_hasZCandidate = true;
+            mg_Z_mass = (pair.first.getP4() + pair.second.getP4()).M();
+            mg_Z_lep1_pt = pair.first.getPt();
+            mg_Z_lep2_pt = pair.second.getPt();
+            break;
+        }
+    }
+}
 
 				 		mgtree->Fill();
            }//MET Filter
@@ -822,9 +937,11 @@ void analysis_VGamma(int RunYear, bool preVFP, const char *Sample){//main
 
 int main(int argc, char** argv)
 {
+
     if(argc < 3)
       cout << "You have to provide two arguments!!\n";
     bool preVFP = (atoi(argv[2]) == 1);
     analysis_VGamma(atoi(argv[1]), preVFP, argv[3]);
     return 0;
+
 }

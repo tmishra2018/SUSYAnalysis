@@ -1,3 +1,4 @@
+// g++ `root-config --cflags` ../../lib/libAnaClasses.so plot_ISRweight.C -o plot_ISRweight.exe `root-config --libs`
 #include<string>
 #include<iostream>
 #include<fstream>
@@ -5,6 +6,7 @@
 #include<algorithm>
 #include<ctime>
 
+#include "TROOT.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TF1.h"
@@ -40,11 +42,10 @@
 // ../../include/analysis_scalefactor.h
 // change the file /uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/Background/BkgPredConfig.txt
 //bool doEB=false;
-int RunYear = 2016;
-bool preVFP = 1;
-bool ApplyISR = true;
+bool ApplyISR = false;
 
-void plot_ISRweight(){//main 
+void plot_ISRweight(int RunYear, bool preVFP){
+
 
 	setTDRStyle();
 	gStyle->SetLegendBorderSize(0);
@@ -246,16 +247,44 @@ void plot_ISRweight(){//main
 		if(ZG_dRPhoLep < 0.8)continue;
 		if(ZG_dilepMass < 80 || ZG_dilepMass >100)continue;
 		if(RunYear==2016 && preVFP==1){
- 		 	if(ZG_JetPt < 50)reweightF = 0.925997;
-                 	else if(ZG_JetPt >= 50 && ZG_JetPt < 100)reweightF  = 1.06149;
-                 	else if(ZG_JetPt >= 100 && ZG_JetPt < 150)reweightF = 0.914626;
-                 	else if(ZG_JetPt >= 150 && ZG_JetPt < 200)reweightF = 0.769654;
-                 	else if(ZG_JetPt >= 200 && ZG_JetPt < 250)reweightF = 0.81176;
-              	   	else if(ZG_JetPt >= 250 && ZG_JetPt < 300)reweightF = 0.823717;
-                 	else if(ZG_JetPt >= 300)reweightF = 0.749379;
-                 	//Normalization = 0.957513;    }
-                 	//Normalization = 1.04437;    }
-                 	Normalization = 1.0273957;    }
+			if(ZG_JetPt < 50)reweightF = 1.07048;
+	                 else if(ZG_JetPt >= 50 && ZG_JetPt < 100)reweightF  = 1.33745;
+        	         else if(ZG_JetPt >= 100 && ZG_JetPt < 150)reweightF = 1.11197;
+               	  	 else if(ZG_JetPt >= 150 && ZG_JetPt < 200)reweightF = 0.921799;
+                	 else if(ZG_JetPt >= 200 && ZG_JetPt < 250)reweightF = 1.02533;
+                 	 else if(ZG_JetPt >= 250 && ZG_JetPt < 300)reweightF = 0.986267;
+                 	 else if(ZG_JetPt >= 300)reweightF = 0.857941;
+                   	 Normalization = 0.853805;    }
+
+		else if(RunYear==2016 && preVFP==0){
+			if(ZG_JetPt < 50)reweightF = 1.0823;
+                 	else if(ZG_JetPt >= 50 && ZG_JetPt < 100)reweightF  = 1.36705;
+                 	else if(ZG_JetPt >= 100 && ZG_JetPt < 150)reweightF = 1.03422;
+                 	else if(ZG_JetPt >= 150 && ZG_JetPt < 200)reweightF = 0.996796;
+                 	else if(ZG_JetPt >= 200 && ZG_JetPt < 250)reweightF = 0.90385;
+                 	else if(ZG_JetPt >= 250 && ZG_JetPt < 300)reweightF = 0.780053;
+                 	else if(ZG_JetPt >= 300)reweightF = 0.705875;
+                 	Normalization = 0.854942;    }
+
+		else if(RunYear==2017){
+			if(ZG_JetPt < 50)reweightF = 1.0457;
+	                else if(ZG_JetPt >= 50 && ZG_JetPt < 100)reweightF  = 1.28507;
+        	        else if(ZG_JetPt >= 100 && ZG_JetPt < 150)reweightF = 1.05021;
+           	      	else if(ZG_JetPt >= 150 && ZG_JetPt < 200)reweightF = 0.895376;
+                 	else if(ZG_JetPt >= 200 && ZG_JetPt < 250)reweightF = 0.986146;
+                 	else if(ZG_JetPt >= 250 && ZG_JetPt < 300)reweightF = 0.792056;
+                 	else if(ZG_JetPt >= 300)reweightF = 0.929084;
+                 	Normalization = 0.889139;    }
+
+		else if(RunYear==2018){
+			if(ZG_JetPt < 50)reweightF = 1.17242;
+                 	else if(ZG_JetPt >= 50 && ZG_JetPt < 100)reweightF  = 1.33113;
+                 	else if(ZG_JetPt >= 100 && ZG_JetPt < 150)reweightF = 0.957966;
+                 	else if(ZG_JetPt >= 150 && ZG_JetPt < 200)reweightF = 0.921558;
+                 	else if(ZG_JetPt >= 200 && ZG_JetPt < 250)reweightF = 0.805571;
+                 	else if(ZG_JetPt >= 250 && ZG_JetPt < 300)reweightF = 0.904798;
+                 	else if(ZG_JetPt >= 300)reweightF = 0.828803;
+                 	Normalization = 0.860178;    }
 		ISRWeight = reweightF*Normalization;
 		
 		double weight;
@@ -349,139 +378,59 @@ void plot_ISRweight(){//main
 		if(rare_JetPt > 799)rare_JetPt = 799;
 		if(rare_dRPhoLep < 0.8)continue;
 		if(rare_dilepMass < 80 || rare_dilepMass > 100)continue;
+                if(RunYear==2016 && preVFP==1){
+                        if(rare_JetPt < 50)reweightF = 1.07048;
+                         else if(rare_JetPt >= 50 && rare_JetPt < 100)reweightF  = 1.33745;
+                         else if(rare_JetPt >= 100 && rare_JetPt < 150)reweightF = 1.11197;
+                         else if(rare_JetPt >= 150 && rare_JetPt < 200)reweightF = 0.921799;
+                         else if(rare_JetPt >= 200 && rare_JetPt < 250)reweightF = 1.02533;
+                         else if(rare_JetPt >= 250 && rare_JetPt < 300)reweightF = 0.986267;
+                         else if(rare_JetPt >= 300)reweightF = 0.857941;
+                         Normalization = 0.853805;    }
 
-		if(RunYear==2016 && preVFP==1){
- 		 	if(rare_JetPt < 50)reweightF = 0.925997;
-                 	else if(rare_JetPt >= 50 && rare_JetPt < 100)reweightF  = 1.06149;
-                 	else if(rare_JetPt >= 100 && rare_JetPt < 150)reweightF = 0.914626;
-                 	else if(rare_JetPt >= 150 && rare_JetPt < 200)reweightF = 0.769654;
-                 	else if(rare_JetPt >= 200 && rare_JetPt < 250)reweightF = 0.81176;
-              	   	else if(rare_JetPt >= 250 && rare_JetPt < 300)reweightF = 0.823717;
-                 	else if(rare_JetPt >= 301)reweightF = 0.749379;
-                 	Normalization = 1.0273957;    }
-                 	//Normalization = 1.04437;    }
-                 	//Normalization = 0.957513;    }
+                else if(RunYear==2016 && preVFP==0){
+                        if(rare_JetPt < 50)reweightF = 1.0823;
+                        else if(rare_JetPt >= 50 && rare_JetPt < 100)reweightF  = 1.36705;
+                        else if(rare_JetPt >= 100 && rare_JetPt < 150)reweightF = 1.03422;
+                        else if(rare_JetPt >= 150 && rare_JetPt < 200)reweightF = 0.996796;
+                        else if(rare_JetPt >= 200 && rare_JetPt < 250)reweightF = 0.90385;
+                        else if(rare_JetPt >= 250 && rare_JetPt < 300)reweightF = 0.780053;
+                        else if(rare_JetPt >= 300)reweightF = 0.705875;
+                        Normalization = 0.854942;    }
+
+		else if(RunYear==2017){
+			if(rare_JetPt < 50)reweightF = 1.0457;
+                 	else if(rare_JetPt >= 50 && rare_JetPt < 100)reweightF  = 1.28507;
+                 	else if(rare_JetPt >= 100 && rare_JetPt < 150)reweightF = 1.05021;
+                 	else if(rare_JetPt >= 150 && rare_JetPt < 200)reweightF = 0.895376;
+                 	else if(rare_JetPt >= 200 && rare_JetPt < 250)reweightF = 0.986146;
+                 	else if(rare_JetPt >= 250 && rare_JetPt < 300)reweightF = 0.792056;
+                 	else if(rare_JetPt >= 300)reweightF = 0.929084;
+                 	Normalization = 0.889139;    }
+
+		else if(RunYear==2018){
+			  if(rare_JetPt < 50)reweightF = 1.17242;
+                        else if(rare_JetPt >= 50 && rare_JetPt < 100)reweightF  = 1.33113;
+                        else if(rare_JetPt >= 100 && rare_JetPt < 150)reweightF = 0.957966;
+                        else if(rare_JetPt >= 150 && rare_JetPt < 200)reweightF = 0.921558;
+                        else if(rare_JetPt >= 200 && rare_JetPt < 250)reweightF = 0.805571;
+                        else if(rare_JetPt >= 250 && rare_JetPt < 300)reweightF = 0.904798;
+                        else if(rare_JetPt >= 300)reweightF = 0.828803;
+                        Normalization = 0.860178;    }
+
 		ISRWeight = reweightF*Normalization;
 		
 		double weight;
 		if (ApplyISR) weight =  rare_MCweight*rare_PUweight*scalefactor*ISRWeight;
 		else weight = rare_MCweight*rare_PUweight*scalefactor;
-		
-
-	//	bool   isTruePho(false);
-	//	double mindR(0.3);
-	//	unsigned phoIndex(0);
-	//	for(unsigned iMC(0); iMC< rare_mcPID->size(); iMC++){
-	//		double dR1 = DeltaR((*rare_mcEta)[iMC], (*rare_mcPhi)[iMC], rare_phoEta, rare_phoPhi);
-	//		double dE1 = fabs((*rare_mcPt)[iMC] - rare_phoEt)/rare_phoEt;
-	//		if(dR1 < mindR && dE1 < 0.2){mindR=dR1; phoIndex=iMC;}
-	//	}
-	//	if(mindR < 0.1){
-	//		if((*rare_mcPID)[phoIndex] == 22 && (fabs((*rare_mcMomPID)[phoIndex])<25 || fabs((*rare_mcMomPID)[phoIndex])==999))isTruePho=true;
-	//	}
-
-	//	if(!isTruePho && mindR < 0.1)std::cout << (*rare_mcPID)[phoIndex]  << " " <<  (*rare_mcMomPID)[phoIndex] << " " << (*rare_mcPt)[phoIndex] << std::endl;
-	//	else if(mindR >= 0.3)std::cout << "no match " << rare_phoEt << std::endl;
-
 
 		p_phoEt_rare->Fill(rare_phoEt, weight); 
 		p_JetPt_rare->Fill(rare_JetPt, weight);
 		p_llmass_rare->Fill(rare_dilepMass, weight);
 
-		//if(rare_phoEt > 145){
-		//	p_phoEt_rare_highEt->Fill(rare_phoEt, weight); 
-		//	p_JetPt_rare_highEt->Fill(rare_JetPt, weight);
-		//	p_llmass_rare_highEt->Fill(rare_dilepMass, weight);
-		//}
 	}//loop on  events
 	
 
-	// not required
-	/* 
-  	TChain *highEttree = new TChain("ZTree");
-	// using analysis_ISRMC.C
-  	highEttree->Add(Form("/eos/uscms/store/user/tmishra/ISRweighting/resTree_ISR_ZGToLLG_%d%s.root",RunYear,whichVFP.c_str()));
-	float highEtweight(0);
-  	float highEt_phoEt(0);
-  	float highEt_phoEta(0);
-  	float highEt_phoPhi(0);
-  	float highEt_lepPt(0);
-  	float highEt_lepEta(0);
-  	float highEt_lepPhi(0);
-  	float highEt_sigMT(0);
-  	float highEt_sigMET(0);
-  	float highEt_dPhiLepMET(0);
-  	float highEt_dRPhoLep(0);
-  	float highEt_HT(0);
-  	float highEt_nJet(0);
-	float highEt_threeMass(0);
-	float highEt_dilepMass(0);
-	float highEt_JetPt(0);
-  	std::vector<int>   *highEt_mcPID=0;
- 	std::vector<float> *highEt_mcEta=0;
-  	std::vector<float> *highEt_mcPhi=0;
-  	std::vector<float> *highEt_mcPt=0;
-  	std::vector<int>   *highEt_mcMomPID=0;
-  	std::vector<int>   *highEt_mcGMomPID=0;
-
-  	highEttree->SetBranchAddress("MCweight",  &highEtweight);
-  	highEttree->SetBranchAddress("phoEt",     &highEt_phoEt);
-  	highEttree->SetBranchAddress("phoEta",    &highEt_phoEta);
-  	highEttree->SetBranchAddress("phoPhi",    &highEt_phoPhi);
-  	highEttree->SetBranchAddress("lepPt",     &highEt_lepPt);
-  	highEttree->SetBranchAddress("lepEta",    &highEt_lepEta);
-  	highEttree->SetBranchAddress("lepPhi",    &highEt_lepPhi);
-  	highEttree->SetBranchAddress("sigMT",     &highEt_sigMT);
-  	highEttree->SetBranchAddress("sigMET",    &highEt_sigMET);
-  	highEttree->SetBranchAddress("dPhiLepMET",&highEt_dPhiLepMET);
-  	highEttree->SetBranchAddress("dRPhoLep",  &highEt_dRPhoLep);
-  	highEttree->SetBranchAddress("HT",        &highEt_HT);
-  	highEttree->SetBranchAddress("nJet",      &highEt_nJet);
-	highEttree->SetBranchAddress("JetPt",     &highEt_JetPt);
-	highEttree->SetBranchAddress("threeMass", &highEt_threeMass);
-	highEttree->SetBranchAddress("dilepMass", &highEt_dilepMass);
-  	highEttree->SetBranchAddress("mcPID",    &highEt_mcPID);
-  	highEttree->SetBranchAddress("mcEta",    &highEt_mcEta);
-  	highEttree->SetBranchAddress("mcPhi",    &highEt_mcPhi);
-  	highEttree->SetBranchAddress("mcPt",     &highEt_mcPt);
-  	highEttree->SetBranchAddress("mcMomPID", &highEt_mcMomPID);
-  	highEttree->SetBranchAddress("mcGMomPID",&highEt_mcGMomPID);
-
-  	for(unsigned ievt(0); ievt<highEttree->GetEntries(); ++ievt){//loop on entries
-		highEttree->GetEntry(ievt);
-
-		double weight = highEtweight;	
-		double scalefactor = objectESF.getMuonESF(highEt_lepPt,highEt_lepEta)*objectESF.getPhotonESF(highEt_phoEt,highEt_phoEta)*objectESF.getMuonEGTRGESF(highEt_phoEt, highEt_lepPt);
-
-		if(doEB && fabs(highEt_phoEta) > 1.4442)continue;
-		//else if(!doEB && (fabs(highEt_phoEta) < 1.56 || fabs(highEt_phoEta) > 2.4))continue;
-		if(highEt_phoEt > 799)highEt_phoEt = 799;
-		if(highEt_JetPt > 799)highEt_JetPt = 799;
-		if(highEt_dRPhoLep < 0.8)continue;
-		if(highEt_phoEt < 145)continue;
-		if(highEt_dilepMass < 80 || highEt_dilepMass > 100)continue;
-		weight = weight*scalefactor;
-
-		bool   isTruePho(false);
-		double mindR(0.3);
-		unsigned phoIndex(0);
-		for(unsigned iMC(0); iMC< highEt_mcPID->size(); iMC++){
-			double dR1 = DeltaR((*highEt_mcEta)[iMC], (*highEt_mcPhi)[iMC], highEt_phoEta, highEt_phoPhi);
-			double dE1 = fabs((*highEt_mcPt)[iMC] - highEt_phoEt)/highEt_phoEt;
-			if(dR1 < mindR && dE1 < 0.2){mindR=dR1; phoIndex=iMC;}
-		}
-		if(mindR < 0.1){
-			if((*highEt_mcPID)[phoIndex] == 22 && (fabs((*highEt_mcMomPID)[phoIndex])<25 || fabs((*highEt_mcMomPID)[phoIndex])==999))isTruePho=true;
-		}
-		if(!isTruePho)continue;
-
-
-		p_phoEt_ZG_highEt->Fill(highEt_phoEt, weight); 
-		p_JetPt_ZG_highEt->Fill(highEt_JetPt, weight);
-		p_llmass_ZG_highEt->Fill(highEt_dilepMass, weight);
-	}//loop on  events
-
-	p_llmass_ZG_highEt->Add(p_llmass_rare_highEt);*/
 	
 	TCanvas *can_phoEt     = new TCanvas("can_phoEt",       "can_phoEt", 600,600); 
 	TCanvas *can_JetPt        = new TCanvas("can_JetPt",          "can_JetPt",600,600); 
@@ -489,12 +438,6 @@ void plot_ISRweight(){//main
 
 
 	p_llmass_ZG->Add(p_llmass_rare);
-//	float scalefactor = p_llmass_data->Integral(50,70)/p_llmass_ZG->Integral(50,70); 
-//	std::cout << "scale = " << scalefactor<<std::endl;
-//	float scalefactorhighEt = p_llmass_data_highEt->Integral(50,70)/p_llmass_ZG_highEt->Integral(50,70);
-//	std::cout << "highEt scale = " << scalefactorhighEt <<std::endl;
-//	float scalefactor = 1.0; 
-//	float scalefactorhighEt = 1.0;
         float scalefactor = 1.0;
         float scalefactorhighEt = 1.0;
 
@@ -542,7 +485,7 @@ void plot_ISRweight(){//main
 	ratio_phoEt->SetMarkerStyle(20);
 	ratio_phoEt->SetLineColor(kBlack);
 	ratio_phoEt->GetXaxis()->SetRangeUser(0,800);
-	ratio_phoEt->GetYaxis()->SetRangeUser(0,2);
+	ratio_phoEt->GetYaxis()->SetRangeUser(0.95,1.05);
 	ratio_phoEt->GetYaxis()->SetLabelSize(12);
 	ratio_phoEt->SetMinimum(0.2);
 	ratio_phoEt->SetMaximum(1.7);
@@ -551,7 +494,6 @@ void plot_ISRweight(){//main
 	ratio_phoEt->GetYaxis()->SetTitle("Data/MC");
 	ratio_phoEt->Draw();
 	flatratio_phoEt->Draw("same");
-	
 //	can_phoEt->SaveAs(Form("/eos/uscms/store/user/tmishra/ISRweighting/PLOT_ISRweight_phoEt_%d%s.pdf",RunYear,whichVFP.c_str()));
 	
 	cout<<RunYear<<"  "<<whichVFP<<endl;
@@ -559,16 +501,16 @@ void plot_ISRweight(){//main
 	double ISRwgt_alter[11];
 	for(int i(1); i<=7; i++){
 		ISRwgt_norm[i-1] = p_JetPt_data->GetBinContent(i)/p_JetPt_ZG->GetBinContent(i);
-		//std::cout << "norm ratio "<<i<<" "<< ISRwgt_norm[i-1] << " stat " << p_JetPt_data->GetBinError(i)/p_JetPt_ZG->GetBinContent(i)<<std::endl;
+		std::cout << "norm ratio "<<i<<" "<< ISRwgt_norm[i-1] << " stat " << p_JetPt_data->GetBinError(i)/p_JetPt_ZG->GetBinContent(i)<<std::endl;
 	}
-
-        cout<<"			if(ISRJetPt < 50)reweightF = "<<ISRwgt_norm[0]<<";"<<endl;
-        cout<<"                 else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = "<<ISRwgt_norm[1]<<";"<<endl;
-        cout<<"                 else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = "<<ISRwgt_norm[2]<<";"<<endl;
-        cout<<"                 else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = "<<ISRwgt_norm[3]<<";"<<endl;
-        cout<<"                 else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = "<<ISRwgt_norm[4]<<";"<<endl;
-        cout<<"                 else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = "<<ISRwgt_norm[5]<<";"<<endl;
-        cout<<"                 else if(ISRJetPt >= 300)reweightF = "<<ISRwgt_norm[6]<<";"<<endl;
+	if(ApplyISR == false){
+        	cout<<"			if(ISRJetPt < 50)reweightF = "<<ISRwgt_norm[0]<<";"<<endl;
+        	cout<<"                 else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = "<<ISRwgt_norm[1]<<";"<<endl;
+        	cout<<"                 else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = "<<ISRwgt_norm[2]<<";"<<endl;
+        	cout<<"                 else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = "<<ISRwgt_norm[3]<<";"<<endl;
+        	cout<<"                 else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = "<<ISRwgt_norm[4]<<";"<<endl;
+        	cout<<"                 else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = "<<ISRwgt_norm[5]<<";"<<endl;
+        	cout<<"                 else if(ISRJetPt >= 300)reweightF = "<<ISRwgt_norm[6]<<";"<<endl;}
 
 	gStyle->SetOptStat(0);
 	can_JetPt->cd();
@@ -578,6 +520,7 @@ void plot_ISRweight(){//main
 	JetPt_pad1->cd();  
 	gStyle->SetOptStat(0);
 	JetPt_pad1->SetLogy();
+	p_JetPt_data->GetXaxis()->SetTitleOffset(0.9);
 	p_JetPt_data->GetXaxis()->SetTitle("ISR P_{T} (GeV)");
 	p_JetPt_data->SetMinimum(0.05);
 	p_JetPt_data->SetLineColor(kBlack);
@@ -596,17 +539,16 @@ void plot_ISRweight(){//main
 	p_JetPt_rare->Scale(scalefactor);
 	p_JetPt_rare->Draw("hist same");
 	p_JetPt_data->Draw("EP same");
-        if(RunYear==2016 and preVFP == 1)       CMS_lumi( JetPt_pad1,1, 11 );
-        else if(RunYear==2016 and preVFP == 0)  CMS_lumi( JetPt_pad1,2, 11 );
-        else if(RunYear==2017)                  CMS_lumi( JetPt_pad1,3, 11 );
-        else if(RunYear==2018)                  CMS_lumi( JetPt_pad1,4, 11 );
+        if(RunYear==2016 and preVFP == 1)       CMS_lumi( JetPt_pad1,1,1, 11 );
+        else if(RunYear==2016 and preVFP == 0)  CMS_lumi( JetPt_pad1,2,1, 11 );
+        else if(RunYear==2017)                  CMS_lumi( JetPt_pad1,3,1, 11 );
+        else if(RunYear==2018)                  CMS_lumi( JetPt_pad1,4,1, 11 );
 	
-        //cout<<"                 Normalization = "<<p_JetPt_ZG->Integral()/p_JetPt_data->Integral()<<";    }"<<endl;
-        cout<<"                 Normalization = "<<p_JetPt_data->Integral()/p_JetPt_ZG->Integral()<<";    }"<<endl;
+	if(ApplyISR == false)  cout<<"                 Normalization = "<<p_JetPt_ZG->Integral()/p_JetPt_data->Integral()<<";    }"<<endl;
+	
 	cout<<"ZG integral is "<<p_JetPt_ZG->Integral()<<endl;
-	cout<<"Rare integral is "<<p_JetPt_rare->Integral()<<endl;
 	cout<<"Data integral is "<<p_JetPt_data->Integral()<<endl;
-	//cout<<"JetPt MC(ZG, rare)/ JetPt data :  "<<p_JetPt_ZG->Integral()/p_JetPt_data->Integral()<<endl;
+	cout<<"Ratio "<<p_JetPt_ZG->Integral()/p_JetPt_data->Integral()  <<endl;
 	TLegend *leg_JetPt =  new TLegend(0.6,0.7,0.9,0.9);
 	leg_JetPt->SetFillStyle(0);
 	leg_JetPt->AddEntry(p_JetPt_data, "Data");
@@ -625,15 +567,32 @@ void plot_ISRweight(){//main
 	ratio_JetPt->SetMarkerStyle(20);
 	ratio_JetPt->SetLineColor(kBlack);
 	ratio_JetPt->GetXaxis()->SetRangeUser(0,800);
-	ratio_JetPt->GetYaxis()->SetRangeUser(0,2);
+	if (ApplyISR)  ratio_JetPt->GetYaxis()->SetRangeUser(0.8,1.2);
+	else ratio_JetPt->GetYaxis()->SetRangeUser(0.5,1.35);
 	ratio_JetPt->GetYaxis()->SetLabelSize(12);
-	ratio_JetPt->SetMinimum(0.5);
-	ratio_JetPt->SetMaximum(1.35);
 	ratio_JetPt->Divide(p_JetPt_ZG);
 	ratio_JetPt->SetTitle("");
 	ratio_JetPt->GetYaxis()->SetTitle("Data/MC");
 	ratio_JetPt->Draw();
 	flatratio_JetPt->Draw("same");
+
+	TLine *ratioValue_JetPt = new TLine(0, p_JetPt_data->Integral() / p_JetPt_ZG->Integral(),
+                                    800, p_JetPt_data->Integral() / p_JetPt_ZG->Integral());
+	ratioValue_JetPt->SetLineColor(kRed);
+	ratioValue_JetPt->Draw("same");
+
+	TLatex *text = new TLatex();
+	text->SetTextSize(0.1);
+	text->DrawLatexNDC(0.7, 0.5, Form("Mean: %.2f", p_JetPt_data->Integral() / p_JetPt_ZG->Integral()));
+
 	if (ApplyISR)	can_JetPt->SaveAs(Form("/eos/uscms/store/user/tmishra/ISRweighting/PLOT_ISRweight_%d%s-ISR-weighted.pdf",RunYear,whichVFP.c_str()));
 	else	can_JetPt->SaveAs(Form("/eos/uscms/store/user/tmishra/ISRweighting/PLOT_ISRweight_%d%s.pdf",RunYear,whichVFP.c_str()));
+
+}
+int main(int argc, char** argv)
+{
+    bool preVFP = (atoi(argv[2]) == 1);
+    plot_ISRweight(atoi(argv[1]), preVFP);
+    return 0;
+
 }

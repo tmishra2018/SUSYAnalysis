@@ -58,10 +58,10 @@ void sigtree_mg(int RunYear, const char *Era /*for Data*/, bool preVFP, bool isM
         if(RunYear==2016) datatype = MCMuonEG2016;
         if(RunYear==2017) datatype = MCMuonEG2017;
         if(RunYear==2018) datatype = MCMuonEG2018;
-        if (strstr(Sample, "DYJetsToLL") != NULL or strstr(Sample, "TTJets") != NULL or strstr(Sample, "WJetsToLNu"))
+       // if (strstr(Sample, "DYJetsToLL") != NULL or strstr(Sample, "TTJets") != NULL or strstr(Sample, "WJetsToLNu") != NULL or  strstr(Sample, "T5Wg") != NULL or strstr(Sample, "TChiWG") != NULL )
                 sprintf(inputfile,"/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());
-        else
-                sprintf(inputfile,"/eos/uscms/store/user/tmishra/InputFilesMC/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());
+       // else
+       //         sprintf(inputfile,"/eos/uscms/store/user/tmishra/InputFilesMC/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());
   }
 
   es->Add(inputfile);
@@ -187,7 +187,7 @@ void sigtree_mg(int RunYear, const char *Era /*for Data*/, bool preVFP, bool isM
                         passHEM++;
 
 			nTotal+=1;
-			if(!raw.passHLT())continue;
+		//	if(!raw.passHLT())continue;
 			if(raw.nGoodVtx < 1)continue;
 			npassHLT+=1;
 			if(raw.nMu < 1 || raw.nPho <1)continue;
@@ -239,7 +239,7 @@ void sigtree_mg(int RunYear, const char *Era /*for Data*/, bool preVFP, bool isM
 			miniisoLep.clear();
 			for(std::vector<recoMuon>::iterator itMu = Muon.begin(); itMu != Muon.end(); itMu++){
 				if(itMu->getPt() < 20)continue;
-				if(!itMu->passHLTSelection())continue;
+				//if(!itMu->passHLTSelection())continue;
 				if(itMu->passSignalSelection()){
 					if(hasLep && !hasTrail){
 						hasTrail = true;
@@ -259,7 +259,7 @@ void sigtree_mg(int RunYear, const char *Era /*for Data*/, bool preVFP, bool isM
 			for(std::vector<recoEle>::iterator itEle = Ele.begin(); itEle != Ele.end(); itEle++){
 				if(itEle->getCalibPt() < 25)continue;
 				if((itEle->isEB() && itEle->getR9() < 0.5) || (itEle->isEE() && itEle->getR9() < 0.8))continue;
-				if(!itEle->passHLTSelection())continue;
+			//	if(!itEle->passHLTSelection())continue;
 				if(!hasSigEle && itEle->passSignalSelection()){
 					hasSigEle = true;
 					signalEle = itEle;
@@ -277,8 +277,8 @@ void sigtree_mg(int RunYear, const char *Era /*for Data*/, bool preVFP, bool isM
 				if(dRlepphoton > 0.8){
 					npassdR+=1;
 					p_METFilter->Fill(-2);
-					p_METFilter->Fill(raw.failFilterStep(METFilter));	
-					if(raw.passMETFilter(METFilter)){ 
+					p_METFilter->Fill(raw.failFilterStep(RunYear, METFilter));	
+					if(raw.passMETFilter(RunYear, METFilter)){ 
 						npassMETFilter +=1;
 						if(fabs((signalPho->getCalibP4()+signalLep->getP4()).M() - 91.188) > 10.0)npassZ+=1;
 
@@ -355,14 +355,16 @@ void sigtree_mg(int RunYear, const char *Era /*for Data*/, bool preVFP, bool isM
 
 p_eventcount->Fill("Total",nTotal);
 p_eventcount->Fill("passHLT",npassHLT);
-p_eventcount->Fill("passPho",npassPho);	  // decrease by 2%
-p_eventcount->Fill("passMuon",npassLep); // increase by 4%
+p_eventcount->Fill("passPho",npassPho);
+p_eventcount->Fill("passMuon",npassLep); 
 p_eventcount->Fill("passdR",npassdR);
 p_eventcount->Fill("passMETFilter",npassMETFilter);
 p_eventcount->Fill("passZ",npassZ);
 	if(RunYear==2018) logfile << "pass HEM cut:  " << passHEM*100/nEvts<<endl;
-outputfile->Write();
-logfile.close();
+	p_METFilter->Write();
+	outputfile->Write();
+	outputfile->Close();
+	logfile.close();
 }
 int main(int argc, char** argv)
 {

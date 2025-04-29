@@ -1,9 +1,8 @@
 #!/bin/bash
 
-for file in analysis_ISRMC.C analysis_ISR.C analysis_mgHadron.C; do
-    exe_name=$(echo $file | sed 's/.C/.exe/')
-    g++ $(root-config --cflags) ../../lib/libAnaClasses.so $file -o $exe_name $(root-config --libs)
-done
+g++ $(root-config --cflags) ../../lib/libAnaClasses.so analysis_ISR.C -o analysis_ISR.exe $(root-config --libs)
+g++ $(root-config --cflags) ../../lib/libAnaClasses.so analysis_ISRMC.C -o analysis_ISRMC.exe $(root-config --libs)
+g++ $(root-config --cflags) ../../lib/libAnaClasses.so analysis_mgHadron.C -o analysis_mgHadron.exe $(root-config --libs)
 
 years=("2017" "2018" "2016")
 isr_runs_2017=("D" "E" "F")

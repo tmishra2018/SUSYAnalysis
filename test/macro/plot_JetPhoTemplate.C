@@ -47,6 +47,7 @@
 #include "../../include/analysis_photon.h"
 #include "../../include/analysis_muon.h"
 #include "../../include/analysis_ele.h"
+#include "../../include/analysis_jet.h"
 #include "../../include/analysis_mcData.h"
 #include "../../include/analysis_tools.h"
 #include "../../include/analysis_fakes.h"
@@ -57,7 +58,6 @@ plot_JetPhoTemplate(){
 	setTDRStyle();   
 //************ Signal Tree **********************//
 	TChain *mctree = new TChain("egTree");
-	//mctree->Add("/uscms_data/d3/mengleis/FullStatusOct/plot_hadron_GJet.root");
 	mctree->Add("/eos/uscms/store/user/tmishra/InputFilesDATA/2017/plot_hadron_GJet_2017.root");
 	float mc_phoEt(0);
 	float mc_phoEta(0); 
@@ -136,7 +136,7 @@ plot_JetPhoTemplate(){
 	leg->AddEntry(p_true, "true photons");
 	leg->AddEntry(p_fake, "jet->#gamma fakes");
 	leg->Draw("hist same");
-	can_iso->SaveAs("../PLOT_JetPhoTemplate_2017.pdf");
+	can_iso->SaveAs("/eos/uscms/store/user/tmishra/jetfakepho/Plots2017/PLOT_JetPhoTemplate_2017.pdf");
 
 	TLatex* latex = new TLatex();
 	TCanvas *can_sigma = new TCanvas("can_sigma","",600,600);
@@ -154,7 +154,7 @@ plot_JetPhoTemplate(){
 	p_sbsigma->Draw("hist same");
 	latex->DrawLatex(0.006,0.000005,"p_{signal}");
 	latex->DrawLatex(0.011,0.000005,"p_{sideband}");
-	can_sigma->SaveAs("../PLOT_Iteration_2017.pdf");
+	can_sigma->SaveAs("/eos/uscms/store/user/tmishra/jetfakepho/Plots2017/PLOT_Iteration_2017.pdf");
 
 	return 1;
 }

@@ -4,13 +4,13 @@ import ROOT
 from os import system
 import sys
 
-br_neu = 0.5
-br_cha = 1-br_neu
-
-br_susy = 2*br_neu*br_cha
-br_susy = br_susy/0.5
+#br_neu = 0.5
+#br_cha = 1-br_neu
+#br_susy = 2*br_neu*br_cha
+#br_susy = br_susy/0.5
 #print br_susy
-#br_susy = 1
+
+br_susy = 1
 n_channels = int(sys.argv[1])*2
 RunYear = sys.argv[2]
 preVFP = sys.argv[3]
@@ -23,13 +23,11 @@ else:
     whichVFP = ''
 
 if RunYear == '2016':
-    output_file_path = f'/eos/uscms/store/user/tmishra/CombinedLimit/T5WG/cards/cards_{RunYear}_{whichVFP}/'
+    output_file_path = f'/eos/uscms/store/user/tmishra/CombinedLimit/T5WG/cards/cards_{RunYear}{whichVFP}/'
 else:
     output_file_path = f'/eos/uscms/store/user/tmishra/CombinedLimit/T5WG/cards/cards_{RunYear}/'
 
-
-susy_in = ROOT.TFile(f'/uscms/homes/m/mengleis/work/SUSY2016/SUSYAnalysis/test/Result/signalTree_T5WG.root', 'read')
-#susy_in = ROOT.TFile(f'/uscms/home/tmishra/nobackup/signal_trees/signalTree_T5WG_{RunYear}{whichVFP}.root', 'read')
+susy_in = ROOT.TFile(f'/uscms/home/tmishra/nobackup/signal_trees/signalTree_T5WG_{RunYear}{whichVFP}.root', 'read')
 syst_names = ['jes','jer','esf','scale','eleshape','jetshape','qcdshape','xs','lumi','isr']
 
 h_SUSYmass = susy_in.Get('SUSYMass')
@@ -45,21 +43,26 @@ lines = [line for line in file_template.readlines()]
 
 low_p = 2 
 high_p = 0
+count = 0
+        
+        #Not required. The gridpack is diff in UL. 
+        #if (gluino_mass, neutralino_mass) not in valid_mass_pairs:
+        #    continue
 
 for i in range(1, h_SUSYmass.GetXaxis().GetNbins() + 1):
     for j in range(1, h_SUSYmass.GetYaxis().GetNbins() + 1):
-        if(h_SUSYmass.GetBinContent(i,j) <= 0):
+        if h_SUSYmass.GetBinContent(i, j) <= 0:
             continue
-        file_out = open(f"{output_file_path}counting_t5Wg_{int(h_SUSYmass.GetXaxis().GetBinCenter(i))}_{int(h_SUSYmass.GetYaxis().GetBinCenter(j))}.txt", 'w')
+        count += 1
+        gluino_mass = int(h_SUSYmass.GetXaxis().GetBinCenter(i))
+        neutralino_mass = int(h_SUSYmass.GetYaxis().GetBinCenter(j))
+        file_out = open(f"{output_file_path}counting_t5wg_{gluino_mass}_{neutralino_mass}.txt", 'w')
         avg_jes = 0
         avg_jer = 0
         avg_esf = 0
         n_nonzero = 0
-# Get Average
         for k in range(1, n_channels+1):
             n_nom = h_rates['h_chan' + str(k) + '_rate_nom'].GetBinContent(i, j)
-	    #if int(h_SUSYmass.GetXaxis().GetBinCenter(i)) == 1750 and int(h_SUSYmass.GetYaxis().GetBinCenter(j)) == 100:
-	    #	print n_nom
             e_jes = h_rates['h_chan' + str(k) + '_syserr_jes'].GetBinContent(i, j)
             e_jer = h_rates['h_chan' + str(k) + '_syserr_jer'].GetBinContent(i, j)
             e_esf = h_rates['h_chan' + str(k) + '_syserr_esf'].GetBinContent(i, j)
@@ -68,9 +71,15 @@ for i in range(1, h_SUSYmass.GetXaxis().GetNbins() + 1):
                 avg_jer +=  e_jer / n_nom 
                 avg_esf +=  e_esf / n_nom
                 n_nonzero += 1
-        avg_jes = avg_jes/n_nonzero
-        avg_jer = avg_jer/n_nonzero
-        avg_esf = avg_esf/n_nonzero
+
+        if n_nonzero > 0:
+            avg_jes = avg_jes/n_nonzero
+            avg_jer = avg_jer/n_nonzero
+            avg_esf = avg_esf/n_nonzero
+        else:
+            avg_jes = 0
+            avg_jer = 0
+            avg_esf = 0
 
         for l in lines:
             if (re.search('NSC', l)
@@ -130,4 +139,5 @@ for i in range(1, h_SUSYmass.GetXaxis().GetNbins() + 1):
             file_out.write(l)
 
         file_out.close()
+print("Total count:", count)
 #print(low_p, high_p)

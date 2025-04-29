@@ -86,11 +86,10 @@ void analysis_mgTriggerMC(int RunYear, bool preVFP){
 	mgtree->Branch("phofireHLT", &mg_phofireHLT);
 	mgtree->Branch("mufireHLT",  &mg_mufireHLT);
 	
-	if(RunYear==2016){
-		mgtree->Branch("phofireL1_2",&mg_phofireL1_2);
-		mgtree->Branch("mufireL1_2", &mg_mufireL1_2); 
-		mgtree->Branch("phofireHLT2",&mg_phofireHLT2);
-		mgtree->Branch("mufireHLT2", &mg_mufireHLT2);}
+	mgtree->Branch("phofireL1_2",&mg_phofireL1_2);
+	mgtree->Branch("mufireL1_2", &mg_mufireL1_2); 
+	mgtree->Branch("phofireHLT2",&mg_phofireHLT2);
+	mgtree->Branch("mufireHLT2", &mg_mufireHLT2);
 
 	TH1F *p_dimuon = new TH1F("p_dimuon","di-muon invmass; #mu#mu mass(GeV);",200,0,200);
 	TH1F *p_invmass = new TH1F("p_invmass","mu#mu#gamma invmass; #mu#mu#gamma mass(GeV);",60,60,120);
@@ -211,11 +210,17 @@ void analysis_mgTriggerMC(int RunYear, bool preVFP){
                                                 if(probeMu->fireL1Trg(12))mg_mufireL1=12;
                                                 else mg_mufireL1=0;
 
-                                                if(probePho->fireDoubleTrg(27) || probePho->fireDoubleTrg(36))mg_phofireHLT=1;
+                                                if(probePho->fireDoubleTrg(27))mg_phofireHLT=1;
                                                 else mg_phofireHLT=0;
 
-                                                if(probeMu->fireSingleTrg(0) || probeMu->fireSingleTrg(32))mg_mufireHLT=1;
+                                                if(probeMu->fireSingleTrg(0))mg_mufireHLT=1;
                                                 else mg_mufireHLT=0;
+                                                
+						if(probePho->fireDoubleTrg(36))mg_phofireHLT2=1;
+                                                else mg_phofireHLT2=0;
+
+                                                if(probeMu->fireSingleTrg(32))mg_mufireHLT2=1;
+                                                else mg_mufireHLT2=0;
 					}
 
 					mgtree->Fill();

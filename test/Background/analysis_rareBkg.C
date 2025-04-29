@@ -332,6 +332,7 @@ void analysis_rareBkg(){
 		double syserror(0);
 		syserror += pow((scaleup_Mt->GetBinContent(ibin)-p_Mt->GetBinContent(ibin)),2);
 		syserror += pow((p_Mt->GetBinContent(ibin)*0.5),2);
+		// 50%  uncertainty  on cross section 
 		double jeserror = max( fabs(jesup_Mt->GetBinContent(ibin)-p_Mt->GetBinContent(ibin)), fabs(jesdo_Mt->GetBinContent(ibin)-p_Mt->GetBinContent(ibin)));
 		double jererror = max( fabs(jerup_Mt->GetBinContent(ibin)-p_Mt->GetBinContent(ibin)), fabs(jerdo_Mt->GetBinContent(ibin)-p_Mt->GetBinContent(ibin)));
 		syserror += pow(jeserror,2);

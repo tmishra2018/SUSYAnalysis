@@ -181,6 +181,7 @@ void pred_eleBkg(){
 	float HT(0);
 	float nJetFloat(0);
         int nJetInt(0);
+
 	
 	proxytree->SetBranchAddress("phoEt",     &phoEt);
 	proxytree->SetBranchAddress("phoEta",    &phoEta);
@@ -198,10 +199,12 @@ void pred_eleBkg(){
 	if (channelType == 1) proxytree->SetBranchAddress("nJet", &nJetFloat);
         else proxytree->SetBranchAddress("nJet", &nJetInt);
 
+	
 	for (unsigned ievt(0); ievt<proxytree->GetEntries(); ++ievt){//loop on entries
 		proxytree->GetEntry(ievt);
-		if (channelType == 1 && nJetFloat <1 ) continue; // suggestion from convenors
+		if (channelType == 1 && nJetFloat <1 ) continue; // NEW
                 if (channelType == 2 && nJetInt <1 ) continue;
+		
 		p_PU->Fill(nVertex);
 		/** cut flow *****/
 		if(phoEt < 35 || fabs(phoEta) > 1.4442)continue;

@@ -47,10 +47,9 @@ void analysis_TChiWG(){//main
     		lumi_eg = lumi_678_DoubleEG;
     		lumi_mg = lumi_678_MuonEG;}
 
-
   	gSystem->Load("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/lib/libAnaClasses.so");
 
-	TFile xSecFile("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/cross/susyCrossSection.root");
+	TFile xSecFile("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/cross/ULsusyCrossSection.root");
 	TH1D *p_crosssection_tchiwg = (TH1D*)xSecFile.Get("p_charginoSec");
 	TH1D *p_crosssection_t5wg   = (TH1D*)xSecFile.Get("p_gluinoxSec");
 	TH1D *p_crosssection_t6wg   = (TH1D*)xSecFile.Get("p_squarkxSec");
@@ -69,7 +68,7 @@ void analysis_TChiWG(){//main
   	float Mchargino_t5wg(0);
   	float Mneutralino_t5wg(0);
 	int   nVertex(0);
-	tree_t5wg->SetBranchAddress("Mgluino",    &Mgluino_t5wg);  
+	tree_t5wg->SetBranchAddress("MsGsQ",    &Mgluino_t5wg);  
   	tree_t5wg->SetBranchAddress("Mchargino",  &Mchargino_t5wg);
   	tree_t5wg->SetBranchAddress("Mneutralino",&Mneutralino_t5wg);
   	tree_t5wg->SetBranchAddress("nVertex",    &nVertex);
@@ -77,12 +76,22 @@ void analysis_TChiWG(){//main
 	TFile *outputfile_t5wg = TFile::Open(Form("/uscms/home/tmishra/nobackup/signal_trees/signalTree_T5WG_%d%s.root",RunYear, whichVFP.c_str()),"RECREATE");
 	outputfile_t5wg->cd();
 
-	TH2D *p_T5WGMASS         = new TH2D("SUSYMass","",27, 775.0, 2125.0, 80, 12.5, 2012.5);
-	TH2D *p_T5WGselect       = new TH2D("p_T5WGselect","",27, 775.0, 2125.0, 80, 12.5, 2012.5); 
-	TH2D *p_lowPU_t5wg_pass  = new TH2D("p_lowPU_t5wg_pass","", 27, 775.0, 2125.0, 80, 12.5, 2012.5);
-	TH2D *p_lowPU_t5wg_all   = new TH2D("p_lowPU_t5wg_all", "", 27, 775.0, 2125.0, 80, 12.5, 2012.5);
-	TH2D *p_highPU_t5wg_pass = new TH2D("p_highPU_t5wg_pass","",27, 775.0, 2125.0, 80, 12.5, 2012.5);
-	TH2D *p_highPU_t5wg_all  = new TH2D("p_highPU_t5wg_all","", 27, 775.0, 2125.0, 80, 12.5, 2012.5);
+	double xBins[] = {950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2025, 2075, 2125 	 };
+	//		, 2175, 2225, 2275, 2325, 2375, 2425, 2475, 2525, 2575, 2625, 2675, 2725, 2775, 2825}; // cropping temperarily fot better limit plot
+
+	int nXbins = sizeof(xBins) / sizeof(xBins[0]) - 1;
+
+	double yBins[] = {25, 75, 125, 175, 225, 275, 325, 375, 425, 475, 525, 575, 625, 675, 725, 775, 825, 875, 925, 975, 1025, 1075, 1125, 1175, 1225, 1275, 
+		1325, 1375, 1425, 1475, 1525, 1575, 1625, 1675, 1725, 1775, 1825, 1875, 1925, 1975, 2025, 2075, 2125 };
+	//	, 2175, 2225, 2275, 2325, 2375, 2425, 2475, 2525, 2575, 2625, 2675, 2725, 2775, 2825};
+	int nYbins = sizeof(yBins) / sizeof(yBins[0]) - 1;
+
+	TH2D *p_T5WGMASS         = new TH2D("SUSYMass","",nXbins, xBins, nYbins, yBins);
+	TH2D *p_T5WGselect       = new TH2D("p_T5WGselect","",nXbins, xBins, nYbins, yBins); 
+	TH2D *p_lowPU_t5wg_pass  = new TH2D("p_lowPU_t5wg_pass","", nXbins, xBins, nYbins, yBins);
+	TH2D *p_lowPU_t5wg_all   = new TH2D("p_lowPU_t5wg_all", "", nXbins, xBins, nYbins, yBins);
+	TH2D *p_highPU_t5wg_pass = new TH2D("p_highPU_t5wg_pass","",nXbins, xBins, nYbins, yBins);
+	TH2D *p_highPU_t5wg_all  = new TH2D("p_highPU_t5wg_all","", nXbins, xBins, nYbins, yBins);
 
 	for(int ievt(0); ievt < tree_t5wg->GetEntries(); ievt++){
 		tree_t5wg->GetEntry(ievt);
@@ -101,7 +110,7 @@ void analysis_TChiWG(){//main
 	for(int i(0); i < NBIN*2; i++){
 		histname.str("");
 		histname << "h_chan" << i+1 << "_rate_nom";
-		t5wg_h_chan_rate_nom[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t5wg_h_chan_rate_nom[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 	}
 
 	TH2D *t5wg_h_chan_rate_jesUp[NBIN*2]; 
@@ -111,7 +120,7 @@ void analysis_TChiWG(){//main
 	TH2D *t5wg_h_chan_rate_xsUp[NBIN*2];       
 	TH2D *t5wg_h_chan_rate_esfUp[NBIN*2];       
                                   
-	TH2D *t5wg_h_syserr_PU = new TH2D("t5wg_h_syserr_PU","t5wg_h_syserr_PU", 27, 775.0, 2125.0, 80, 12.5, 2012.5);
+	TH2D *t5wg_h_syserr_PU = new TH2D("t5wg_h_syserr_PU","t5wg_h_syserr_PU", nXbins, xBins, nYbins, yBins);
 	TH2D *t5wg_h_chan_syserr_jes[NBIN*2];      
 	TH2D *t5wg_h_chan_syserr_jer[NBIN*2];     
 	TH2D *t5wg_h_chan_syserr_esf[NBIN*2];     
@@ -126,53 +135,53 @@ void analysis_TChiWG(){//main
 	for(int i(0); i < NBIN*2; i++){
 		histname.str("");
 		histname << "h_chan" << i+1 << "_rate_jesUp";
-		t5wg_h_chan_rate_jesUp[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t5wg_h_chan_rate_jesUp[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_rate_jesDown";
-		t5wg_h_chan_rate_jesDown[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t5wg_h_chan_rate_jesDown[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_rate_jerUp";
-		t5wg_h_chan_rate_jerUp[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t5wg_h_chan_rate_jerUp[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_rate_jerDown";
-		t5wg_h_chan_rate_jerDown[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t5wg_h_chan_rate_jerDown[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_rate_xsUp";
-		t5wg_h_chan_rate_xsUp[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t5wg_h_chan_rate_xsUp[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_rate_esfUp";
-		t5wg_h_chan_rate_esfUp[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t5wg_h_chan_rate_esfUp[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 															
 		histname.str("");
 		histname << "h_chan" << i+1 << "_syserr_jes";
-		t5wg_h_chan_syserr_jes[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t5wg_h_chan_syserr_jes[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_syserr_jer";
-		t5wg_h_chan_syserr_jer[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t5wg_h_chan_syserr_jer[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_syserr_esf";
-		t5wg_h_chan_syserr_esf[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t5wg_h_chan_syserr_esf[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_syserr_scale";
-		t5wg_h_chan_syserr_scale[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t5wg_h_chan_syserr_scale[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_syserr_eleshape";
-		t5wg_h_chan_syserr_eleshape[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t5wg_h_chan_syserr_eleshape[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_syserr_jetshape";
-		t5wg_h_chan_syserr_jetshape[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t5wg_h_chan_syserr_jetshape[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_syserr_qcdshape";
-		t5wg_h_chan_syserr_qcdshape[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t5wg_h_chan_syserr_qcdshape[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_syserr_xs";
-		t5wg_h_chan_syserr_xs[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t5wg_h_chan_syserr_xs[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_syserr_lumi";
-		t5wg_h_chan_syserr_lumi[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t5wg_h_chan_syserr_lumi[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_syserr_isr";
-		t5wg_h_chan_syserr_isr[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t5wg_h_chan_syserr_isr[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 	}
 	
 	TH1D *p_t5wg_MET_signal_mg = new TH1D("p_t5wg_MET_signal_1700_1000_mg","", nSigMETBins, sigMETBins);
@@ -216,7 +225,7 @@ void analysis_TChiWG(){//main
   mgtree_t5wg->SetBranchAddress("HT",         &HT_t5wg_mg);
   mgtree_t5wg->SetBranchAddress("nJet",         &nJet_t5wg_mg);
 	mgtree_t5wg->SetBranchAddress("nVertex",    &nVertex_t5wg_mg);
-	mgtree_t5wg->SetBranchAddress("Mgluino",    &gluinoMass_t5wg_mg);
+	mgtree_t5wg->SetBranchAddress("MsGsQ",    &gluinoMass_t5wg_mg);
   mgtree_t5wg->SetBranchAddress("Mchargino",  &charginoMass_t5wg_mg);
   mgtree_t5wg->SetBranchAddress("Mneutralino",&neutralinoMass_t5wg_mg);
 	mgtree_t5wg->SetBranchAddress("sigMETJESup",&sigMETJESup_t5wg_mg);
@@ -238,7 +247,7 @@ void analysis_TChiWG(){//main
 		else if(neutralinoMass_t5wg_mg > 0)NLSPMass = neutralinoMass_t5wg_mg;
 		if(NLSPMass <= 0)continue;	
 	
-		/** cut flow *****/
+		// cut flow 
 		if(nJet_t5wg_mg < 1)continue; 
 		if(phoEt_t5wg_mg < 35 || lepPt_t5wg_mg < 20)continue;
 		if(fabs(phoEta_t5wg_mg) > 1.4442 || fabs(lepEta_t5wg_mg) > 2.5)continue;
@@ -329,7 +338,7 @@ void analysis_TChiWG(){//main
 	egtree_t5wg->SetBranchAddress("nVertex",    &nVertex_t5wg_eg);
   egtree_t5wg->SetBranchAddress("HT",         &HT_t5wg_eg);
   egtree_t5wg->SetBranchAddress("nJet",         &nJet_t5wg_eg);
-	egtree_t5wg->SetBranchAddress("Mgluino",    &gluinoMass_t5wg_eg);
+	egtree_t5wg->SetBranchAddress("MsGsQ",    &gluinoMass_t5wg_eg);
   egtree_t5wg->SetBranchAddress("Mchargino",  &charginoMass_t5wg_eg);
   egtree_t5wg->SetBranchAddress("Mneutralino",&neutralinoMass_t5wg_eg);
 	egtree_t5wg->SetBranchAddress("sigMETJESup",&sigMETJESup_t5wg_eg);
@@ -350,7 +359,7 @@ void analysis_TChiWG(){//main
 		if(charginoMass_t5wg_eg > 0)NLSPMass = charginoMass_t5wg_eg;
 		else if(neutralinoMass_t5wg_eg > 0)NLSPMass = neutralinoMass_t5wg_eg;
 		if(NLSPMass <= 0)continue;	
-		/** cut flow *****/
+		// cut flow 
 		if(nJet_t5wg_eg < 1)continue;
 		if(phoEt_t5wg_eg < 35 || lepPt_t5wg_eg < 25)continue;
 		if(fabs(phoEta_t5wg_eg) > 1.4442 || fabs(lepEta_t5wg_eg) > 2.5)continue;
@@ -489,18 +498,18 @@ void analysis_TChiWG(){//main
 	outputfile_t5wg->Close();
 
 
-	//****************   TChiWG ***************************
+	// ****************   TChiWG ***************************
 
-/*      TFile *file_tchiwg = TFile::Open("/uscms_data/d3/mengleis/test/test_TChiWg.root");
+	TFile *file_tchiwg = TFile::Open(Form("/uscms/home/tmishra/nobackup/signal_trees/resTree_TChiWG_%d%s.root",RunYear, whichVFP.c_str()));
   	TTree *tree_tchiwg = (TTree*)file_tchiwg->Get("SUSYtree");
   	float Mchargino_tchiwg(0);
   	float Mneutralino_tchiwg(0);
 	int   nVertex_tchiwg(0);
-  	tree_tchiwg->SetBranchAddress("Mchagino",  &Mchargino_tchiwg);
+  	tree_tchiwg->SetBranchAddress("Mchargino",  &Mchargino_tchiwg);
   	tree_tchiwg->SetBranchAddress("Mneutralino",&Mneutralino_tchiwg);
 	tree_tchiwg->SetBranchAddress("nVertex",    &nVertex_tchiwg);
 
-	TFile *outputfile_tchiwg = TFile::Open("signalTree_TChiWG.root","RECREATE");
+	TFile *outputfile_tchiwg = TFile::Open(Form("/uscms/home/tmishra/nobackup/signal_trees/signalTree_TChiWG_%d%s.root",RunYear, whichVFP.c_str()),"RECREATE");
 	outputfile_tchiwg->cd();
 
 	TH1D *p_TChiWGMASS = new TH1D("p_TChiWGMASS","",40,287.5,1287.5);
@@ -604,7 +613,7 @@ void analysis_TChiWG(){//main
 
   TChain *mgtree_tchiwg;
   mgtree_tchiwg = new TChain("mgTree","mgTree");
-  mgtree_tchiwg->Add("/uscms_data/d3/mengleis/test/test_TChiWg.root");
+  mgtree_tchiwg->Add(Form("/uscms/home/tmishra/nobackup/signal_trees/resTree_TChiWG_%d%s.root",RunYear, whichVFP.c_str()));
   float phoEt_tchiwg_mg(0);
   float phoEta_tchiwg_mg(0);
   float lepPt_tchiwg_mg(0);
@@ -623,7 +632,6 @@ void analysis_TChiWG(){//main
 	float sigMTJERdo_tchiwg_mg(0);
 	float HTJESup_tchiwg_mg(0);
 	float HTJESdo_tchiwg_mg(0);
-	float gluinoMass_tchiwg_mg(0);
   float charginoMass_tchiwg_mg(0);
   float neutralinoMass_tchiwg_mg(0);
   mgtree_tchiwg->SetBranchAddress("phoEt",      &phoEt_tchiwg_mg);
@@ -634,8 +642,7 @@ void analysis_TChiWG(){//main
   mgtree_tchiwg->SetBranchAddress("sigMET",     &sigMET_tchiwg_mg);
   mgtree_tchiwg->SetBranchAddress("HT",         &HT_tchiwg_mg);
   mgtree_tchiwg->SetBranchAddress("nVertex",    &nVertex_tchiwg_mg);
-	mgtree_tchiwg->SetBranchAddress("Mgluino",    &gluinoMass_tchiwg_mg);
-  mgtree_tchiwg->SetBranchAddress("Mchagino",  &charginoMass_tchiwg_mg);
+  mgtree_tchiwg->SetBranchAddress("Mchargino",  &charginoMass_tchiwg_mg);
   mgtree_tchiwg->SetBranchAddress("Mneutralino",&neutralinoMass_tchiwg_mg);
 	mgtree_tchiwg->SetBranchAddress("sigMETJESup",&sigMETJESup_tchiwg_mg);
 	mgtree_tchiwg->SetBranchAddress("sigMETJESdo",&sigMETJESdo_tchiwg_mg);
@@ -710,7 +717,7 @@ void analysis_TChiWG(){//main
 
   TChain *egtree_tchiwg;
   egtree_tchiwg = new TChain("egTree","egTree");
-  egtree_tchiwg->Add("/uscms_data/d3/mengleis/test/test_TChiWg.root");
+  egtree_tchiwg->Add(Form("/uscms/home/tmishra/nobackup/signal_trees/resTree_TChiWG_%d%s.root",RunYear, whichVFP.c_str()));
   float phoEt_tchiwg_eg(0);
   float phoEta_tchiwg_eg(0);
   float lepPt_tchiwg_eg(0);
@@ -729,7 +736,6 @@ void analysis_TChiWG(){//main
 	float sigMTJERdo_tchiwg_eg(0);
 	float HTJESup_tchiwg_eg(0);
 	float HTJESdo_tchiwg_eg(0);
-	float gluinoMass_tchiwg_eg(0);
   float charginoMass_tchiwg_eg(0);
   float neutralinoMass_tchiwg_eg(0);
   egtree_tchiwg->SetBranchAddress("phoEt",      &phoEt_tchiwg_eg);
@@ -740,8 +746,7 @@ void analysis_TChiWG(){//main
   egtree_tchiwg->SetBranchAddress("sigMET",     &sigMET_tchiwg_eg);
   egtree_tchiwg->SetBranchAddress("HT",         &HT_tchiwg_eg);
   egtree_tchiwg->SetBranchAddress("nVertex",    &nVertex_tchiwg_eg);
-	egtree_tchiwg->SetBranchAddress("Mgluino",    &gluinoMass_tchiwg_eg);
-  egtree_tchiwg->SetBranchAddress("Mchagino",  &charginoMass_tchiwg_eg);
+  egtree_tchiwg->SetBranchAddress("Mchargino",  &charginoMass_tchiwg_eg);
   egtree_tchiwg->SetBranchAddress("Mneutralino",&neutralinoMass_tchiwg_eg);
 	egtree_tchiwg->SetBranchAddress("sigMETJESup",&sigMETJESup_tchiwg_eg);
 	egtree_tchiwg->SetBranchAddress("sigMETJESdo",&sigMETJESdo_tchiwg_eg);
@@ -882,24 +887,24 @@ void analysis_TChiWG(){//main
 		} 
 
 	outputfile_tchiwg->Write();
-	outputfile_tchiwg->Close();
+	outputfile_tchiwg->Close();  
 
 	// ************   T6WG  ***************************
 
-  TFile *file_t6wg = TFile::Open("/uscms_data/d3/mengleis/FullStatusOct/resTree_T6WG.root");
+  TFile *file_t6wg = TFile::Open(Form("/uscms/home/tmishra/nobackup/signal_trees/resTree_T6WG_%d%s.root",RunYear, whichVFP.c_str()));
   TTree *tree_t6wg = (TTree*)file_t6wg->Get("SUSYtree");
 	float Msquark_t6wg(0);
   float Mchargino_t6wg(0);
   float Mneutralino_t6wg(0);
-	tree_t6wg->SetBranchAddress("Msquark",    &Msquark_t6wg);  
+	tree_t6wg->SetBranchAddress("MsGsQ",    &Msquark_t6wg);  
   tree_t6wg->SetBranchAddress("Mchargino",  &Mchargino_t6wg);
   tree_t6wg->SetBranchAddress("Mneutralino",&Mneutralino_t6wg);
 
-	TFile *outputfile_t6wg = TFile::Open("signalTree_T6WG.root","RECREATE");
+	TFile *outputfile_t6wg = TFile::Open(Form("/uscms/home/tmishra/nobackup/signal_trees/signalTree_T6WG_%d%s.root",RunYear, whichVFP.c_str()),"RECREATE");
 	outputfile_t6wg->cd();
 
-	TH2D *p_T6WGMASS = new TH2D("T6WGSUSYMass","",27, 775.0, 2125.0, 80, 12.5, 2012.5);
-	TH2D *p_T6WGselect = new TH2D("p_T6WGselect","",27, 775.0, 2125.0, 80, 12.5, 2012.5); 
+	TH2D *p_T6WGMASS = new TH2D("T6WGSUSYMass","",nXbins, xBins, nYbins, yBins);
+	TH2D *p_T6WGselect = new TH2D("p_T6WGselect","",nXbins, xBins, nYbins, yBins); 
 
 	for(int ievt(0); ievt < tree_t6wg->GetEntries(); ievt++){
 		tree_t6wg->GetEntry(ievt);
@@ -935,61 +940,61 @@ void analysis_TChiWG(){//main
 	for(int i(0); i < NBIN*2; i++){
 		histname.str("");
 		histname << "h_chan" << i+1 << "_rate_nom";
-		t6wg_h_chan_rate_nom[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t6wg_h_chan_rate_nom[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_rate_jesUp";
-		t6wg_h_chan_rate_jesUp[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t6wg_h_chan_rate_jesUp[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_rate_jesDown";
-		t6wg_h_chan_rate_jesDown[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t6wg_h_chan_rate_jesDown[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_rate_jerUp";
-		t6wg_h_chan_rate_jerUp[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t6wg_h_chan_rate_jerUp[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_rate_jerDown";
-		t6wg_h_chan_rate_jerDown[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t6wg_h_chan_rate_jerDown[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_rate_xsUp";
-		t6wg_h_chan_rate_xsUp[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t6wg_h_chan_rate_xsUp[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_rate_esfUp";
-		t6wg_h_chan_rate_esfUp[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t6wg_h_chan_rate_esfUp[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 															
 		histname.str("");
 		histname << "h_chan" << i+1 << "_syserr_jes";
-		t6wg_h_chan_syserr_jes[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t6wg_h_chan_syserr_jes[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_syserr_jer";
-		t6wg_h_chan_syserr_jer[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t6wg_h_chan_syserr_jer[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_syserr_esf";
-		t6wg_h_chan_syserr_esf[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t6wg_h_chan_syserr_esf[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_syserr_scale";
-		t6wg_h_chan_syserr_scale[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t6wg_h_chan_syserr_scale[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_syserr_eleshape";
-		t6wg_h_chan_syserr_eleshape[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t6wg_h_chan_syserr_eleshape[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_syserr_jetshape";
-		t6wg_h_chan_syserr_jetshape[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t6wg_h_chan_syserr_jetshape[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_syserr_qcdshape";
-		t6wg_h_chan_syserr_qcdshape[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t6wg_h_chan_syserr_qcdshape[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_syserr_xs";
-		t6wg_h_chan_syserr_xs[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t6wg_h_chan_syserr_xs[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_syserr_lumi";
-		t6wg_h_chan_syserr_lumi[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t6wg_h_chan_syserr_lumi[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 		histname.str("");
 		histname << "h_chan" << i+1 << "_syserr_isr";
-		t6wg_h_chan_syserr_isr[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),27, 775.0, 2125.0, 80, 12.5, 2012.5);
+		t6wg_h_chan_syserr_isr[i] = new TH2D(histname.str().c_str(),histname.str().c_str(),nXbins, xBins, nYbins, yBins);
 	}
 		
   TChain *mgtree_t6wg;
   mgtree_t6wg = new TChain("mgTree","mgTree");
-  mgtree_t6wg->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_T6WG.root");
+  mgtree_t6wg->Add(Form("/uscms/home/tmishra/nobackup/signal_trees/resTree_T6WG_%d%s.root",RunYear, whichVFP.c_str()));
   float phoEt_t6wg_mg(0);
   float phoEta_t6wg_mg(0);
   float lepPt_t6wg_mg(0);
@@ -1017,7 +1022,7 @@ void analysis_TChiWG(){//main
   mgtree_t6wg->SetBranchAddress("sigMT",      &sigMT_t6wg_mg);
   mgtree_t6wg->SetBranchAddress("sigMET",     &sigMET_t6wg_mg);
   mgtree_t6wg->SetBranchAddress("HT",         &HT_t6wg_mg);
-	mgtree_t6wg->SetBranchAddress("Msquark",    &squarkMass_t6wg_mg);
+	mgtree_t6wg->SetBranchAddress("MsGsQ",    &squarkMass_t6wg_mg);
   mgtree_t6wg->SetBranchAddress("Mchargino",  &charginoMass_t6wg_mg);
   mgtree_t6wg->SetBranchAddress("Mneutralino",&neutralinoMass_t6wg_mg);
 	mgtree_t6wg->SetBranchAddress("sigMETJESup",&sigMETJESup_t6wg_mg);
@@ -1085,7 +1090,7 @@ void analysis_TChiWG(){//main
 
   TChain *egtree_t6wg;
   egtree_t6wg = new TChain("egTree","egTree");
-  egtree_t6wg->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_T6WG.root");
+  egtree_t6wg->Add(Form("/uscms/home/tmishra/nobackup/signal_trees/resTree_T6WG_%d%s.root",RunYear, whichVFP.c_str()));
   float phoEt_t6wg_eg(0);
   float phoEta_t6wg_eg(0);
   float lepPt_t6wg_eg(0);
@@ -1113,7 +1118,7 @@ void analysis_TChiWG(){//main
   egtree_t6wg->SetBranchAddress("sigMT",      &sigMT_t6wg_eg);
   egtree_t6wg->SetBranchAddress("sigMET",     &sigMET_t6wg_eg);
   egtree_t6wg->SetBranchAddress("HT",         &HT_t6wg_eg);
-	egtree_t6wg->SetBranchAddress("Msquark",    &squarkMass_t6wg_eg);
+	egtree_t6wg->SetBranchAddress("MsGsQ",    &squarkMass_t6wg_eg);
   egtree_t6wg->SetBranchAddress("Mchargino",  &charginoMass_t6wg_eg);
   egtree_t6wg->SetBranchAddress("Mneutralino",&neutralinoMass_t6wg_eg);
 	egtree_t6wg->SetBranchAddress("sigMETJESup",&sigMETJESup_t6wg_eg);
@@ -1241,7 +1246,7 @@ void analysis_TChiWG(){//main
 	} 
 
 	outputfile_t6wg->Write();
-	outputfile_t6wg->Close(); */
+	outputfile_t6wg->Close(); 
 
 
   xSecFile.Close();

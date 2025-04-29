@@ -1,4 +1,4 @@
-# usage : python makeTxt.py --Year 16preVFP --Type Data
+# usage : python makeTxt.py --Year 2016preVFP --Type Data
 #!/usr/bin/python
 import os
 from os import system, environ

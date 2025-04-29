@@ -53,6 +53,7 @@ void pred_sig(){
 	float nJetFloat(0);
         int nJetInt(0);
 	int   nBJet(0);	
+
  	sigtree->SetBranchAddress("run",       &run);
   	sigtree->SetBranchAddress("event",     &event);
 	sigtree->SetBranchAddress("lumis",     &lumis);
@@ -73,9 +74,9 @@ void pred_sig(){
         else sigtree->SetBranchAddress("nJet", &nJetInt);
 	sigtree->SetBranchAddress("nBJet",     &nBJet);
 
-	for (unsigned ievt(0); ievt<sigtree->GetEntries(); ++ievt){//loop on entries
+	for (unsigned ievt(0); ievt<sigtree->GetEntries(); ++ievt){
 		sigtree->GetEntry(ievt);
-		if (channelType == 1 && nJetFloat <1 ) continue; // suggestion from convenors
+		if (channelType == 1 && nJetFloat <1 ) continue; // NEW
                 if (channelType == 2 && nJetInt <1 ) continue;
 		p_PU->Fill(nVertex);
 		/** cut flow *****/
