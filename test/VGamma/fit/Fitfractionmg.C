@@ -49,8 +49,6 @@
 #include "../../../include/analysis_tools.h"
 #include "../../../include/tdrstyle.C"
 
-//int RunYear = 2017;
-//bool preVFP = false;
 std::string whichVFP;
 
 int Fitfractionmg(int ih,int metlow, int methigh, int leplow, int lephigh, int isocut, int RunYear, bool preVFP){
@@ -111,9 +109,15 @@ int Fitfractionmg(int ih,int metlow, int methigh, int leplow, int lephigh, int i
 	//fake lepton template
   TH1D *p_proxy = (TH1D*)file_qcd->Get("p_dPhiEleMET");
   TH1D *p_MC;
+	float bkgIntegral = 0.0;
+
 	if(ih < 1000){
 		// VGamma template
 		p_MC = (TH1D*)file_VG->Get("p_dPhiEleMET"); 
+		bkgIntegral = p_proxy->Integral() + p_MC->Integral() + p_rare->Integral() + p_ele->Integral() + p_jet->Integral();
+		if(ih == 0){
+			cout<< "\tJetFakeLep : "<< p_proxy->Integral() << "\tVGamma :"<<p_MC->Integral() << "\tRare : "<< p_rare->Integral() <<"\t efakePho : "<<p_ele->Integral() <<"\t jetfakePho : "<<p_jet->Integral() << "\n";
+			cout<< "\tJetFakeLep : "<< p_proxy->Integral()/bkgIntegral << "\tVGamma :"<<p_MC->Integral()/bkgIntegral << "\tRare : "<< p_rare->Integral()/bkgIntegral <<"\t efakePho : "<<p_ele->Integral()/bkgIntegral <<"\t jetfakePho : "<<p_jet->Integral()/bkgIntegral << "\n"; }
 		gRandom = new TRandom3(0);
 		gRandom->SetSeed(0);
 		double radomMC = gRandom->Gaus(0, 1);
@@ -249,6 +253,8 @@ int Fitfractionmg(int ih,int metlow, int methigh, int leplow, int lephigh, int i
         else if(RunYear==2016 and preVFP == 0)  CMS_lumi( canpt_pad1,2,2, 11 );
         else if(RunYear==2017)                  CMS_lumi( canpt_pad1,3,2, 11 );
         else if(RunYear==2018)                  CMS_lumi( canpt_pad1,4,2, 11 );
+	else if(RunYear==678)                   CMS_lumi( canpt_pad1,7,1, 11 );
+
 
   TLatex chantex;
   chantex.SetNDC();

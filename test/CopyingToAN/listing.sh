@@ -1,3 +1,12 @@
+ls /eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho*2016postVFP.png
+ls /eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho*2016preVFP.png
+ls /eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho*2017.png
+ls /eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho*2018.png
+
+ls /uscms_data/d3/tmishra/Output/*Vali*.png
+ls /uscms_data/d3/tmishra/Output/*Signa*.png
+ls /uscms_data/d3/tmishra/Output/*CR*.png
+
 ls /uscms_data/d3/tmishra/Output/T*WG_Run2*.pdf
 ls /eos/uscms/store/user/tmishra/Plots_myAN/PLOT_PUreweight_2016postVFP.pdf  
 ls /eos/uscms/store/user/tmishra/Plots_myAN/PLOT_PUreweight_2017.pdf
@@ -40,10 +49,11 @@ ls /eos/uscms/store/user/tmishra/Trigger/mgTrigger_ESF_2017.pdf
 ls /eos/uscms/store/user/tmishra/Trigger/mgTrigger_ESF_2016preVFP.pdf   
 ls /eos/uscms/store/user/tmishra/Trigger/mgTrigger_ESF_2018.pdf
 
-ls /eos/uscms/store/user/tmishra/elefakepho/DataFitting2017/Bw_ker/pt/Data_Bw_ker_pt_*
-ls /eos/uscms/store/user/tmishra/elefakepho/DataFitting2016preVFP/Bw_ker/pt/Data_Bw_ker_pt_*
-ls /eos/uscms/store/user/tmishra/elefakepho/DataFitting2016postVFP/Bw_ker/pt/Data_Bw_ker_pt_*
-ls /eos/uscms/store/user/tmishra/elefakepho/DataFitting2018/Bw_ker/pt/Data_Bw_ker_pt_*
+ls /eos/uscms/store/user/tmishra/elefakepho/DATAFitting2017/Data_Bw_ker_pt_*
+ls /eos/uscms/store/user/tmishra/elefakepho/DATAFitting2017/Data_Bw_expo_pt_*
+ls /eos/uscms/store/user/tmishra/elefakepho/DATAFitting2016preVFP/Data_Bw_ker_pt_*
+ls /eos/uscms/store/user/tmishra/elefakepho/DATAFitting2016postVFP/Data_Bw_ker_pt_*
+ls /eos/uscms/store/user/tmishra/elefakepho/DATAFitting2018/Data_Bw_ker_pt_*
 
 
 ls /eos/uscms/store/user/tmishra/elefakepho/Plots/elefake_*_systematic_data*2016postVFP.pdf
@@ -76,22 +86,23 @@ ls /eos/uscms/store/user/tmishra/jetfakepho/Plots2016postVFP/MuonEG/JetFakeRate_
 ls /eos/uscms/store/user/tmishra/jetfakepho/Plots2017/MuonEG/JetFakeRate_transfer_MuonEG_EB_2017.png
 ls /eos/uscms/store/user/tmishra/jetfakepho/Plots2016preVFP/DoubleEG/JetFakeRate_transfer_DoubleEG_EB_2016preVFP.png	/eos/uscms/store/user/tmishra/jetfakepho/Plots2018/DoubleEG/JetFakeRate_transfer_DoubleEG_EB_2018.png
 ls /eos/uscms/store/user/tmishra/jetfakepho/Plots2016preVFP/MuonEG/JetFakeRate_transfer_MuonEG_EB_2016preVFP.png    	/eos/uscms/store/user/tmishra/jetfakepho/Plots2018/MuonEG/JetFakeRate_transfer_MuonEG_EB_2018.png
-
+ls /uscms_data/d3/tmishra/Output/T*WG_Run2_2016-17-2018.pdf
 
 ls /eos/uscms/store/user/tmishra/jetfakepho/Plots2018/DoubleEG/can2D-50-55-DoubleEG-EB.png
 
-ls /eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_*2016postVFP.pdf  
-ls /eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_*2017.pdf
-ls /eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_*2016preVFP.pdf   /eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_*2018.pdf
+ls /eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_*2016postVFP.png
+ls /eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_*2017.png
+ls /eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_*2016preVFP.png   
+ls /eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_*2018.png
 
 
 
-ls /eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_*_2016preVFP.pdf   
-ls /eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_*_2016postVFP.pdf  
+ls /eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_*_2016preVFP.pdf 
+ls /eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_*_2016postVFP.pdf
 ls /eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_*_2017.pdf
 ls /eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_*_2018.pdf
 
-
+ls /eos/uscms/store/user/tmishra/Background/plots/201*/*gamma/SIGNAL_*.png
 
 ls /eos/uscms/store/user/tmishra/VGamma/2016postVFP/WGMixing_2016postVFP.pdf  /eos/uscms/store/user/tmishra/VGamma/2017/WGMixing_2017.pdf
 ls /eos/uscms/store/user/tmishra/VGamma/2016preVFP/WGMixing_2016preVFP.pdf	/eos/uscms/store/user/tmishra/VGamma/2018/WGMixing_2018.pdf
@@ -109,19 +120,3 @@ ls /eos/uscms/store/user/tmishra/VGamma/2016postVFP/VGammaScale_eg_2016postVFP.p
 ls /eos/uscms/store/user/tmishra/VGamma/2016postVFP/VGammaScale_mg_2016postVFP.png  /eos/uscms/store/user/tmishra/VGamma/2017/QCDScale_mg_2017.png             	/eos/uscms/store/user/tmishra/VGamma/2018/VGammaScale_mg_2018.png
 ls /eos/uscms/store/user/tmishra/VGamma/2016preVFP/QCDScale_eg_2016preVFP.png   	/eos/uscms/store/user/tmishra/VGamma/2017/VGammaScale_eg_2017.png
 ls /eos/uscms/store/user/tmishra/VGamma/2016preVFP/QCDScale_mg_2016preVFP.png   	/eos/uscms/store/user/tmishra/VGamma/2017/VGammaScale_mg_2017.png
-
-
-
-
-ls /eos/uscms/store/user/tmishra/Background/plots/2016postVFP/egamma/SIGNAL_egamma_ht_2016postVFP.png   /eos/uscms/store/user/tmishra/Background/plots/2017/egamma/SIGNAL_egamma_ht_2017.png
-ls /eos/uscms/store/user/tmishra/Background/plots/2016postVFP/egamma/SIGNAL_egamma_met_2016postVFP.png  /eos/uscms/store/user/tmishra/Background/plots/2017/egamma/SIGNAL_egamma_met_2017.png
-ls /eos/uscms/store/user/tmishra/Background/plots/2016postVFP/egamma/SIGNAL_egamma_pt_2016postVFP.png   /eos/uscms/store/user/tmishra/Background/plots/2017/egamma/SIGNAL_egamma_pt_2017.png
-ls /eos/uscms/store/user/tmishra/Background/plots/2016postVFP/mgamma/SIGNAL_mg_ht_2016postVFP.png   	/eos/uscms/store/user/tmishra/Background/plots/2017/mgamma/SIGNAL_mg_ht_2017.png
-ls /eos/uscms/store/user/tmishra/Background/plots/2016postVFP/mgamma/SIGNAL_mg_met_2016postVFP.png  	/eos/uscms/store/user/tmishra/Background/plots/2017/mgamma/SIGNAL_mg_met_2017.png
-ls /eos/uscms/store/user/tmishra/Background/plots/2016postVFP/mgamma/SIGNAL_mg_pt_2016postVFP.png   	/eos/uscms/store/user/tmishra/Background/plots/2017/mgamma/SIGNAL_mg_pt_2017.png
-ls /eos/uscms/store/user/tmishra/Background/plots/2016preVFP/egamma/SIGNAL_egamma_ht_2016preVFP.png 	/eos/uscms/store/user/tmishra/Background/plots/2018/egamma/SIGNAL_egamma_ht_2018.png
-ls /eos/uscms/store/user/tmishra/Background/plots/2016preVFP/egamma/SIGNAL_egamma_met_2016preVFP.png	/eos/uscms/store/user/tmishra/Background/plots/2018/egamma/SIGNAL_egamma_met_2018.png
-ls /eos/uscms/store/user/tmishra/Background/plots/2016preVFP/egamma/SIGNAL_egamma_pt_2016preVFP.png 	/eos/uscms/store/user/tmishra/Background/plots/2018/egamma/SIGNAL_egamma_pt_2018.png
-ls /eos/uscms/store/user/tmishra/Background/plots/2016preVFP/mgamma/SIGNAL_mg_ht_2016preVFP.png     	/eos/uscms/store/user/tmishra/Background/plots/2018/mgamma/SIGNAL_mg_ht_2018.png
-ls /eos/uscms/store/user/tmishra/Background/plots/2016preVFP/mgamma/SIGNAL_mg_met_2016preVFP.png    	/eos/uscms/store/user/tmishra/Background/plots/2018/mgamma/SIGNAL_mg_met_2018.png
-ls /eos/uscms/store/user/tmishra/Background/plots/2016preVFP/mgamma/SIGNAL_mg_pt_2016preVFP.png     	/eos/uscms/store/user/tmishra/Background/plots/2018/mgamma/SIGNAL_mg_pt_2018.png

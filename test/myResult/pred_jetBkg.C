@@ -1,6 +1,7 @@
+#include <TROOT.h>
 #include "../../include/analysis_commoncode.h"
 #define NTOY 1000
-bool useGaussFit;
+bool useGaussFit=false;
 
 struct runinfo{
 	int runN;
@@ -23,7 +24,7 @@ void pred_jetBkg(){
 	SetSignalConfig();
 	binning Bin(NBIN, METbin1, METbin2, HTbin1, HTbin2, PHOETbin);
 	setTDRStyle();
-
+	gROOT->SetBatch(true);
   	gSystem->Load("../../lib/libAnaClasses.so");
   	int channelType = ichannel; // eg = 1; mg =2;
 	
@@ -31,7 +32,18 @@ void pred_jetBkg(){
 	if(RunYear==2016 and preVFP == 1) whichVFP = "preVFP";
 	else if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
         else whichVFP = "";
-	
+
+	if(RunYear==2016 and preVFP == 1) useGaussFit=true;
+	float correction = 1.0;
+	if (RunYear == 2016 and preVFP == 1 and ichannel == 1) correction = 0.816828;
+        else if (RunYear == 2016 and preVFP == 1 and ichannel == 2) correction = 1.11658;
+        else if (RunYear == 2016 and preVFP == 0 and ichannel == 1) correction = 0.788482;
+        else if (RunYear == 2016 and preVFP == 0 and ichannel == 2) correction = 1.03158;
+        else if (RunYear == 2017 and ichannel == 1) correction = 0.866308;
+        else if (RunYear == 2017 and ichannel == 2) correction = 1.00739;
+        else if (RunYear == 2018 and ichannel == 1) correction = 0.713093;
+        else if (RunYear == 2018 and ichannel == 2) correction = 0.976136;
+
 	gRandom = new TRandom3(0);
 	gRandom->SetSeed(0);
 	double randomweight_jet[1000];
@@ -39,10 +51,10 @@ void pred_jetBkg(){
 	for(unsigned ir(1); ir<1000; ir++)	
 		randomweight_jet[ir] = gRandom->Gaus(0, 0.333);
 
-	TF1 *fitfunc_num = new TF1("fitfunc_num",jetfake_func,35,10000,4);
-	TF1 *fitfunc_den = new TF1("fitfunc_den",jetfake_func,35,10000,4);
-	TF1 *fitfunc_num_alt = new TF1("fitfunc_num_alt",jetfake_func,35,10000,4);
-	TF1 *fitfunc_den_alt = new TF1("fitfunc_den_alt",jetfake_func,35,10000,4);
+	TF1 *fitfunc_num = new TF1("fitfunc_num", Exp2c_Func,35,10000,6);
+	TF1 *fitfunc_den = new TF1("fitfunc_den", Exp2c_Func,35,10000,6);
+	TF1 *fitfunc_num_alt = new TF1("fitfunc_num_alt", Exp2c_Func,35,10000,6);
+	TF1 *fitfunc_den_alt = new TF1("fitfunc_den_alt", Exp2c_Func,35,10000,6);
 	double jetfake_numerror[265];
 	double jetfake_denerror[265];
 	
@@ -53,12 +65,12 @@ void pred_jetBkg(){
 	std::ifstream jetfakefile(JetFakeRateFile.str().c_str());
 	std::string paratype;
 	float paravalue;	
-	for(int i(0); i < 4; i++){
+	for(int i(0); i < 6; i++){
 		jetfakefile >> paratype >> paravalue;
 		fitfunc_den->SetParameter(i, paravalue);
 		std::cout << paratype << " " << paravalue << std::endl;
 	}
-	for(int i(0); i < 4; i++){
+	for(int i(0); i < 6; i++){
 		jetfakefile >> paratype >> paravalue;
 		fitfunc_num->SetParameter(i, paravalue);
 		std::cout << paratype << " " << paravalue << std::endl;
@@ -80,11 +92,11 @@ void pred_jetBkg(){
 	if(channelType==1)AltJetFakeRateFile << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<whichVFP<<"/JetFakeRate-transferfactor-DoubleEG-EB.txt";
 	if(channelType==2)AltJetFakeRateFile << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<whichVFP<<"/JetFakeRate-transferfactor-MuonEG-EB.txt";
 	std::ifstream Altjetfakefile(AltJetFakeRateFile.str().c_str());
-	for(int i(0); i < 4; i++){
+	for(int i(0); i < 6; i++){
 		Altjetfakefile >> paratype >> paravalue;
 		fitfunc_den_alt->SetParameter(i, paravalue);
 	}
-	for(int i(0); i < 4; i++){
+	for(int i(0); i < 6; i++){
 		Altjetfakefile >> paratype >> paravalue;
 		fitfunc_num_alt->SetParameter(i, paravalue);
 	}
@@ -208,7 +220,7 @@ void pred_jetBkg(){
 		if(channelType==1)
 		jettree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
                 if(channelType==2)
-		jettree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
+		jettree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
 
   		int   run(0);
   		Long64_t  event(0);
@@ -266,8 +278,6 @@ void pred_jetBkg(){
 	 
 		for (unsigned ievt(0); ievt<jettree->GetEntries(); ++ievt){
 			jettree->GetEntry(ievt);
-			if (channelType == 1 && nJetFloat <1 ) continue; // NEW
-                        if (channelType == 2 && nJetInt <1 ) continue;
 			
 			p_PU->Fill(nVertex);
 			/** cut flow *****/
@@ -283,33 +293,19 @@ void pred_jetBkg(){
 			if(phoEt < 300)evalphoEt = phoEt;
 			else evalphoEt = phoEt;
 			double w_jet(0);
-			w_jet = fitfunc_num->Eval(evalphoEt)/fitfunc_den->Eval(evalphoEt);
+			w_jet = correction*fitfunc_num->Eval(evalphoEt)/fitfunc_den->Eval(evalphoEt);
 
 			double jetfakeerror(0);
 			for(int ipt(0); ipt < 264; ipt++){
-				if(evalphoEt >= ipt+35 && evalphoEt < ipt+1+35)jetfakeerror = sqrt(jetfake_numerror[ipt]*jetfake_numerror[ipt] + jetfake_denerror[ipt]*jetfake_denerror[ipt]*w_jet*w_jet)/fitfunc_den->Eval(evalphoEt);
-			}
+				if(evalphoEt >= ipt+35 && evalphoEt < ipt+1+35)
+					jetfakeerror = sqrt(jetfake_numerror[ipt]*jetfake_numerror[ipt] + jetfake_denerror[ipt]*jetfake_denerror[ipt]*w_jet*w_jet)/fitfunc_den->Eval(evalphoEt);}
 			double sysJetFakePho = jetfakeerror/w_jet;	
 
 			p_MET->Fill(sigMET,w_jet);
-
 			p_MET_nom->Fill(sigMET,w_jet);
-		//	if(phoChIso < 5)p_MET_stat->Fill(sigMET);
-		//	if(phoChIso < 5)p_MET_alt->Fill(sigMET, fitfunc_num_alt->Eval(phoEt)/fitfunc_den_alt->Eval(phoEt));
-		//	if(sigMT > 100 && sigMET > 120){
-		//		p_HT_nom->Fill(HT, w_jet);
-		//		p_ET_nom->Fill(phoEt,w_jet);
-		//		if(phoChIso < 5)p_HT_stat->Fill(HT);
-		//		if(phoChIso < 5)p_ET_stat->Fill(phoEt);
-		//		//p_ET_stat->Fill(phoEt);
-		//		if(phoChIso < 5)p_HT_alt->Fill(HT, fitfunc_num_alt->Eval(evalphoEt)/fitfunc_den_alt->Eval(evalphoEt));
-		//		if(phoChIso < 5)p_ET_alt->Fill(phoEt, fitfunc_num_alt->Eval(evalphoEt)/fitfunc_den_alt->Eval(evalphoEt));
-		//		std::cout << phoEt << " " << w_jet << " " << fitfunc_num_alt->Eval(evalphoEt)/fitfunc_den_alt->Eval(evalphoEt) << std::endl;
-		//	}
 
 			for(unsigned ih(0); ih<NTOY; ih++){
-				toy_MET[ih]->Fill(sigMET,w_jet*(1+sysJetFakePho*randomweight_jet[ih]));
-			}
+				toy_MET[ih]->Fill(sigMET,w_jet*(1+sysJetFakePho*randomweight_jet[ih]));}
 
 			/** cut flow *****/
 			if(sigMET < lowMET)continue;

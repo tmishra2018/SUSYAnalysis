@@ -141,6 +141,7 @@ void pred_rareBkg(){
 	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WZG_%d%s.root",RunYear,whichVFP.c_str()));   //  6 times large
 	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WW_%d%s.root",RunYear,whichVFP.c_str()));     // ~ 0 entries
 	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WZ_%d%s.root",RunYear,whichVFP.c_str()));     // 0 entries
+	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_ZZ_%d%s.root",RunYear,whichVFP.c_str()));     // 0 entries
 
 	float crosssection(0);
 	float ntotalevent(0);
@@ -228,7 +229,6 @@ void pred_rareBkg(){
 
 	for(unsigned ievt(0); ievt < mctree->GetEntries(); ievt++){
 		mctree->GetEntry(ievt);
-		if(nJet <1)continue;  // NEW
 		p_PU->Fill(nVertex,PUweight);
 		double scalefactor(0);
 		double scalefactorup(0);

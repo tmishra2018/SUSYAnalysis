@@ -156,11 +156,17 @@ void analysis_VGamma_Year17_18(int RunYear, const char *Sample){//main
                 std::cout << "WZ sample !" << std::endl;
                 mcType = MCType::WZ;
   }
+  else if(strstr(inputfile, "ZZ") != NULL){
+                std::cout << "ZZ sample !" << std::endl;
+                mcType = MCType::ZZ;
+  }
 
 
   if(datatype == MC && mcType == MCType::NOMC){std::cout << "wrong MC type" << std::endl; throw;} 
   logfile << "mcType" << mcType << std::endl;
 
+  TH1F *h_dReg = new TH1F("h_dReg", "DeltaR(electron, photon);#DeltaR(e, #gamma);Events", 50, 0, 5.0);
+  TH1F *h_dRmg = new TH1F("h_dRmg", "DeltaR(muon, photon);#DeltaR(#mu, #gamma);Events", 50, 0, 5.0);
 
   float eg_Z_mass(0);
   float eg_Z_lep1_pt(0);
@@ -664,7 +670,8 @@ if (totalZCandidates > 1)
 ///*************************   eg filters *****************************//
         if(hasegPho && hasEle && (((raw.HLTPho >> 14)&1)==1)){ // Year = 2016 Year = 2017
           double dReg = DeltaR(egsignalPho->getEta(), egsignalPho->getPhi(), signalEle->getEta(), signalEle->getPhi()); 
-          if(dReg>0.8){
+          h_dReg->Fill(dReg);
+	  if(dReg>0.8){
             	if(((egsignalPho->getP4()+signalEle->getP4()).M() - 91.188) > 10.0){
               if(passFilter(METFilter)){
 
@@ -780,6 +787,7 @@ if (hasZCandidate) {
  
        if(hasmgPho && hasMu && (((raw.HLTEleMuX >> 8)&1)!=0 || ((raw.HLTEleMuX >> 57)&1)!=0) && !hasDoubleEG){ // Year = 2017
 					double dRmg = DeltaR(mgsignalPho->getEta(), mgsignalPho->getPhi(), signalMu->getEta(), signalMu->getPhi());
+					h_dRmg->Fill(dRmg);
 					if(dRmg>0.8){
 						if(passFilter(METFilter)){ 
 
@@ -899,6 +907,8 @@ if (hasZCandidate) {
 
 
 outputfile->Write();
+h_dReg->Write();
+h_dRmg->Write();
 outputfile->Close();
 logfile.close();
 

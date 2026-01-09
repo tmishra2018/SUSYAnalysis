@@ -4,26 +4,25 @@
 #include<sstream>
 #include<algorithm>
 
-#include	"/eos/uscms/store/user/tmishra/elefakepho/DataResult2016preVFP/result_eta_dependence_Data.txt"
-#include	"/eos/uscms/store/user/tmishra/elefakepho/DataResult2016postVFP/result_eta_dependence_Data.txt"
-#include	"/eos/uscms/store/user/tmishra/elefakepho/DataResult2017/result_eta_dependence_Data.txt"
-#include	"/eos/uscms/store/user/tmishra/elefakepho/DataResult2018/result_eta_dependence_Data.txt"
+#include	"/eos/uscms/store/user/tmishra/elefakepho/DATAResult2016preVFP/result_eta_dependence_Data.txt"
+#include	"/eos/uscms/store/user/tmishra/elefakepho/DATAResult2016postVFP/result_eta_dependence_Data.txt"
+#include	"/eos/uscms/store/user/tmishra/elefakepho/DATAResult2017/result_eta_dependence_Data.txt"
+#include	"/eos/uscms/store/user/tmishra/elefakepho/DATAResult2018/result_eta_dependence_Data.txt"
 
-#include	"/eos/uscms/store/user/tmishra/elefakepho/DataResult2016preVFP/result_eta_dependence_Data_EE.txt"
-#include	"/eos/uscms/store/user/tmishra/elefakepho/DataResult2016postVFP/result_eta_dependence_Data_EE.txt"
-#include	"/eos/uscms/store/user/tmishra/elefakepho/DataResult2017/result_eta_dependence_Data_EE.txt"
-#include	"/eos/uscms/store/user/tmishra/elefakepho/DataResult2018/result_eta_dependence_Data_EE.txt"
+#include	"/eos/uscms/store/user/tmishra/elefakepho/DATAResult2016preVFP/result_eta_dependence_Data_EE.txt"
+#include	"/eos/uscms/store/user/tmishra/elefakepho/DATAResult2016postVFP/result_eta_dependence_Data_EE.txt"
+#include	"/eos/uscms/store/user/tmishra/elefakepho/DATAResult2017/result_eta_dependence_Data_EE.txt"
+#include	"/eos/uscms/store/user/tmishra/elefakepho/DATAResult2018/result_eta_dependence_Data_EE.txt"
 
+#include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2016preVFP/result_eta_dependence_DY.txt"
+#include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2016postVFP/result_eta_dependence_DY.txt"
+#include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2017/result_eta_dependence_DY.txt"
+#include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2018/result_eta_dependence_DY.txt"
 
-// #include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2016preVFP/result_eta_dependence_DY.txt"
-// #include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2016postVFP/result_eta_dependence_DY.txt"
-// #include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2017/result_eta_dependence_DY.txt"
-// #include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2018/result_eta_dependence_DY.txt"
-
-// #include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2016preVFP/result_eta_dependence_DY_EE.txt"
-// #include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2016postVFP/result_eta_dependence_DY_EE.txt"
-// #include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2017/result_eta_dependence_DY_EE.txt"
-// #include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2018/result_eta_dependence_DY_EE.txt"
+#include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2016preVFP/result_eta_dependence_DY_EE.txt"
+#include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2016postVFP/result_eta_dependence_DY_EE.txt"
+#include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2017/result_eta_dependence_DY_EE.txt"
+#include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2018/result_eta_dependence_DY_EE.txt"
 
 
 std::ifstream configfile("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/myResult/SigConfig.txt");
@@ -74,21 +73,21 @@ Double_t fakerate_func(Double_t *x, Double_t *par)
 				else if (runyear==2018) 		weight_eta = etaRatesEB_2018[ieta];
 			}
 	}
-	else if(eta > 1.56 && eta <= 2.5){
-		for(int ieta(0); ieta < 94; ieta++)
-			if(eta > 1.56 + ieta*0.01 && eta <= 1.56+(ieta+1)*0.01){
-				if (runyear==2016 and prevfp==1) 	weight_eta = etaRatesEE_2016preVFP[ieta];
-				else if (runyear==2016 and prevfp==0) 	weight_eta = etaRatesEE_2016postVFP[ieta];
-				else if (runyear==2017) 		weight_eta = etaRatesEE_2017[ieta];
-				else if (runyear==2018) 		weight_eta = etaRatesEE_2018[ieta];
-			}
-	}
+	else if (eta > 1.56 && eta <= 2.5) {
+                 for (int ieta = 0; ieta < 19; ieta++)
+                        if (eta > 1.55 + ieta * 0.05 && eta <= 1.55 + (ieta + 1) * 0.05) {
+                                if (runyear==2016 and prevfp==1)                weight_eta = etaRatesEE_2016preVFP[ieta];
+                                else if (runyear==2016 and prevfp==0)           weight_eta = etaRatesEE_2016postVFP[ieta];
+                                else if (runyear==2017)                         weight_eta = etaRatesEE_2017[ieta];
+                                else if (runyear==2018)                         weight_eta = etaRatesEE_2018[ieta];}
+        }
+
 	else weight_eta = 0;
 	double totalfakerate= normfactor*weight_pt*weight_nvtx*weight_eta;
 	return totalfakerate;
 }
 
-/*Double_t mcfakerate_func(Double_t *x, Double_t *par)
+Double_t mcfakerate_func(Double_t *x, Double_t *par)
 {
 	double weight_pt(0.02);
 	double weight_nvtx(0.02);
@@ -119,36 +118,20 @@ Double_t fakerate_func(Double_t *x, Double_t *par)
 				else if (runyear==2017) 		weight_eta = MCetaRatesEB_2017[ieta];
 				else if (runyear==2018) 		weight_eta = MCetaRatesEB_2018[ieta];}
 	}
-	else if(eta > 1.56 && eta <= 2.5){
-		for(int ieta(0); ieta < 94; ieta++)
-			if(eta > 1.56 + ieta*0.01 && eta <= 1.56+(ieta+1)*0.01){
-				if (RunYear==2016 and preVFP==1)        	weight_eta = MCetaRatesEE_2016preVFP[ieta];
-				else if (RunYear==2016 and preVFP==0)        	weight_eta = MCetaRatesEE_2016postVFP[ieta];
-				else if (RunYear==2017)        			weight_eta = MCetaRatesEE_2017[ieta];
-				else if (RunYear==2018)        			weight_eta = MCetaRatesEE_2018[ieta];}
+	else if (eta > 1.56 && eta <= 2.5) {
+		 for (int ieta = 0; ieta < 19; ieta++)
+        		if (eta > 1.55 + ieta * 0.05 && eta <= 1.55 + (ieta + 1) * 0.05) {
+				if (runyear==2016 and prevfp==1)        	weight_eta = MCetaRatesEE_2016preVFP[ieta];
+				else if (runyear==2016 and prevfp==0)        	weight_eta = MCetaRatesEE_2016postVFP[ieta];
+				else if (runyear==2017)        			weight_eta = MCetaRatesEE_2017[ieta];
+				else if (runyear==2018)        			weight_eta = MCetaRatesEE_2018[ieta];}
+		 
 	}
 	else weight_eta = 0;
 
 	double totalfakerate= normfactor*weight_pt*weight_nvtx*weight_eta;
 	return totalfakerate;
 }
-*/
-
-//Double_t jetfake_func(Double_t *x, Double_t *par)
-//{
-//	double pt_low = x[0] - 1.0/2.0;
-//	double pt_high = x[0]+ 1.0/2.0;
-//
-//	double c1 = par[0];
-//	double c2 = par[1];
-//	double lamda1 = par[2];
-//	double lamda2 = par[3];
-//
-//	double jetfakes_lowedge = c1*exp(lamda1*pt_low)/lamda1 + c2*exp(lamda2*pt_low)/lamda2;
-//	double jetfakes_highedge =  c1*exp(lamda1*pt_high)/lamda1 + c2*exp(lamda2*pt_high)/lamda2;
-//	//return (jetfakes_highedge + jetfakes_lowedge)/2.0*REBINSIZE;
-//	return (jetfakes_highedge - jetfakes_lowedge);
-//}
 
 Double_t jetfake_func(Double_t *x, Double_t *par)
 {
@@ -165,4 +148,36 @@ Double_t jetfake_func(Double_t *x, Double_t *par)
 	//return (jetfakes_highedge + jetfakes_lowedge)/2.0*REBINSIZE;
 	return (jetfakes_highedge - jetfakes_lowedge);
 }
+double Exp_Safe(double x) {
+    if (x > 700) return std::exp(700);   // prevent overflow
+    if (x < -700) return std::exp(-700); // prevent underflow
+    return std::exp(x);
+}
+double Exp2c_Func(double *x, double *par) {
+    double pt = x[0];
+    double c1 = par[0];
+    double c2 = par[1];
+    double lamda1 = par[2];
+    double lamda2 = par[3];
+    double shift = par[4];
+    double offset = par[5];
 
+    double arg1 = -lamda1 * pt;
+    double arg2 = -lamda2 * (pt - shift - 200);
+
+    double term1 = c1 * Exp_Safe(arg1);
+    double term2 = c2 * Exp_Safe(arg2);
+    double value = term1 + term2 + offset;
+
+    if (!std::isfinite(value)) {
+        std::cout << "[WARNING] Non-finite value at pt = " << pt
+                  << ", arg1 = " << arg1
+                  << ", arg2 = " << arg2
+                  << ", shift = " << shift
+                  << ", lamda1 = " << lamda1
+                  << ", lamda2 = " << lamda2
+                  << std::endl;
+    }
+
+    return value;
+}

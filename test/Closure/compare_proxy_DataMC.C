@@ -42,7 +42,7 @@
 
 	TChain *proxytreeData = new TChain("proxyTree");
         if(channelType==1)proxytreeData->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",Year,whichVFP.c_str()));
-        if(channelType==2)proxytreeData->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",Year,whichVFP.c_str()));
+        if(channelType==2)proxytreeData->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",Year,whichVFP.c_str()));
 	float phoEt(0);
 	float phoEta(0);
 	float phoPhi(0);

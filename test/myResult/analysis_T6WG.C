@@ -21,7 +21,7 @@ void analysis_T6WG(){//main
 	TH1D *p_crosssection_t6wg   = (TH1D*)xSecFile.Get("p_squarkxSec");
 
 	TChain *datachain = new TChain("signalTree");
- 	datachain->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
+ 	datachain->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
 	TH1D *p_PU_data = new TH1D("p_PU_data",";N_{vtx};",100,0,100); 
   	datachain->Draw("nVertex >> p_PU_data");
 	p_PU_data->Scale(1.0/p_PU_data->Integral(1,101));

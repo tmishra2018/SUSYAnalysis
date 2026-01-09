@@ -56,8 +56,8 @@ void analysis_mgMC(int RunYear, bool preVFP, const char *Sample){//main
   TChain* es = new TChain("ggNtuplizer/EventTree");
   char* inputfile = new char[300];
   
-  if (strstr(Sample, "DYJetsToLL") != NULL or strstr(Sample, "TTJets") != NULL or strstr(Sample, "WJetsToLNu"))
-        sprintf(inputfile,"/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());
+  if (strstr(Sample, "DYJetsToLL") != NULL or strstr(Sample, "TTJets") != NULL)
+  	   sprintf(inputfile,"/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());
   else
         sprintf(inputfile,"/eos/uscms/store/user/tmishra/InputFilesMC/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());
   es->Add(inputfile);
@@ -503,7 +503,7 @@ void analysis_mgMC(int RunYear, bool preVFP, const char *Sample){//main
 			miniisoLep.clear();
 			for(std::vector<recoMuon>::iterator itMu = Muon.begin(); itMu != Muon.end(); itMu++){
 				if(itMu->isMedium() && itMu->getPt() > 15 && itMu->getMiniIso() < 0.2)miniisoLep.push_back(itMu);
-				if(itMu->getPt() < 20)continue;
+				if(itMu->getPt() < 25)continue;
 				if(!itMu->passHLTSelection())continue;
 				// fake lepton
 				if(itMu->isFakeProxy())fakeLepCollection.push_back(itMu);
@@ -526,7 +526,7 @@ void analysis_mgMC(int RunYear, bool preVFP, const char *Sample){//main
 				double dRlepphoton = DeltaR(signalPho->getEta(), signalPho->getPhi(), signalLep->getEta(), signalLep->getPhi());
 				if(dRlepphoton > 0.8){
 					npassdR+=1;
-					if(raw.passMETFilter(METFilter)){ 
+					if(raw.passMETFilter(RunYear,METFilter)){ 
 						npassMETFilter +=1;
 						if(fabs((signalPho->getCalibP4()+signalLep->getP4()).M() - 91.188) > 10.0)npassZ+=1;
 
@@ -599,7 +599,7 @@ void analysis_mgMC(int RunYear, bool preVFP, const char *Sample){//main
 			std::vector<recoMuon>::iterator proxyMuon = proxyLepCollection[ie];
 			double dRlepphoton = DeltaR(proxyPho->getEta(), proxyPho->getPhi(), proxyMuon->getEta(), proxyMuon->getPhi());
 			if(dRlepphoton>0.8){
-			if(raw.passMETFilter(METFilter)){
+			if(raw.passMETFilter(RunYear,METFilter)){
 
 				float proxy_deltaPhi = DeltaPhi(proxyMuon->getPhi(), METPhi);
 				float proxy_MT = sqrt(2*MET*proxyMuon->getPt()*(1-std::cos(proxy_deltaPhi)));
@@ -651,7 +651,7 @@ void analysis_mgMC(int RunYear, bool preVFP, const char *Sample){//main
 			std::vector<recoMuon>::iterator jetMuon = proxyLepCollection[ie];
 			double dRlepphoton = DeltaR(jetPho->getEta(), jetPho->getPhi(), jetMuon->getEta(), jetMuon->getPhi());
 			if(dRlepphoton>0.8){
-			if(raw.passMETFilter(METFilter)){
+			if(raw.passMETFilter(RunYear,METFilter)){
 
 				float jet_deltaPhi = DeltaPhi(jetMuon->getPhi(), METPhi);
 				float jet_MT = sqrt(2*MET*jetMuon->getPt()*(1-std::cos(jet_deltaPhi)));
@@ -701,7 +701,7 @@ void analysis_mgMC(int RunYear, bool preVFP, const char *Sample){//main
 				std::vector<recoMuon>::iterator fakeMu = fakeLepCollection[ip];
 				double dRlepphoton = DeltaR(fakeLepPho->getEta(), fakeLepPho->getPhi(), fakeMu->getEta(), fakeMu->getPhi());
 				if(dRlepphoton>0.8){
-					if(raw.passMETFilter(METFilter)){
+					if(raw.passMETFilter(RunYear,METFilter)){
 
 						float fakeLep_deltaPhi = DeltaPhi(fakeMu->getPhi(), METPhi);
 						float fakeLep_MT = sqrt(2*MET*fakeMu->getPt()*(1-std::cos(fakeLep_deltaPhi)));
@@ -761,7 +761,7 @@ void analysis_mgMC(int RunYear, bool preVFP, const char *Sample){//main
 				double DeltaPhoLep = DeltaR(hadronPho->getEta(), hadronPho->getPhi(), signalLep->getEta(), signalLep->getPhi());
 				double DoubleMass  = (hadronPho->getP4()+signalLep->getP4()).M();
 				if(DeltaPhoLep > 0.8){
-				if(raw.passMETFilter(METFilter)){
+				if(raw.passMETFilter(RunYear,METFilter)){
 					float deltaPhi = DeltaPhi(signalLep->getPhi(), METPhi);
 					float MT = sqrt(2*MET*signalLep->getPt()*(1-std::cos(deltaPhi)));
 					hadron_phoEt = hadronPho->getCalibEt();
@@ -783,7 +783,7 @@ void analysis_mgMC(int RunYear, bool preVFP, const char *Sample){//main
 					std::vector<recoPhoton>::iterator proxyPho = hadeleproxyPhoCollection[ip];
 					std::vector<recoMuon>::iterator proxyMuon = proxyLepCollection[ie];
 					double dRlepphoton = DeltaR(proxyPho->getEta(), proxyPho->getPhi(), proxyMuon->getEta(), proxyMuon->getPhi());
-					if(dRlepphoton>0.8 && raw.passMETFilter(METFilter)){
+					if(dRlepphoton>0.8 && raw.passMETFilter(RunYear,METFilter)){
 						hadron_eleproxyEt.push_back(proxyPho->getCalibEt());
 						hadron_eleproxyEta.push_back(proxyPho->getEta());
 						hadron_eleproxyPhi.push_back(proxyPho->getPhi());
@@ -824,6 +824,8 @@ p_eventcount->Fill("passMuon",npassLep);
 p_eventcount->Fill("passdR",npassdR);
 p_eventcount->Fill("passMETFilter",npassMETFilter);
 p_eventcount->Fill("passZ",npassZ);
+cout<< "signal tree entries "<< sigtree->GetEntries()<<endl;
+cout<< "proxy tree entries "<< proxytree->GetEntries()<<endl;
 
 outputfile->Write();
 logfile.close();

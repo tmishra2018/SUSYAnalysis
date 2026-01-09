@@ -28,7 +28,7 @@ void analysis_eg(int RunYear, const char *Era){//main
   std::cout << "Total event: " << nEvts << std::endl;
   logfile << "Output file: " << "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_"<<RunYear<<Era<<".root" << std::endl;
 
-  int nTotal(0),npassHLT(0), npassPho(0), npassLep(0), npassdR(0), npassZ(0), npassMETFilter(0);
+  int nTotal(0),npassHLT(0), npassPho(0), npassLep(0), npassLepPho(0), npassdR(0), npassZ(0), npassMETFilter(0);
 
   TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,Era),"RECREATE");
   outputfile->cd();
@@ -65,11 +65,6 @@ void analysis_eg(int RunYear, const char *Era){//main
   std::vector<int>   mcMomPID;
   std::vector<int>   mcGMomPID;
 
-  float sig_Z_mass(0);
-  float sig_Z_lep1_pt(0);
-  float sig_Z_lep2_pt(0);
-  bool sig_hasZCandidate = false;
-
   sigtree->Branch("run",       &run);
   sigtree->Branch("event",     &event);
   sigtree->Branch("lumis",     &lumis);
@@ -99,10 +94,6 @@ void analysis_eg(int RunYear, const char *Era){//main
   	sigtree->Branch("mcMomPID",  &mcMomPID);
   	sigtree->Branch("mcGMomPID", &mcGMomPID);
   }
-  	sigtree->Branch("Z_mass", &sig_Z_mass);
-  	sigtree->Branch("Z_lep1_pt", &sig_Z_lep1_pt);
-  	sigtree->Branch("Z_lep2_pt", &sig_Z_lep2_pt);
-  	sigtree->Branch("hasZCandidate", &sig_hasZCandidate);
 
 //************ Signal Tree **********************//
   TTree *proxytree = new TTree("proxyTree","proxyTree");
@@ -125,10 +116,6 @@ void analysis_eg(int RunYear, const char *Era){//main
   float proxytrailPt(0);
   float proxytrailEta(0);
   float proxytrailPhi(0);
-  float proxy_Z_mass(0);
-  float proxy_Z_lep1_pt(0);
-  float proxy_Z_lep2_pt(0);
-  bool proxy_hasZCandidate = false;
   
   proxytree->Branch("run",       &run);
   proxytree->Branch("event",     &event);
@@ -154,10 +141,6 @@ void analysis_eg(int RunYear, const char *Era){//main
   proxytree->Branch("trailEta",  &proxytrailEta);
   proxytree->Branch("trailPhi",  &proxytrailPhi);
 
-  	proxytree->Branch("Z_mass", &proxy_Z_mass);
-  	proxytree->Branch("Z_lep1_pt", &proxy_Z_lep1_pt);
-  	proxytree->Branch("Z_lep2_pt", &proxy_Z_lep2_pt);
-  	proxytree->Branch("hasZCandidate", &proxy_hasZCandidate);
 //************ Signal Tree **********************//
   TTree *jettree = new TTree("jetTree","jetTree");
   float jetphoEt(0);
@@ -179,10 +162,6 @@ void analysis_eg(int RunYear, const char *Era){//main
   float jettrailPt(0);
   float jettrailEta(0);
   float jettrailPhi(0);
-  float jet_Z_mass(0);
-  float jet_Z_lep1_pt(0);
-  float jet_Z_lep2_pt(0);
-  bool jet_hasZCandidate = false;
   
   jettree->Branch("run",       &run);
   jettree->Branch("event",     &event);
@@ -208,10 +187,6 @@ void analysis_eg(int RunYear, const char *Era){//main
   jettree->Branch("trailEta",  &jettrailEta);
   jettree->Branch("trailPhi",  &jettrailPhi);
   
-  	jettree->Branch("Z_mass", &jet_Z_mass);
-  	jettree->Branch("Z_lep1_pt", &jet_Z_lep1_pt);
-  	jettree->Branch("Z_lep2_pt", &jet_Z_lep2_pt);
-  	jettree->Branch("hasZCandidate", &jet_hasZCandidate);
 //*********** fake lepton *********************//
   TTree *fakeLeptree = new TTree("fakeLepTree","fakeLepTree");
   float fakeLepphoEt(0);
@@ -237,10 +212,6 @@ void analysis_eg(int RunYear, const char *Era){//main
   float fakeLeptrailPt(0);
   float fakeLeptrailEta(0);
   float fakeLeptrailPhi(0);
-  float fakeLep_Z_mass(0);
-  float fakeLep_Z_lep1_pt(0);
-  float fakeLep_Z_lep2_pt(0);
-  bool fakeLep_hasZCandidate = false;
   
   
   fakeLeptree->Branch("run",       &run);
@@ -270,10 +241,6 @@ void analysis_eg(int RunYear, const char *Era){//main
   fakeLeptree->Branch("trailPt",   &fakeLeptrailPt);
   fakeLeptree->Branch("trailEta",  &fakeLeptrailEta);
   fakeLeptree->Branch("trailPhi",  &fakeLeptrailPhi);
-  fakeLeptree->Branch("Z_mass", &fakeLep_Z_mass);
-  fakeLeptree->Branch("Z_lep1_pt", &fakeLep_Z_lep1_pt);
-  fakeLeptree->Branch("Z_lep2_pt", &fakeLep_Z_lep2_pt);
-  fakeLeptree->Branch("hasZCandidate", &fakeLep_hasZCandidate);
 
 //*************** for jet-photon fake rate ***********************//
 	TTree *hadrontree = new TTree("hadronTree","hadronTree");
@@ -300,10 +267,6 @@ void analysis_eg(int RunYear, const char *Era){//main
 	std::vector<float> hadron_mcPhi;
 	std::vector<float> hadron_mcPt;
 	std::vector<int> hadron_mcMomPID;
-  float hadron_Z_mass(0);
-  float hadron_Z_lep1_pt(0);
-  float hadron_Z_lep2_pt(0);
-  bool hadron_hasZCandidate = false;
 
 	hadrontree->Branch("phoEt",     &hadron_phoEt);
 	hadrontree->Branch("phoEta",    &hadron_phoEta);
@@ -330,13 +293,9 @@ void analysis_eg(int RunYear, const char *Era){//main
 		hadrontree->Branch("mcPt",      &hadron_mcPt);
 		hadrontree->Branch("mcMomPID",  &hadron_mcMomPID);
 	}
-  	hadrontree->Branch("Z_mass", &hadron_Z_mass);
-  	hadrontree->Branch("Z_lep1_pt", &hadron_Z_lep1_pt);
-  	hadrontree->Branch("Z_lep2_pt", &hadron_Z_lep2_pt);
-  	hadrontree->Branch("hasZCandidate", &hadron_hasZCandidate);
 
 //*********** histo list **********************//
-  TH1F *p_eventcount = new TH1F("p_eventcount","p_eventcount",7,0,7);
+  TH1F *p_eventcount = new TH1F("p_eventcount","p_eventcount",8,0,8);
 
   rawData raw(es, datatype);
   std::vector<mcData>  MCData;
@@ -344,10 +303,6 @@ void analysis_eg(int RunYear, const char *Era){//main
   std::vector<recoMuon>   Muon;
   std::vector<recoEle>   Ele;
   std::vector<recoJet>   JetCollection;
-  std::vector<recoEle>::iterator ZLep1_e = Ele.begin();
-  std::vector<recoEle>::iterator ZLep2_e = Ele.begin();
-  std::vector<recoMuon>::iterator ZLep1_mu = Muon.begin();
-  std::vector<recoMuon>::iterator ZLep2_mu = Muon.begin();
 
   float MET(0);
   float METPhi(0);
@@ -520,42 +475,9 @@ void analysis_eg(int RunYear, const char *Era){//main
 				}
 			}
 
-/* selecting Z->ll */
-
-std::vector<std::pair<recoEle, recoEle>> ZeeCandidates;
-std::vector<std::pair<recoMuon, recoMuon>> ZmmCandidates;
-
-for (std::vector<recoEle>::iterator itEle1 = Ele.begin(); itEle1 != Ele.end(); ++itEle1) {
-    for (std::vector<recoEle>::iterator itEle2 = itEle1 + 1; itEle2 != Ele.end(); ++itEle2) { // Avoid duplicate pairs
-        if (itEle1->passSignalSelection() && itEle2->passSignalSelection()) {
-            if ((itEle1->isPosi() && itEle2->isPosi()) || (!itEle1->isPosi() && !itEle2->isPosi())) continue;
-            if (&(*itEle1) == &(*signalLep) || &(*itEle2) == &(*signalLep)) continue;
-            float dimass = (itEle1->getP4() + itEle2->getP4()).M();
-            if (fabs(dimass - 91.1876) < 10) {
-                ZeeCandidates.emplace_back(*itEle1, *itEle2);
-		goto EndZSearch;
-            }
-        }
-    }
-}
-
-for (std::vector<recoMuon>::iterator itMu1 = Muon.begin(); itMu1 != Muon.end(); ++itMu1) {
-    for (std::vector<recoMuon>::iterator itMu2 = itMu1 + 1; itMu2 != Muon.end(); ++itMu2) { // Avoid duplicate pairs
-        if (itMu1->passSignalSelection() && itMu2->passSignalSelection()) {
-            if ((itMu1->isPosi() && itMu2->isPosi()) || (!itMu1->isPosi() && !itMu2->isPosi())) continue;
-            float dimuonmass = (itMu1->getP4() + itMu2->getP4()).M();
-            if (fabs(dimuonmass - 91.1876) < 10) {
-                ZmmCandidates.emplace_back(*itMu1, *itMu2);
-		goto EndZSearch;
-            }
-        }
-    }
-}
-EndZSearch:
-
-bool hasZCandidate = (!ZeeCandidates.empty() || !ZmmCandidates.empty());
 			// Filling ele + pho signalTree
 			if(hasPho && hasLep){
+				npassLepPho+=1;
 				double dRlepphoton = DeltaR(signalPho->getEta(), signalPho->getPhi(), signalLep->getEta(), signalLep->getPhi()); 
 				if(dRlepphoton > 0.8){
 					npassdR+=1;
@@ -627,31 +549,6 @@ bool hasZCandidate = (!ZeeCandidates.empty() || !ZmmCandidates.empty());
           	 	 					}
 							}
 
-sig_hasZCandidate = false;
-sig_Z_mass = -1;
-sig_Z_lep1_pt = -1;
-sig_Z_lep2_pt = -1;
-if (hasZCandidate) {
-    for (auto& pair : ZeeCandidates) {
-        if (&pair.first != &(*signalLep) && &pair.second != &(*signalLep)) {
-            sig_hasZCandidate = true;
-            sig_Z_mass = (pair.first.getP4() + pair.second.getP4()).M();
-            sig_Z_lep1_pt = pair.first.getPt();
-            sig_Z_lep2_pt = pair.second.getPt();
-            break;
-        }
-    }
-    if (!sig_hasZCandidate) {
-        for (auto& pair : ZmmCandidates) {
-            sig_hasZCandidate = true;
-            sig_Z_mass = (pair.first.getP4() + pair.second.getP4()).M();
-            sig_Z_lep1_pt = pair.first.getPt();
-            sig_Z_lep2_pt = pair.second.getPt();
-            break;
-        }
-    }
-}
-
 							sigtree->Fill();
 						}//MET Filter
 					}// Z mass Filter
@@ -704,30 +601,6 @@ if (hasZCandidate) {
 									proxynJet += 1;
 									proxyHT += itJet->getPt();
 								}
-proxy_hasZCandidate = false;
-proxy_Z_mass = -1;
-proxy_Z_lep1_pt = -1;
-proxy_Z_lep2_pt = -1;
-if (hasZCandidate) {
-    for (auto& pair : ZeeCandidates) {
-         if (&pair.first != &(*proxyEle) && &pair.second != &(*proxyEle)) {
-            proxy_hasZCandidate = true;
-            proxy_Z_mass = (pair.first.getP4() + pair.second.getP4()).M();
-            proxy_Z_lep1_pt = pair.first.getPt();
-            proxy_Z_lep2_pt = pair.second.getPt();
-            break;
-        }
-    }
-    if (!proxy_hasZCandidate) {
-        for (auto& pair : ZmmCandidates) {
-            proxy_hasZCandidate = true;
-            proxy_Z_mass = (pair.first.getP4() + pair.second.getP4()).M();
-            proxy_Z_lep1_pt = pair.first.getPt();
-            proxy_Z_lep2_pt = pair.second.getPt();
-            break;
-        }
-    }
-}
 								proxytree->Fill();
 
 
@@ -786,30 +659,6 @@ if (hasZCandidate) {
 									jetnJet += 1;
 									jetHT += itJet->getPt();	
 								}
-jet_hasZCandidate = false;
-jet_Z_mass = -1;
-jet_Z_lep1_pt = -1;
-jet_Z_lep2_pt = -1;
-if (hasZCandidate) {
-    for (auto& pair : ZeeCandidates) {
-        if (&pair.first != &(*jetEle) && &pair.second != &(*jetEle)) {
-            jet_hasZCandidate = true;
-            jet_Z_mass = (pair.first.getP4() + pair.second.getP4()).M();
-            jet_Z_lep1_pt = pair.first.getPt();
-            jet_Z_lep2_pt = pair.second.getPt();
-            break;
-        }
-    }
-    if (!jet_hasZCandidate) {
-        for (auto& pair : ZmmCandidates) {
-            jet_hasZCandidate = true;
-            jet_Z_mass = (pair.first.getP4() + pair.second.getP4()).M();
-            jet_Z_lep1_pt = pair.first.getPt();
-            jet_Z_lep2_pt = pair.second.getPt();
-            break;
-        }
-    }
-}
 							jettree->Fill();
 							}//MET Filter
 						}// Z mass Filter
@@ -875,31 +724,6 @@ if (hasZCandidate) {
 									fakeLepHT += itJet->getPt();
 								}	
 
-fakeLep_hasZCandidate = false;
-fakeLep_Z_mass = -1;
-fakeLep_Z_lep1_pt = -1;
-fakeLep_Z_lep2_pt = -1;
-
-if (hasZCandidate) {
-    for (auto& pair : ZeeCandidates) {
-        if (&pair.first != &(*fakeLep) && &pair.second != &(*fakeLep)) {
-            fakeLep_hasZCandidate = true;
-            fakeLep_Z_mass = (pair.first.getP4() + pair.second.getP4()).M();
-            fakeLep_Z_lep1_pt = pair.first.getPt();
-            fakeLep_Z_lep2_pt = pair.second.getPt();
-            break;
-        }
-    }
-    if (!fakeLep_hasZCandidate) {
-        for (auto& pair : ZmmCandidates) {
-            fakeLep_hasZCandidate = true;
-            fakeLep_Z_mass = (pair.first.getP4() + pair.second.getP4()).M();
-            fakeLep_Z_lep1_pt = pair.first.getPt();
-            fakeLep_Z_lep2_pt = pair.second.getPt();
-            break;
-        }
-    }
-}
 								fakeLeptree->Fill();
 							}//MET Filter
 						}// Z mass Filter
@@ -997,16 +821,18 @@ if (hasZCandidate) {
   p_eventcount->GetXaxis()->SetBinLabel(2,"npassHLT");
   p_eventcount->GetXaxis()->SetBinLabel(3,"npassPho");
   p_eventcount->GetXaxis()->SetBinLabel(4,"npassLep");
-  p_eventcount->GetXaxis()->SetBinLabel(5,"npassdR");
-  p_eventcount->GetXaxis()->SetBinLabel(6,"npassZ");
-  p_eventcount->GetXaxis()->SetBinLabel(7,"npassMETFilter");
+  p_eventcount->GetXaxis()->SetBinLabel(5,"npassLepPho");
+  p_eventcount->GetXaxis()->SetBinLabel(6,"npassdR");
+  p_eventcount->GetXaxis()->SetBinLabel(7,"npassZ");
+  p_eventcount->GetXaxis()->SetBinLabel(8,"npassMETFilter");
   p_eventcount->Fill(0.5, nTotal);
   p_eventcount->Fill(1.5, npassHLT);
   p_eventcount->Fill(2.5, npassPho);
   p_eventcount->Fill(3.5, npassLep);
-  p_eventcount->Fill(4.5, npassdR);
-  p_eventcount->Fill(5.5, npassZ);
-  p_eventcount->Fill(6.5, npassMETFilter);
+  p_eventcount->Fill(4.5, npassLepPho);
+  p_eventcount->Fill(5.5, npassdR);
+  p_eventcount->Fill(6.5, npassZ);
+  p_eventcount->Fill(7.5, npassMETFilter);
 	if(RunYear==2018) logfile << "pass HEM cut:  " << passHEM << endl;
 	
 	outputfile->Write();

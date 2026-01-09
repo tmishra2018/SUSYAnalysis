@@ -1,9 +1,9 @@
 ichannel 2
-anatype 2
+anatype 1
 lowMt 0
-highMt 100
+highMt -1
 lowMET 0
-highMET -1
+highMET 70
 lowPt 0
 highPt 1000
 lepIso 4

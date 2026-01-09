@@ -2,6 +2,7 @@
 #define ANALYSIS_RAWDATA
 
 #ifndef ROOT_TTree
+#include "TH1D.h"
 #include "TTree.h"
 #include "TString.h"
 #endif
@@ -62,6 +63,7 @@ enum RunType{
 
   class rawData{
   public:
+	      void failFilterStepHistogram(int RunYear, int filter, TH1D* h_failFilters);
     rawData(TTree *tree, RunType type): runtype_(type)
   {    
 	  if(type == MC || type == MCDoubleEG2016 || type == MCMuonEG2016 ||  type == MCSingleElectron2016 || type == MCSingleMuon2016 ||  type == MCDoubleMuon2016 || type == MCMET2016 || type == MCDoubleEG2017 || type == MCMuonEG2017 ||  type == MCSingleElectron2017 || type == MCSingleMuon2017 ||  type == MCDoubleMuon2017 || type == MCMET2017 || type == MCDoubleEG2018 || type == MCMuonEG2018 ||  type == MCSingleElectron2018 || type == MCSingleMuon2018 ||  type == MCDoubleMuon2018 || type == MCMET2018 ){
@@ -194,6 +196,7 @@ enum RunType{
 			tree->SetBranchAddress("jetJECUnc", &jetJECUnc);
 			tree->SetBranchAddress("jetCSV2BJetTags", &jetCSV2BJetTags);
       tree->SetBranchAddress("L1ECALPrefire", &L1ECALPrefire);
+        
 
 
     }
@@ -206,8 +209,8 @@ enum RunType{
     }
 
     bool passHLT();
-		bool passMETFilter(int filter);
-		int  failFilterStep(int filter);
+		bool passMETFilter(int RunYear, int filter);
+		int  failFilterStep(int RunYear, int filter);
     RunType runtype_;
 
 		TString   *EventTag=0;	

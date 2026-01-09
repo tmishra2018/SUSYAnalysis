@@ -1,94 +1,127 @@
 #!/bin/bash
+set -e  # Exit immediately if any command fails
 
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-temp_file="temp.txt"
-rm -f $temp_file
-
 ToDeriveScale=false
-makeCRPlots=false
-makeVRPlots=true
+makeCRPlots=true
+makeVRPlots=false
 makeSRPlots=false
 
+# ---------------- Region configuration ----------------
 if [ "$ToDeriveScale" = true ]; then
   anatype=0
   lmet=40
   hmet=70
   lmt=0
   hmt=-1
+  ranges=("0 1000")
+
 elif [ "$makeCRPlots" = true ]; then
   anatype=1
   lmet=0
   hmet=70
   lmt=0
   hmt=-1
+  ranges=("0 1000")
+
 elif [ "$makeVRPlots" = true ]; then
-  anatype=2 # validation region 0 < MT < 100
+  anatype=2   # Validation region
   lmet=0
   hmet=-1
   lmt=0
   hmt=100
+  ranges=("0 1000")
+
 elif [ "$makeSRPlots" = true ]; then
-  anatype=3 # Signal region
+  anatype=3   # Signal region
   lmet=120
   hmet=-1
   lmt=100
   hmt=-1
-else
-  echo "Neither ToDeriveScale nor makeCRPlots nor makeVRPlots is set to true."
-  exit 1
+  ranges=("0 1000")
 fi
 
 iso=4
-lpt=0
-hpt=1000
 
+# ---------------- Main loops ----------------
+for range in "${ranges[@]}"; do
+  lpt=$(echo "$range" | cut -d' ' -f1)
+  hpt=$(echo "$range" | cut -d' ' -f2)
 
-for RunYear in 2016 2017 2018; do
-  for preVFP in {0..1}; do
-    if [ "$RunYear" != "2016" ] && [ "$preVFP" -eq 1 ]; then
-      continue
-    fi
+  echo "==== Running for lpt=$lpt, hpt=$hpt ===="
 
-    for ch in 1 2; do
-      echo "Processing RunYear=$RunYear, preVFP=$preVFP, channel=$ch"
+  for RunYear in 2016 2017 2018; do
+    for preVFP in 0 1; do
 
-      rm -f BkgPredConfig.txt
-      {
-        echo "ichannel $ch"
-        echo "anatype $anatype"
-        echo "lowMt $lmt"
-        echo "highMt $hmt"
-        echo "lowMET $lmet"
-        echo "highMET $hmet"
-        echo "lowPt $lpt"
-        echo "highPt $hpt"
-        echo "lepIso $iso"
-        echo "RunYear $RunYear"
-        echo "preVFP $preVFP"
-      } >> BkgPredConfig.txt
-
-      root -l -q analysis_VGBkg.C++
-      root -l -q analysis_eleBkg.C++
-      root -l -q analysis_jetBkg.C++
-      root -l -q analysis_qcdBkg.C++
-      root -l -q analysis_rareBkg.C++
-      root -l -q analysis_sig.C++
-
-      if [ "$makeCRPlots" = true ] || [ "$makeVRPlots" = true ]; then
-        echo "Plotting background for ch=$ch, RunYear=$RunYear, preVFP=$preVFP"
-        root -l -q "plot_bkg.C($ch, $RunYear, $preVFP)" >> $temp_file
+      if [ "$RunYear" != "2016" ] && [ "$preVFP" -eq 1 ]; then
+        continue
       fi
+
+      if [ "$RunYear" -eq 2016 ]; then
+        if [ "$preVFP" -eq 1 ]; then
+          VFP_string="preVFP"
+        else
+          VFP_string="postVFP"
+        fi
+      else
+        VFP_string=""
+      fi
+
+      # Decide log file once per RunYear/VFP
+      if [ "$makeCRPlots" = true ]; then
+        LOGFILE="logs/BKG_${RunYear}${VFP_string}.log"
+      elif [ "$makeVRPlots" = true ]; then
+        LOGFILE="logs/VALID_${RunYear}${VFP_string}.log"
+      else
+        LOGFILE=""
+      fi
+
+      # Clear log once per (RunYear, VFP)
+      if [ -n "$LOGFILE" ]; then
+        : > "$LOGFILE"
+      fi
+
+      for ch in 1 2; do
+        echo "---- Processing RunYear=$RunYear, VFP=$VFP_string, ichannel=$ch ----"
+
+        # Create config file
+        cat > BkgPredConfig.txt <<EOF
+ichannel $ch
+anatype $anatype
+lowMt $lmt
+highMt $hmt
+lowMET $lmet
+highMET $hmet
+lowPt $lpt
+highPt $hpt
+lepIso $iso
+RunYear $RunYear
+preVFP $preVFP
+EOF
+
+        # Run background analyses
+        root -l -q analysis_VGBkg.C++
+        root -l -q analysis_eleBkg.C++
+        root -l -q analysis_jetBkg.C++
+        root -l -q analysis_qcdBkg.C++
+        root -l -q analysis_rareBkg.C++
+        root -l -q analysis_sig.C++
+
+        # Plot + log (CR / VR only)
+        if [ -n "$LOGFILE" ]; then
+          {
+            echo "=============================================="
+            echo "RunYear = $RunYear   VFP = $VFP_string   ichannel = $ch"
+            echo "=============================================="
+            root -l -q "plot_bkg.C($ch, $RunYear, $preVFP)"
+            echo
+          } >> "$LOGFILE" 2>&1
+        fi
+
+      done
     done
   done
 done
 
-grep egamma temp.txt
-grep mgamma temp.txt
-
-
-if [ "$makeCRPlots" = true ]; then
-    scp -r /eos/uscms/store/user/tmishra/Background/plots/* trmishra@lxplus.cern.ch:/eos/home-t/trmishra/www/Plots/SUSYAnalysis/ControlRegion
-elif [ "$makeVRPlots" = true ]; then
-    scp -r /eos/uscms/store/user/tmishra/Background/plots/* trmishra@lxplus.cern.ch:/eos/home-t/trmishra/www/Plots/SUSYAnalysis/ValidationRegion
-fi
+echo "✅ Script completed successfully."

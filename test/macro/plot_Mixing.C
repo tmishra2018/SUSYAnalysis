@@ -24,7 +24,7 @@
 #include "TLorentzVector.h"
 #include "TProfile2D.h"
 #include "../../include/tdrstyle.C"
-bool preVFP = false;
+bool preVFP = true;
 
 float lumi_2016preVFP_DoubleEG = 19.499256;
 float lumi_2016postVFP_DoubleEG = 16.810813;
@@ -89,7 +89,6 @@ void plot_Mixing(int RunYear){//main
 	egamma_phoEt_total->Sumw2();
   	// WGToLNuG tree
   	TChain *mgtree = new TChain("mgTree");
-	//mgtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/mixing_WGToLNuG_%d%s_TH1D.root",RunYear,whichVFP.c_str()));
 	mgtree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGToLNuG_%d%s.root",RunYear,whichVFP.c_str()));
   	float mg_phoEt=0;
   	float mg_phoEta=0;
@@ -113,7 +112,6 @@ void plot_Mixing(int RunYear){//main
 
   	// WGJets_PtG-40-130 tree
   	TChain *mg40tree = new TChain("mgTree");
-	//mg40tree->Add(Form("/eos/uscms/store/user/tmishra/egMC/mixing_WGJet40_%d%s_TH1D.root",RunYear,whichVFP.c_str()));
 	mg40tree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGJet40_%d%s.root",RunYear,whichVFP.c_str()));
   	float mg40_phoEt=0;
   	float mg40_phoEta=0;
@@ -137,7 +135,6 @@ void plot_Mixing(int RunYear){//main
 
   	// WGJets_PtG-130 tree
   	TChain *mg130tree = new TChain("mgTree");
-	//mg130tree->Add(Form("/eos/uscms/store/user/tmishra/egMC/mixing_WGJet130_%d%s_TH1D.root",RunYear,whichVFP.c_str()));
 	mg130tree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGJet130_%d%s.root",RunYear,whichVFP.c_str()));
   	float mg130_phoEt=0;
   	float mg130_phoEta=0;
@@ -159,7 +156,6 @@ void plot_Mixing(int RunYear){//main
 	}
 
   	TChain *egtree = new TChain("egTree");
-	//egtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/mixing_WGToLNuG_%d%s_TH1D.root",RunYear,whichVFP.c_str()));
 	egtree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGToLNuG_%d%s.root",RunYear,whichVFP.c_str()));
   	float eg_phoEt=0;
   	float eg_phoEta=0;
@@ -184,7 +180,6 @@ void plot_Mixing(int RunYear){//main
 
 
   	TChain *eg40tree = new TChain("egTree");
-	//eg40tree->Add(Form("/eos/uscms/store/user/tmishra/egMC/mixing_WGJet40_%d%s_TH1D.root",RunYear,whichVFP.c_str()));
 	eg40tree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGJet40_%d%s.root",RunYear,whichVFP.c_str()));
   	float eg40_phoEt=0;
   	float eg40_phoEta=0;
@@ -207,7 +202,6 @@ void plot_Mixing(int RunYear){//main
 	}
 
   	TChain *eg130tree = new TChain("egTree");
-	//eg130tree->Add(Form("/eos/uscms/store/user/tmishra/egMC/mixing_WGJet130_%d%s_TH1D.root",RunYear,whichVFP.c_str()));
 	eg130tree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGJet130_%d%s.root",RunYear,whichVFP.c_str()));
   	float eg130_phoEt=0;
   	float eg130_phoEta=0;
@@ -266,10 +260,10 @@ void plot_Mixing(int RunYear){//main
 	leg->AddEntry(egamma_phoEt_2,"WGJets_MonoPhoton_PtG-40to130");
 	leg->AddEntry(egamma_phoEt_3,"WGJets_MonoPhoton_PtG-130");
 	leg->Draw("same");
-        if(RunYear==2016 and preVFP == 1)       CMS_lumi( can1,1, 11 );
-        else if(RunYear==2016 and preVFP == 0)  CMS_lumi( can1,2, 11 );
-        else if(RunYear==2017)                  CMS_lumi( can1,3, 11 );
-        else if(RunYear==2018)                  CMS_lumi( can1,4, 11 );
+        if(RunYear==2016 and preVFP == 1)       CMS_lumi( can1,1,1, 11 );
+        else if(RunYear==2016 and preVFP == 0)  CMS_lumi( can1,2,1, 11 );
+        else if(RunYear==2017)                  CMS_lumi( can1,3,1, 11 );
+        else if(RunYear==2018)                  CMS_lumi( can1,4,1, 11 );
 
 	can1->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/%d%s/WGMixing_%d%s.pdf",RunYear,whichVFP.c_str(),RunYear,whichVFP.c_str()));
 	can1->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/%d%s/WGMixing_%d%s.png",RunYear,whichVFP.c_str(),RunYear,whichVFP.c_str()));

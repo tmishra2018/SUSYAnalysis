@@ -244,17 +244,17 @@ void FakeRates_Data_vs_DY(int RunYear, bool preVFP){//main
 
         		
 	/* Data files */
-	std::ifstream Pt_fileData(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-Bw-ker-pt-60-120.txt",RunYear,whichVFP.c_str()));
-	std::ifstream Pt_DYfileData(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-DY-ker-pt-60-120.txt",RunYear,whichVFP.c_str()));
-	std::ifstream Pt_PolfileData(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-Bw-expo-pt-60-120.txt",RunYear,whichVFP.c_str()));
+	std::ifstream Pt_fileData(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-Bw-ker-pt-60-120.txt",RunYear,whichVFP.c_str()));
+	std::ifstream Pt_DYfileData(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-DY-ker-pt-60-120.txt",RunYear,whichVFP.c_str()));
+	std::ifstream Pt_PolfileData(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-Bw-expo-pt-60-120.txt",RunYear,whichVFP.c_str()));
 
-	std::ifstream Eta_fileData(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-Bw-ker-eta-60-120.txt",RunYear,whichVFP.c_str()));
-	std::ifstream Eta_DYfileData(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-DY-ker-eta-60-120.txt",RunYear,whichVFP.c_str()));
-	std::ifstream Eta_PolfileData(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-Bw-expo-eta-60-120.txt",RunYear,whichVFP.c_str()));
+	std::ifstream Eta_fileData(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-Bw-ker-eta-60-120.txt",RunYear,whichVFP.c_str()));
+	std::ifstream Eta_DYfileData(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-DY-ker-eta-60-120.txt",RunYear,whichVFP.c_str()));
+	std::ifstream Eta_PolfileData(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-Bw-expo-eta-60-120.txt",RunYear,whichVFP.c_str()));
 
-	std::ifstream Vtx_fileData(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-Bw-ker-vtx-60-120.txt",RunYear,whichVFP.c_str()));
-	std::ifstream Vtx_DYfileData(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-DY-ker-vtx-60-120.txt",RunYear,whichVFP.c_str()));
-	std::ifstream Vtx_PolfileData(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-Bw-expo-vtx-60-120.txt",RunYear,whichVFP.c_str()));
+	std::ifstream Vtx_fileData(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-Bw-ker-vtx-60-120.txt",RunYear,whichVFP.c_str()));
+	std::ifstream Vtx_DYfileData(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-DY-ker-vtx-60-120.txt",RunYear,whichVFP.c_str()));
+	std::ifstream Vtx_PolfileData(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-Bw-expo-vtx-60-120.txt",RunYear,whichVFP.c_str()));
 	
 
 	std::string lineData;

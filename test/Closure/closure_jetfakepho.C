@@ -61,212 +61,218 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	randomweight_jet[0] = 0;
 	for(unsigned ir(1); ir<1000; ir++)	
 		randomweight_jet[ir] = -1+ gRandom->Rndm()*2.0;
-
-	TF1 *fitfunc_num = new TF1("fitfunc_num",jetfake_func,35,1000,4);
-	TF1 *fitfunc_den = new TF1("fitfunc_den",jetfake_func,35,1000,4);
-//	double jetfake_numerror[264];
-//	double jetfake_denerror[264];
-	
-	std::ifstream jetfakefile;
-	if(channelType == 1)
-		jetfakefile.open(Form("/eos/uscms/store/user/tmishra/jetfakepho/txt%d%s/JetFakeRate-transferfactor-DoubleEG-EB.txt",RunYear,whichVFP.c_str()));
-	if(channelType == 2)
-		jetfakefile.open(Form("/eos/uscms/store/user/tmishra/jetfakepho/txt%d%s/JetFakeRate-transferfactor-MuonEG-EB.txt",RunYear,whichVFP.c_str()));
-	
-	std::string paratype;
-	float paravalue;	
-	if(jetfakefile.is_open()){
-		for(int i(0); i < 4; i++){
+	// new function adding a shift and offset
+	TF1 *fitfunc_num = new TF1("fitfunc_num",Exp2c_Func,20,600,6);
+		TF1 *fitfunc_den = new TF1("fitfunc_den",Exp2c_Func,20,600,6);
+		double jetfake_numerror[265];
+		double jetfake_denerror[265];
+		
+		std::ifstream jetfakefile;
+		if(channelType == 1)
+			jetfakefile.open(Form("/eos/uscms/store/user/tmishra/jetfakepho/txt%d%s/JetFakeRate-transferfactor-DoubleEG-EB.txt",RunYear,whichVFP.c_str()));
+		if(channelType == 2)
+			jetfakefile.open(Form("/eos/uscms/store/user/tmishra/jetfakepho/txt%d%s/JetFakeRate-transferfactor-MuonEG-EB.txt",RunYear,whichVFP.c_str()));
+		
+		std::string paratype;
+		float paravalue;
+		for(int i(0); i < 6; i++){
 			jetfakefile >> paratype >> paravalue;
 			fitfunc_den->SetParameter(i, paravalue);
 		}
-		for(int i(0); i < 4; i++){
+		for(int i(0); i < 6; i++){
 			jetfakefile >> paratype >> paravalue;
 			fitfunc_num->SetParameter(i, paravalue);
 		}
-	}
-//	int binnumber;
-//	for(int i(0); i < 264; i++){
-//		jetfakefile >> paratype >> binnumber >> paravalue;
-//		jetfake_numerror[i] = paravalue/2;
-//	}
-//	for(int i(0); i < 264; i++){
-//		jetfakefile >> paratype >> binnumber >>  paravalue;
-//		jetfake_denerror[i] = paravalue/2;
-//	}
-
-	// Signal Tree //
-	//*********** histo list **********************//
-	TH1D *p_PhoEt = new TH1D("p_PhoEt","#gamma E_{T}; E_{T} (GeV)",11,35,200);
-	TH1D *p_LepPt = new TH1D("p_LepPt","p_LepPt",11,35,200);
-	TH1D *p_MET = new TH1D("p_MET","MET; MET (GeV);",10,0,200);
-	TH1D *p_Mt = new TH1D("p_Mt","M_{T}; M_{T} (GeV);",10,0,200);
-	TH1D *p_HT = new TH1D("p_HT","HT; HT (GeV);",10,0,400);
-	TH1D *p_dPhiEleMET = new TH1D("p_dPhiEleMET","dPhiEleMET",32,0,3.2); 
-	TH1D *p_PhoEta = new TH1D("p_PhoEta","#gamma #eta; #eta;",60,-3,3);
-	TH1D *p_LepEta = new TH1D("p_LepEta","p_LepEta",60,-3,3);
-	TH1D *p_eventcount = new TH1D("p_eventcount","eventcount",9,0,9);
-	TH1D *p_nJet = new TH1D("p_nJet","p_nJet",10,0,10);
-	//************ Signal Tree **********************//
-	TChain *sigtree = new TChain("signalTree");
-	// signal events directly from simulation
-	if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
-	if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WJetsToLNu_%d%s.root",RunYear,whichVFP.c_str()));
-
-	if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
-	if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WJetsToLNu_%d%s.root",RunYear,whichVFP.c_str()));
-
-	float crosssection(0);
-	float ntotalevent(0);
-	float phoEt(0);
-	float phoEta(0);
-	float phoPhi(0);
-	float lepPt(0);
-	float lepEta(0);
-	float lepPhi(0);
-	float sigMT(0);
-	float sigMET(0);
-	float dPhiLepMET(0);
-	float sigMETPhi(0);
-	float HT(0);
-	int   nVertex(0);
-	float dRPhoLep(0);
-	float nJet(0);
-  std::vector<int>   *mcPID=0;
-  std::vector<float> *mcEta=0;
-  std::vector<float> *mcPhi=0;
-  std::vector<float> *mcPt=0;
-  std::vector<int>   *mcMomPID=0;
-  std::vector<int>   *mcGMomPID=0;
-
-	sigtree->SetBranchAddress("crosssection",&crosssection);
-	sigtree->SetBranchAddress("ntotalevent", &ntotalevent);
-	sigtree->SetBranchAddress("phoEt",     &phoEt);
-	sigtree->SetBranchAddress("phoEta",    &phoEta);
-	sigtree->SetBranchAddress("phoPhi",    &phoPhi);
-	sigtree->SetBranchAddress("lepPt",     &lepPt);
-	sigtree->SetBranchAddress("lepEta",    &lepEta);
-	sigtree->SetBranchAddress("lepPhi",    &lepPhi);
-	sigtree->SetBranchAddress("sigMT",     &sigMT);
-	sigtree->SetBranchAddress("sigMET",    &sigMET);
-  sigtree->SetBranchAddress("HT",        &HT);
-	sigtree->SetBranchAddress("dPhiLepMET",&dPhiLepMET);
-	sigtree->SetBranchAddress("sigMETPhi", &sigMETPhi);
-	sigtree->SetBranchAddress("nVertex",   &nVertex);
-	sigtree->SetBranchAddress("dRPhoLep",  &dRPhoLep);
-	sigtree->SetBranchAddress("nJet",      &nJet);
-  sigtree->SetBranchAddress("mcPID",     &mcPID);
-  sigtree->SetBranchAddress("mcEta",     &mcEta);
-  sigtree->SetBranchAddress("mcPhi",     &mcPhi);
-  sigtree->SetBranchAddress("mcPt",      &mcPt);
-  sigtree->SetBranchAddress("mcMomPID",  &mcMomPID);
-  sigtree->SetBranchAddress("mcGMomPID", &mcGMomPID);
-
-	for (unsigned ievt(0); ievt<sigtree->GetEntries(); ++ievt){//loop on entries
-		sigtree->GetEntry(ievt);
-		double weight = 1;
-		if(channelType == 1){
-                        if(RunYear == 2016 and preVFP == 1)             weight = lumi_2016preVFP_DoubleEG*1000*crosssection/ntotalevent;
-                        else if(RunYear == 2016 and preVFP == 0)        weight = lumi_2016postVFP_DoubleEG*1000*crosssection/ntotalevent;
-                        else if(RunYear == 2017)                        weight = lumi_2017_DoubleEG*1000*crosssection/ntotalevent;
-                        else if(RunYear == 2018)                        weight = lumi_2018_DoubleEG*1000*crosssection/ntotalevent;}
-		else if(channelType == 2){
-                        if(RunYear == 2016 and preVFP == 1)             weight = lumi_2016preVFP_MuonEG*1000*crosssection/ntotalevent;
-                        else if(RunYear == 2016 and preVFP == 0)        weight = lumi_2016postVFP_MuonEG*1000*crosssection/ntotalevent;
-                        else if(RunYear == 2017)                        weight = lumi_2017_MuonEG*1000*crosssection/ntotalevent;
-                        else if(RunYear == 2018)                        weight = lumi_2018_MuonEG*1000*crosssection/ntotalevent;}
-
-		/** cut flow *****/
-		if(phoEt < 35 || lepPt < lepPtCut)continue;
-		if(fabs(phoEta) > 1.4442 || fabs(lepEta) > 2.5)continue;
-
-
-		bool isFakePho(true);
-		double mindR(0.3),deltaE(1);
-		unsigned matchIndex(0);
-		for(unsigned iMC(0); iMC < mcPID->size(); iMC++){
-			double dR = DeltaR((*mcEta)[iMC], (*mcPhi)[iMC], phoEta, phoPhi);
-			double dE = fabs((*mcPt)[iMC] - phoEt)/phoEt;
-			if(dR < mindR && dE < 0.5){mindR=dR; matchIndex=iMC;deltaE = dE;}
+		int binnumber;
+		for(int i(0); i < 265; i++){
+			jetfakefile >> paratype >> binnumber >> paravalue;
+			jetfake_numerror[i] = paravalue/2;
 		}
-		if(mindR < 0.1){
-			if( (fabs((*mcPID)[matchIndex]) == 11 || fabs((*mcPID)[matchIndex]) == 22)  && (fabs((*mcMomPID)[matchIndex]) <= 6 || fabs((*mcMomPID)[matchIndex])==21 || fabs((*mcMomPID)[matchIndex])==11 || fabs((*mcMomPID)[matchIndex])== 999 || fabs((*mcMomPID)[matchIndex]) == 13 ||  fabs((*mcMomPID)[matchIndex]) == 15 || fabs((*mcMomPID)[matchIndex]) == 24 || fabs((*mcMomPID)[matchIndex]) == 23))isFakePho = false;
+		for(int i(0); i < 265; i++){
+			jetfakefile >> paratype >> binnumber >>  paravalue;
+			jetfake_denerror[i] = paravalue/2;
 		}
-		if(!isFakePho)continue;
-		// only fake photon considered
-		if(phoEt > MAXET)phoEt = MAXET;
-		if(sigMET > MAXMET)sigMET = MAXMET;
-		if(sigMT > MAXMT)sigMT = MAXMT;
-		if(HT > MAXHT)HT = MAXHT;	
-		// XSectional weight
-		p_PhoEt->Fill(phoEt, weight);
-		p_PhoEta->Fill(phoEta, weight);
-		p_LepPt->Fill(lepPt, weight);
-		p_LepEta->Fill(lepEta, weight);
-		p_MET->Fill(sigMET, weight);
-		p_Mt->Fill(sigMT, weight);
-		p_HT->Fill(HT, weight);
-		p_dPhiEleMET->Fill(fabs(dPhiLepMET), weight);
-		p_nJet->Fill(nJet, weight);
-		
-	}        
+		float correction;
+		if (RunYear == 2016 and preVFP == 1 and ichannel == 1) correction = 0.816828;
+		else if (RunYear == 2016 and preVFP == 1 and ichannel == 2) correction = 1.11658;
+		else if (RunYear == 2016 and preVFP == 0 and ichannel == 1) correction = 0.788482;
+		else if (RunYear == 2016 and preVFP == 0 and ichannel == 2) correction = 1.03158;
+		else if (RunYear == 2017 and ichannel == 1) correction = 0.866308;
+		else if (RunYear == 2017 and ichannel == 2) correction = 1.00739;
+		else if (RunYear == 2018 and ichannel == 1) correction = 0.713093;
+		else if (RunYear == 2018 and ichannel == 2) correction = 0.976136;
+
+		// Signal Tree //
+		//*********** histo list ********************** 
+		TH1D *p_PhoEt = new TH1D("p_PhoEt",";p_{T}^{#gamma} (GeV);Events / bin",nBkgEtBins,bkgEtBins);
+		TH1D *p_LepPt = new TH1D("p_LepPt","",nBkgPtBins,bkgPtBins);
+		TH1D *p_MET = new TH1D("p_MET","; p_{T}^{miss} (GeV);Events / bin",nBkgMETBins, bkgMETBins);
+		TH1D *p_Mt = new TH1D("p_Mt","; M_{T} (GeV);Events / bin",nBkgMtBins,bkgMtBins);
+		TH1D *p_HT = new TH1D("p_HT","; HT (GeV);Events / bin",nBkgHTBins, bkgHTBins);
+		TH1D *p_dPhiEleMET = new TH1D("p_dPhiEleMET","dPhiEleMET",32,0,3.2); 
+		TH1D *p_PhoEta = new TH1D("p_PhoEta","#gamma #eta; #eta;",60,-3,3);
+		TH1D *p_LepEta = new TH1D("p_LepEta","p_LepEta",60,-3,3);
+		TH1D *p_eventcount = new TH1D("p_eventcount","eventcount",9,0,9);
+		TH1D *p_nJet = new TH1D("p_nJet","p_nJet",10,0,10);
+		//************ Signal Tree **********************//
+		TChain *sigtree = new TChain("signalTree");
+		// signal events directly from simulation
+//		if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
+		if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WJetsToLNu_%d%s.root",RunYear,whichVFP.c_str()));
+
+//		if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
+		if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WJetsToLNu_%d%s.root",RunYear,whichVFP.c_str()));
+
+		float crosssection(0);
+		float ntotalevent(0);
+		float phoEt(0);
+		float phoEta(0);
+		float phoPhi(0);
+		float lepPt(0);
+		float lepEta(0);
+		float lepPhi(0);
+		float sigMT(0);
+		float sigMET(0);
+		float dPhiLepMET(0);
+		float sigMETPhi(0);
+		float HT(0);
+		int   nVertex(0);
+		float dRPhoLep(0);
+		float nJet(0);
+	  std::vector<int>   *mcPID=0;
+	  std::vector<float> *mcEta=0;
+	  std::vector<float> *mcPhi=0;
+	  std::vector<float> *mcPt=0;
+	  std::vector<int>   *mcMomPID=0;
+	  std::vector<int>   *mcGMomPID=0;
+
+		sigtree->SetBranchAddress("crosssection",&crosssection);
+		sigtree->SetBranchAddress("ntotalevent", &ntotalevent);
+		sigtree->SetBranchAddress("phoEt",     &phoEt);
+		sigtree->SetBranchAddress("phoEta",    &phoEta);
+		sigtree->SetBranchAddress("phoPhi",    &phoPhi);
+		sigtree->SetBranchAddress("lepPt",     &lepPt);
+		sigtree->SetBranchAddress("lepEta",    &lepEta);
+		sigtree->SetBranchAddress("lepPhi",    &lepPhi);
+		sigtree->SetBranchAddress("sigMT",     &sigMT);
+		sigtree->SetBranchAddress("sigMET",    &sigMET);
+	  sigtree->SetBranchAddress("HT",        &HT);
+		sigtree->SetBranchAddress("dPhiLepMET",&dPhiLepMET);
+		sigtree->SetBranchAddress("sigMETPhi", &sigMETPhi);
+		sigtree->SetBranchAddress("nVertex",   &nVertex);
+		sigtree->SetBranchAddress("dRPhoLep",  &dRPhoLep);
+		sigtree->SetBranchAddress("nJet",      &nJet);
+	  sigtree->SetBranchAddress("mcPID",     &mcPID);
+	  sigtree->SetBranchAddress("mcEta",     &mcEta);
+	  sigtree->SetBranchAddress("mcPhi",     &mcPhi);
+	  sigtree->SetBranchAddress("mcPt",      &mcPt);
+	  sigtree->SetBranchAddress("mcMomPID",  &mcMomPID);
+	  sigtree->SetBranchAddress("mcGMomPID", &mcGMomPID);
+
+		for (unsigned ievt(0); ievt<sigtree->GetEntries(); ++ievt){//loop on entries
+			sigtree->GetEntry(ievt);
+			double weight = 1;
+			if(channelType == 1){
+				if(RunYear == 2016 and preVFP == 1)             weight = lumi_2016preVFP_DoubleEG*1000*crosssection/ntotalevent;
+				else if(RunYear == 2016 and preVFP == 0)        weight = lumi_2016postVFP_DoubleEG*1000*crosssection/ntotalevent;
+				else if(RunYear == 2017)                        weight = lumi_2017_DoubleEG*1000*crosssection/ntotalevent;
+				else if(RunYear == 2018)                        weight = lumi_2018_DoubleEG*1000*crosssection/ntotalevent;}
+			else if(channelType == 2){
+				if(RunYear == 2016 and preVFP == 1)             weight = lumi_2016preVFP_MuonEG*1000*crosssection/ntotalevent;
+				else if(RunYear == 2016 and preVFP == 0)        weight = lumi_2016postVFP_MuonEG*1000*crosssection/ntotalevent;
+				else if(RunYear == 2017)                        weight = lumi_2017_MuonEG*1000*crosssection/ntotalevent;
+				else if(RunYear == 2018)                        weight = lumi_2018_MuonEG*1000*crosssection/ntotalevent;}
+
+			/** cut flow *****/
+			if(phoEt < 35 || lepPt < lepPtCut)continue;
+			if(fabs(phoEta) > 1.4442 || fabs(lepEta) > 2.5)continue;
+
+			bool isFakePho(true);
+			double mindR(0.3),deltaE(1);
+			unsigned matchIndex(0);
+			for(unsigned iMC(0); iMC < mcPID->size(); iMC++){
+				double dR = DeltaR((*mcEta)[iMC], (*mcPhi)[iMC], phoEta, phoPhi);
+				double dE = fabs((*mcPt)[iMC] - phoEt)/phoEt;
+				if(dR < mindR && dE < 0.5){mindR=dR; matchIndex=iMC;deltaE = dE;}
+			}
+			if(mindR < 0.1){
+				if( (fabs((*mcPID)[matchIndex]) == 11 || fabs((*mcPID)[matchIndex]) == 22)  && (fabs((*mcMomPID)[matchIndex]) <= 6 || fabs((*mcMomPID)[matchIndex])==21 || fabs((*mcMomPID)[matchIndex])==11 || fabs((*mcMomPID)[matchIndex])== 999 || fabs((*mcMomPID)[matchIndex]) == 13 ||  fabs((*mcMomPID)[matchIndex]) == 15 || fabs((*mcMomPID)[matchIndex]) == 24 || fabs((*mcMomPID)[matchIndex]) == 23))isFakePho = false;
+			}
+			if(!isFakePho)continue;
+			// only fake photon considered
+			if(phoEt > MAXET)phoEt = MAXET;
+			if(sigMET > MAXMET)sigMET = MAXMET;
+			if(sigMT > MAXMT)sigMT = MAXMT;
+			if(HT > MAXHT)HT = MAXHT;	
+			// XSectional weight
+			p_PhoEt->Fill(phoEt, weight);
+			p_PhoEta->Fill(phoEta, weight);
+			p_LepPt->Fill(lepPt, weight);
+			p_LepEta->Fill(lepEta, weight);
+			p_MET->Fill(sigMET, weight);
+			p_Mt->Fill(sigMT, weight);
+			p_HT->Fill(HT, weight);
+			p_dPhiEleMET->Fill(fabs(dPhiLepMET), weight);
+			p_nJet->Fill(nJet, weight);
+			
+		}        
 
 
-	// Fake Tree //
-	//*********** histo list **********************//
-	std::ostringstream histname;
-	TH1D *pred_PhoEt = new TH1D("pred_PhoEt","#gamma E_{T}; E_{T} (GeV)",11,35,200);
-	TH1D *pred_LepPt = new TH1D("pred_LepPt","pred_LepPt",11,35,200);
-	TH1D *pred_MET = new TH1D("pred_MET","MET; MET (GeV);",10,0,200);
-	TH1D *pred_Mt = new TH1D("pred_Mt","M_{T}; M_{T} (GeV);",10,0,200);
-	TH1D *pred_HT = new TH1D("pred_HT","HT; HT (GeV);",10,0,400);
-	TH1D *pred_PhoEta = new TH1D("pred_PhoEta","#gamma #eta; #eta;",60,-3,3);
-	TH1D *pred_LepEta = new TH1D("pred_LepEta","pred_LepEta",60,-3,3);
-	TH1D *pred_dPhiEleMET = new TH1D("pred_dPhiEleMET","dPhiEleMET",32,0,3.2); 
-	TH1D *pred_nJet = new TH1D("pred_nJet","pred_nJet",10,0,10);
+		// Fake Tree //
+		//*********** histo list **********************//
+		std::ostringstream histname;
+		TH1D *pred_PhoEt = new TH1D("pred_PhoEt","#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
+		TH1D *pred_LepPt = new TH1D("pred_LepPt","pred_LepPt",nBkgPtBins,bkgPtBins);
+		TH1D *pred_MET = new TH1D("pred_MET","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
+		TH1D *pred_Mt = new TH1D("pred_Mt","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins);
+		TH1D *pred_HT = new TH1D("pred_HT","HT; HT (GeV);",nBkgHTBins, bkgHTBins);
+		TH1D *pred_PhoEta = new TH1D("pred_PhoEta","#gamma #eta; #eta;",60,-3,3);
+		TH1D *pred_LepEta = new TH1D("pred_LepEta","pred_LepEta",60,-3,3);
+		TH1D *pred_dPhiEleMET = new TH1D("pred_dPhiEleMET","dPhiEleMET",32,0,3.2); 
+		TH1D *pred_nJet = new TH1D("pred_nJet","pred_nJet",10,0,10);
 
-	TH1D *DY_PhoEt = new TH1D("DY_PhoEt","#gamma E_{T}; E_{T} (GeV)",11,35,200);
-	TH1D *DY_LepPt = new TH1D("DY_LepPt","DY_LepPt",11,35,200);
-	TH1D *DY_MET = new TH1D("DY_MET","MET; MET (GeV);",10,0,200);
-	TH1D *DY_Mt = new TH1D("DY_Mt","M_{T}; M_{T} (GeV);",10,0,200);
-	TH1D *DY_HT = new TH1D("DY_HT","HT; HT (GeV);",10,0,400);
-	TH1D *DY_PhoEta = new TH1D("DY_PhoEta","#gamma #eta; #eta;",60,-3,3);
-	TH1D *DY_LepEta = new TH1D("DY_LepEta","DY_LepEta",60,-3,3);
-	TH1D *DY_dPhiEleMET = new TH1D("DY_dPhiEleMET","dPhiEleMET",32,0,3.2); 
-	TH1D *DY_nJet = new TH1D("DY_nJet","DY_nJet",10,0,10);
+		TH1D *DY_PhoEt = new TH1D("DY_PhoEt","#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
+		TH1D *DY_LepPt = new TH1D("DY_LepPt","DY_LepPt",nBkgPtBins,bkgPtBins);
+		TH1D *DY_MET = new TH1D("DY_MET","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
+		TH1D *DY_Mt = new TH1D("DY_Mt","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins);
+		TH1D *DY_HT = new TH1D("DY_HT","HT; HT (GeV);",nBkgHTBins, bkgHTBins);
+		TH1D *DY_PhoEta = new TH1D("DY_PhoEta","#gamma #eta; #eta;",60,-3,3);
+		TH1D *DY_LepEta = new TH1D("DY_LepEta","DY_LepEta",60,-3,3);
+		TH1D *DY_dPhiEleMET = new TH1D("DY_dPhiEleMET","dPhiEleMET",32,0,3.2); 
+		TH1D *DY_nJet = new TH1D("DY_nJet","DY_nJet",10,0,10);
 
-//	TH1D *toy_PhoEt[NTOY];
-//	TH1D *toy_LepPt[NTOY];
-//	TH1D *toy_HT[NTOY];
-//	TH1D *toy_MET[NTOY];
-//	TH1D *toy_Mt[NTOY];
-//	TH1D *toy_dPhiEleMET[NTOY];
-//	for(unsigned ih(0); ih < NTOY; ih++){
-//		histname.str("");
-//		histname << "toy_PhoEt_ " << ih;
-//		toy_PhoEt[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),nBkgEtBins,bkgEtBins);
-//		histname.str("");
-//		histname << "toy_LepPt_" << ih;
-//		toy_LepPt[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),nBkgPtBins,bkgPtBins);
-//		histname.str("");
-//		histname << "toy_MET_ " << ih;
-//		toy_MET[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),nBkgMETBins, bkgMETBins);
-//		histname.str("");
-//		histname << "toy_Mt_ " << ih;
-//		toy_Mt[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),nBkgMtBins,bkgMtBins);
-//		histname.str("");
-//		histname << "toy_HT_ " << ih;
-//		toy_HT[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),nBkgHTBins, bkgHTBins);
-//		histname.str("");
-//		histname << "toy_eledPhiEleMET_" << ih;
-//		toy_dPhiEleMET[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),32,0,3.2);
-//	}
-	//************ Proxy Tree **********************//
-	TChain *proxytree = new TChain("jetTree");
-	// jetTree for proxy events
-	// proxy events weighted by fake rate, WJet has major contribution
-	if(channelType==1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WJetsToLNu_%d%s.root",RunYear,whichVFP.c_str()));
-	if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WJetsToLNu_%d%s.root",RunYear,whichVFP.c_str()));
+	//	TH1D *toy_PhoEt[NTOY];
+	//	TH1D *toy_LepPt[NTOY];
+	//	TH1D *toy_HT[NTOY];
+	//	TH1D *toy_MET[NTOY];
+	//	TH1D *toy_Mt[NTOY];
+	//	TH1D *toy_dPhiEleMET[NTOY];
+	//	for(unsigned ih(0); ih < NTOY; ih++){
+	//		histname.str("");
+	//		histname << "toy_PhoEt_ " << ih;
+	//		toy_PhoEt[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),nBkgEtBins,bkgEtBins);
+	//		histname.str("");
+	//		histname << "toy_LepPt_" << ih;
+	//		toy_LepPt[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),nBkgPtBins,bkgPtBins);
+	//		histname.str("");
+	//		histname << "toy_MET_ " << ih;
+	//		toy_MET[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),nBkgMETBins, bkgMETBins);
+	//		histname.str("");
+	//		histname << "toy_Mt_ " << ih;
+	//		toy_Mt[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),nBkgMtBins,bkgMtBins);
+	//		histname.str("");
+	//		histname << "toy_HT_ " << ih;
+	//		toy_HT[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),nBkgHTBins, bkgHTBins);
+	//		histname.str("");
+	//		histname << "toy_eledPhiEleMET_" << ih;
+	//		toy_dPhiEleMET[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),32,0,3.2);
+	//	}
+		//************ Proxy Tree **********************//
+		TChain *proxytree = new TChain("jetTree");
+		// jetTree for proxy events
+		// proxy events weighted by fake rate, WJet has major contribution
+		if(channelType==1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WJetsToLNu_%d%s.root",RunYear,whichVFP.c_str()));
+		if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WJetsToLNu_%d%s.root",RunYear,whichVFP.c_str()));
 
 	float proxycrosssection(0);
 	float proxyntotalevent(0);
@@ -325,7 +331,7 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 		if(proxyphoEt < 35 || proxylepPt < lepPtCut)continue;
 		if(fabs(proxyphoEta) > 1.4442 || fabs(proxylepEta) > 2.5)continue;
 		double w_jet(1);
-		w_jet = fitfunc_num->Eval(proxyphoEt)/fitfunc_den->Eval(proxyphoEt);
+		w_jet = correction*fitfunc_num->Eval(proxyphoEt)/fitfunc_den->Eval(proxyphoEt);
 //		double jetfakeerror(0);
 //		for(int ipt(0); ipt < 264; ipt++){
 //			if(proxyphoEt >= ipt+35 && proxyphoEt < ipt+1+35)jetfakeerror = sqrt(jetfake_numerror[ipt]*jetfake_numerror[ipt]/fitfunc_den->Eval(proxyphoEt)/fitfunc_den->Eval(proxyphoEt) + jetfake_denerror[ipt]*jetfake_denerror[ipt]*w_jet*w_jet)/fitfunc_den->Eval(proxyphoEt);
@@ -345,15 +351,6 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 		pred_dPhiEleMET->Fill(fabs(proxydPhiLepMET), w_jet);
 		pred_nJet->Fill(proxynJet, w_jet);
 
-		DY_PhoEt->Fill(proxyphoEt,w_jet);
-		DY_PhoEta->Fill(proxyphoEta, w_jet);
-		DY_MET->Fill(proxysigMET, w_jet);
-		DY_Mt->Fill(proxysigMT, w_jet);
-		DY_HT->Fill(proxyHT, w_jet);
-		DY_LepPt->Fill(proxylepPt, w_jet);
-		DY_LepEta->Fill(proxylepEta, w_jet);
-		DY_dPhiEleMET->Fill(fabs(proxydPhiLepMET), w_jet);
-		DY_nJet->Fill(proxynJet, w_jet);
 
 //		for(unsigned it(0); it < NTOY; it++){
 //			double toy_jet = w_jet*(1+sysJetFakePho*randomweight_jet[ih]);
@@ -371,8 +368,6 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	// rare contribution from DY
 	if(channelType==1)raretree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
 	if(channelType==2)raretree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
-
-	//if(channelType==2)raretree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_mgsignal_DY.root");
 
 	float rarecrosssection(0);
 	float rarentotalevent(0);
@@ -443,17 +438,25 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 		w_jet = w_jet*weight;
 		// XSec weight * fake rate weight
 
+//		pred_PhoEt->Fill(rarephoEt,w_jet);
+//		pred_PhoEta->Fill(rarephoEta, w_jet);
+//		pred_MET->Fill(raresigMET, w_jet);
+//		pred_Mt->Fill(raresigMT, w_jet);
+//		pred_HT->Fill(rareHT, w_jet);
+//		pred_LepPt->Fill(rarelepPt, w_jet);
+//		pred_LepEta->Fill(rarelepEta, w_jet);
+//		pred_dPhiEleMET->Fill(fabs(raredPhiLepMET), w_jet);
+//		pred_nJet->Fill(rarenJet, w_jet);
 
-		pred_PhoEt->Fill(rarephoEt,w_jet);
-		pred_PhoEta->Fill(rarephoEta, w_jet);
-		pred_MET->Fill(raresigMET, w_jet);
-		pred_Mt->Fill(raresigMT, w_jet);
-		pred_HT->Fill(rareHT, w_jet);
-		pred_LepPt->Fill(rarelepPt, w_jet);
-		pred_LepEta->Fill(rarelepEta, w_jet);
-		pred_dPhiEleMET->Fill(fabs(raredPhiLepMET), w_jet);
-		pred_nJet->Fill(rarenJet, w_jet);
-
+		DY_PhoEt->Fill(proxyphoEt,w_jet);
+		DY_PhoEta->Fill(proxyphoEta, w_jet);
+		DY_MET->Fill(proxysigMET, w_jet);
+		DY_Mt->Fill(proxysigMT, w_jet);
+		DY_HT->Fill(proxyHT, w_jet);
+		DY_LepPt->Fill(proxylepPt, w_jet);
+		DY_LepEta->Fill(proxylepEta, w_jet);
+		DY_dPhiEleMET->Fill(fabs(proxydPhiLepMET), w_jet);
+		DY_nJet->Fill(proxynJet, w_jet);
 	//	for(unsigned it(0); it < NTOY; it++){
 	//		double toy_jet = w_jet*(1+sysJetFakePho*randomweight_jet[ih]);
 	//		toy_PhoEt[it]->Fill(rarephoEt,toy_jet);
@@ -550,7 +553,7 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	DY_PhoEt->SetLineColor(kYellow);
 	DY_PhoEt->SetFillColor(kYellow);
 	pred_PhoEt->Draw("hist same");
-	DY_PhoEt->Draw("hist same");
+//	DY_PhoEt->Draw("hist same");
 	  TLegend *leg =  new TLegend(0.5,0.55,0.9,0.8);
         leg->SetFillStyle(0);
         gStyle->SetLegendBorderSize(1);
@@ -558,7 +561,7 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	
 	leg->AddEntry(p_PhoEt,"observed");
         leg->AddEntry(pred_PhoEt,"W+jets");
-        leg->AddEntry(DY_PhoEt,"DY");
+//      leg->AddEntry(DY_PhoEt,"DY");
 	leg->AddEntry(error_PhoEt, "Syst. Unc.");
 	leg->Draw("same");
 	
@@ -595,8 +598,8 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	pt_pad2->cd();
   TLine *flatratio = new TLine(35,1,200,1);
 	TH1F *ratio=(TH1F*)p_PhoEt->Clone("transfer factor");
-	ratio->SetMinimum(0);
-	ratio->SetMaximum(2);
+	ratio->GetYaxis()->SetRangeUser(0.4,1.7);
+        ratio->GetYaxis()->SetNdivisions(504);
 	ratio->SetMarkerStyle(20);
 	ratio->SetLineColor(kBlack);
 	ratio->Divide(pred_PhoEt);
@@ -618,12 +621,12 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	ratioerror_PhoEt->Draw("E2 same");
 	ratio->Draw("same");
 	flatratio->Draw("same");
-	if(channelType==1) 	c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_PhotonEt_eg_%d%s.pdf",RunYear,whichVFP.c_str()));
-	if(channelType==2) 	c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_PhotonEt_mg_%d%s.pdf",RunYear,whichVFP.c_str()));
-
-
-
-// ******** MET ************************//
+	TLine *ratioValue_PhoEt = new TLine(35,p_PhoEt->Integral()/pred_PhoEt->Integral(),200,p_PhoEt->Integral()/pred_PhoEt->Integral());
+        ratioValue_PhoEt->SetLineColor(kRed);
+        ratioValue_PhoEt->Draw("same");
+	if(channelType==1) 	c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_PhotonEt_eg_%d%s.png",RunYear,whichVFP.c_str()));
+	if(channelType==2) 	c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_PhotonEt_mg_%d%s.png",RunYear,whichVFP.c_str()));
+// ******** MET ************************ //
 	gStyle->SetOptStat(0);
 	TCanvas *c_met = new TCanvas("MET", "MET",600,600);
 	c_met->cd();
@@ -633,7 +636,7 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	met_pad1->cd();  
 	gPad->SetLogy();
 	p_MET->GetYaxis()->SetRangeUser(1,1000000);
-	p_MET->SetMinimum(0.001);
+//	p_MET->SetMinimum(0.001);
 	p_MET->GetXaxis()->SetRangeUser(0,400);
 	p_MET->SetLineColor(1);
 	p_MET->SetMarkerStyle(20);
@@ -659,7 +662,7 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	cout<<"Ratio "<<p_MET->Integral()/pred_MET->Integral()<<endl;
 
 	pred_MET->Draw("hist same");
-	DY_MET->Draw("hist same");
+//	DY_MET->Draw("hist same");
   	error_MET->SetFillColor(15);
   	error_MET->SetFillStyle(3345);
 	error_MET->Draw("E2 same");
@@ -669,14 +672,15 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	if(channelType==1) chantex.DrawLatex(0.58,0.82," e + #gamma");
         if(channelType==2) chantex.DrawLatex(0.58,0.82," #mu + #gamma");
         //TLine *line_met = new TLine(70,0,70,10000);
-        TLine *line_met = new TLine(70,0.05,70,1000*p_MET->GetBinContent(p_MET->GetMaximumBin()));
+	
+        TLine *line_met = new TLine(70,0.05,70,100*p_MET->GetBinContent(p_MET->GetMaximumBin()));
         line_met->SetLineStyle(2);
         line_met->Draw("same");
+        gPad->RedrawAxis();
         TLatex* latex = new TLatex();
         latex->SetTextSize(0.05);
         latex->DrawLatex(20, 60000,"control");
         latex->DrawLatex(20, 30000,"region");
-        gPad->RedrawAxis();
         if(RunYear==2016 and preVFP == 1)       CMS_lumi( met_pad1, 1, ichannel, 11 );
         else if(RunYear==2016 and preVFP == 0)  CMS_lumi( met_pad1, 2, ichannel, 11 );
         else if(RunYear==2017)                  CMS_lumi( met_pad1, 3, ichannel, 11 );
@@ -693,7 +697,6 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	TH1F *ratio_met=(TH1F*)p_MET->Clone("transfer factor");
 	ratio_met->GetXaxis()->SetRangeUser(0,400);
 
-        ratio_met->GetYaxis()->SetNdivisions(504);
         ratio_met->SetLineColor(kBlack);
         ratio_met->SetMarkerStyle(20);
         ratio_met->Divide(pred_MET);
@@ -706,7 +709,8 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 
         ratio_met->GetXaxis()->SetTitle("p_{T}^{miss} (GeV)");
         ratio_met->GetYaxis()->SetTitle("#frac{Simulation}{Prediction} ");
-	ratio_met->GetYaxis()->SetRangeUser(0,2.1);
+	ratio_met->GetYaxis()->SetRangeUser(0.4,1.7);
+        ratio_met->GetYaxis()->SetNdivisions(504);
 	ratio_met->GetXaxis()->SetLabelFont(63);
 	ratio_met->GetXaxis()->SetLabelSize(14);
 	ratio_met->GetYaxis()->SetLabelFont(63);
@@ -717,8 +721,11 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	ratioerror_MET->Draw("E2 same");
 	ratio_met->Draw("same");
 	flatratio_met->Draw("same");
-	if(channelType==1) 	c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_MET_eg_%d%s.pdf",RunYear,whichVFP.c_str()));
-	if(channelType==2) 	c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_MET_mg_%d%s.pdf",RunYear,whichVFP.c_str()));
+	TLine *ratioValue_met = new TLine(0,p_MET->Integral()/pred_MET->Integral(),400,p_MET->Integral()/pred_MET->Integral());
+        ratioValue_met->SetLineColor(kRed);
+        ratioValue_met->Draw("same");
+	if(channelType==1) 	c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_MET_eg_%d%s.png",RunYear,whichVFP.c_str()));
+	if(channelType==2) 	c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_MET_mg_%d%s.png",RunYear,whichVFP.c_str()));
 
 // ******** Mt ************************//
 	gStyle->SetOptStat(0);
@@ -729,8 +736,6 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	mt_pad1->Draw();  
 	mt_pad1->cd();  
 	gPad->SetLogy();
-	p_Mt->SetMinimum(0.001);
-  p_Mt->SetMaximum(1000000);
 	p_Mt->GetXaxis()->SetRangeUser(0,400);
 	p_Mt->SetLineColor(1);
 	p_Mt->SetMarkerStyle(20);
@@ -750,7 +755,7 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 		ratioerror_Mt->SetPointError(ibin-1,(pred_Mt->GetBinLowEdge(ibin+1)-pred_Mt->GetBinLowEdge(ibin))/2, prederror/pred_Mt->GetBinContent(ibin)); 
 	}
 	pred_Mt->Draw("hist same");
-	DY_Mt->Draw("hist same");
+//	DY_Mt->Draw("hist same");
   error_Mt->SetFillColor(15);
   error_Mt->SetFillStyle(3345);
 	error_Mt->Draw("E2 same");
@@ -777,9 +782,8 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	ratio_mt->SetMarkerStyle(20);
 	ratio_mt->SetLineColor(kBlack);
 	ratio_mt->GetXaxis()->SetRangeUser(0,400);
-	ratio_mt->GetYaxis()->SetRangeUser(0,2.1);
-	ratio_mt->SetMinimum(0);
-	ratio_mt->SetMaximum(2);
+	ratio_mt->GetYaxis()->SetRangeUser(0.4,1.7);
+        ratio_mt->GetYaxis()->SetNdivisions(504);
 	ratio_mt->Divide(pred_Mt);
 	ratio_mt->SetTitle("");
 	ratio_mt->GetXaxis()->SetTitleOffset(1.0);
@@ -800,8 +804,11 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	ratioerror_Mt->Draw("E2 same");
 	ratio_mt->Draw("same");
 	flatratio_mt->Draw("same");
-	if(channelType==1)	c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_MT_eg_%d%s.pdf",RunYear,whichVFP.c_str()));
-	if(channelType==2)	c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_MT_mg_%d%s.pdf",RunYear,whichVFP.c_str()));
+	TLine *ratioValue_mt = new TLine(0,p_Mt->Integral()/pred_Mt->Integral(),400,p_Mt->Integral()/pred_Mt->Integral());
+        ratioValue_mt->SetLineColor(kRed);
+        ratioValue_mt->Draw("same");
+	if(channelType==1)	c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_MT_eg_%d%s.png",RunYear,whichVFP.c_str()));
+	if(channelType==2)	c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_MT_mg_%d%s.png",RunYear,whichVFP.c_str()));
 
 // ******** HT ************************//
 	gStyle->SetOptStat(0);
@@ -813,7 +820,7 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	HT_pad1->cd();  
 	gPad->SetLogy();
 	p_HT->GetXaxis()->SetRangeUser(0,400);
-	p_HT->SetMinimum(1);
+//	p_HT->SetMinimum(1);
 	p_HT->SetLineColor(1);
 	p_HT->SetMarkerStyle(20);
 	p_HT->SetTitle("");
@@ -832,16 +839,16 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 		ratioerror_HT->SetPointError(ibin-1,(pred_HT->GetBinLowEdge(ibin+1)-pred_HT->GetBinLowEdge(ibin))/2, prederror/pred_HT->GetBinContent(ibin)); 
 	}
 	pred_HT->Draw("hist same");
-	DY_HT->Draw("hist same");
+//	DY_HT->Draw("hist same");
 	error_HT->SetFillColor(15);
   error_HT->SetFillStyle(3345);
 	error_HT->Draw("E2 same");
 	leg->Draw("same");
+        gPad->RedrawAxis();
 	p_HT->Draw("E same");
 	
 	    if(channelType==1) chantex.DrawLatex(0.58,0.82," e + #gamma");
           if(channelType==2) chantex.DrawLatex(0.58,0.82," #mu + #gamma");
-        gPad->RedrawAxis();
         if(RunYear==2016 and preVFP == 1)       CMS_lumi( HT_pad1, 1, ichannel, 11 );
         else if(RunYear==2016 and preVFP == 0)  CMS_lumi( HT_pad1, 2, ichannel, 11 );
         else if(RunYear==2017)                  CMS_lumi( HT_pad1, 3, ichannel, 11 );
@@ -854,14 +861,14 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 
 	HT_pad2->Draw();
 	HT_pad2->cd();
-  TLine *flatratio_HT = new TLine(0,1,400,1);
+  TLine *flatratio_HT = new TLine(0,1,420,1);
 	TH1F *ratio_HT=(TH1F*)p_HT->Clone("transfer factor");
 	ratio_HT->SetMarkerStyle(20);
 	ratio_HT->SetLineColor(kBlack);
 	ratio_HT->GetXaxis()->SetRangeUser(0,400);
-	ratio_HT->GetYaxis()->SetRangeUser(0,2.1);
-	ratio_HT->SetMinimum(0);
-	ratio_HT->SetMaximum(2);
+	ratio_HT->GetYaxis()->SetRangeUser(0.4,1.7);
+        ratio_HT->GetYaxis()->SetNdivisions(504);
+
 	ratio_HT->Divide(pred_HT);
 	ratio_HT->GetXaxis()->SetTitleOffset(1.0);
         ratio_HT->GetYaxis()->SetTitleOffset(0.5);
@@ -882,9 +889,10 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	ratioerror_HT->SetFillStyle(3345);
 	ratioerror_HT->Draw("E2 same");
 	flatratio_HT->Draw("same");
-	if(channelType==1)	c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_HT_eg_%d%s.pdf",RunYear,whichVFP.c_str()));
-	if(channelType==2)	c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_HT_mg_%d%s.pdf",RunYear,whichVFP.c_str()));
+	TLine *ratioValue_ht = new TLine(0,p_HT->Integral()/pred_HT->Integral(),420,p_HT->Integral()/pred_HT->Integral());
+        ratioValue_ht->SetLineColor(kRed);
+        ratioValue_ht->Draw("same");
+	if(channelType==1)	c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_HT_eg_%d%s.png",RunYear,whichVFP.c_str()));
+	if(channelType==2)	c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/jetfakepho/Closure/closure_jetfakepho_HT_mg_%d%s.png",RunYear,whichVFP.c_str()));
 
 }
-
-

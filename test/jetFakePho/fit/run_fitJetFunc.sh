@@ -1,6 +1,6 @@
 #!/bin/bash
-
 # fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP)
+
 root -l -q "fitJetFunc.C+(1,2016,1)"
 root -l -q "fitJetFunc.C+(2,2016,1)"
 

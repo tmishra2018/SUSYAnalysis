@@ -1,1974 +1,2022 @@
 
 Processing pred_jetBkg.C++...
-den_coeff1 20948.7
-den_coeff2 364.537
-den_lambd1 -0.0581096
-den_lambd2 -0.0215001
-num_coeff1 18266
-num_coeff2 699.815
-num_lambd1 -0.0908016
-num_lambd2 -0.037007
-numerror 204.877
-numerror 185.157
-numerror 167.282
-numerror 151.084
-numerror 136.406
-numerror 123.109
-numerror 111.066
-numerror 100.16
-numerror 90.2866
-numerror 81.3496
-numerror 73.2622
-numerror 65.9455
-numerror 59.3278
-numerror 53.344
-numerror 47.9922
-numerror 43.3393
-numerror 39.1084
-numerror 35.744
-numerror 32.8408
-numerror 30.1529
-numerror 27.8118
-numerror 25.8549
-numerror 24.0159
-numerror 22.2891
-numerror 20.669
-numerror 19.5103
-numerror 18.4817
-numerror 17.4862
-numerror 16.5253
-numerror 15.5999
-numerror 14.7107
-numerror 13.8579
-numerror 13.0417
-numerror 12.4182
-numerror 11.8988
-numerror 11.3855
-numerror 10.8805
-numerror 10.3857
-numerror 9.90269
-numerror 9.43262
-numerror 8.97643
-numerror 8.5348
-numerror 8.10824
-numerror 7.69707
-numerror 7.30873
-numerror 7.13101
-numerror 6.97787
-numerror 6.8176
-numerror 6.6516
-numerror 6.48113
-numerror 6.30732
-numerror 6.13118
-numerror 5.9536
-numerror 5.77538
-numerror 5.59722
-numerror 5.41975
-numerror 5.24352
-numerror 5.06901
-numerror 4.89663
-numerror 4.72675
-numerror 4.55966
-numerror 4.39564
-numerror 4.2349
-numerror 4.07764
-numerror 3.92399
-numerror 3.77408
-numerror 3.65099
-numerror 3.55769
-numerror 3.46532
-numerror 3.37401
-numerror 3.30449
-numerror 3.25343
-numerror 3.2008
-numerror 3.14686
-numerror 3.09183
-numerror 3.0359
-numerror 2.97928
-numerror 2.92214
-numerror 2.86463
-numerror 2.8069
-numerror 2.74908
-numerror 2.6913
-numerror 2.63365
-numerror 2.57624
-numerror 2.51916
-numerror 2.46248
-numerror 2.40629
-numerror 2.35064
-numerror 2.29663
-numerror 2.2542
-numerror 2.2117
-numerror 2.1692
-numerror 2.12676
-numerror 2.08445
-numerror 2.04231
-numerror 2.00039
-numerror 1.95875
-numerror 1.91742
-numerror 1.87645
-numerror 1.83585
-numerror 1.79568
-numerror 1.75595
-numerror 1.71668
-numerror 1.67791
-numerror 1.63965
-numerror 1.60192
-numerror 1.56473
-numerror 1.5281
-numerror 1.49204
-numerror 1.45655
-numerror 1.42165
-numerror 1.38734
-numerror 1.35363
-numerror 1.32052
-numerror 1.28802
-numerror 1.25612
-numerror 1.22482
-numerror 1.19413
-numerror 1.16404
-numerror 1.13455
-numerror 1.10567
-numerror 1.07737
-numerror 1.04967
-numerror 1.02255
-numerror 0.996012
-numerror 0.970049
-numerror 0.944655
-numerror 0.919823
-numerror 0.895545
-numerror 0.871816
-numerror 0.848629
-numerror 0.825974
-numerror 0.803844
-numerror 0.782232
-numerror 0.761129
-numerror 0.740528
-numerror 0.720419
-numerror 0.700795
-numerror 0.681647
-numerror 0.662966
-numerror 0.644744
-numerror 0.626972
-numerror 0.609642
-numerror 0.592745
-numerror 0.576273
-numerror 0.560216
-numerror 0.544568
-numerror 0.529319
-numerror 0.514462
-numerror 0.499987
-numerror 0.485886
-numerror 0.472152
-numerror 0.458777
-numerror 0.445752
-numerror 0.43307
-numerror 0.420723
-numerror 0.408703
-numerror 0.397004
-numerror 0.385617
-numerror 0.374535
-numerror 0.363751
-numerror 0.353259
-numerror 0.34305
-numerror 0.333119
-numerror 0.323458
-numerror 0.314062
-numerror 0.304922
-numerror 0.296035
-numerror 0.287392
-numerror 0.278987
-numerror 0.270816
-numerror 0.262872
-numerror 0.255149
-numerror 0.247642
-numerror 0.240345
-numerror 0.233253
-numerror 0.22636
-numerror 0.219662
-numerror 0.213152
-numerror 0.206827
-numerror 0.200682
-numerror 0.194711
-numerror 0.188911
-numerror 0.183276
-numerror 0.177802
-numerror 0.172486
-numerror 0.167322
-numerror 0.162306
-numerror 0.157435
-numerror 0.152705
-numerror 0.148112
-numerror 0.143652
-numerror 0.139321
-numerror 0.135117
-numerror 0.131034
-numerror 0.127071
-numerror 0.123224
-numerror 0.119489
-numerror 0.115864
-numerror 0.112345
-numerror 0.10893
-numerror 0.105616
-numerror 0.102399
-numerror 0.0992767
-numerror 0.0962471
-numerror 0.0933073
-numerror 0.0904546
-numerror 0.0876866
-numerror 0.085001
-numerror 0.0823952
-numerror 0.0798672
-numerror 0.0774147
-numerror 0.0750354
-numerror 0.0727273
-numerror 0.0704884
-numerror 0.0683166
-numerror 0.0662101
-numerror 0.0641668
-numerror 0.0621851
-numerror 0.060263
-numerror 0.058399
-numerror 0.0565912
-numerror 0.0548381
-numerror 0.053138
-numerror 0.0514895
-numerror 0.0498909
-numerror 0.0483408
-numerror 0.0468379
-numerror 0.0453806
-numerror 0.0439677
-numerror 0.0425979
-numerror 0.0412698
-numerror 0.0399823
-numerror 0.0387342
-numerror 0.0375242
-numerror 0.0363512
-numerror 0.0352142
-numerror 0.0341121
-numerror 0.0330438
-numerror 0.0320083
-numerror 0.0310047
-numerror 0.0300319
-numerror 0.0290891
-numerror 0.0281753
-numerror 0.0272898
-numerror 0.0264316
-numerror 0.0255998
-numerror 0.0247939
-numerror 0.0240128
-numerror 0.0232559
-numerror 0.0225225
-numerror 0.0218118
-numerror 0.0211232
-numerror 0.020456
-numerror 0.0198095
-numerror 0.0191831
-numerror 0.0185762
-numerror 0.0179882
-numerror 0.0174186
-numerror 0.0168667
-numerror 0.016332
-numerror 0.015814
-numerror 0.0153122
-numerror 0.0148261
-numerror 0
-denerror 123.223
-denerror 114.492
-denerror 106.725
-denerror 99.756
-denerror 93.1778
-denerror 86.9697
-denerror 81.1122
-denerror 75.5871
-denerror 70.6028
-denerror 66.0853
-denerror 61.803
-denerror 58.286
-denerror 55.0857
-denerror 52.0261
-denerror 49.1023
-denerror 46.3096
-denerror 43.6436
-denerror 41.0995
-denerror 38.673
-denerror 36.3596
-denerror 34.6039
-denerror 33.5435
-denerror 32.4806
-denerror 31.4191
-denerror 30.3625
-denerror 29.3138
-denerror 28.2755
-denerror 27.2502
-denerror 26.3337
-denerror 25.6135
-denerror 24.8919
-denerror 24.1711
-denerror 23.4532
-denerror 22.74
-denerror 22.0329
-denerror 21.3336
-denerror 20.643
-denerror 19.9624
-denerror 19.2927
-denerror 18.6346
-denerror 17.9888
-denerror 17.356
-denerror 16.7365
-denerror 16.1308
-denerror 15.5392
-denerror 14.9619
-denerror 14.3991
-denerror 13.8509
-denerror 13.3173
-denerror 12.7983
-denerror 12.2939
-denerror 11.8041
-denerror 11.4087
-denerror 11.115
-denerror 10.8253
-denerror 10.54
-denerror 10.2986
-denerror 10.1336
-denerror 9.96627
-denerror 9.79708
-denerror 9.62647
-denerror 9.45483
-denerror 9.30489
-denerror 9.17986
-denerror 9.05273
-denerror 8.92387
-denerror 8.79365
-denerror 8.66236
-denerror 8.53031
-denerror 8.39775
-denerror 8.26493
-denerror 8.13207
-denerror 7.99938
-denerror 7.86703
-denerror 7.73519
-denerror 7.60401
-denerror 7.47363
-denerror 7.34418
-denerror 7.21575
-denerror 7.08845
-denerror 6.96237
-denerror 6.83758
-denerror 6.71415
-denerror 6.61334
-denerror 6.51265
-denerror 6.41195
-denerror 6.31135
-denerror 6.21096
-denerror 6.11778
-denerror 6.02928
-denerror 5.94041
-denerror 5.85127
-denerror 5.76198
-denerror 5.67263
-denerror 5.58333
-denerror 5.49415
-denerror 5.41549
-denerror 5.33689
-denerror 5.25814
-denerror 5.17933
-denerror 5.10053
-denerror 5.02182
-denerror 4.94327
-denerror 4.86493
-denerror 4.78688
-denerror 4.70916
-denerror 4.63184
-denerror 4.55496
-denerror 4.47856
-denerror 4.40269
-denerror 4.32739
-denerror 4.2527
-denerror 4.17865
-denerror 4.10527
-denerror 4.03259
-denerror 3.96064
-denerror 3.88944
-denerror 3.81901
-denerror 3.74937
-denerror 3.68055
-denerror 3.61254
-denerror 3.54538
-denerror 3.47906
-denerror 3.41361
-denerror 3.34903
-denerror 3.28533
-denerror 3.22252
-denerror 3.16059
-denerror 3.09956
-denerror 3.03942
-denerror 2.98019
-denerror 2.92185
-denerror 2.86441
-denerror 2.80787
-denerror 2.75222
-denerror 2.69747
-denerror 2.64361
-denerror 2.59063
-denerror 2.53853
-denerror 2.48731
-denerror 2.43696
-denerror 2.38747
-denerror 2.33883
-denerror 2.29105
-denerror 2.24411
-denerror 2.198
-denerror 2.15271
-denerror 2.10825
-denerror 2.06459
-denerror 2.02172
-denerror 1.97965
-denerror 1.93836
-denerror 1.89784
-denerror 1.85808
-denerror 1.81907
-denerror 1.7808
-denerror 1.74326
-denerror 1.70709
-denerror 1.67457
-denerror 1.64319
-denerror 1.61236
-denerror 1.58207
-denerror 1.55232
-denerror 1.52309
-denerror 1.49438
-denerror 1.46619
-denerror 1.43849
-denerror 1.4113
-denerror 1.38459
-denerror 1.35836
-denerror 1.33261
-denerror 1.30732
-denerror 1.28474
-denerror 1.26359
-denerror 1.24276
-denerror 1.22224
-denerror 1.20204
-denerror 1.18214
-denerror 1.16254
-denerror 1.14325
-denerror 1.12425
-denerror 1.10554
-denerror 1.08712
-denerror 1.06898
-denerror 1.05112
-denerror 1.03354
-denerror 1.01623
-denerror 0.999187
-denerror 0.982411
-denerror 0.965897
-denerror 0.949641
-denerror 0.93364
-denerror 0.917889
-denerror 0.902386
-denerror 0.887127
-denerror 0.872108
-denerror 0.857327
-denerror 0.84278
-denerror 0.828464
-denerror 0.814375
-denerror 0.800511
-denerror 0.786867
-denerror 0.773442
-denerror 0.760231
-denerror 0.747232
-denerror 0.734442
-denerror 0.721858
-denerror 0.709476
-denerror 0.697294
-denerror 0.685309
-denerror 0.673518
-denerror 0.661918
-denerror 0.65102
-denerror 0.640626
-denerror 0.630381
-denerror 0.620282
-denerror 0.610328
-denerror 0.600517
-denerror 0.590848
-denerror 0.581319
-denerror 0.571929
-denerror 0.562675
-denerror 0.553557
-denerror 0.544572
-denerror 0.535719
-denerror 0.526997
-denerror 0.518404
-denerror 0.509938
-denerror 0.501598
-denerror 0.493383
-denerror 0.48529
-denerror 0.477318
-denerror 0.469467
-denerror 0.461733
-denerror 0.454116
-denerror 0.446615
-denerror 0.439227
-denerror 0.431952
-denerror 0.424788
-denerror 0.417733
-denerror 0.410786
-denerror 0.403946
-denerror 0.397211
-denerror 0.39058
-denerror 0.384052
-denerror 0.377624
-denerror 0.371297
-denerror 0.365068
-denerror 0.358936
-denerror 0.352899
-denerror 0.346957
-denerror 0.341109
-denerror 0.335352
-denerror 0.329686
-denerror 0.324109
-denerror 0.318621
-denerror 0.313219
-denerror 0.307903
-denerror 0.302672
-denerror 0.297524
-denerror 0.292458
-denerror 0.287473
-denerror 0.282567
-denerror 0.277741
-denerror 0.272992
-sys 0.109553 num 0.0351668  den 0.00691972
-sys 0.107243 num 0.0336096  den 0.006639
-sys 0.104914 num 0.0321086  den 0.00639244
-sys 0.102566 num 0.0306624  den 0.00617389
-sys 0.100185 num 0.0292685  den 0.00596075
-sys 0.0977737 num 0.0279254  den 0.00575281
-sys 0.0953338 num 0.0266315  den 0.00554984
-sys 0.0928665 num 0.0253849  den 0.00535164
-sys 0.090387 num 0.024184  den 0.00517453
-sys 0.0878963 num 0.0230274  den 0.00501573
-sys 0.0853852 num 0.0219134  den 0.00485951
-sys 0.0828941 num 0.0208407  den 0.00474981
-sys 0.0804017 num 0.0198078  den 0.00465435
-sys 0.0778996 num 0.0188134  den 0.00455964
-sys 0.0754757 num 0.0178776  den 0.00446564
-sys 0.073343 num 0.01705  den 0.00437231
-sys 0.0711782 num 0.0162468  den 0.00427963
-sys 0.0698626 num 0.0156784  den 0.00418751
-sys 0.0688607 num 0.0152076  den 0.0040959
-sys 0.0677824 num 0.0147389  den 0.00400472
-sys 0.067019 num 0.0143482  den 0.00396532
-sys 0.0667972 num 0.0140762  den 0.00400083
-sys 0.0664828 num 0.0137961  den 0.00403405
-sys 0.0660772 num 0.0135082  den 0.00406511
-sys 0.0655821 num 0.0132133  den 0.00409412
-sys 0.0661099 num 0.0131545  den 0.00412117
-sys 0.0668071 num 0.0131402  den 0.00414632
-sys 0.0673876 num 0.013108  den 0.00416965
-sys 0.0678748 num 0.0130587  den 0.0042062
-sys 0.0682963 num 0.012993  den 0.00427229
-sys 0.0686086 num 0.0129116  den 0.00433734
-sys 0.0688135 num 0.0128152  den 0.0044014
-sys 0.0689144 num 0.0127048  den 0.00446451
-sys 0.0696925 num 0.0127412  den 0.00452671
-sys 0.0708225 num 0.0128557  den 0.00458795
-sys 0.0718329 num 0.0129508  den 0.0046483
-sys 0.0727253 num 0.0130274  den 0.00470767
-sys 0.0735027 num 0.0130864  den 0.00476609
-sys 0.0741683 num 0.0131287  den 0.00482349
-sys 0.0747249 num 0.013155  den 0.0048798
-sys 0.0751758 num 0.0131661  den 0.00493496
-sys 0.0755246 num 0.0131627  den 0.00498892
-sys 0.0757749 num 0.0131455  den 0.00504155
-sys 0.0759305 num 0.0131151  den 0.00509278
-sys 0.0760608 num 0.0130852  den 0.0051425
-sys 0.0779616 num 0.0134115  den 0.00519058
-sys 0.080071 num 0.0137824  den 0.0052369
-sys 0.0820869 num 0.0141385  den 0.00528133
-sys 0.0840077 num 0.0144796  den 0.00532371
-sys 0.0858319 num 0.0148055  den 0.00536387
-sys 0.0875589 num 0.0151163  den 0.00540169
-sys 0.0891879 num 0.0154118  den 0.00543703
-sys 0.0907883 num 0.0156921  den 0.00550831
-sys 0.0923762 num 0.0159569  den 0.00562471
-sys 0.0938706 num 0.0162064  den 0.00574094
-sys 0.0952723 num 0.0164405  den 0.00585695
-sys 0.0966248 num 0.0166592  den 0.00599545
-sys 0.0979733 num 0.0168625  den 0.00617925
-sys 0.0992391 num 0.0170503  den 0.00636413
-sys 0.100424 num 0.0172228  den 0.00654989
-sys 0.10153 num 0.0173798  den 0.00673634
-sys 0.102558 num 0.0175216  den 0.00692324
-sys 0.103547 num 0.0176481  den 0.00712749
-sys 0.104509 num 0.0177594  den 0.0073535
-sys 0.105407 num 0.0178557  den 0.00758098
-sys 0.106243 num 0.017937  den 0.0078097
-sys 0.107586 num 0.0181175  den 0.00803944
-sys 0.109582 num 0.0184273  den 0.00826993
-sys 0.111543 num 0.0187286  den 0.00850093
-sys 0.113471 num 0.0190209  den 0.00873214
-sys 0.115963 num 0.0194254  den 0.0089633
-sys 0.118989 num 0.0199362  den 0.00919412
-sys 0.121986 num 0.0204386  den 0.0094243
-sys 0.124955 num 0.0209323  den 0.00965354
-sys 0.127895 num 0.0214169  den 0.00988152
-sys 0.130805 num 0.0218919  den 0.0101079
-sys 0.133687 num 0.0223573  den 0.0103325
-sys 0.13654 num 0.0228126  den 0.0105549
-sys 0.139364 num 0.0232574  den 0.0107747
-sys 0.14216 num 0.0236916  den 0.0109918
-sys 0.144928 num 0.0241148  den 0.0112057
-sys 0.147669 num 0.024527  den 0.0114162
-sys 0.150382 num 0.0249276  den 0.011623
-sys 0.153156 num 0.0253167  den 0.0118637
-sys 0.155905 num 0.0256939  den 0.0121004
-sys 0.158628 num 0.0260591  den 0.0123322
-sys 0.161326 num 0.0264123  den 0.0125587
-sys 0.163997 num 0.0267531  den 0.0127796
-sys 0.16674 num 0.0270938  den 0.0130093
-sys 0.170159 num 0.0275565  den 0.0132431
-sys 0.173561 num 0.0280075  den 0.0134701
-sys 0.176946 num 0.0284464  den 0.0136899
-sys 0.180314 num 0.0288729  den 0.0139022
-sys 0.183666 num 0.0292871  den 0.0141066
-sys 0.186999 num 0.0296883  den 0.014303
-sys 0.190314 num 0.0300766  den 0.0144911
-sys 0.193682 num 0.0304519  den 0.0146986
-sys 0.197035 num 0.0308139  den 0.0148983
-sys 0.200371 num 0.0311627  den 0.0150892
-sys 0.20369 num 0.0314978  den 0.0152711
-sys 0.206992 num 0.0318196  den 0.0154438
-sys 0.210277 num 0.0321278  den 0.0156072
-sys 0.213543 num 0.0324222  den 0.0157612
-sys 0.216793 num 0.0327032  den 0.0159055
-sys 0.220026 num 0.0329706  den 0.0160402
-sys 0.223241 num 0.0332245  den 0.0161652
-sys 0.226439 num 0.0334648  den 0.0162805
-sys 0.229619 num 0.0336917  den 0.016386
-sys 0.232783 num 0.0339053  den 0.0164818
-sys 0.235928 num 0.0341055  den 0.016568
-sys 0.239056 num 0.0342926  den 0.0166445
-sys 0.242168 num 0.0344667  den 0.0167114
-sys 0.245263 num 0.034628  den 0.016769
-sys 0.248341 num 0.0347766  den 0.0168171
-sys 0.251404 num 0.0349128  den 0.0168561
-sys 0.254451 num 0.0350365  den 0.0168861
-sys 0.25748 num 0.035148  den 0.0169071
-sys 0.260494 num 0.0352476  den 0.0169194
-sys 0.263493 num 0.0353353  den 0.0169232
-sys 0.266476 num 0.0354115  den 0.0169187
-sys 0.269446 num 0.0354768  den 0.016906
-sys 0.272399 num 0.0355305  den 0.0168855
-sys 0.275339 num 0.0355736  den 0.0168572
-sys 0.278265 num 0.035606  den 0.0168215
-sys 0.281177 num 0.035628  den 0.0167786
-sys 0.284076 num 0.0356399  den 0.0167287
-sys 0.286962 num 0.035642  den 0.0166721
-sys 0.289835 num 0.0356345  den 0.0166089
-sys 0.292696 num 0.0356175  den 0.0165396
-sys 0.295545 num 0.0355915  den 0.0164643
-sys 0.298383 num 0.0355567  den 0.0163832
-sys 0.301209 num 0.0355132  den 0.0162967
-sys 0.304025 num 0.0354613  den 0.0162049
-sys 0.30683 num 0.0354014  den 0.0161082
-sys 0.309625 num 0.0353337  den 0.0160067
-sys 0.31241 num 0.0352584  den 0.0159007
-sys 0.315186 num 0.0351757  den 0.0157905
-sys 0.317953 num 0.035086  den 0.0156762
-sys 0.320712 num 0.0349894  den 0.0155582
-sys 0.323462 num 0.0348863  den 0.0154366
-sys 0.326204 num 0.0347767  den 0.0153117
-sys 0.328939 num 0.034661  den 0.0151837
-sys 0.331666 num 0.0345395  den 0.0150527
-sys 0.334387 num 0.0344122  den 0.0149192
-sys 0.337101 num 0.0342796  den 0.0147831
-sys 0.339808 num 0.0341416  den 0.0146447
-sys 0.34251 num 0.0339987  den 0.0145042
-sys 0.345206 num 0.033851  den 0.0143618
-sys 0.347898 num 0.0336987  den 0.0142177
-sys 0.350584 num 0.033542  den 0.0140719
-sys 0.353265 num 0.0333811  den 0.0139249
-sys 0.355943 num 0.0332162  den 0.0137766
-sys 0.358616 num 0.0330476  den 0.0136272
-sys 0.361286 num 0.0328752  den 0.0134769
-sys 0.363952 num 0.0326995  den 0.0133258
-sys 0.366615 num 0.0325205  den 0.013174
-sys 0.369274 num 0.0323383  den 0.0130218
-sys 0.371951 num 0.0321533  den 0.012874
-sys 0.374717 num 0.0319655  den 0.0127485
-sys 0.377498 num 0.031775  den 0.0126267
-sys 0.380277 num 0.0315821  den 0.0125043
-sys 0.383056 num 0.0313869  den 0.0123815
-sys 0.385833 num 0.0311895  den 0.0122584
-sys 0.388609 num 0.0309901  den 0.0121349
-sys 0.391384 num 0.0307888  den 0.0120112
-sys 0.39416 num 0.0305858  den 0.0118875
-sys 0.396932 num 0.030381  den 0.0117636
-sys 0.399707 num 0.0301749  den 0.0116398
-sys 0.40248 num 0.0299673  den 0.0115161
-sys 0.405252 num 0.0297583  den 0.0113925
-sys 0.408026 num 0.0295483  den 0.0112692
-sys 0.410799 num 0.0293372  den 0.0111461
-sys 0.413664 num 0.0291251  den 0.0110427
-sys 0.416573 num 0.0289122  den 0.0109484
-sys 0.419483 num 0.0286985  den 0.010854
-sys 0.422393 num 0.0284842  den 0.0107593
-sys 0.425305 num 0.0282693  den 0.0106646
-sys 0.428218 num 0.028054  den 0.0105697
-sys 0.431129 num 0.0278381  den 0.0104748
-sys 0.434044 num 0.027622  den 0.0103799
-sys 0.43696 num 0.0274057  den 0.0102851
-sys 0.439876 num 0.0271892  den 0.0101903
-sys 0.442796 num 0.0269726  den 0.0100956
-sys 0.445715 num 0.026756  den 0.0100011
-sys 0.448635 num 0.0265394  den 0.00990674
-sys 0.451559 num 0.026323  den 0.00981262
-sys 0.454483 num 0.0261067  den 0.0097187
-sys 0.457407 num 0.0258905  den 0.00962503
-sys 0.460334 num 0.0256747  den 0.00953167
-sys 0.463263 num 0.0254593  den 0.00943862
-sys 0.466194 num 0.0252443  den 0.00934591
-sys 0.469127 num 0.0250298  den 0.00925357
-sys 0.472061 num 0.0248156  den 0.00916159
-sys 0.474999 num 0.0246021  den 0.00907002
-sys 0.477935 num 0.024389  den 0.00897887
-sys 0.480876 num 0.0241767  den 0.00888815
-sys 0.48382 num 0.023965  den 0.00879789
-sys 0.486763 num 0.023754  den 0.0087081
-sys 0.48971 num 0.0235438  den 0.00861879
-sys 0.492659 num 0.0233343  den 0.00852999
-sys 0.495611 num 0.0231257  den 0.0084417
-sys 0.498568 num 0.022918  den 0.00835393
-sys 0.501523 num 0.022711  den 0.00826671
-sys 0.50448 num 0.0225049  den 0.00818003
-sys 0.507441 num 0.0222998  den 0.00809391
-sys 0.510405 num 0.0220957  den 0.00800836
-sys 0.513371 num 0.0218925  den 0.00792339
-sys 0.51634 num 0.0216904  den 0.007839
-sys 0.519311 num 0.0214893  den 0.0077552
-sys 0.522285 num 0.0212892  den 0.00767201
-sys 0.525262 num 0.0210902  den 0.00758942
-sys 0.528241 num 0.0208923  den 0.00750744
-sys 0.531271 num 0.0206955  den 0.00743194
-sys 0.534336 num 0.0204998  den 0.0073608
-sys 0.537405 num 0.0203053  den 0.00729002
-sys 0.540476 num 0.0201119  den 0.0072196
-sys 0.54355 num 0.0199197  den 0.00714954
-sys 0.546626 num 0.0197287  den 0.00707985
-sys 0.549706 num 0.0195388  den 0.00701056
-sys 0.552789 num 0.0193502  den 0.00694165
-sys 0.555875 num 0.0191628  den 0.00687315
-sys 0.558964 num 0.0189766  den 0.00680505
-sys 0.562056 num 0.0187917  den 0.00673737
-sys 0.565151 num 0.018608  den 0.00667009
-sys 0.56825 num 0.0184255  den 0.00660324
-sys 0.571352 num 0.0182444  den 0.00653682
-sys 0.574456 num 0.0180644  den 0.00647084
-sys 0.577565 num 0.0178858  den 0.00640529
-sys 0.580676 num 0.0177084  den 0.00634018
-sys 0.583791 num 0.0175323  den 0.00627552
-sys 0.586909 num 0.0173575  den 0.00621131
-sys 0.59003 num 0.017184  den 0.00614754
-sys 0.593155 num 0.0170118  den 0.00608424
-sys 0.596283 num 0.0168409  den 0.00602139
-sys 0.599415 num 0.0166712  den 0.00595899
-sys 0.602549 num 0.0165029  den 0.00589707
-sys 0.605688 num 0.0163359  den 0.00583561
-sys 0.60883 num 0.0161701  den 0.00577461
-sys 0.611976 num 0.0160057  den 0.00571409
-sys 0.615125 num 0.0158426  den 0.00565403
-sys 0.618279 num 0.0156808  den 0.00559443
-sys 0.621435 num 0.0155202  den 0.00553531
-sys 0.624595 num 0.015361  den 0.00547666
-sys 0.627758 num 0.0152031  den 0.00541849
-sys 0.630927 num 0.0150464  den 0.00536079
-sys 0.634098 num 0.0148911  den 0.00530355
-sys 0.637271 num 0.014737  den 0.0052468
-sys 0.640452 num 0.0145843  den 0.00519051
-sys 0.643634 num 0.0144328  den 0.0051347
-sys 0.646819 num 0.0142826  den 0.00507935
-sys 0.65001 num 0.0141337  den 0.00502447
-sys 0.653203 num 0.013986  den 0.00497008
-sys 0.656402 num 0.0138396  den 0.00491614
-sys 0.659604 num 0.0136945  den 0.00486268
-sys 0.66281 num 0.0135507  den 0.00480968
-sys 0.666019 num 0.0134081  den 0.00475716
-sys 0.669233 num 0.0132667  den 0.00470509
-sys 0.67245 num 0.0131266  den 0.00465349
-sys 0.675674 num 0.0129878  den 0.00460236
-sys 0.6789 num 0.0128502  den 0.00455169
-sys 0.682129 num 0.0127138  den 0.00450148
-sys 0.685363 num 0.0125786  den 0.00445172
-sys 0.688601 num 0.0124447  den 0.00440241
-sys 0.691843 num 0.012312  den 0.00435357
-Et 35  fakerate 0.327157
-Et 36  fakerate 0.319451
-Et 37  fakerate 0.312053
-Et 38  fakerate 0.304952
-Et 39  fakerate 0.298141
-Et 40  fakerate 0.29161
-Et 41  fakerate 0.285351
-Et 42  fakerate 0.279356
-Et 43  fakerate 0.273617
-Et 44  fakerate 0.268127
-Et 45  fakerate 0.262877
-Et 46  fakerate 0.25786
-Et 47  fakerate 0.253071
-Et 48  fakerate 0.2485
-Et 49  fakerate 0.244143
-Et 50  fakerate 0.239992
-Et 51  fakerate 0.236041
-Et 52  fakerate 0.232284
-Et 53  fakerate 0.228715
-Et 54  fakerate 0.225328
-Et 55  fakerate 0.222118
-Et 56  fakerate 0.219077
-Et 57  fakerate 0.216203
-Et 58  fakerate 0.213487
-Et 59  fakerate 0.210927
-Et 60  fakerate 0.208516
-Et 61  fakerate 0.206249
-Et 62  fakerate 0.204121
-Et 63  fakerate 0.202128
-Et 64  fakerate 0.200265
-Et 65  fakerate 0.198527
-Et 66  fakerate 0.196909
-Et 67  fakerate 0.195407
-Et 68  fakerate 0.194016
-Et 69  fakerate 0.192733
-Et 70  fakerate 0.191552
-Et 71  fakerate 0.190469
-Et 72  fakerate 0.18948
-Et 73  fakerate 0.188581
-Et 74  fakerate 0.187768
-Et 75  fakerate 0.187036
-Et 76  fakerate 0.186382
-Et 77  fakerate 0.185802
-Et 78  fakerate 0.18529
-Et 79  fakerate 0.184845
-Et 80  fakerate 0.184461
-Et 81  fakerate 0.184135
-Et 82  fakerate 0.183863
-Et 83  fakerate 0.183641
-Et 84  fakerate 0.183465
-Et 85  fakerate 0.183333
-Et 86  fakerate 0.183239
-Et 87  fakerate 0.183182
-Et 88  fakerate 0.183156
-Et 89  fakerate 0.183159
-Et 90  fakerate 0.183187
-Et 91  fakerate 0.183237
-Et 92  fakerate 0.183305
-Et 93  fakerate 0.183388
-Et 94  fakerate 0.183484
-Et 95  fakerate 0.183588
-Et 96  fakerate 0.183698
-Et 97  fakerate 0.183811
-Et 98  fakerate 0.183924
-Et 99  fakerate 0.184034
-Et 100  fakerate 0.184138
-Et 101  fakerate 0.184234
-Et 102  fakerate 0.184319
-Et 103  fakerate 0.184391
-Et 104  fakerate 0.184448
-Et 105  fakerate 0.184486
-Et 106  fakerate 0.184505
-Et 107  fakerate 0.184502
-Et 108  fakerate 0.184475
-Et 109  fakerate 0.184422
-Et 110  fakerate 0.184341
-Et 111  fakerate 0.184232
-Et 112  fakerate 0.184093
-Et 113  fakerate 0.183921
-Et 114  fakerate 0.183717
-Et 115  fakerate 0.183478
-Et 116  fakerate 0.183205
-Et 117  fakerate 0.182895
-Et 118  fakerate 0.182549
-Et 119  fakerate 0.182166
-Et 120  fakerate 0.181745
-Et 121  fakerate 0.181286
-Et 122  fakerate 0.180788
-Et 123  fakerate 0.180252
-Et 124  fakerate 0.179677
-Et 125  fakerate 0.179063
-Et 126  fakerate 0.178411
-Et 127  fakerate 0.177721
-Et 128  fakerate 0.176992
-Et 129  fakerate 0.176226
-Et 130  fakerate 0.175423
-Et 131  fakerate 0.174584
-Et 132  fakerate 0.173708
-Et 133  fakerate 0.172797
-Et 134  fakerate 0.171852
-Et 135  fakerate 0.170873
-Et 136  fakerate 0.169862
-Et 137  fakerate 0.168819
-Et 138  fakerate 0.167745
-Et 139  fakerate 0.166641
-Et 140  fakerate 0.165509
-Et 141  fakerate 0.164348
-Et 142  fakerate 0.163162
-Et 143  fakerate 0.16195
-Et 144  fakerate 0.160713
-Et 145  fakerate 0.159454
-Et 146  fakerate 0.158173
-Et 147  fakerate 0.156871
-Et 148  fakerate 0.155549
-Et 149  fakerate 0.15421
-Et 150  fakerate 0.152853
-Et 151  fakerate 0.15148
-Et 152  fakerate 0.150092
-Et 153  fakerate 0.148691
-Et 154  fakerate 0.147277
-Et 155  fakerate 0.145851
-Et 156  fakerate 0.144416
-Et 157  fakerate 0.142971
-Et 158  fakerate 0.141518
-Et 159  fakerate 0.140058
-Et 160  fakerate 0.138592
-Et 161  fakerate 0.137121
-Et 162  fakerate 0.135646
-Et 163  fakerate 0.134168
-Et 164  fakerate 0.132688
-Et 165  fakerate 0.131206
-Et 166  fakerate 0.129723
-Et 167  fakerate 0.128241
-Et 168  fakerate 0.126761
-Et 169  fakerate 0.125282
-Et 170  fakerate 0.123805
-Et 171  fakerate 0.122332
-Et 172  fakerate 0.120863
-Et 173  fakerate 0.119399
-Et 174  fakerate 0.11794
-Et 175  fakerate 0.116486
-Et 176  fakerate 0.115039
-Et 177  fakerate 0.113599
-Et 178  fakerate 0.112167
-Et 179  fakerate 0.110742
-Et 180  fakerate 0.109326
-Et 181  fakerate 0.107919
-Et 182  fakerate 0.106521
-Et 183  fakerate 0.105132
-Et 184  fakerate 0.103753
-Et 185  fakerate 0.102385
-Et 186  fakerate 0.101027
-Et 187  fakerate 0.0996801
-Et 188  fakerate 0.0983443
-Et 189  fakerate 0.0970198
-Et 190  fakerate 0.0957069
-Et 191  fakerate 0.0944058
-Et 192  fakerate 0.0931166
-Et 193  fakerate 0.0918397
-Et 194  fakerate 0.090575
-Et 195  fakerate 0.0893228
-Et 196  fakerate 0.0880831
-Et 197  fakerate 0.0868562
-Et 198  fakerate 0.085642
-Et 199  fakerate 0.0844406
-Et 200  fakerate 0.0832522
-Et 201  fakerate 0.0820768
-Et 202  fakerate 0.0809144
-Et 203  fakerate 0.079765
-Et 204  fakerate 0.0786287
-Et 205  fakerate 0.0775055
-Et 206  fakerate 0.0763955
-Et 207  fakerate 0.0752984
-Et 208  fakerate 0.0742145
-Et 209  fakerate 0.0731436
-Et 210  fakerate 0.0720858
-Et 211  fakerate 0.0710409
-Et 212  fakerate 0.070009
-Et 213  fakerate 0.06899
-Et 214  fakerate 0.0679837
-Et 215  fakerate 0.0669903
-Et 216  fakerate 0.0660096
-Et 217  fakerate 0.0650415
-Et 218  fakerate 0.064086
-Et 219  fakerate 0.0631429
-Et 220  fakerate 0.0622122
-Et 221  fakerate 0.0612939
-Et 222  fakerate 0.0603877
-Et 223  fakerate 0.0594937
-Et 224  fakerate 0.0586117
-Et 225  fakerate 0.0577416
-Et 226  fakerate 0.0568833
-Et 227  fakerate 0.0560367
-Et 228  fakerate 0.0552018
-Et 229  fakerate 0.0543783
-Et 230  fakerate 0.0535662
-Et 231  fakerate 0.0527654
-Et 232  fakerate 0.0519757
-Et 233  fakerate 0.0511971
-Et 234  fakerate 0.0504294
-Et 235  fakerate 0.0496725
-Et 236  fakerate 0.0489263
-Et 237  fakerate 0.0481907
-Et 238  fakerate 0.0474656
-Et 239  fakerate 0.0467508
-Et 240  fakerate 0.0460462
-Et 241  fakerate 0.0453517
-Et 242  fakerate 0.0446672
-Et 243  fakerate 0.0439926
-Et 244  fakerate 0.0433277
-Et 245  fakerate 0.0426724
-Et 246  fakerate 0.0420267
-Et 247  fakerate 0.0413903
-Et 248  fakerate 0.0407632
-Et 249  fakerate 0.0401453
-Et 250  fakerate 0.0395364
-Et 251  fakerate 0.0389364
-Et 252  fakerate 0.0383453
-Et 253  fakerate 0.0377628
-Et 254  fakerate 0.037189
-Et 255  fakerate 0.0366235
-Et 256  fakerate 0.0360665
-Et 257  fakerate 0.0355177
-Et 258  fakerate 0.034977
-Et 259  fakerate 0.0344444
-Et 260  fakerate 0.0339196
-Et 261  fakerate 0.0334027
-Et 262  fakerate 0.0328935
-Et 263  fakerate 0.0323919
-Et 264  fakerate 0.0318978
-Et 265  fakerate 0.031411
-Et 266  fakerate 0.0309316
-Et 267  fakerate 0.0304593
-Et 268  fakerate 0.0299941
-Et 269  fakerate 0.0295359
-Et 270  fakerate 0.0290845
-Et 271  fakerate 0.02864
-Et 272  fakerate 0.0282021
-Et 273  fakerate 0.0277709
-Et 274  fakerate 0.0273461
-Et 275  fakerate 0.0269278
-Et 276  fakerate 0.0265157
-Et 277  fakerate 0.0261099
-Et 278  fakerate 0.0257102
-Et 279  fakerate 0.0253166
-Et 280  fakerate 0.0249289
-Et 281  fakerate 0.0245471
-Et 282  fakerate 0.0241711
-Et 283  fakerate 0.0238007
-Et 284  fakerate 0.023436
-Et 285  fakerate 0.0230769
-Et 286  fakerate 0.0227231
-Et 287  fakerate 0.0223748
-Et 288  fakerate 0.0220317
-Et 289  fakerate 0.0216939
-Et 290  fakerate 0.0213612
-Et 291  fakerate 0.0210336
-Et 292  fakerate 0.0207109
-Et 293  fakerate 0.0203932
-Et 294  fakerate 0.0200803
-Et 295  fakerate 0.0197722
-Et 296  fakerate 0.0194688
-Et 297  fakerate 0.01917
-Et 298  fakerate 0.0188757
-Et 299  fakerate 0.018586
-Et 300  fakerate 0.0183007
-Et 301  fakerate 0.0180197
-Et 302  fakerate 0.017743
-Et 303  fakerate 0.0174706
-Et 304  fakerate 0.0172023
-Et 305  fakerate 0.0169381
-Et 306  fakerate 0.016678
-Et 307  fakerate 0.0164218
-Et 308  fakerate 0.0161695
-Et 309  fakerate 0.0159211
-Et 310  fakerate 0.0156766
-Et 311  fakerate 0.0154357
-Et 312  fakerate 0.0151986
-Et 313  fakerate 0.014965
-Et 314  fakerate 0.0147351
-Et 315  fakerate 0.0145086
-Et 316  fakerate 0.0142857
-Et 317  fakerate 0.0140661
-Et 318  fakerate 0.01385
-Et 319  fakerate 0.0136371
-Et 320  fakerate 0.0134275
-Et 321  fakerate 0.0132211
-Et 322  fakerate 0.0130179
-Et 323  fakerate 0.0128178
-Et 324  fakerate 0.0126207
-Et 325  fakerate 0.0124267
-Et 326  fakerate 0.0122357
-Et 327  fakerate 0.0120476
-Et 328  fakerate 0.0118623
-Et 329  fakerate 0.0116799
-Et 330  fakerate 0.0115004
-Et 331  fakerate 0.0113235
-Et 332  fakerate 0.0111494
-Et 333  fakerate 0.010978
-Et 334  fakerate 0.0108092
-Et 335  fakerate 0.010643
-Et 336  fakerate 0.0104793
-Et 337  fakerate 0.0103181
-Et 338  fakerate 0.0101595
-Et 339  fakerate 0.0100032
-Et 340  fakerate 0.00984939
-Et 341  fakerate 0.00969791
-Et 342  fakerate 0.00954876
-Et 343  fakerate 0.0094019
-Et 344  fakerate 0.0092573
-Et 345  fakerate 0.00911492
-Et 346  fakerate 0.00897473
-Et 347  fakerate 0.00883669
-Et 348  fakerate 0.00870077
-Et 349  fakerate 0.00856694
-Et 350  fakerate 0.00843517
-Et 351  fakerate 0.00830542
-Et 352  fakerate 0.00817766
-Et 353  fakerate 0.00805187
-Et 354  fakerate 0.00792802
-Et 355  fakerate 0.00780607
-Et 356  fakerate 0.00768599
-Et 357  fakerate 0.00756775
-Et 358  fakerate 0.00745134
-Et 359  fakerate 0.00733671
-Et 360  fakerate 0.00722385
-Et 361  fakerate 0.00711272
-Et 362  fakerate 0.0070033
-Et 363  fakerate 0.00689557
-Et 364  fakerate 0.00678949
-Et 365  fakerate 0.00668504
-Et 366  fakerate 0.0065822
-Et 367  fakerate 0.00648093
-Et 368  fakerate 0.00638123
-Et 369  fakerate 0.00628306
-Et 370  fakerate 0.0061864
-Et 371  fakerate 0.00609122
-Et 372  fakerate 0.00599751
-Et 373  fakerate 0.00590524
-Et 374  fakerate 0.00581439
-Et 375  fakerate 0.00572493
-Et 376  fakerate 0.00563685
-Et 377  fakerate 0.00555013
-Et 378  fakerate 0.00546474
-Et 379  fakerate 0.00538066
-Et 380  fakerate 0.00529788
-Et 381  fakerate 0.00521637
-Et 382  fakerate 0.00513611
-Et 383  fakerate 0.00505709
-Et 384  fakerate 0.00497928
-Et 385  fakerate 0.00490267
-Et 386  fakerate 0.00482724
-Et 387  fakerate 0.00475297
-Et 388  fakerate 0.00467984
-Et 389  fakerate 0.00460784
-Et 390  fakerate 0.00453694
-Et 391  fakerate 0.00446714
-Et 392  fakerate 0.00439841
-Et 393  fakerate 0.00433073
-Et 394  fakerate 0.0042641
-Et 395  fakerate 0.00419849
-Et 396  fakerate 0.00413389
-Et 397  fakerate 0.00407029
-Et 398  fakerate 0.00400766
-Et 399  fakerate 0.003946
-Et 400  fakerate 0.00388528
-Et 401  fakerate 0.0038255
-Et 402  fakerate 0.00376664
-Et 403  fakerate 0.00370869
-Et 404  fakerate 0.00365162
-Et 405  fakerate 0.00359544
-Et 406  fakerate 0.00354011
-Et 407  fakerate 0.00348564
-Et 408  fakerate 0.00343201
-Et 409  fakerate 0.00337921
-Et 410  fakerate 0.00332721
-Et 411  fakerate 0.00327602
-Et 412  fakerate 0.00322561
-Et 413  fakerate 0.00317598
-Et 414  fakerate 0.00312711
-Et 415  fakerate 0.00307899
-Et 416  fakerate 0.00303162
-Et 417  fakerate 0.00298497
-Et 418  fakerate 0.00293904
-Et 419  fakerate 0.00289382
-Et 420  fakerate 0.00284929
-Et 421  fakerate 0.00280545
-Et 422  fakerate 0.00276228
-Et 423  fakerate 0.00271978
-Et 424  fakerate 0.00267793
-Et 425  fakerate 0.00263673
-Et 426  fakerate 0.00259616
-Et 427  fakerate 0.00255621
-Et 428  fakerate 0.00251688
-Et 429  fakerate 0.00247815
-Et 430  fakerate 0.00244002
-Et 431  fakerate 0.00240247
-Et 432  fakerate 0.00236551
-Et 433  fakerate 0.00232911
-Et 434  fakerate 0.00229327
-Et 435  fakerate 0.00225798
-Et 436  fakerate 0.00222324
-Et 437  fakerate 0.00218903
-Et 438  fakerate 0.00215535
-Et 439  fakerate 0.00212218
-Et 440  fakerate 0.00208953
-Et 441  fakerate 0.00205738
-Et 442  fakerate 0.00202572
-Et 443  fakerate 0.00199455
-Et 444  fakerate 0.00196386
-Et 445  fakerate 0.00193364
-Et 446  fakerate 0.00190389
-Et 447  fakerate 0.00187459
-Et 448  fakerate 0.00184575
-Et 449  fakerate 0.00181735
-Et 450  fakerate 0.00178938
-Et 451  fakerate 0.00176185
-Et 452  fakerate 0.00173474
-Et 453  fakerate 0.00170805
-Et 454  fakerate 0.00168177
-Et 455  fakerate 0.00165589
-Et 456  fakerate 0.00163041
-Et 457  fakerate 0.00160532
-Et 458  fakerate 0.00158062
-Et 459  fakerate 0.0015563
-Et 460  fakerate 0.00153235
-Et 461  fakerate 0.00150877
-Et 462  fakerate 0.00148556
-Et 463  fakerate 0.0014627
-Et 464  fakerate 0.00144019
-Et 465  fakerate 0.00141803
-Et 466  fakerate 0.00139621
-Et 467  fakerate 0.00137473
-Et 468  fakerate 0.00135358
-Et 469  fakerate 0.00133275
-Et 470  fakerate 0.00131224
-Et 471  fakerate 0.00129205
-Et 472  fakerate 0.00127217
-Et 473  fakerate 0.00125259
-Et 474  fakerate 0.00123332
-Et 475  fakerate 0.00121434
-Et 476  fakerate 0.00119566
-Et 477  fakerate 0.00117726
-Et 478  fakerate 0.00115914
-Et 479  fakerate 0.00114131
-Et 480  fakerate 0.00112375
-Et 481  fakerate 0.00110645
-Et 482  fakerate 0.00108943
-Et 483  fakerate 0.00107267
-Et 484  fakerate 0.00105616
-Et 485  fakerate 0.00103991
-Et 486  fakerate 0.00102391
-Et 487  fakerate 0.00100815
-Et 488  fakerate 0.00099264
-Et 489  fakerate 0.000977366
-Et 490  fakerate 0.000962327
-Et 491  fakerate 0.000947519
-Et 492  fakerate 0.000932939
-Et 493  fakerate 0.000918584
-Et 494  fakerate 0.00090445
-Et 495  fakerate 0.000890533
-Et 496  fakerate 0.00087683
-Et 497  fakerate 0.000863338
-Et 498  fakerate 0.000850053
-Et 499  fakerate 0.000836973
-Et 500  fakerate 0.000824095
-Et 501  fakerate 0.000811414
-Et 502  fakerate 0.000798929
-Et 503  fakerate 0.000786635
-Et 504  fakerate 0.000774531
-Et 505  fakerate 0.000762613
-Et 506  fakerate 0.000750879
-Et 507  fakerate 0.000739325
-Et 508  fakerate 0.000727948
-Et 509  fakerate 0.000716747
-Et 510  fakerate 0.000705719
-Et 511  fakerate 0.000694859
-Et 512  fakerate 0.000684167
-Et 513  fakerate 0.00067364
-Et 514  fakerate 0.000663275
-Et 515  fakerate 0.000653069
-Et 516  fakerate 0.00064302
-Et 517  fakerate 0.000633125
-Et 518  fakerate 0.000623383
-Et 519  fakerate 0.000613791
-Et 520  fakerate 0.000604346
-Et 521  fakerate 0.000595047
-Et 522  fakerate 0.000585891
-Et 523  fakerate 0.000576876
-Et 524  fakerate 0.000567999
-Et 525  fakerate 0.000559259
-Et 526  fakerate 0.000550654
-Et 527  fakerate 0.000542181
-Et 528  fakerate 0.000533838
-Et 529  fakerate 0.000525624
-Et 530  fakerate 0.000517536
-Et 531  fakerate 0.000509572
-Et 532  fakerate 0.000501731
-Et 533  fakerate 0.000494011
-Et 534  fakerate 0.00048641
-Et 535  fakerate 0.000478925
-Et 536  fakerate 0.000471556
-Et 537  fakerate 0.0004643
-Et 538  fakerate 0.000457155
-Et 539  fakerate 0.000450121
-Et 540  fakerate 0.000443195
-Et 541  fakerate 0.000436375
-Et 542  fakerate 0.000429661
-Et 543  fakerate 0.000423049
-Et 544  fakerate 0.00041654
-Et 545  fakerate 0.00041013
-Et 546  fakerate 0.00040382
-Et 547  fakerate 0.000397606
-Et 548  fakerate 0.000391488
-Et 549  fakerate 0.000385464
-Et 550  fakerate 0.000379533
-Et 551  fakerate 0.000373693
-Et 552  fakerate 0.000367943
-Et 553  fakerate 0.000362281
-Et 554  fakerate 0.000356706
-Et 555  fakerate 0.000351218
-Et 556  fakerate 0.000345813
-Et 557  fakerate 0.000340492
-Et 558  fakerate 0.000335253
-Et 559  fakerate 0.000330094
-Et 560  fakerate 0.000325015
-Et 561  fakerate 0.000320014
-Et 562  fakerate 0.00031509
-Et 563  fakerate 0.000310242
-Et 564  fakerate 0.000305468
-Et 565  fakerate 0.000300767
-Et 566  fakerate 0.000296139
-Et 567  fakerate 0.000291583
-Et 568  fakerate 0.000287096
-Et 569  fakerate 0.000282678
-Et 570  fakerate 0.000278329
-Et 571  fakerate 0.000274046
-Et 572  fakerate 0.000269829
-Et 573  fakerate 0.000265677
-Et 574  fakerate 0.000261589
-Et 575  fakerate 0.000257564
-Et 576  fakerate 0.000253601
-Et 577  fakerate 0.000249699
-Et 578  fakerate 0.000245856
-Et 579  fakerate 0.000242073
-Et 580  fakerate 0.000238348
-Et 581  fakerate 0.000234681
-Et 582  fakerate 0.00023107
-Et 583  fakerate 0.000227514
-Et 584  fakerate 0.000224013
-Et 585  fakerate 0.000220567
-Et 586  fakerate 0.000217173
-Et 587  fakerate 0.000213831
-Et 588  fakerate 0.000210541
-Et 589  fakerate 0.000207301
-Et 590  fakerate 0.000204111
-Et 591  fakerate 0.00020097
-Et 592  fakerate 0.000197878
-Et 593  fakerate 0.000194833
-Et 594  fakerate 0.000191835
-Et 595  fakerate 0.000188883
-Et 596  fakerate 0.000185977
-Et 597  fakerate 0.000183115
-Et 598  fakerate 0.000180298
-Et 599  fakerate 0.000177523
-Et 600  fakerate 0.000174792
-Et 601  fakerate 0.000172102
-Et 602  fakerate 0.000169454
-Et 603  fakerate 0.000166847
-Et 604  fakerate 0.000164279
-Et 605  fakerate 0.000161752
-Et 606  fakerate 0.000159263
-Et 607  fakerate 0.000156812
-Et 608  fakerate 0.000154399
-Et 609  fakerate 0.000152023
-Et 610  fakerate 0.000149684
-Et 611  fakerate 0.000147381
-Et 612  fakerate 0.000145113
-Et 613  fakerate 0.00014288
-Et 614  fakerate 0.000140682
-Et 615  fakerate 0.000138517
-Et 616  fakerate 0.000136385
-Et 617  fakerate 0.000134287
-Et 618  fakerate 0.000132221
-Et 619  fakerate 0.000130186
-Et 620  fakerate 0.000128183
-Et 621  fakerate 0.00012621
-Et 622  fakerate 0.000124268
-Et 623  fakerate 0.000122356
-Et 624  fakerate 0.000120474
-Et 625  fakerate 0.00011862
-Et 626  fakerate 0.000116795
-Et 627  fakerate 0.000114997
-Et 628  fakerate 0.000113228
-Et 629  fakerate 0.000111486
-Et 630  fakerate 0.00010977
-Et 631  fakerate 0.000108081
-Et 632  fakerate 0.000106418
-Et 633  fakerate 0.000104781
-Et 634  fakerate 0.000103168
-Et 635  fakerate 0.000101581
-Et 636  fakerate 0.000100018
-Et 637  fakerate 9.84787e-05
-Et 638  fakerate 9.69634e-05
-Et 639  fakerate 9.54714e-05
-Et 640  fakerate 9.40024e-05
-Et 641  fakerate 9.25559e-05
-Et 642  fakerate 9.11317e-05
-Et 643  fakerate 8.97295e-05
-Et 644  fakerate 8.83488e-05
-Et 645  fakerate 8.69893e-05
-Et 646  fakerate 8.56508e-05
-Et 647  fakerate 8.43329e-05
-Et 648  fakerate 8.30352e-05
-Et 649  fakerate 8.17575e-05
-Et 650  fakerate 8.04995e-05
-Et 651  fakerate 7.92608e-05
-Et 652  fakerate 7.80412e-05
-Et 653  fakerate 7.68404e-05
-Et 654  fakerate 7.5658e-05
-Et 655  fakerate 7.44938e-05
-Et 656  fakerate 7.33476e-05
-Et 657  fakerate 7.2219e-05
-Et 658  fakerate 7.11077e-05
-Et 659  fakerate 7.00135e-05
-Et 660  fakerate 6.89362e-05
-Et 661  fakerate 6.78755e-05
-Et 662  fakerate 6.68311e-05
-Et 663  fakerate 6.58027e-05
-Et 664  fakerate 6.47902e-05
-Et 665  fakerate 6.37932e-05
-Et 666  fakerate 6.28116e-05
-Et 667  fakerate 6.18451e-05
-Et 668  fakerate 6.08935e-05
-Et 669  fakerate 5.99565e-05
-Et 670  fakerate 5.9034e-05
-Et 671  fakerate 5.81256e-05
-Et 672  fakerate 5.72312e-05
-Et 673  fakerate 5.63506e-05
-Et 674  fakerate 5.54835e-05
-Et 675  fakerate 5.46297e-05
-Et 676  fakerate 5.37891e-05
-Et 677  fakerate 5.29615e-05
-Et 678  fakerate 5.21465e-05
-Et 679  fakerate 5.13441e-05
-Et 680  fakerate 5.05541e-05
-Et 681  fakerate 4.97762e-05
-Et 682  fakerate 4.90103e-05
-Et 683  fakerate 4.82561e-05
-Et 684  fakerate 4.75136e-05
-Et 685  fakerate 4.67825e-05
-Et 686  fakerate 4.60626e-05
-Et 687  fakerate 4.53539e-05
-Et 688  fakerate 4.4656e-05
-Et 689  fakerate 4.39689e-05
-Et 690  fakerate 4.32923e-05
-Et 691  fakerate 4.26261e-05
-Et 692  fakerate 4.19702e-05
-Et 693  fakerate 4.13244e-05
-Et 694  fakerate 4.06886e-05
-Et 695  fakerate 4.00625e-05
-Et 696  fakerate 3.9446e-05
-Et 697  fakerate 3.88391e-05
-Et 698  fakerate 3.82414e-05
-Et 699  fakerate 3.7653e-05
-Et 700  fakerate 3.70736e-05
-Et 701  fakerate 3.65032e-05
-Et 702  fakerate 3.59415e-05
-Et 703  fakerate 3.53884e-05
-Et 704  fakerate 3.48439e-05
-Et 705  fakerate 3.43077e-05
-Et 706  fakerate 3.37798e-05
-Et 707  fakerate 3.32601e-05
-Et 708  fakerate 3.27483e-05
-Et 709  fakerate 3.22444e-05
-Et 710  fakerate 3.17482e-05
-Et 711  fakerate 3.12597e-05
-Et 712  fakerate 3.07787e-05
-Et 713  fakerate 3.03051e-05
-Et 714  fakerate 2.98388e-05
-Et 715  fakerate 2.93796e-05
-Et 716  fakerate 2.89276e-05
-Et 717  fakerate 2.84825e-05
-Et 718  fakerate 2.80442e-05
-Et 719  fakerate 2.76127e-05
-Et 720  fakerate 2.71878e-05
-Et 721  fakerate 2.67694e-05
-Et 722  fakerate 2.63575e-05
-Et 723  fakerate 2.5952e-05
-Et 724  fakerate 2.55526e-05
-Et 725  fakerate 2.51594e-05
-Et 726  fakerate 2.47723e-05
-Et 727  fakerate 2.43911e-05
-Et 728  fakerate 2.40158e-05
-Et 729  fakerate 2.36463e-05
-Et 730  fakerate 2.32824e-05
-Et 731  fakerate 2.29242e-05
-Et 732  fakerate 2.25714e-05
-Et 733  fakerate 2.22241e-05
-Et 734  fakerate 2.18821e-05
-Et 735  fakerate 2.15454e-05
-Et 736  fakerate 2.12139e-05
-Et 737  fakerate 2.08875e-05
-Et 738  fakerate 2.05661e-05
-Et 739  fakerate 2.02496e-05
-Et 740  fakerate 1.9938e-05
-Et 741  fakerate 1.96313e-05
-Et 742  fakerate 1.93292e-05
-Et 743  fakerate 1.90318e-05
-Et 744  fakerate 1.87389e-05
-Et 745  fakerate 1.84506e-05
-Et 746  fakerate 1.81667e-05
-Et 747  fakerate 1.78871e-05
-Et 748  fakerate 1.76119e-05
-Et 749  fakerate 1.73409e-05
-Et 750  fakerate 1.70741e-05
-Et 751  fakerate 1.68113e-05
-Et 752  fakerate 1.65527e-05
-Et 753  fakerate 1.6298e-05
-Et 754  fakerate 1.60472e-05
-Et 755  fakerate 1.58003e-05
-Et 756  fakerate 1.55571e-05
-Et 757  fakerate 1.53178e-05
-Et 758  fakerate 1.50821e-05
-Et 759  fakerate 1.485e-05
-Et 760  fakerate 1.46215e-05
-Et 761  fakerate 1.43965e-05
-Et 762  fakerate 1.4175e-05
-Et 763  fakerate 1.39569e-05
-Et 764  fakerate 1.37421e-05
-Et 765  fakerate 1.35306e-05
-Et 766  fakerate 1.33224e-05
-Et 767  fakerate 1.31175e-05
-Et 768  fakerate 1.29156e-05
-Et 769  fakerate 1.27169e-05
-Et 770  fakerate 1.25212e-05
-Et 771  fakerate 1.23285e-05
-Et 772  fakerate 1.21388e-05
-Et 773  fakerate 1.1952e-05
-Et 774  fakerate 1.17681e-05
-Et 775  fakerate 1.15871e-05
-Et 776  fakerate 1.14088e-05
-Et 777  fakerate 1.12332e-05
-Et 778  fakerate 1.10604e-05
-Et 779  fakerate 1.08902e-05
-Et 780  fakerate 1.07226e-05
-Et 781  fakerate 1.05576e-05
-Et 782  fakerate 1.03952e-05
-Et 783  fakerate 1.02352e-05
-Et 784  fakerate 1.00777e-05
-Et 785  fakerate 9.92264e-06
-Et 786  fakerate 9.76996e-06
-Et 787  fakerate 9.61963e-06
-Et 788  fakerate 9.47161e-06
-Et 789  fakerate 9.32586e-06
-Et 790  fakerate 9.18236e-06
-Et 791  fakerate 9.04107e-06
-Et 792  fakerate 8.90195e-06
-Et 793  fakerate 8.76498e-06
-Et 794  fakerate 8.63011e-06
-Et 795  fakerate 8.49731e-06
-Et 796  fakerate 8.36656e-06
-Et 797  fakerate 8.23783e-06
-Et 798  fakerate 8.11107e-06
-Et 799  fakerate 7.98626e-06
-Et 800  fakerate 7.86337e-06
-Et 801  fakerate 7.74238e-06
-Et 802  fakerate 7.62324e-06
-Et 803  fakerate 7.50594e-06
-Et 804  fakerate 7.39045e-06
-Et 805  fakerate 7.27673e-06
-Et 806  fakerate 7.16476e-06
-Et 807  fakerate 7.05451e-06
-Et 808  fakerate 6.94596e-06
-Et 809  fakerate 6.83908e-06
-Et 810  fakerate 6.73385e-06
-Et 811  fakerate 6.63023e-06
-Et 812  fakerate 6.52821e-06
-Et 813  fakerate 6.42776e-06
-Et 814  fakerate 6.32885e-06
-Et 815  fakerate 6.23147e-06
-Et 816  fakerate 6.13558e-06
-Et 817  fakerate 6.04117e-06
-Et 818  fakerate 5.94822e-06
-Et 819  fakerate 5.85669e-06
-Et 820  fakerate 5.76657e-06
-Et 821  fakerate 5.67784e-06
-Et 822  fakerate 5.59047e-06
-Et 823  fakerate 5.50445e-06
-Et 824  fakerate 5.41975e-06
-Et 825  fakerate 5.33636e-06
-Et 826  fakerate 5.25424e-06
-Et 827  fakerate 5.1734e-06
-Et 828  fakerate 5.09379e-06
-Et 829  fakerate 5.01541e-06
-Et 830  fakerate 4.93824e-06
-Et 831  fakerate 4.86225e-06
-Et 832  fakerate 4.78744e-06
-Et 833  fakerate 4.71377e-06
-Et 834  fakerate 4.64124e-06
-Et 835  fakerate 4.56982e-06
-Et 836  fakerate 4.4995e-06
-Et 837  fakerate 4.43027e-06
-Et 838  fakerate 4.3621e-06
-Et 839  fakerate 4.29498e-06
-Et 840  fakerate 4.22889e-06
-Et 841  fakerate 4.16382e-06
-Et 842  fakerate 4.09975e-06
-Et 843  fakerate 4.03667e-06
-Et 844  fakerate 3.97455e-06
-Et 845  fakerate 3.91339e-06
-Et 846  fakerate 3.85318e-06
-Et 847  fakerate 3.79389e-06
-Et 848  fakerate 3.73551e-06
-Et 849  fakerate 3.67803e-06
-Et 850  fakerate 3.62144e-06
-Et 851  fakerate 3.56571e-06
-Et 852  fakerate 3.51085e-06
-Et 853  fakerate 3.45682e-06
-Et 854  fakerate 3.40363e-06
-Et 855  fakerate 3.35126e-06
-Et 856  fakerate 3.29969e-06
-Et 857  fakerate 3.24892e-06
-Et 858  fakerate 3.19893e-06
-Et 859  fakerate 3.1497e-06
-Et 860  fakerate 3.10124e-06
-Et 861  fakerate 3.05352e-06
-Et 862  fakerate 3.00653e-06
-Et 863  fakerate 2.96027e-06
-Et 864  fakerate 2.91472e-06
-Et 865  fakerate 2.86987e-06
-Et 866  fakerate 2.82571e-06
-Et 867  fakerate 2.78223e-06
-Et 868  fakerate 2.73942e-06
-Et 869  fakerate 2.69727e-06
-Et 870  fakerate 2.65576e-06
-Et 871  fakerate 2.6149e-06
-Et 872  fakerate 2.57466e-06
-Et 873  fakerate 2.53505e-06
-Et 874  fakerate 2.49604e-06
-Et 875  fakerate 2.45763e-06
-Et 876  fakerate 2.41982e-06
-Et 877  fakerate 2.38258e-06
-Et 878  fakerate 2.34592e-06
-Et 879  fakerate 2.30982e-06
-Et 880  fakerate 2.27428e-06
-Et 881  fakerate 2.23929e-06
-Et 882  fakerate 2.20483e-06
-Et 883  fakerate 2.1709e-06
-Et 884  fakerate 2.1375e-06
-Et 885  fakerate 2.10461e-06
-Et 886  fakerate 2.07222e-06
-Et 887  fakerate 2.04034e-06
-Et 888  fakerate 2.00894e-06
-Et 889  fakerate 1.97803e-06
-Et 890  fakerate 1.94759e-06
-Et 891  fakerate 1.91763e-06
-Et 892  fakerate 1.88812e-06
-Et 893  fakerate 1.85907e-06
-Et 894  fakerate 1.83046e-06
-Et 895  fakerate 1.80229e-06
-Et 896  fakerate 1.77456e-06
-Et 897  fakerate 1.74726e-06
-Et 898  fakerate 1.72037e-06
-Et 899  fakerate 1.6939e-06
-Et 900  fakerate 1.66783e-06
-Et 901  fakerate 1.64217e-06
-Et 902  fakerate 1.6169e-06
-Et 903  fakerate 1.59202e-06
-Et 904  fakerate 1.56753e-06
-Et 905  fakerate 1.54341e-06
-Et 906  fakerate 1.51966e-06
-Et 907  fakerate 1.49627e-06
-Et 908  fakerate 1.47325e-06
-Et 909  fakerate 1.45058e-06
-Et 910  fakerate 1.42826e-06
-Et 911  fakerate 1.40628e-06
-Et 912  fakerate 1.38464e-06
-Et 913  fakerate 1.36334e-06
-Et 914  fakerate 1.34236e-06
-Et 915  fakerate 1.3217e-06
-Et 916  fakerate 1.30137e-06
-Et 917  fakerate 1.28134e-06
-Et 918  fakerate 1.26163e-06
-Et 919  fakerate 1.24221e-06
-Et 920  fakerate 1.2231e-06
-Et 921  fakerate 1.20428e-06
-Et 922  fakerate 1.18575e-06
-Et 923  fakerate 1.1675e-06
-Et 924  fakerate 1.14954e-06
-Et 925  fakerate 1.13185e-06
-Et 926  fakerate 1.11443e-06
-Et 927  fakerate 1.09729e-06
-Et 928  fakerate 1.0804e-06
-Et 929  fakerate 1.06378e-06
-Et 930  fakerate 1.04741e-06
-Et 931  fakerate 1.03129e-06
-Et 932  fakerate 1.01542e-06
-Et 933  fakerate 9.99798e-07
-Et 934  fakerate 9.84414e-07
-Et 935  fakerate 9.69266e-07
-Et 936  fakerate 9.54352e-07
-Et 937  fakerate 9.39667e-07
-Et 938  fakerate 9.25208e-07
-Et 939  fakerate 9.10972e-07
-Et 940  fakerate 8.96954e-07
-Et 941  fakerate 8.83153e-07
-Et 942  fakerate 8.69563e-07
-Et 943  fakerate 8.56183e-07
-Et 944  fakerate 8.43009e-07
-Et 945  fakerate 8.30037e-07
-Et 946  fakerate 8.17265e-07
-Et 947  fakerate 8.0469e-07
-Et 948  fakerate 7.92308e-07
-Et 949  fakerate 7.80116e-07
-Et 950  fakerate 7.68112e-07
-Et 951  fakerate 7.56293e-07
-Et 952  fakerate 7.44656e-07
-Et 953  fakerate 7.33198e-07
-Et 954  fakerate 7.21916e-07
-Et 955  fakerate 7.10807e-07
-Et 956  fakerate 6.9987e-07
-Et 957  fakerate 6.89101e-07
-Et 958  fakerate 6.78497e-07
-Et 959  fakerate 6.68057e-07
-Et 960  fakerate 6.57778e-07
-Et 961  fakerate 6.47656e-07
-Et 962  fakerate 6.3769e-07
-Et 963  fakerate 6.27878e-07
-Et 964  fakerate 6.18217e-07
-Et 965  fakerate 6.08704e-07
-Et 966  fakerate 5.99338e-07
-Et 967  fakerate 5.90116e-07
-Et 968  fakerate 5.81035e-07
-Et 969  fakerate 5.72095e-07
-Et 970  fakerate 5.63292e-07
-Et 971  fakerate 5.54624e-07
-Et 972  fakerate 5.4609e-07
-Et 973  fakerate 5.37687e-07
-Et 974  fakerate 5.29414e-07
-Et 975  fakerate 5.21267e-07
-Et 976  fakerate 5.13247e-07
-Et 977  fakerate 5.05349e-07
-Et 978  fakerate 4.97573e-07
-Et 979  fakerate 4.89917e-07
-Et 980  fakerate 4.82378e-07
-Et 981  fakerate 4.74956e-07
-Et 982  fakerate 4.67648e-07
-Et 983  fakerate 4.60452e-07
-Et 984  fakerate 4.53367e-07
-Et 985  fakerate 4.46391e-07
-Et 986  fakerate 4.39522e-07
-Et 987  fakerate 4.32759e-07
-Et 988  fakerate 4.261e-07
-Et 989  fakerate 4.19543e-07
-Et 990  fakerate 4.13088e-07
-Et 991  fakerate 4.06731e-07
-Et 992  fakerate 4.00473e-07
-Et 993  fakerate 3.94311e-07
-Et 994  fakerate 3.88243e-07
-Et 995  fakerate 3.82269e-07
-Et 996  fakerate 3.76387e-07
-Et 997  fakerate 3.70596e-07
-Et 998  fakerate 3.64893e-07
-Et 999  fakerate 3.59278e-07
-Et 1000  fakerate 3.5375e-07
-Et 1001  fakerate 3.48307e-07
-Et 1002  fakerate 3.42947e-07
-Et 1003  fakerate 3.3767e-07
-Et 1004  fakerate 3.32475e-07
-Et 1005  fakerate 3.27359e-07
-Et 1006  fakerate 3.22321e-07
-Et 1007  fakerate 3.17362e-07
-Et 1008  fakerate 3.12478e-07
-Et 1009  fakerate 3.0767e-07
-Et 1010  fakerate 3.02936e-07
-Et 1011  fakerate 2.98275e-07
-Et 1012  fakerate 2.93685e-07
-Et 1013  fakerate 2.89166e-07
-Et 1014  fakerate 2.84717e-07
-Et 1015  fakerate 2.80336e-07
-Et 1016  fakerate 2.76022e-07
-Et 1017  fakerate 2.71775e-07
-Et 1018  fakerate 2.67593e-07
-Et 1019  fakerate 2.63475e-07
-Et 1020  fakerate 2.59421e-07
-Et 1021  fakerate 2.55429e-07
-Et 1022  fakerate 2.51499e-07
-Et 1023  fakerate 2.47629e-07
-Et 1024  fakerate 2.43819e-07
-Et 1025  fakerate 2.40067e-07
-Et 1026  fakerate 2.36373e-07
-Et 1027  fakerate 2.32736e-07
-Et 1028  fakerate 2.29155e-07
-Et 1029  fakerate 2.25629e-07
-Et 1030  fakerate 2.22157e-07
-Et 1031  fakerate 2.18738e-07
-Et 1032  fakerate 2.15373e-07
-Et 1033  fakerate 2.12059e-07
-Et 1034  fakerate 2.08796e-07
-5 0 0 0
-1 0 0 0
-2 0 0 0
-2 0 0 0
+den_coeff1 21547.7
+den_coeff2 23.9427
+den_lambd1 0.0591753
+den_lambd2 0.023491
+den_shift -70.0064
+den_offset 0.0835834
+num_coeff1 8169.14
+num_coeff2 0.0536058
+num_lambd1 0.0645324
+num_lambd2 0.0231053
+num_shift 105.02
+num_offset -0.000131448
+numerror 143.321
+numerror 134.045
+numerror 125.366
+numerror 117.246
+numerror 109.648
+numerror 102.539
+numerror 96.0778
+numerror 90.4316
+numerror 85.1167
+numerror 80.1139
+numerror 75.4049
+numerror 70.9727
+numerror 66.8659
+numerror 63.5147
+numerror 60.3372
+numerror 57.3246
+numerror 54.4683
+numerror 51.7601
+numerror 49.1925
+numerror 46.758
+numerror 44.4498
+numerror 42.2613
+numerror 40.1863
+numerror 38.2188
+numerror 36.3532
+numerror 34.5842
+numerror 32.9067
+numerror 31.316
+numerror 29.8075
+numerror 28.3769
+numerror 27.02
+numerror 25.7331
+numerror 24.5124
+numerror 23.364
+numerror 22.3541
+numerror 21.3901
+numerror 20.4701
+numerror 19.6991
+numerror 18.9774
+numerror 18.2827
+numerror 17.6141
+numerror 16.9709
+numerror 16.3521
+numerror 15.7569
+numerror 15.1845
+numerror 14.6342
+numerror 14.105
+numerror 13.5964
+numerror 13.1074
+numerror 12.6374
+numerror 12.1857
+numerror 11.7516
+numerror 11.3344
+numerror 10.9335
+numerror 10.5482
+numerror 10.1779
+numerror 9.8221
+numerror 9.51742
+numerror 9.23135
+numerror 8.9543
+numerror 8.69612
+numerror 8.50735
+numerror 8.32181
+numerror 8.13949
+numerror 7.9604
+numerror 7.78455
+numerror 7.61192
+numerror 7.4425
+numerror 7.27628
+numerror 7.11324
+numerror 6.95335
+numerror 6.7966
+numerror 6.64294
+numerror 6.49236
+numerror 6.34482
+numerror 6.20027
+numerror 6.0587
+numerror 5.92005
+numerror 5.7843
+numerror 5.65139
+numerror 5.52129
+numerror 5.39396
+numerror 5.26935
+numerror 5.14742
+numerror 5.02812
+numerror 4.91142
+numerror 4.79726
+numerror 4.68561
+numerror 4.57641
+numerror 4.46963
+numerror 4.36522
+numerror 4.26313
+numerror 4.16333
+numerror 4.06576
+numerror 3.97039
+numerror 3.87717
+numerror 3.78605
+numerror 3.697
+numerror 3.60998
+numerror 3.52494
+numerror 3.44185
+numerror 3.36065
+numerror 3.28132
+numerror 3.20381
+numerror 3.12809
+numerror 3.05411
+numerror 2.98185
+numerror 2.91125
+numerror 2.8423
+numerror 2.77494
+numerror 2.70915
+numerror 2.64489
+numerror 2.58213
+numerror 2.52084
+numerror 2.46097
+numerror 2.40258
+numerror 2.34607
+numerror 2.29084
+numerror 2.23687
+numerror 2.18413
+numerror 2.13261
+numerror 2.08226
+numerror 2.03423
+numerror 1.98784
+numerror 1.94241
+numerror 1.89794
+numerror 1.8544
+numerror 1.81178
+numerror 1.77006
+numerror 1.72923
+numerror 1.68928
+numerror 1.65019
+numerror 1.61194
+numerror 1.57452
+numerror 1.53791
+numerror 1.5021
+numerror 1.46708
+numerror 1.43283
+numerror 1.39933
+numerror 1.36658
+numerror 1.33455
+numerror 1.30324
+numerror 1.27262
+numerror 1.2427
+numerror 1.21344
+numerror 1.18484
+numerror 1.15689
+numerror 1.12957
+numerror 1.10287
+numerror 1.07678
+numerror 1.05128
+numerror 1.02637
+numerror 1.00202
+numerror 0.978233
+numerror 0.954992
+numerror 0.932286
+numerror 0.910103
+numerror 0.888433
+numerror 0.867263
+numerror 0.846585
+numerror 0.826386
+numerror 0.806656
+numerror 0.787386
+numerror 0.768565
+numerror 0.750183
+numerror 0.732231
+numerror 0.714699
+numerror 0.697577
+numerror 0.680858
+numerror 0.664531
+numerror 0.648587
+numerror 0.633019
+numerror 0.617818
+numerror 0.602976
+numerror 0.588484
+numerror 0.574334
+numerror 0.560519
+numerror 0.547031
+numerror 0.533863
+numerror 0.521007
+numerror 0.508456
+numerror 0.496203
+numerror 0.484241
+numerror 0.472565
+numerror 0.461166
+numerror 0.450038
+numerror 0.439176
+numerror 0.428573
+numerror 0.418223
+numerror 0.40812
+numerror 0.398259
+numerror 0.388633
+numerror 0.379238
+numerror 0.370068
+numerror 0.361117
+numerror 0.352381
+numerror 0.343854
+numerror 0.335532
+numerror 0.32741
+numerror 0.319482
+numerror 0.311745
+numerror 0.304194
+numerror 0.296846
+numerror 0.289697
+numerror 0.282718
+numerror 0.275906
+numerror 0.269256
+numerror 0.262766
+numerror 0.256431
+numerror 0.250247
+numerror 0.244212
+numerror 0.238321
+numerror 0.232571
+numerror 0.22696
+numerror 0.221482
+numerror 0.216136
+numerror 0.210919
+numerror 0.205826
+numerror 0.200856
+numerror 0.196156
+numerror 0.191852
+numerror 0.187641
+numerror 0.183523
+numerror 0.179495
+numerror 0.175554
+numerror 0.1717
+numerror 0.167931
+numerror 0.164244
+numerror 0.160637
+numerror 0.15711
+numerror 0.15366
+numerror 0.150285
+numerror 0.146984
+numerror 0.143756
+numerror 0.140598
+numerror 0.13751
+numerror 0.134489
+numerror 0.131534
+numerror 0.128645
+numerror 0.125818
+numerror 0.123054
+numerror 0.12035
+numerror 0.117705
+numerror 0.115119
+numerror 0.112589
+numerror 0.110115
+numerror 0.107695
+numerror 0.105342
+numerror 0.10305
+numerror 0.100808
+numerror 0.0986152
+numerror 0.0964696
+numerror 0.0943706
+numerror 0.0923172
+numerror 0.0903084
+numerror 0.0883433
+numerror 0.0864208
+numerror 0.0845401
+numerror 0.0827002
+numerror 0.0809003
+numerror 0.0791395
+numerror 0.0774169
+numerror 0.0757318
+numerror 0.0740832
+numerror 0.0724705
+denerror 114.341
+denerror 107.569
+denerror 101.15
+denerror 95.067
+denerror 89.3046
+denerror 83.9822
+denerror 79.6426
+denerror 75.887
+denerror 72.2575
+denerror 68.7533
+denerror 65.3733
+denerror 62.1159
+denerror 58.9796
+denerror 55.9622
+denerror 53.0616
+denerror 50.2755
+denerror 47.7254
+denerror 45.3126
+denerror 42.9964
+denerror 40.7963
+denerror 38.8679
+denerror 37.0192
+denerror 35.2478
+denerror 33.5511
+denerror 31.9268
+denerror 30.3723
+denerror 28.8854
+denerror 27.4636
+denerror 26.1047
+denerror 24.8064
+denerror 23.5663
+denerror 22.3824
+denerror 21.2526
+denerror 20.1746
+denerror 19.2938
+denerror 18.5834
+denerror 17.8918
+denerror 17.3284
+denerror 17.0447
+denerror 16.7497
+denerror 16.4451
+denerror 16.1328
+denerror 15.8142
+denerror 15.4908
+denerror 15.1637
+denerror 14.8342
+denerror 14.5034
+denerror 14.172
+denerror 13.841
+denerror 13.5111
+denerror 13.1831
+denerror 12.8574
+denerror 12.5347
+denerror 12.2154
+denerror 11.9
+denerror 11.5887
+denerror 11.2819
+denerror 11.0306
+denerror 10.8186
+denerror 10.644
+denerror 10.5062
+denerror 10.3652
+denerror 10.2212
+denerror 10.0747
+denerror 9.92594
+denerror 9.77528
+denerror 9.62301
+denerror 9.46942
+denerror 9.31476
+denerror 9.15929
+denerror 9.00325
+denerror 8.84685
+denerror 8.69031
+denerror 8.53382
+denerror 8.37756
+denerror 8.2217
+denerror 8.06641
+denerror 7.91182
+denerror 7.75808
+denerror 7.60532
+denerror 7.45364
+denerror 7.30316
+denerror 7.15399
+denerror 7.0062
+denerror 6.8599
+denerror 6.71514
+denerror 6.57201
+denerror 6.43057
+denerror 6.29667
+denerror 6.16891
+denerror 6.0423
+denerror 5.91691
+denerror 5.79282
+denerror 5.67009
+denerror 5.54878
+denerror 5.42894
+denerror 5.31062
+denerror 5.19386
+denerror 5.0787
+denerror 4.96517
+denerror 4.8533
+denerror 4.74312
+denerror 4.63464
+denerror 4.52788
+denerror 4.42285
+denerror 4.31957
+denerror 4.21804
+denerror 4.11827
+denerror 4.02027
+denerror 3.92402
+denerror 3.82952
+denerror 3.73679
+denerror 3.64579
+denerror 3.55654
+denerror 3.46902
+denerror 3.38321
+denerror 3.30364
+denerror 3.23039
+denerror 3.15859
+denerror 3.08823
+denerror 3.01928
+denerror 2.95173
+denerror 2.88555
+denerror 2.82073
+denerror 2.75724
+denerror 2.69685
+denerror 2.64022
+denerror 2.58459
+denerror 2.52996
+denerror 2.47631
+denerror 2.42362
+denerror 2.38149
+denerror 2.3419
+denerror 2.30278
+denerror 2.26412
+denerror 2.22592
+denerror 2.18819
+denerror 2.15093
+denerror 2.11414
+denerror 2.07782
+denerror 2.04198
+denerror 2.0066
+denerror 1.9717
+denerror 1.93726
+denerror 1.9033
+denerror 1.8698
+denerror 1.83677
+denerror 1.80421
+denerror 1.77211
+denerror 1.74047
+denerror 1.70929
+denerror 1.67856
+denerror 1.64829
+denerror 1.61847
+denerror 1.58909
+denerror 1.56015
+denerror 1.53166
+denerror 1.5036
+denerror 1.47597
+denerror 1.44877
+denerror 1.42199
+denerror 1.39563
+denerror 1.37026
+denerror 1.34552
+denerror 1.32115
+denerror 1.29714
+denerror 1.2735
+denerror 1.25021
+denerror 1.22728
+denerror 1.2047
+denerror 1.18247
+denerror 1.16058
+denerror 1.13904
+denerror 1.11783
+denerror 1.09696
+denerror 1.07642
+denerror 1.05621
+denerror 1.03632
+denerror 1.01675
+denerror 0.997502
+denerror 0.978563
+denerror 0.959933
+denerror 0.941608
+denerror 0.923584
+denerror 0.905858
+denerror 0.888426
+denerror 0.871283
+denerror 0.854427
+denerror 0.837853
+denerror 0.821558
+denerror 0.805537
+denerror 0.789787
+denerror 0.774305
+denerror 0.759087
+denerror 0.744128
+denerror 0.729426
+denerror 0.714976
+denerror 0.700775
+denerror 0.686819
+denerror 0.673105
+denerror 0.65963
+denerror 0.646389
+denerror 0.633379
+denerror 0.620597
+denerror 0.608039
+denerror 0.595702
+denerror 0.583582
+denerror 0.572939
+denerror 0.562783
+denerror 0.553826
+denerror 0.545617
+denerror 0.537526
+denerror 0.529551
+denerror 0.521691
+denerror 0.513945
+denerror 0.506312
+denerror 0.49879
+denerror 0.49138
+denerror 0.484079
+denerror 0.476886
+denerror 0.469801
+denerror 0.462822
+denerror 0.455949
+denerror 0.449179
+denerror 0.442512
+denerror 0.435947
+denerror 0.429482
+denerror 0.423117
+denerror 0.41685
+denerror 0.41068
+denerror 0.404606
+denerror 0.398627
+denerror 0.392741
+denerror 0.386948
+denerror 0.381247
+denerror 0.375636
+denerror 0.370113
+denerror 0.364679
+denerror 0.359332
+denerror 0.35407
+denerror 0.349398
+denerror 0.344933
+denerror 0.340537
+denerror 0.33621
+denerror 0.331951
+denerror 0.327758
+denerror 0.323633
+denerror 0.319572
+denerror 0.315576
+denerror 0.311644
+denerror 0.307775
+denerror 0.303968
+denerror 0.300222
+denerror 0.296537
+denerror 0.292912
+denerror 0.289345
+denerror 0.285837
+denerror 0.282386
+denerror 0.278991
+denerror 0.275652
+denerror 0.272368
+denerror 0.269139
+denerror 0.265963
+denerror 0.262839
+denerror 0.259768
+sys 0.0836264 num 0.0243825  den 0.00583158
+sys 0.0833136 num 0.0241281  den 0.00576533
+sys 0.0829932 num 0.0238735  den 0.00569638
+sys 0.082665 num 0.0236187  den 0.00562472
+sys 0.0823282 num 0.0233635  den 0.00555038
+sys 0.0819898 num 0.023108  den 0.00548218
+sys 0.0818348 num 0.0228975  den 0.00545966
+sys 0.0820459 num 0.0227892  den 0.00546233
+sys 0.0822484 num 0.0226788  den 0.0054603
+sys 0.0824421 num 0.0225663  den 0.0054536
+sys 0.0826266 num 0.0224517  den 0.00544223
+sys 0.0828019 num 0.022335  den 0.00542619
+sys 0.0830437 num 0.0222377  den 0.00540551
+sys 0.0839226 num 0.0223201  den 0.00538019
+sys 0.0848084 num 0.022402  den 0.00535027
+sys 0.0857017 num 0.0224835  den 0.00531576
+sys 0.0866145 num 0.0225647  den 0.00529046
+sys 0.0875392 num 0.0226454  den 0.00526521
+sys 0.0884729 num 0.0227259  den 0.00523598
+sys 0.0894181 num 0.0228061  den 0.00520561
+sys 0.0903938 num 0.0228861  den 0.00519565
+sys 0.0913806 num 0.0229659  den 0.00518304
+sys 0.0923791 num 0.0230456  den 0.00516783
+sys 0.0933893 num 0.0231251  den 0.00515004
+sys 0.0944118 num 0.0232045  den 0.0051297
+sys 0.095447 num 0.0232839  den 0.00510683
+sys 0.0964951 num 0.0233633  den 0.00508151
+sys 0.097557 num 0.0234427  den 0.00505374
+sys 0.0986328 num 0.0235222  den 0.00502359
+sys 0.099723 num 0.0236019  den 0.00499112
+sys 0.100828 num 0.0236817  den 0.00495633
+sys 0.101948 num 0.0237617  den 0.00491931
+sys 0.103083 num 0.0238419  den 0.00488013
+sys 0.104276 num 0.0239322  den 0.0048388
+sys 0.105881 num 0.024109  den 0.0048323
+sys 0.107533 num 0.0242845  den 0.00485907
+sys 0.109201 num 0.0244587  den 0.00488272
+sys 0.111495 num 0.0247663  den 0.00493436
+sys 0.114 num 0.0250987  den 0.00506305
+sys 0.116538 num 0.0254304  den 0.00518876
+sys 0.119109 num 0.0257614  den 0.0053114
+sys 0.121714 num 0.0260918  den 0.005431
+sys 0.124353 num 0.0264214  den 0.00554748
+sys 0.127025 num 0.0267502  den 0.00566083
+sys 0.12973 num 0.0270782  den 0.00577096
+sys 0.13247 num 0.0274056  den 0.0058779
+sys 0.135241 num 0.0277319  den 0.00598164
+sys 0.138047 num 0.0280576  den 0.00608207
+sys 0.140885 num 0.0283822  den 0.00617923
+sys 0.143756 num 0.0287059  den 0.00627308
+sys 0.146659 num 0.0290287  den 0.00636366
+sys 0.149593 num 0.0293505  den 0.00645086
+sys 0.152559 num 0.0296711  den 0.00653477
+sys 0.155555 num 0.0299907  den 0.00661533
+sys 0.158581 num 0.0303089  den 0.00669261
+sys 0.161635 num 0.0306258  den 0.0067665
+sys 0.164719 num 0.0309415  den 0.00683707
+sys 0.168494 num 0.0313787  den 0.00693623
+sys 0.172489 num 0.031844  den 0.00705684
+sys 0.176553 num 0.0323078  den 0.00720009
+sys 0.180891 num 0.0328082  den 0.00736805
+sys 0.186561 num 0.0335503  den 0.00753425
+sys 0.192318 num 0.034295  den 0.00769842
+sys 0.198159 num 0.0350418  den 0.00786055
+sys 0.204081 num 0.03579  den 0.00802043
+sys 0.210081 num 0.0365395  den 0.00817799
+sys 0.216155 num 0.0372895  den 0.00833311
+sys 0.222298 num 0.0380397  den 0.0084857
+sys 0.228508 num 0.0387895  den 0.00863563
+sys 0.23478 num 0.0395386  den 0.00878284
+sys 0.241109 num 0.0402863  den 0.00892724
+sys 0.247491 num 0.0410323  den 0.00906875
+sys 0.25392 num 0.041776  den 0.0092073
+sys 0.260393 num 0.042517  den 0.00934283
+sys 0.266903 num 0.0432548  den 0.00947528
+sys 0.273445 num 0.0439889  den 0.0096046
+sys 0.280015 num 0.0447189  den 0.00973076
+sys 0.286606 num 0.0454442  den 0.00985371
+sys 0.293212 num 0.0461646  den 0.00997342
+sys 0.299829 num 0.0468794  den 0.0100899
+sys 0.306449 num 0.0475883  den 0.010203
+sys 0.313068 num 0.048291  den 0.0103129
+sys 0.319679 num 0.0489869  den 0.0104195
+sys 0.326276 num 0.0496757  den 0.0105227
+sys 0.332854 num 0.050357  den 0.0106226
+sys 0.339406 num 0.0510306  den 0.0107193
+sys 0.345928 num 0.0516959  den 0.0108126
+sys 0.352412 num 0.0523528  den 0.0109026
+sys 0.358868 num 0.0530008  den 0.0109995
+sys 0.365287 num 0.0536398  den 0.0111016
+sys 0.371653 num 0.0542694  den 0.0112002
+sys 0.37796 num 0.0548894  den 0.0112954
+sys 0.384204 num 0.0554995  den 0.0113873
+sys 0.390378 num 0.0560996  den 0.0114758
+sys 0.396479 num 0.0566894  den 0.011561
+sys 0.402502 num 0.0572687  den 0.0116429
+sys 0.408442 num 0.0578373  den 0.0117215
+sys 0.414296 num 0.0583951  den 0.0117969
+sys 0.420061 num 0.0589422  den 0.0118691
+sys 0.425731 num 0.0594781  den 0.0119382
+sys 0.431304 num 0.0600031  den 0.0120041
+sys 0.436776 num 0.0605166  den 0.012067
+sys 0.442146 num 0.0610191  den 0.0121268
+sys 0.447409 num 0.0615101  den 0.0121835
+sys 0.452565 num 0.0619899  den 0.0122373
+sys 0.457609 num 0.0624582  den 0.0122882
+sys 0.462544 num 0.0629154  den 0.0123361
+sys 0.467362 num 0.0633609  den 0.0123812
+sys 0.472068 num 0.0637954  den 0.0124235
+sys 0.476656 num 0.0642184  den 0.0124629
+sys 0.481127 num 0.0646303  den 0.0124996
+sys 0.485481 num 0.0650309  den 0.0125337
+sys 0.489717 num 0.0654204  den 0.012565
+sys 0.493836 num 0.0657991  den 0.0125937
+sys 0.497834 num 0.0661665  den 0.0126198
+sys 0.501731 num 0.0665253  den 0.0126433
+sys 0.505641 num 0.0668881  den 0.0126816
+sys 0.509456 num 0.0672395  den 0.0127367
+sys 0.513153 num 0.0675799  den 0.0127904
+sys 0.516731 num 0.0679092  den 0.0128426
+sys 0.520197 num 0.0682283  den 0.0128936
+sys 0.523544 num 0.0685363  den 0.0129431
+sys 0.527068 num 0.0688732  den 0.0129914
+sys 0.530627 num 0.0692198  den 0.0130383
+sys 0.534063 num 0.0695542  den 0.0130839
+sys 0.537392 num 0.0698772  den 0.013137
+sys 0.540617 num 0.0701884  den 0.0132016
+sys 0.543724 num 0.0704882  den 0.0132647
+sys 0.546713 num 0.0707766  den 0.0133263
+sys 0.549588 num 0.0710539  den 0.0133864
+sys 0.552351 num 0.0713206  den 0.013445
+sys 0.55508 num 0.0715767  den 0.0135568
+sys 0.557718 num 0.0718222  den 0.0136791
+sys 0.560251 num 0.0720573  den 0.0138007
+sys 0.562679 num 0.0722822  den 0.0139213
+sys 0.565007 num 0.0724972  den 0.0140409
+sys 0.567238 num 0.0727028  den 0.0141596
+sys 0.569373 num 0.0728989  den 0.0142774
+sys 0.571412 num 0.0730853  den 0.0143942
+sys 0.573362 num 0.0732631  den 0.0145101
+sys 0.57522 num 0.0734317  den 0.014625
+sys 0.576994 num 0.0735918  den 0.0147389
+sys 0.578679 num 0.073743  den 0.0148518
+sys 0.580288 num 0.0738866  den 0.0149637
+sys 0.581811 num 0.0740214  den 0.0150746
+sys 0.583256 num 0.0741483  den 0.0151845
+sys 0.584627 num 0.0742677  den 0.0152933
+sys 0.585924 num 0.0743794  den 0.0154012
+sys 0.587149 num 0.0744837  den 0.015508
+sys 0.588307 num 0.0745809  den 0.0156137
+sys 0.589395 num 0.0746709  den 0.0157184
+sys 0.590421 num 0.0747544  den 0.015822
+sys 0.591379 num 0.0748306  den 0.0159245
+sys 0.592279 num 0.0749005  den 0.016026
+sys 0.593119 num 0.0749641  den 0.0161264
+sys 0.593901 num 0.0750214  den 0.0162256
+sys 0.594628 num 0.0750726  den 0.0163238
+sys 0.595302 num 0.0751179  den 0.0164208
+sys 0.595922 num 0.0751573  den 0.0165166
+sys 0.596493 num 0.0751912  den 0.0166114
+sys 0.597015 num 0.0752195  den 0.0167049
+sys 0.59749 num 0.0752424  den 0.0167972
+sys 0.597932 num 0.0752602  den 0.0168955
+sys 0.598335 num 0.0752728  den 0.0169957
+sys 0.598696 num 0.0752804  den 0.0170947
+sys 0.599017 num 0.0752832  den 0.0171924
+sys 0.599298 num 0.0752812  den 0.0172889
+sys 0.59954 num 0.0752745  den 0.0173841
+sys 0.599747 num 0.0752634  den 0.017478
+sys 0.599918 num 0.0752478  den 0.0175707
+sys 0.600054 num 0.0752278  den 0.017662
+sys 0.600158 num 0.0752037  den 0.0177519
+sys 0.60023 num 0.0751754  den 0.0178407
+sys 0.600272 num 0.0751432  den 0.0179279
+sys 0.600284 num 0.075107  den 0.0180138
+sys 0.600266 num 0.0750669  den 0.0180983
+sys 0.600222 num 0.075023  den 0.0181815
+sys 0.600151 num 0.0749754  den 0.0182632
+sys 0.600055 num 0.0749243  den 0.0183434
+sys 0.599934 num 0.0748696  den 0.0184222
+sys 0.599789 num 0.0748114  den 0.0184995
+sys 0.59962 num 0.0747497  den 0.0185753
+sys 0.599429 num 0.0746847  den 0.0186496
+sys 0.599219 num 0.0746167  den 0.0187223
+sys 0.598986 num 0.0745452  den 0.0187934
+sys 0.598733 num 0.0744705  den 0.018863
+sys 0.598461 num 0.0743928  den 0.0189309
+sys 0.598171 num 0.0743121  den 0.0189972
+sys 0.597862 num 0.0742283  den 0.0190619
+sys 0.597536 num 0.0741416  den 0.0191248
+sys 0.597194 num 0.074052  den 0.0191861
+sys 0.596835 num 0.0739594  den 0.0192455
+sys 0.59646 num 0.0738641  den 0.0193033
+sys 0.596071 num 0.073766  den 0.0193592
+sys 0.595666 num 0.0736651  den 0.0194133
+sys 0.595247 num 0.0735615  den 0.0194656
+sys 0.594814 num 0.0734551  den 0.019516
+sys 0.594369 num 0.0733462  den 0.0195645
+sys 0.59391 num 0.0732347  den 0.0196111
+sys 0.593438 num 0.0731203  den 0.0196557
+sys 0.592954 num 0.0730035  den 0.0196983
+sys 0.592459 num 0.0728842  den 0.0197389
+sys 0.591992 num 0.0727676  den 0.0197774
+sys 0.591557 num 0.0726541  den 0.0198138
+sys 0.591108 num 0.0725379  den 0.0198481
+sys 0.59065 num 0.0724191  den 0.0198802
+sys 0.590178 num 0.0722976  den 0.0199102
+sys 0.58979 num 0.0721737  den 0.0199819
+sys 0.589417 num 0.0720473  den 0.0200632
+sys 0.589116 num 0.0719181  den 0.0201808
+sys 0.588861 num 0.0717866  den 0.0203204
+sys 0.588603 num 0.0716525  den 0.0204596
+sys 0.588342 num 0.0715158  den 0.0205984
+sys 0.588081 num 0.0713769  den 0.0207366
+sys 0.587816 num 0.0712351  den 0.0208744
+sys 0.587551 num 0.0710909  den 0.0210116
+sys 0.587286 num 0.0709444  den 0.0211483
+sys 0.587018 num 0.0707951  den 0.0212844
+sys 0.586752 num 0.0706434  den 0.02142
+sys 0.586897 num 0.0705434  den 0.0215549
+sys 0.587843 num 0.0705461  den 0.0216893
+sys 0.588786 num 0.0705456  den 0.0218229
+sys 0.589731 num 0.0705426  den 0.021956
+sys 0.590675 num 0.0705367  den 0.0220882
+sys 0.591616 num 0.0705274  den 0.0222198
+sys 0.592559 num 0.0705155  den 0.0223506
+sys 0.593504 num 0.070501  den 0.0224806
+sys 0.594448 num 0.0704833  den 0.0226098
+sys 0.59539 num 0.0704622  den 0.0227382
+sys 0.596336 num 0.0704385  den 0.0228657
+sys 0.597282 num 0.0704116  den 0.0229923
+sys 0.598227 num 0.0703814  den 0.0231179
+sys 0.599173 num 0.070348  den 0.0232426
+sys 0.600122 num 0.0703117  den 0.0233663
+sys 0.60107 num 0.0702718  den 0.0234889
+sys 0.602022 num 0.070229  den 0.0236105
+sys 0.602973 num 0.0701825  den 0.0237309
+sys 0.603924 num 0.0701326  den 0.0238503
+sys 0.604883 num 0.0700799  den 0.0239685
+sys 0.605837 num 0.070023  den 0.0240854
+sys 0.606891 num 0.0699631  den 0.024236
+sys 0.607973 num 0.0698994  den 0.0243955
+sys 0.609059 num 0.0698319  den 0.0245545
+sys 0.610157 num 0.0697614  den 0.0247129
+sys 0.611257 num 0.0696867  den 0.0248707
+sys 0.612366 num 0.0696086  den 0.0250277
+sys 0.613481 num 0.0695266  den 0.0251843
+sys 0.614674 num 0.0694499  den 0.0253399
+sys 0.615925 num 0.0693759  den 0.0254948
+sys 0.617184 num 0.069298  den 0.0256489
+sys 0.618454 num 0.0692165  den 0.0258021
+sys 0.619729 num 0.0691306  den 0.0259544
+sys 0.621011 num 0.0690406  den 0.0261057
+sys 0.622301 num 0.0689465  den 0.0262559
+sys 0.623599 num 0.0688482  den 0.0264051
+sys 0.624905 num 0.0687456  den 0.026553
+sys 0.626218 num 0.0686387  den 0.0266999
+sys 0.62754 num 0.0685274  den 0.0268454
+sys 0.62887 num 0.0684116  den 0.0269895
+sys 0.630208 num 0.0682915  den 0.0271322
+sys 0.631555 num 0.0681668  den 0.0272735
+sys 0.632911 num 0.0680375  den 0.0274133
+sys 0.634275 num 0.0679036  den 0.0275515
+sys 0.635647 num 0.067765  den 0.0276879
+Et 35  fakerate 0.299788
+Et 36  fakerate 0.297759
+Et 37  fakerate 0.295731
+Et 38  fakerate 0.293706
+Et 39  fakerate 0.291683
+Et 40  fakerate 0.289663
+Et 41  fakerate 0.287645
+Et 42  fakerate 0.285629
+Et 43  fakerate 0.283615
+Et 44  fakerate 0.281603
+Et 45  fakerate 0.279594
+Et 46  fakerate 0.277586
+Et 47  fakerate 0.275581
+Et 48  fakerate 0.273578
+Et 49  fakerate 0.271577
+Et 50  fakerate 0.269579
+Et 51  fakerate 0.267583
+Et 52  fakerate 0.265589
+Et 53  fakerate 0.263599
+Et 54  fakerate 0.26161
+Et 55  fakerate 0.259625
+Et 56  fakerate 0.257642
+Et 57  fakerate 0.255663
+Et 58  fakerate 0.253686
+Et 59  fakerate 0.251714
+Et 60  fakerate 0.249745
+Et 61  fakerate 0.247779
+Et 62  fakerate 0.245818
+Et 63  fakerate 0.243861
+Et 64  fakerate 0.241909
+Et 65  fakerate 0.239962
+Et 66  fakerate 0.238019
+Et 67  fakerate 0.236083
+Et 68  fakerate 0.234152
+Et 69  fakerate 0.232227
+Et 70  fakerate 0.23031
+Et 71  fakerate 0.228399
+Et 72  fakerate 0.226495
+Et 73  fakerate 0.224599
+Et 74  fakerate 0.222712
+Et 75  fakerate 0.220833
+Et 76  fakerate 0.218963
+Et 77  fakerate 0.217103
+Et 78  fakerate 0.215254
+Et 79  fakerate 0.213415
+Et 80  fakerate 0.211587
+Et 81  fakerate 0.209771
+Et 82  fakerate 0.207967
+Et 83  fakerate 0.206176
+Et 84  fakerate 0.204398
+Et 85  fakerate 0.202634
+Et 86  fakerate 0.200885
+Et 87  fakerate 0.199151
+Et 88  fakerate 0.197432
+Et 89  fakerate 0.19573
+Et 90  fakerate 0.194044
+Et 91  fakerate 0.192376
+Et 92  fakerate 0.190726
+Et 93  fakerate 0.189094
+Et 94  fakerate 0.187481
+Et 95  fakerate 0.185888
+Et 96  fakerate 0.184315
+Et 97  fakerate 0.182762
+Et 98  fakerate 0.181231
+Et 99  fakerate 0.179721
+Et 100  fakerate 0.178233
+Et 101  fakerate 0.176768
+Et 102  fakerate 0.175326
+Et 103  fakerate 0.173907
+Et 104  fakerate 0.172512
+Et 105  fakerate 0.171141
+Et 106  fakerate 0.169795
+Et 107  fakerate 0.168473
+Et 108  fakerate 0.167176
+Et 109  fakerate 0.165905
+Et 110  fakerate 0.164659
+Et 111  fakerate 0.163439
+Et 112  fakerate 0.162245
+Et 113  fakerate 0.161076
+Et 114  fakerate 0.159934
+Et 115  fakerate 0.158819
+Et 116  fakerate 0.157729
+Et 117  fakerate 0.156666
+Et 118  fakerate 0.155629
+Et 119  fakerate 0.154618
+Et 120  fakerate 0.153634
+Et 121  fakerate 0.152675
+Et 122  fakerate 0.151743
+Et 123  fakerate 0.150836
+Et 124  fakerate 0.149955
+Et 125  fakerate 0.149099
+Et 126  fakerate 0.148268
+Et 127  fakerate 0.147463
+Et 128  fakerate 0.146682
+Et 129  fakerate 0.145925
+Et 130  fakerate 0.145192
+Et 131  fakerate 0.144483
+Et 132  fakerate 0.143798
+Et 133  fakerate 0.143135
+Et 134  fakerate 0.142495
+Et 135  fakerate 0.141877
+Et 136  fakerate 0.141281
+Et 137  fakerate 0.140706
+Et 138  fakerate 0.140152
+Et 139  fakerate 0.139618
+Et 140  fakerate 0.139105
+Et 141  fakerate 0.13861
+Et 142  fakerate 0.138135
+Et 143  fakerate 0.137679
+Et 144  fakerate 0.137241
+Et 145  fakerate 0.13682
+Et 146  fakerate 0.136417
+Et 147  fakerate 0.13603
+Et 148  fakerate 0.135659
+Et 149  fakerate 0.135305
+Et 150  fakerate 0.134965
+Et 151  fakerate 0.13464
+Et 152  fakerate 0.13433
+Et 153  fakerate 0.134033
+Et 154  fakerate 0.13375
+Et 155  fakerate 0.13348
+Et 156  fakerate 0.133222
+Et 157  fakerate 0.132977
+Et 158  fakerate 0.132743
+Et 159  fakerate 0.13252
+Et 160  fakerate 0.132308
+Et 161  fakerate 0.132107
+Et 162  fakerate 0.131915
+Et 163  fakerate 0.131733
+Et 164  fakerate 0.13156
+Et 165  fakerate 0.131396
+Et 166  fakerate 0.131241
+Et 167  fakerate 0.131093
+Et 168  fakerate 0.130954
+Et 169  fakerate 0.130822
+Et 170  fakerate 0.130696
+Et 171  fakerate 0.130578
+Et 172  fakerate 0.130466
+Et 173  fakerate 0.13036
+Et 174  fakerate 0.13026
+Et 175  fakerate 0.130166
+Et 176  fakerate 0.130076
+Et 177  fakerate 0.129992
+Et 178  fakerate 0.129913
+Et 179  fakerate 0.129837
+Et 180  fakerate 0.129767
+Et 181  fakerate 0.1297
+Et 182  fakerate 0.129637
+Et 183  fakerate 0.129577
+Et 184  fakerate 0.129521
+Et 185  fakerate 0.129467
+Et 186  fakerate 0.129417
+Et 187  fakerate 0.129369
+Et 188  fakerate 0.129324
+Et 189  fakerate 0.129281
+Et 190  fakerate 0.12924
+Et 191  fakerate 0.129201
+Et 192  fakerate 0.129164
+Et 193  fakerate 0.129129
+Et 194  fakerate 0.129095
+Et 195  fakerate 0.129062
+Et 196  fakerate 0.129031
+Et 197  fakerate 0.129
+Et 198  fakerate 0.128971
+Et 199  fakerate 0.128942
+Et 200  fakerate 0.128914
+Et 201  fakerate 0.128886
+Et 202  fakerate 0.128858
+Et 203  fakerate 0.128831
+Et 204  fakerate 0.128804
+Et 205  fakerate 0.128777
+Et 206  fakerate 0.12875
+Et 207  fakerate 0.128723
+Et 208  fakerate 0.128696
+Et 209  fakerate 0.128668
+Et 210  fakerate 0.128639
+Et 211  fakerate 0.12861
+Et 212  fakerate 0.128581
+Et 213  fakerate 0.12855
+Et 214  fakerate 0.128519
+Et 215  fakerate 0.128487
+Et 216  fakerate 0.128453
+Et 217  fakerate 0.128419
+Et 218  fakerate 0.128383
+Et 219  fakerate 0.128346
+Et 220  fakerate 0.128308
+Et 221  fakerate 0.128269
+Et 222  fakerate 0.128227
+Et 223  fakerate 0.128185
+Et 224  fakerate 0.12814
+Et 225  fakerate 0.128094
+Et 226  fakerate 0.128046
+Et 227  fakerate 0.127996
+Et 228  fakerate 0.127945
+Et 229  fakerate 0.127891
+Et 230  fakerate 0.127835
+Et 231  fakerate 0.127777
+Et 232  fakerate 0.127717
+Et 233  fakerate 0.127654
+Et 234  fakerate 0.127589
+Et 235  fakerate 0.127522
+Et 236  fakerate 0.127452
+Et 237  fakerate 0.127379
+Et 238  fakerate 0.127304
+Et 239  fakerate 0.127226
+Et 240  fakerate 0.127145
+Et 241  fakerate 0.127062
+Et 242  fakerate 0.126975
+Et 243  fakerate 0.126886
+Et 244  fakerate 0.126793
+Et 245  fakerate 0.126698
+Et 246  fakerate 0.126599
+Et 247  fakerate 0.126496
+Et 248  fakerate 0.126391
+Et 249  fakerate 0.126282
+Et 250  fakerate 0.126169
+Et 251  fakerate 0.126053
+Et 252  fakerate 0.125934
+Et 253  fakerate 0.12581
+Et 254  fakerate 0.125683
+Et 255  fakerate 0.125552
+Et 256  fakerate 0.125417
+Et 257  fakerate 0.125278
+Et 258  fakerate 0.125135
+Et 259  fakerate 0.124988
+Et 260  fakerate 0.124836
+Et 261  fakerate 0.124681
+Et 262  fakerate 0.12452
+Et 263  fakerate 0.124356
+Et 264  fakerate 0.124186
+Et 265  fakerate 0.124013
+Et 266  fakerate 0.123834
+Et 267  fakerate 0.123651
+Et 268  fakerate 0.123462
+Et 269  fakerate 0.123269
+Et 270  fakerate 0.123071
+Et 271  fakerate 0.122868
+Et 272  fakerate 0.122659
+Et 273  fakerate 0.122446
+Et 274  fakerate 0.122227
+Et 275  fakerate 0.122002
+Et 276  fakerate 0.121772
+Et 277  fakerate 0.121537
+Et 278  fakerate 0.121296
+Et 279  fakerate 0.121049
+Et 280  fakerate 0.120796
+Et 281  fakerate 0.120537
+Et 282  fakerate 0.120272
+Et 283  fakerate 0.120002
+Et 284  fakerate 0.119725
+Et 285  fakerate 0.119442
+Et 286  fakerate 0.119153
+Et 287  fakerate 0.118857
+Et 288  fakerate 0.118555
+Et 289  fakerate 0.118246
+Et 290  fakerate 0.117931
+Et 291  fakerate 0.117609
+Et 292  fakerate 0.11728
+Et 293  fakerate 0.116945
+Et 294  fakerate 0.116602
+Et 295  fakerate 0.116253
+Et 296  fakerate 0.115897
+Et 297  fakerate 0.115534
+Et 298  fakerate 0.115163
+Et 299  fakerate 0.114786
+Et 300  fakerate 0.114401
+Et 301  fakerate 0.114009
+Et 302  fakerate 0.113609
+Et 303  fakerate 0.113202
+Et 304  fakerate 0.112788
+Et 305  fakerate 0.112366
+Et 306  fakerate 0.111937
+Et 307  fakerate 0.1115
+Et 308  fakerate 0.111055
+Et 309  fakerate 0.110603
+Et 310  fakerate 0.110143
+Et 311  fakerate 0.109675
+Et 312  fakerate 0.1092
+Et 313  fakerate 0.108717
+Et 314  fakerate 0.108226
+Et 315  fakerate 0.107727
+Et 316  fakerate 0.107221
+Et 317  fakerate 0.106707
+Et 318  fakerate 0.106185
+Et 319  fakerate 0.105655
+Et 320  fakerate 0.105117
+Et 321  fakerate 0.104572
+Et 322  fakerate 0.104019
+Et 323  fakerate 0.103458
+Et 324  fakerate 0.102889
+Et 325  fakerate 0.102313
+Et 326  fakerate 0.101729
+Et 327  fakerate 0.101137
+Et 328  fakerate 0.100538
+Et 329  fakerate 0.0999316
+Et 330  fakerate 0.0993175
+Et 331  fakerate 0.0986961
+Et 332  fakerate 0.0980674
+Et 333  fakerate 0.0974314
+Et 334  fakerate 0.0967883
+Et 335  fakerate 0.0961381
+Et 336  fakerate 0.0954809
+Et 337  fakerate 0.0948168
+Et 338  fakerate 0.0941459
+Et 339  fakerate 0.0934684
+Et 340  fakerate 0.0927843
+Et 341  fakerate 0.0920937
+Et 342  fakerate 0.0913968
+Et 343  fakerate 0.0906937
+Et 344  fakerate 0.0899846
+Et 345  fakerate 0.0892695
+Et 346  fakerate 0.0885487
+Et 347  fakerate 0.0878222
+Et 348  fakerate 0.0870902
+Et 349  fakerate 0.086353
+Et 350  fakerate 0.0856105
+Et 351  fakerate 0.0848632
+Et 352  fakerate 0.084111
+Et 353  fakerate 0.0833542
+Et 354  fakerate 0.0825929
+Et 355  fakerate 0.0818274
+Et 356  fakerate 0.0810579
+Et 357  fakerate 0.0802845
+Et 358  fakerate 0.0795074
+Et 359  fakerate 0.0787269
+Et 360  fakerate 0.0779431
+Et 361  fakerate 0.0771563
+Et 362  fakerate 0.0763666
+Et 363  fakerate 0.0755744
+Et 364  fakerate 0.0747797
+Et 365  fakerate 0.0739829
+Et 366  fakerate 0.0731841
+Et 367  fakerate 0.0723836
+Et 368  fakerate 0.0715815
+Et 369  fakerate 0.0707783
+Et 370  fakerate 0.0699739
+Et 371  fakerate 0.0691688
+Et 372  fakerate 0.068363
+Et 373  fakerate 0.0675569
+Et 374  fakerate 0.0667507
+Et 375  fakerate 0.0659445
+Et 376  fakerate 0.0651387
+Et 377  fakerate 0.0643335
+Et 378  fakerate 0.063529
+Et 379  fakerate 0.0627255
+Et 380  fakerate 0.0619233
+Et 381  fakerate 0.0611225
+Et 382  fakerate 0.0603234
+Et 383  fakerate 0.0595263
+Et 384  fakerate 0.0587312
+Et 385  fakerate 0.0579384
+Et 386  fakerate 0.0571482
+Et 387  fakerate 0.0563608
+Et 388  fakerate 0.0555763
+Et 389  fakerate 0.0547949
+Et 390  fakerate 0.0540169
+Et 391  fakerate 0.0532424
+Et 392  fakerate 0.0524717
+Et 393  fakerate 0.0517049
+Et 394  fakerate 0.0509422
+Et 395  fakerate 0.0501838
+Et 396  fakerate 0.0494298
+Et 397  fakerate 0.0486805
+Et 398  fakerate 0.0479359
+Et 399  fakerate 0.0471963
+Et 400  fakerate 0.0464618
+Et 401  fakerate 0.0457326
+Et 402  fakerate 0.0450087
+Et 403  fakerate 0.0442903
+Et 404  fakerate 0.0435776
+Et 405  fakerate 0.0428707
+Et 406  fakerate 0.0421697
+Et 407  fakerate 0.0414748
+Et 408  fakerate 0.0407859
+Et 409  fakerate 0.0401033
+Et 410  fakerate 0.0394271
+Et 411  fakerate 0.0387573
+Et 412  fakerate 0.038094
+Et 413  fakerate 0.0374373
+Et 414  fakerate 0.0367874
+Et 415  fakerate 0.0361441
+Et 416  fakerate 0.0355078
+Et 417  fakerate 0.0348783
+Et 418  fakerate 0.0342557
+Et 419  fakerate 0.0336402
+Et 420  fakerate 0.0330317
+Et 421  fakerate 0.0324304
+Et 422  fakerate 0.0318361
+Et 423  fakerate 0.031249
+Et 424  fakerate 0.0306691
+Et 425  fakerate 0.0300965
+Et 426  fakerate 0.029531
+Et 427  fakerate 0.0289729
+Et 428  fakerate 0.0284219
+Et 429  fakerate 0.0278783
+Et 430  fakerate 0.0273419
+Et 431  fakerate 0.0268128
+Et 432  fakerate 0.026291
+Et 433  fakerate 0.0257764
+Et 434  fakerate 0.025269
+Et 435  fakerate 0.0247689
+Et 436  fakerate 0.0242759
+Et 437  fakerate 0.0237902
+Et 438  fakerate 0.0233116
+Et 439  fakerate 0.0228401
+Et 440  fakerate 0.0223757
+Et 441  fakerate 0.0219183
+Et 442  fakerate 0.021468
+Et 443  fakerate 0.0210247
+Et 444  fakerate 0.0205882
+Et 445  fakerate 0.0201587
+Et 446  fakerate 0.019736
+Et 447  fakerate 0.01932
+Et 448  fakerate 0.0189108
+Et 449  fakerate 0.0185083
+Et 450  fakerate 0.0181124
+Et 451  fakerate 0.0177231
+Et 452  fakerate 0.0173403
+Et 453  fakerate 0.0169639
+Et 454  fakerate 0.0165939
+Et 455  fakerate 0.0162302
+Et 456  fakerate 0.0158727
+Et 457  fakerate 0.0155215
+Et 458  fakerate 0.0151764
+Et 459  fakerate 0.0148373
+Et 460  fakerate 0.0145042
+Et 461  fakerate 0.014177
+Et 462  fakerate 0.0138557
+Et 463  fakerate 0.0135401
+Et 464  fakerate 0.0132302
+Et 465  fakerate 0.012926
+Et 466  fakerate 0.0126273
+Et 467  fakerate 0.0123341
+Et 468  fakerate 0.0120463
+Et 469  fakerate 0.0117639
+Et 470  fakerate 0.0114867
+Et 471  fakerate 0.0112147
+Et 472  fakerate 0.0109478
+Et 473  fakerate 0.010686
+Et 474  fakerate 0.0104291
+Et 475  fakerate 0.0101771
+Et 476  fakerate 0.00993
+Et 477  fakerate 0.00968761
+Et 478  fakerate 0.00944989
+Et 479  fakerate 0.00921679
+Et 480  fakerate 0.00898822
+Et 481  fakerate 0.00876411
+Et 482  fakerate 0.0085444
+Et 483  fakerate 0.008329
+Et 484  fakerate 0.00811786
+Et 485  fakerate 0.00791091
+Et 486  fakerate 0.00770806
+Et 487  fakerate 0.00750926
+Et 488  fakerate 0.00731444
+Et 489  fakerate 0.00712352
+Et 490  fakerate 0.00693645
+Et 491  fakerate 0.00675315
+Et 492  fakerate 0.00657356
+Et 493  fakerate 0.00639762
+Et 494  fakerate 0.00622526
+Et 495  fakerate 0.00605642
+Et 496  fakerate 0.00589103
+Et 497  fakerate 0.00572904
+Et 498  fakerate 0.00557037
+Et 499  fakerate 0.00541498
+Et 500  fakerate 0.00526281
+Et 501  fakerate 0.00511378
+Et 502  fakerate 0.00496785
+Et 503  fakerate 0.00482495
+Et 504  fakerate 0.00468504
+Et 505  fakerate 0.00454805
+Et 506  fakerate 0.00441393
+Et 507  fakerate 0.00428262
+Et 508  fakerate 0.00415407
+Et 509  fakerate 0.00402823
+Et 510  fakerate 0.00390505
+Et 511  fakerate 0.00378448
+Et 512  fakerate 0.00366645
+Et 513  fakerate 0.00355093
+Et 514  fakerate 0.00343787
+Et 515  fakerate 0.00332722
+Et 516  fakerate 0.00321892
+Et 517  fakerate 0.00311294
+Et 518  fakerate 0.00300923
+Et 519  fakerate 0.00290773
+Et 520  fakerate 0.00280842
+Et 521  fakerate 0.00271124
+Et 522  fakerate 0.00261615
+Et 523  fakerate 0.00252312
+Et 524  fakerate 0.00243209
+Et 525  fakerate 0.00234302
+Et 526  fakerate 0.00225589
+Et 527  fakerate 0.00217064
+Et 528  fakerate 0.00208724
+Et 529  fakerate 0.00200565
+Et 530  fakerate 0.00192584
+Et 531  fakerate 0.00184776
+Et 532  fakerate 0.00177139
+Et 533  fakerate 0.00169668
+Et 534  fakerate 0.0016236
+Et 535  fakerate 0.00155212
+Et 536  fakerate 0.00148221
+Et 537  fakerate 0.00141382
+Et 538  fakerate 0.00134694
+Et 539  fakerate 0.00128152
+Et 540  fakerate 0.00121755
+Et 541  fakerate 0.00115497
+Et 542  fakerate 0.00109378
+Et 543  fakerate 0.00103393
+Et 544  fakerate 0.000975405
+Et 545  fakerate 0.00091817
+Et 546  fakerate 0.000862198
+Et 547  fakerate 0.000807463
+Et 548  fakerate 0.000753939
+Et 549  fakerate 0.000701599
+Et 550  fakerate 0.000650419
+Et 551  fakerate 0.000600374
+Et 552  fakerate 0.000551438
+Et 553  fakerate 0.000503589
+Et 554  fakerate 0.000456802
+Et 555  fakerate 0.000411055
+Et 556  fakerate 0.000366326
+Et 557  fakerate 0.000322592
+Et 558  fakerate 0.000279832
+Et 559  fakerate 0.000238025
+Et 560  fakerate 0.000197149
+Et 561  fakerate 0.000157186
+Et 562  fakerate 0.000118114
+Et 563  fakerate 7.99153e-05
+Et 564  fakerate 4.25698e-05
+Et 565  fakerate 6.05903e-06
+Et 566  fakerate -2.96351e-05
+Et 567  fakerate -6.45306e-05
+Et 568  fakerate -9.86448e-05
+Et 569  fakerate -0.000131995
+Et 570  fakerate -0.000164598
+Et 571  fakerate -0.00019647
+Et 572  fakerate -0.000227627
+Et 573  fakerate -0.000258085
+Et 574  fakerate -0.000287859
+Et 575  fakerate -0.000316965
+Et 576  fakerate -0.000345417
+Et 577  fakerate -0.000373229
+Et 578  fakerate -0.000400417
+Et 579  fakerate -0.000426992
+Et 580  fakerate -0.00045297
+Et 581  fakerate -0.000478363
+Et 582  fakerate -0.000503185
+Et 583  fakerate -0.000527447
+Et 584  fakerate -0.000551163
+Et 585  fakerate -0.000574344
+Et 586  fakerate -0.000597003
+Et 587  fakerate -0.000619151
+Et 588  fakerate -0.000640799
+Et 589  fakerate -0.000661959
+Et 590  fakerate -0.000682641
+Et 591  fakerate -0.000702856
+Et 592  fakerate -0.000722614
+Et 593  fakerate -0.000741927
+Et 594  fakerate -0.000760803
+Et 595  fakerate -0.000779252
+Et 596  fakerate -0.000797284
+Et 597  fakerate -0.000814909
+Et 598  fakerate -0.000832135
+Et 599  fakerate -0.000848971
+Et 600  fakerate -0.000865426
+Et 601  fakerate -0.000881509
+Et 602  fakerate -0.000897227
+Et 603  fakerate -0.00091259
+Et 604  fakerate -0.000927605
+Et 605  fakerate -0.00094228
+Et 606  fakerate -0.000956622
+Et 607  fakerate -0.00097064
+Et 608  fakerate -0.000984339
+Et 609  fakerate -0.000997728
+Et 610  fakerate -0.00101081
+Et 611  fakerate -0.0010236
+Et 612  fakerate -0.0010361
+Et 613  fakerate -0.00104832
+Et 614  fakerate -0.00106025
+Et 615  fakerate -0.00107192
+Et 616  fakerate -0.00108332
+Et 617  fakerate -0.00109447
+Et 618  fakerate -0.00110536
+Et 619  fakerate -0.001116
+Et 620  fakerate -0.0011264
+Et 621  fakerate -0.00113657
+Et 622  fakerate -0.0011465
+Et 623  fakerate -0.00115621
+Et 624  fakerate -0.0011657
+Et 625  fakerate -0.00117497
+Et 626  fakerate -0.00118403
+Et 627  fakerate -0.00119289
+Et 628  fakerate -0.00120154
+Et 629  fakerate -0.00121
+Et 630  fakerate -0.00121827
+Et 631  fakerate -0.00122635
+Et 632  fakerate -0.00123424
+Et 633  fakerate -0.00124195
+Et 634  fakerate -0.00124949
+Et 635  fakerate -0.00125686
+Et 636  fakerate -0.00126406
+Et 637  fakerate -0.00127109
+Et 638  fakerate -0.00127797
+Et 639  fakerate -0.00128469
+Et 640  fakerate -0.00129126
+Et 641  fakerate -0.00129767
+Et 642  fakerate -0.00130394
+Et 643  fakerate -0.00131007
+Et 644  fakerate -0.00131606
+Et 645  fakerate -0.00132191
+Et 646  fakerate -0.00132763
+Et 647  fakerate -0.00133322
+Et 648  fakerate -0.00133868
+Et 649  fakerate -0.00134402
+Et 650  fakerate -0.00134923
+Et 651  fakerate -0.00135433
+Et 652  fakerate -0.00135931
+Et 653  fakerate -0.00136418
+Et 654  fakerate -0.00136894
+Et 655  fakerate -0.00137358
+Et 656  fakerate -0.00137813
+Et 657  fakerate -0.00138256
+Et 658  fakerate -0.0013869
+Et 659  fakerate -0.00139114
+Et 660  fakerate -0.00139528
+Et 661  fakerate -0.00139933
+Et 662  fakerate -0.00140328
+Et 663  fakerate -0.00140715
+Et 664  fakerate -0.00141093
+Et 665  fakerate -0.00141462
+Et 666  fakerate -0.00141822
+Et 667  fakerate -0.00142175
+Et 668  fakerate -0.00142519
+Et 669  fakerate -0.00142856
+Et 670  fakerate -0.00143185
+Et 671  fakerate -0.00143506
+Et 672  fakerate -0.0014382
+Et 673  fakerate -0.00144127
+Et 674  fakerate -0.00144427
+Et 675  fakerate -0.0014472
+Et 676  fakerate -0.00145006
+Et 677  fakerate -0.00145286
+Et 678  fakerate -0.0014556
+Et 679  fakerate -0.00145827
+Et 680  fakerate -0.00146088
+Et 681  fakerate -0.00146343
+Et 682  fakerate -0.00146593
+Et 683  fakerate -0.00146836
+Et 684  fakerate -0.00147074
+Et 685  fakerate -0.00147307
+Et 686  fakerate -0.00147534
+Et 687  fakerate -0.00147756
+Et 688  fakerate -0.00147974
+Et 689  fakerate -0.00148186
+Et 690  fakerate -0.00148393
+Et 691  fakerate -0.00148596
+Et 692  fakerate -0.00148794
+Et 693  fakerate -0.00148987
+Et 694  fakerate -0.00149176
+Et 695  fakerate -0.00149361
+Et 696  fakerate -0.00149541
+Et 697  fakerate -0.00149718
+Et 698  fakerate -0.0014989
+Et 699  fakerate -0.00150058
+Et 700  fakerate -0.00150223
+Et 701  fakerate -0.00150384
+Et 702  fakerate -0.00150541
+Et 703  fakerate -0.00150694
+Et 704  fakerate -0.00150844
+Et 705  fakerate -0.00150991
+Et 706  fakerate -0.00151134
+Et 707  fakerate -0.00151274
+Et 708  fakerate -0.00151411
+Et 709  fakerate -0.00151545
+Et 710  fakerate -0.00151676
+Et 711  fakerate -0.00151803
+Et 712  fakerate -0.00151928
+Et 713  fakerate -0.0015205
+Et 714  fakerate -0.00152169
+Et 715  fakerate -0.00152285
+Et 716  fakerate -0.00152399
+Et 717  fakerate -0.0015251
+Et 718  fakerate -0.00152619
+Et 719  fakerate -0.00152725
+Et 720  fakerate -0.00152829
+Et 721  fakerate -0.0015293
+Et 722  fakerate -0.00153029
+Et 723  fakerate -0.00153126
+Et 724  fakerate -0.0015322
+Et 725  fakerate -0.00153313
+Et 726  fakerate -0.00153403
+Et 727  fakerate -0.00153491
+Et 728  fakerate -0.00153577
+Et 729  fakerate -0.00153662
+Et 730  fakerate -0.00153744
+Et 731  fakerate -0.00153824
+Et 732  fakerate -0.00153903
+Et 733  fakerate -0.0015398
+Et 734  fakerate -0.00154055
+Et 735  fakerate -0.00154128
+Et 736  fakerate -0.001542
+Et 737  fakerate -0.0015427
+Et 738  fakerate -0.00154338
+Et 739  fakerate -0.00154405
+Et 740  fakerate -0.0015447
+Et 741  fakerate -0.00154534
+Et 742  fakerate -0.00154597
+Et 743  fakerate -0.00154658
+Et 744  fakerate -0.00154717
+Et 745  fakerate -0.00154775
+Et 746  fakerate -0.00154832
+Et 747  fakerate -0.00154888
+Et 748  fakerate -0.00154942
+Et 749  fakerate -0.00154995
+Et 750  fakerate -0.00155047
+Et 751  fakerate -0.00155098
+Et 752  fakerate -0.00155147
+Et 753  fakerate -0.00155196
+Et 754  fakerate -0.00155243
+Et 755  fakerate -0.00155289
+Et 756  fakerate -0.00155334
+Et 757  fakerate -0.00155378
+Et 758  fakerate -0.00155422
+Et 759  fakerate -0.00155464
+Et 760  fakerate -0.00155505
+Et 761  fakerate -0.00155545
+Et 762  fakerate -0.00155584
+Et 763  fakerate -0.00155623
+Et 764  fakerate -0.0015566
+Et 765  fakerate -0.00155697
+Et 766  fakerate -0.00155733
+Et 767  fakerate -0.00155768
+Et 768  fakerate -0.00155802
+Et 769  fakerate -0.00155835
+Et 770  fakerate -0.00155868
+Et 771  fakerate -0.001559
+Et 772  fakerate -0.00155931
+Et 773  fakerate -0.00155962
+Et 774  fakerate -0.00155992
+Et 775  fakerate -0.00156021
+Et 776  fakerate -0.00156049
+Et 777  fakerate -0.00156077
+Et 778  fakerate -0.00156104
+Et 779  fakerate -0.00156131
+Et 780  fakerate -0.00156156
+Et 781  fakerate -0.00156182
+Et 782  fakerate -0.00156207
+Et 783  fakerate -0.00156231
+Et 784  fakerate -0.00156254
+Et 785  fakerate -0.00156277
+Et 786  fakerate -0.001563
+Et 787  fakerate -0.00156322
+Et 788  fakerate -0.00156344
+Et 789  fakerate -0.00156365
+Et 790  fakerate -0.00156385
+Et 791  fakerate -0.00156405
+Et 792  fakerate -0.00156425
+Et 793  fakerate -0.00156444
+Et 794  fakerate -0.00156463
+Et 795  fakerate -0.00156481
+Et 796  fakerate -0.00156499
+Et 797  fakerate -0.00156517
+Et 798  fakerate -0.00156534
+Et 799  fakerate -0.00156551
+Et 800  fakerate -0.00156567
+Et 801  fakerate -0.00156583
+Et 802  fakerate -0.00156599
+Et 803  fakerate -0.00156614
+Et 804  fakerate -0.00156629
+Et 805  fakerate -0.00156643
+Et 806  fakerate -0.00156657
+Et 807  fakerate -0.00156671
+Et 808  fakerate -0.00156685
+Et 809  fakerate -0.00156698
+Et 810  fakerate -0.00156711
+Et 811  fakerate -0.00156724
+Et 812  fakerate -0.00156736
+Et 813  fakerate -0.00156748
+Et 814  fakerate -0.0015676
+Et 815  fakerate -0.00156772
+Et 816  fakerate -0.00156783
+Et 817  fakerate -0.00156794
+Et 818  fakerate -0.00156805
+Et 819  fakerate -0.00156815
+Et 820  fakerate -0.00156826
+Et 821  fakerate -0.00156836
+Et 822  fakerate -0.00156845
+Et 823  fakerate -0.00156855
+Et 824  fakerate -0.00156864
+Et 825  fakerate -0.00156874
+Et 826  fakerate -0.00156883
+Et 827  fakerate -0.00156891
+Et 828  fakerate -0.001569
+Et 829  fakerate -0.00156908
+Et 830  fakerate -0.00156916
+Et 831  fakerate -0.00156924
+Et 832  fakerate -0.00156932
+Et 833  fakerate -0.0015694
+Et 834  fakerate -0.00156947
+Et 835  fakerate -0.00156954
+Et 836  fakerate -0.00156962
+Et 837  fakerate -0.00156969
+Et 838  fakerate -0.00156975
+Et 839  fakerate -0.00156982
+Et 840  fakerate -0.00156988
+Et 841  fakerate -0.00156995
+Et 842  fakerate -0.00157001
+Et 843  fakerate -0.00157007
+Et 844  fakerate -0.00157013
+Et 845  fakerate -0.00157019
+Et 846  fakerate -0.00157024
+Et 847  fakerate -0.0015703
+Et 848  fakerate -0.00157035
+Et 849  fakerate -0.0015704
+Et 850  fakerate -0.00157046
+Et 851  fakerate -0.00157051
+Et 852  fakerate -0.00157056
+Et 853  fakerate -0.0015706
+Et 854  fakerate -0.00157065
+Et 855  fakerate -0.0015707
+Et 856  fakerate -0.00157074
+Et 857  fakerate -0.00157079
+Et 858  fakerate -0.00157083
+Et 859  fakerate -0.00157087
+Et 860  fakerate -0.00157091
+Et 861  fakerate -0.00157095
+Et 862  fakerate -0.00157099
+Et 863  fakerate -0.00157103
+Et 864  fakerate -0.00157106
+Et 865  fakerate -0.0015711
+Et 866  fakerate -0.00157114
+Et 867  fakerate -0.00157117
+Et 868  fakerate -0.00157121
+Et 869  fakerate -0.00157124
+Et 870  fakerate -0.00157127
+Et 871  fakerate -0.0015713
+Et 872  fakerate -0.00157133
+Et 873  fakerate -0.00157136
+Et 874  fakerate -0.00157139
+Et 875  fakerate -0.00157142
+Et 876  fakerate -0.00157145
+Et 877  fakerate -0.00157148
+Et 878  fakerate -0.0015715
+Et 879  fakerate -0.00157153
+Et 880  fakerate -0.00157156
+Et 881  fakerate -0.00157158
+Et 882  fakerate -0.00157161
+Et 883  fakerate -0.00157163
+Et 884  fakerate -0.00157165
+Et 885  fakerate -0.00157168
+Et 886  fakerate -0.0015717
+Et 887  fakerate -0.00157172
+Et 888  fakerate -0.00157174
+Et 889  fakerate -0.00157176
+Et 890  fakerate -0.00157178
+Et 891  fakerate -0.0015718
+Et 892  fakerate -0.00157182
+Et 893  fakerate -0.00157184
+Et 894  fakerate -0.00157186
+Et 895  fakerate -0.00157188
+Et 896  fakerate -0.0015719
+Et 897  fakerate -0.00157191
+Et 898  fakerate -0.00157193
+Et 899  fakerate -0.00157195
+Et 900  fakerate -0.00157196
+Et 901  fakerate -0.00157198
+Et 902  fakerate -0.001572
+Et 903  fakerate -0.00157201
+Et 904  fakerate -0.00157203
+Et 905  fakerate -0.00157204
+Et 906  fakerate -0.00157205
+Et 907  fakerate -0.00157207
+Et 908  fakerate -0.00157208
+Et 909  fakerate -0.00157209
+Et 910  fakerate -0.00157211
+Et 911  fakerate -0.00157212
+Et 912  fakerate -0.00157213
+Et 913  fakerate -0.00157214
+Et 914  fakerate -0.00157216
+Et 915  fakerate -0.00157217
+Et 916  fakerate -0.00157218
+Et 917  fakerate -0.00157219
+Et 918  fakerate -0.0015722
+Et 919  fakerate -0.00157221
+Et 920  fakerate -0.00157222
+Et 921  fakerate -0.00157223
+Et 922  fakerate -0.00157224
+Et 923  fakerate -0.00157225
+Et 924  fakerate -0.00157226
+Et 925  fakerate -0.00157227
+Et 926  fakerate -0.00157228
+Et 927  fakerate -0.00157229
+Et 928  fakerate -0.00157229
+Et 929  fakerate -0.0015723
+Et 930  fakerate -0.00157231
+Et 931  fakerate -0.00157232
+Et 932  fakerate -0.00157233
+Et 933  fakerate -0.00157233
+Et 934  fakerate -0.00157234
+Et 935  fakerate -0.00157235
+Et 936  fakerate -0.00157236
+Et 937  fakerate -0.00157236
+Et 938  fakerate -0.00157237
+Et 939  fakerate -0.00157238
+Et 940  fakerate -0.00157238
+Et 941  fakerate -0.00157239
+Et 942  fakerate -0.00157239
+Et 943  fakerate -0.0015724
+Et 944  fakerate -0.00157241
+Et 945  fakerate -0.00157241
+Et 946  fakerate -0.00157242
+Et 947  fakerate -0.00157242
+Et 948  fakerate -0.00157243
+Et 949  fakerate -0.00157243
+Et 950  fakerate -0.00157244
+Et 951  fakerate -0.00157244
+Et 952  fakerate -0.00157245
+Et 953  fakerate -0.00157245
+Et 954  fakerate -0.00157246
+Et 955  fakerate -0.00157246
+Et 956  fakerate -0.00157247
+Et 957  fakerate -0.00157247
+Et 958  fakerate -0.00157248
+Et 959  fakerate -0.00157248
+Et 960  fakerate -0.00157248
+Et 961  fakerate -0.00157249
+Et 962  fakerate -0.00157249
+Et 963  fakerate -0.0015725
+Et 964  fakerate -0.0015725
+Et 965  fakerate -0.0015725
+Et 966  fakerate -0.00157251
+Et 967  fakerate -0.00157251
+Et 968  fakerate -0.00157251
+Et 969  fakerate -0.00157252
+Et 970  fakerate -0.00157252
+Et 971  fakerate -0.00157252
+Et 972  fakerate -0.00157253
+Et 973  fakerate -0.00157253
+Et 974  fakerate -0.00157253
+Et 975  fakerate -0.00157253
+Et 976  fakerate -0.00157254
+Et 977  fakerate -0.00157254
+Et 978  fakerate -0.00157254
+Et 979  fakerate -0.00157255
+Et 980  fakerate -0.00157255
+Et 981  fakerate -0.00157255
+Et 982  fakerate -0.00157255
+Et 983  fakerate -0.00157256
+Et 984  fakerate -0.00157256
+Et 985  fakerate -0.00157256
+Et 986  fakerate -0.00157256
+Et 987  fakerate -0.00157256
+Et 988  fakerate -0.00157257
+Et 989  fakerate -0.00157257
+Et 990  fakerate -0.00157257
+Et 991  fakerate -0.00157257
+Et 992  fakerate -0.00157257
+Et 993  fakerate -0.00157258
+Et 994  fakerate -0.00157258
+Et 995  fakerate -0.00157258
+Et 996  fakerate -0.00157258
+Et 997  fakerate -0.00157258
+Et 998  fakerate -0.00157258
+Et 999  fakerate -0.00157259
+Et 1000  fakerate -0.00157259
+Et 1001  fakerate -0.00157259
+Et 1002  fakerate -0.00157259
+Et 1003  fakerate -0.00157259
+Et 1004  fakerate -0.00157259
+Et 1005  fakerate -0.0015726
+Et 1006  fakerate -0.0015726
+Et 1007  fakerate -0.0015726
+Et 1008  fakerate -0.0015726
+Et 1009  fakerate -0.0015726
+Et 1010  fakerate -0.0015726
+Et 1011  fakerate -0.0015726
+Et 1012  fakerate -0.0015726
+Et 1013  fakerate -0.00157261
+Et 1014  fakerate -0.00157261
+Et 1015  fakerate -0.00157261
+Et 1016  fakerate -0.00157261
+Et 1017  fakerate -0.00157261
+Et 1018  fakerate -0.00157261
+Et 1019  fakerate -0.00157261
+Et 1020  fakerate -0.00157261
+Et 1021  fakerate -0.00157261
+Et 1022  fakerate -0.00157262
+Et 1023  fakerate -0.00157262
+Et 1024  fakerate -0.00157262
+Et 1025  fakerate -0.00157262
+Et 1026  fakerate -0.00157262
+Et 1027  fakerate -0.00157262
+Et 1028  fakerate -0.00157262
+Et 1029  fakerate -0.00157262
+Et 1030  fakerate -0.00157262
+Et 1031  fakerate -0.00157262
+Et 1032  fakerate -0.00157262
+Et 1033  fakerate -0.00157262
+Et 1034  fakerate -0.00157263
 0 0 0 0
 1 0 0 0
-1 0 0 0
+0 0 0 0
+5 0 0 0
+0 0 0 0
 0 0 0 0
 4 0 0 0
+0 0 0 0
+0 0 0 0
 1 0 0 0
-14 0 0 0
-5 0 0 0
-4 0 0 0
+2 0 0 0
+0 0 0 0
 1 0 0 0
 0 0 0 0
 10 0 0 0
 1 0 0 0
-2 0 0 0
-2 0 0 0
-2 0 0 0
-1 0 0 0
-1 0 0 0
-1 0 0 0
-8 0 0 0
-4 0 0 0
-0 0 0 0
-2 0 0 0
-10 0 0 0
-1 0 0 0
-0 0 0 0
-0 0 0 0
-5 0 0 0
-1 0 0 0
-1 0 0 0
-11 0 0 0
-4 0 0 0
-0 0 0 0
-0 0 0 0
-2 0 0 0
-1 0 0 0
-0 0 0 0
-1 0 0 0
-0 0 0 0
-0 0 0 0
-1 0 0 0
-2 0 0 0
-1 0 0 0
-0 0 0 0
-1 0 0 0
-1 0 0 0
-1 0 0 0
-1 0 0 0
-1 0 0 0
-5 0 0 0
-0 0 0 0
-2 0 0 0
-5 0 0 0
-4 0 0 0
-4 0 0 0
-4 0 0 0
-1 0 0 0
-0 0 0 0
-2 0 0 0
-10 0 0 0
-1 0 0 0
-13 0 0 0
-13 0 0 0
-13 0 0 0
-1 0 0 0
-1 0 0 0
-0 0 0 0
-0 0 0 0
-0 0 0 0
-4 0 0 0
-1 0 0 0
-1 0 0 0
-1 0 0 0
-1 0 0 0
-1 0 0 0
 1 0 0 0
 1 0 0 0
 0 0 0 0
 1 0 0 0
-1 0 0 0
-0 0 0 0
-4 0 0 0
-1 0 0 0
-1 0 0 0
-14 0 0 0
-1 0 0 0
-0 0 0 0
-2 0 0 0
-2 0 0 0
-1 0 0 0
-2 0 0 0
-0 0 0 0
-1 0 0 0
-0 0 0 0
-2 0 0 0
-0 0 0 0
-1 0 0 0
-2 0 0 0
-4 0 0 0
-1 0 0 0
-1 0 0 0
-1 0 0 0
-4 0 0 0
-1 0 0 0
-1 0 0 0
-0 0 0 0
-4 0 0 0
-0 0 0 0
-1 0 0 0
-1 0 0 0
-1 0 0 0
-5 0 0 0
-2 0 0 0
-2 0 0 0
-10 0 0 0
-8 0 0 0
 1 0 0 0
 2 0 0 0
 1 0 0 0
 5 0 0 0
+1 0 0 0
+0 0 0 0
+3 0 0 0
+2 0 0 0
 11 0 0 0
 0 0 0 0
 1 0 0 0
 1 0 0 0
+0 0 0 0
+0 0 0 0
+0 0 0 0
+1 0 0 0
+0 0 0 0
+4 0 0 0
+0 0 0 0
+1 0 0 0
+0 0 0 0
+1 0 0 0
+1 0 0 0
+0 0 0 0
+0 0 0 0
+13 0 0 0
+0 0 0 0
 5 0 0 0
+0 0 0 0
+1 0 0 0
+14 0 0 0
+1 0 0 0
+0 0 0 0
+0 0 0 0
+2 0 0 0
+0 0 0 0
+2 0 0 0
 1 0 0 0
 1 0 0 0
 1 0 0 0
 4 0 0 0
-2 0 0 0
-4 0 0 0
 1 0 0 0
+5 0 0 0
+0 0 0 0
+0 0 0 0
+0 0 0 0
+5 0 0 0
+2 0 0 0
+2 0 0 0
 2 0 0 0
 0 0 0 0
 1 0 0 0
-1 0 0 0
-5 0 0 0
-1 0 0 0
-5 0 0 0
-1 0 0 0
+2 0 0 0
 1 0 0 0
 0 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
 10 0 0 0
+5 0 0 0
+1 0 0 0
+0 0 0 0
+5 0 0 0
 4 0 0 0
+0 0 0 0
+0 0 0 0
+0 0 0 0
+0 0 0 0
+0 0 0 0
+1 0 0 0
+10 0 0 0
+3 0 0 0
+4 0 0 0
+4 0 0 0
+2 0 0 0
+1 0 0 0
+0 0 0 0
+0 0 0 0
 7 0 0 0
-4 0 0 0
 1 0 0 0
 1 0 0 0
-4 0 0 0
+0 0 0 0
+0 0 0 0
+10 0 0 0
 0 0 0 0
 1 0 0 0
 1 0 0 0
+1 0 0 0
+0 0 0 0
+0 0 0 0
+0 0 0 0
+0 0 0 0
+1 0 0 0
+8 0 0 0
+1 0 0 0
+2 0 0 0
 4 0 0 0
+1 0 0 0
+2 0 0 0
+0 0 0 0
+1 0 0 0
+0 0 0 0
+1 0 0 0
+5 0 0 0
+0 0 0 0
+2 0 0 0
+2 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+9 0 0 0
+5 0 0 0
+1 0 0 0
+0 0 0 0
+4 0 0 0
+1 0 0 0
+0 0 0 0
+1 0 0 0
+0 0 0 0
+1 0 0 0
+4 0 0 0
+0 0 0 0
+4 0 0 0
+1 0 0 0
 1 0 0 0
 11 0 0 0
 2 0 0 0
-1 0 0 0
 4 0 0 0
+0 0 0 0
+4 0 0 0
+1 0 0 0
+0 0 0 0
+2 0 0 0
+1 0 0 0
+12 0 0 0
 0 0 0 0
 4 0 0 0
 1 0 0 0
 1 0 0 0
 1 0 0 0
+1 0 0 0
+1 0 0 0
+1 0 0 0
+2 0 0 0
+2 0 0 0
+2 0 0 0
+1 0 0 0
+4 0 0 0
+14 0 0 0
+1 0 0 0
+0 0 0 0
+5 0 0 0
+4 0 0 0
+4 0 0 0
+0 0 0 0
+0 0 0 0
+0 0 0 0
+0 0 0 0
+13 0 0 0
+13 0 0 0
+0 0 0 0
+1 0 0 0
+5 0 0 0
+1 0 0 0
+1 0 0 0
+8 0 0 0
+4 0 0 0
+1 0 0 0
+2 0 0 0
+1 0 0 0
+0 0 0 0
+1 0 0 0
+4 0 0 0
+1 0 0 0
+10 0 0 0
+1 0 0 0
+1 0 0 0
+4 0 0 0
+0 0 0 0
+4 0 0 0
+2 0 0 0
+1 0 0 0
+11 0 0 0
+1 0 0 0
+0 0 0 0
 2 0 0 0
 10 0 0 0
+0 0 0 0
+0 0 0 0
+0 0 0 0
+1 0 0 0
+0 0 0 0
+1 0 0 0
 1 0 0 0

@@ -1,8 +1,8 @@
 #include "../../include/analysis_commoncode.h"
 
 #define NTOY 1000
-bool useGaussFit;
-bool dopostfit=true;
+bool useGaussFit=false;
+//bool dopostfit=true;
 
 void pred_eleBkg(){
 	SetSignalConfig();
@@ -14,6 +14,17 @@ void pred_eleBkg(){
         if(RunYear==2016 and preVFP == 1) whichVFP = "preVFP";
         else if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
         else whichVFP = "";
+
+	float correction =1.0;
+	if (RunYear == 2016 and preVFP == 1 and ichannel == 1) correction = 0.948005;
+        else if (RunYear == 2016 and preVFP == 1 and ichannel == 2) correction = 0.900015;
+        else if (RunYear == 2016 and preVFP == 0 and ichannel == 1) correction = 0.775942;
+        else if (RunYear == 2016 and preVFP == 0 and ichannel == 2) correction = 0.730433;
+        else if (RunYear == 2017 and ichannel == 1) correction = 1.39352;
+        else if (RunYear == 2017 and ichannel == 2) correction = 1.03558;
+        else if (RunYear == 2018 and ichannel == 1) correction = 1.35192;
+        else if (RunYear == 2018 and ichannel == 2) correction = 1.20607;
+
   	/************************************/
 	/*	double normfactor = par[0]; */  
   	/*	double slope = par[1];				*/
@@ -24,7 +35,7 @@ void pred_eleBkg(){
 	/*	double vtx_slope = par[6];		*/
   	/**********************************/
 	std::ifstream elefake_file;
-	elefake_file.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-ByPtVtx-EB.txt",RunYear,whichVFP.c_str()));
+	elefake_file.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-ByPtVtx-EB.txt",RunYear,whichVFP.c_str()));
 	double scalefactor(0);
 	double ptslope(0);
 	double ptconstant(0);
@@ -49,24 +60,24 @@ void pred_eleBkg(){
 	elefake_file.close();
 	// fakerate_func  defined in ../../include/analysis_fakes.h
 	TF3 h_nominal_fakerate("h_nominal_fakerate", fakerate_func,10,1000,0,100,0,1.5,7);
-	h_nominal_fakerate.SetParameters(scalefactor, ptslope, ptconstant, ptindex, ptcoeff, vtxconst, vtxslope);
+	h_nominal_fakerate.SetParameters(scalefactor*correction, ptslope, ptconstant, ptindex, ptcoeff, vtxconst, vtxslope);
 
 	TF3 *h_toymc_fakerate[NTOY];
 	std::ostringstream funcname;
 	std::ifstream elefake_toyfile;
-	elefake_toyfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/ToyFakeRate_Data_EB.txt",RunYear,whichVFP.c_str()));
+	elefake_toyfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/ToyFakeRate_Data_EB.txt",RunYear,whichVFP.c_str()));
 	if(elefake_toyfile.is_open()){
   	for(int i(0); i<NTOY; i++){ 
 			elefake_toyfile >> scalefactor >> ptslope >> ptconstant >> ptindex >>  vtxconst >> vtxslope;
 			funcname.str("");
 			funcname << "h_toymc_fakerate_" << i;
 			h_toymc_fakerate[i] = new TF3(funcname.str().c_str(), fakerate_func,10,1000,0,100,0,1.5,7);
-			h_toymc_fakerate[i]->SetParameters(scalefactor, ptslope, ptconstant, ptindex, 1, vtxconst, vtxslope); 
+			h_toymc_fakerate[i]->SetParameters(scalefactor*correction, ptslope, ptconstant, ptindex, 1, vtxconst, vtxslope); 
 	  }
 	}
 	elefake_toyfile.close();
 
-	//*********** histo list **********************//
+	//*********** histo list ********************** 
 	std::ostringstream histname;
 	TH1D *p_PhoEt = new TH1D("p_PhoEt","; p_{T}^{#gamma} (GeV);",nSigEtBins,sigEtBins);
 	TH1D *p_LepPt = new TH1D("p_LepPt","p_LepPt",nSigPtBins,sigPtBins);
@@ -165,7 +176,7 @@ void pred_eleBkg(){
 	//************ Proxy Tree *********************
 	TChain *proxytree = new TChain("proxyTree");
         if(channelType==1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
-        if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
+        if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
 	float phoEt(0);
 	float phoEta(0);
 	float phoPhi(0);
@@ -202,8 +213,6 @@ void pred_eleBkg(){
 	
 	for (unsigned ievt(0); ievt<proxytree->GetEntries(); ++ievt){//loop on entries
 		proxytree->GetEntry(ievt);
-		if (channelType == 1 && nJetFloat <1 ) continue; // NEW
-                if (channelType == 2 && nJetInt <1 ) continue;
 		
 		p_PU->Fill(nVertex);
 		/** cut flow *****/

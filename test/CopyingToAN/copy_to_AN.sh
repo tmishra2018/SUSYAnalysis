@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-rm 2016preVFP_.txt 2016postVFP_.txt 2017_.txt 2018_.txt
+rm -f 2016preVFP_.txt 2016postVFP_.txt 2017_.txt 2018_.txt
 
 echo "Running copy.sh for each year..."
 bash listing.sh >> 2016preVFP_.txt

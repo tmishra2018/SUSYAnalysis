@@ -22,6 +22,7 @@
 
 #include "../include/analysis_rawData.h"
 #include "../include/analysis_photon.h"
+#include "../include/analysis_jet.h"
 #include "../include/analysis_muon.h"
 #include "../include/analysis_ele.h"
 #include "../include/analysis_mcData.h"

@@ -49,7 +49,7 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 
         RunType datatype(MC);
         std::ostringstream outputname;
-        outputname << "/uscms/home/tmishra/nobackup/signal_trees/resTree_"<<Sample<<"_"<<Year<<whichVFP<<".root";
+        outputname << "/uscms/home/tmishra/nobackup/signal_trees/resTree_"<<Sample<<"_"<<Year<<whichVFP<<"_.root";
 
 	int SUSYtype(-1);
 	if(strstr(inputfile, "T5Wg") != NULL){
@@ -69,6 +69,10 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 		abort();
 	}
 
+  int nTotal(0),npassHLT(0), npassPho(0), npassLep(0), npassdR(0), npassZ(0), npassMETFilter(0);
+  int npassPho_eg(0), npassEle(0), npassdR_eg(0), npassZ_eg(0), npassMETFilter_eg(0);
+    TH1F *p_eventcount = new TH1F("p_eventcount","p_eventcount",7,0,7);
+    TH1F *p_eventcount_eg = new TH1F("p_eventcount_eg","p_eventcount_eg",7,0,7);
 
   TFile *outputfile = TFile::Open(outputname.str().c_str(),"RECREATE");
   outputfile->cd();
@@ -318,7 +322,7 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
     const unsigned nEvts = es->GetEntries(); 
     std::cout << "total event : " << nEvts << std::endl;
 
-    for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
+    for (unsigned ievt(0); ievt<1000000; ++ievt){//loop on entries
   
       if (ievt%100000==0) std::cout << " -- Processing event " << ievt << std::endl;
 
@@ -395,6 +399,8 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
       			std::vector<mcData>::iterator genNeu;
       			std::vector<recoPhoton>::iterator recopho;
       			std::vector<recoEle>::iterator recoele;
+			nTotal+=1;
+			npassHLT+=1;
 
       for(std::vector<mcData>::iterator itMC = MCData.begin(); itMC!= MCData.end(); itMC++){ 
 
@@ -546,10 +552,12 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 				if(GSFveto && PixelVeto && FSRVeto){
 					if(!hasegPho){
 						hasegPho=true;
+						npassPho_eg +=1;
 						egsignalPho = itpho;
 					}
 					if(!hasmgPho){
 						hasmgPho=true;
+						npassPho +=1;
 						mgsignalPho = itpho;
 					}
 				}
@@ -562,6 +570,7 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 					if((itEle->isEB() && itEle->getR9() < 0.5) || (itEle->isEE() && itEle->getR9() < 0.8))continue;
 					if(itEle->passSignalSelection()){
 						hasEle=true; 
+						npassEle += 1;
 						egsignalEle = itEle;
 					}
 				}
@@ -575,6 +584,7 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 					if(itMu->passSignalSelection()){
 								//if(itMu->passSignalSelection_Not_MiniIso()){ 		//if(itMu->passSignalSelection_dxy_0p02()){
 						hasMu=true; 
+						npassLep +=1;
 						signalMu = itMu;
 					}
 				}
@@ -583,9 +593,11 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 
 			if(hasegPho && hasEle){
 				double dReg = DeltaR(egsignalPho->getEta(), egsignalPho->getPhi(), egsignalEle->getEta(), egsignalEle->getPhi()); 
+							eg_dRPhoLep= dReg;
 				if(dReg>0.8){
+						npassdR_eg += 1; npassMETFilter_eg += 1;
 						if(((egsignalPho->getP4()+egsignalEle->getP4()).M() - 91.188) > 10.0){
-
+							npassZ_eg += 1;
 							float deltaPhi = DeltaPhi(egsignalEle->getPhi(), METPhi);
 							float MT = sqrt(2*MET*egsignalEle->getPt()*(1-std::cos(deltaPhi)));
 							eg_phoEt = egsignalPho->getCalibEt();
@@ -599,7 +611,6 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 							eg_sigMETPhi = METPhi;
 							eg_dPhiLepMET = deltaPhi; 
 							eg_nVertex = nVtx; 
-							eg_dRPhoLep= dReg;
 							eg_invmass = (egsignalPho->getP4()+egsignalEle->getP4()).M();
 							eg_sigMETJESup = MET_T1JESUp;
 							eg_sigMETJESdo = MET_T1JESDo;
@@ -637,7 +648,9 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 
 		 if(hasmgPho && hasMu){
 				double dRmg = DeltaR(mgsignalPho->getEta(), mgsignalPho->getPhi(), signalMu->getEta(), signalMu->getPhi());
+					mg_dRPhoLep= dRmg;
 				if(dRmg>0.8){
+					npassdR+=1; npassMETFilter+=1; npassZ+=1;
 					float deltaPhi = DeltaPhi(signalMu->getPhi(), METPhi);
 					float MT = sqrt(2*MET*signalMu->getPt()*(1-std::cos(deltaPhi)));
 					float ThreeBodyMass = sqrt(2*MET*(mgsignalPho->getP4()+ signalMu->getP4()).Pt()*(1-std::cos(DeltaR(0, (mgsignalPho->getP4()+signalMu->getP4()).Phi(), 0, METPhi))));
@@ -654,7 +667,6 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 					mg_dPhiLepMET = deltaPhi;
 					mg_threeMass = ThreeBodyMass;
 					mg_nVertex = nVtx;
-					mg_dRPhoLep= dRmg;
 					mg_sigMETJESup = MET_T1JESUp;
 					mg_sigMETJESdo = MET_T1JESDo;
 					mg_sigMETJERup = MET_T1JERUp;
@@ -689,6 +701,25 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 	}//loop on entries
 	cout<<endl<<"mg signal tree entries: " << mgtree->GetEntries()<<endl;
 
+
+	p_eventcount_eg->Fill("Total",nTotal);
+	p_eventcount_eg->Fill("passHLT",npassHLT);
+	p_eventcount_eg->Fill("passPho",npassPho_eg);
+	p_eventcount_eg->Fill("passMuon",npassEle);
+	p_eventcount_eg->Fill("passdR",npassdR_eg);
+	p_eventcount_eg->Fill("passMETFilter",npassMETFilter_eg);
+	p_eventcount_eg->Fill("passZ",npassZ_eg);
+
+	p_eventcount->Fill("Total",nTotal);
+	p_eventcount->Fill("passHLT",npassHLT);
+	p_eventcount->Fill("passPho",npassPho);
+	p_eventcount->Fill("passMuon",npassLep);
+	p_eventcount->Fill("passdR",npassdR);
+	p_eventcount->Fill("passMETFilter",npassMETFilter);
+	p_eventcount->Fill("passZ",npassZ);
+
+	p_eventcount_eg->Write();
+	p_eventcount->Write();
 	outputfile->Write();
 }
 int main(int argc, char** argv)

@@ -12,7 +12,7 @@
 
 void findMinLepPt2() {
     // Open the ROOT file
-    TFile *file = TFile::Open("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2018_Muon20.root");
+    TFile *file = TFile::Open("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2018.root");
     if (!file || file->IsZombie()) {
         std::cerr << "Error: Unable to open file." << std::endl;
         return;

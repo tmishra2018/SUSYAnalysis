@@ -20,7 +20,7 @@ void printEventContent(const char* filename, const char* treeName) {
 }
 
 void compareEventContent() {
-    const char* file1 = "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2018_Muon20.root";
+    const char* file1 = "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2018.root";
     const char* file2 = "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2018.root";
     const char* treeNames[] = {"signalTree", "proxyTree", "jetTree", "fakeLepTree", "hadronTree"};
 

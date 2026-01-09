@@ -18,6 +18,7 @@ void printLatexTable(const char* dataFiles[], const char* signal1Files[], const 
     std::cout << "  \\begin{center}" << std::endl;
     std::cout << "    \\caption{Event selection and the number of events after successive cuts for " << channel << " channel.}" << std::endl;
     std::cout << "    \\label{tab:cutflow_" << channel << "}" << std::endl;
+    std::cout << "    \\resizebox{\\textwidth}{!}{" << std::endl; 
     std::cout << "    \\begin{tabular}{|l|l|l|l|l|l|}" << std::endl;
     std::cout << "      \\hline" << std::endl;
     std::cout << "      Year & Cut & Data & T5Wg(1500, 1) & T5Wg(1800, 800) & T5Wg(1800, 1600) \\\\" << std::endl;
@@ -66,6 +67,7 @@ void printLatexTable(const char* dataFiles[], const char* signal1Files[], const 
     }
 
     std::cout << "    \\end{tabular}" << std::endl;
+    std::cout << "    \\}" << std::endl; 
     std::cout << "  \\end{center}" << std::endl;
     std::cout << "\\end{table*}" << std::endl;
 }
@@ -81,10 +83,10 @@ void GenerateLatexTables() {
         "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_2018.root"};
 
     const char* files_mgamma[] = {
-        "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2016preVFP_Muon20.root",
-        "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2016postVFP_Muon20.root",
-	"/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2017_Muon20.root",
-        "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2018_Muon20.root"
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2016preVFP.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2016postVFP.root",
+	"/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2017.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2018.root"
     };
 
     const char* signal_1_egamma[] = {
@@ -123,6 +125,6 @@ void GenerateLatexTables() {
           "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1800-1600_2017.root",
           "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1800-1600_2017.root"};
 
-    printLatexTable(files_egamma, signal_1_egamma, signal_2_egamma, signal_3_egamma, years, "egamma");
- //   printLatexTable(files_mgamma, signal_1_mgamma, signal_2_mgamma, signal_3_mgamma, years, "mgamma");
+ //   printLatexTable(files_egamma, signal_1_egamma, signal_2_egamma, signal_3_egamma, years, "egamma");
+    printLatexTable(files_mgamma, signal_1_mgamma, signal_2_mgamma, signal_3_mgamma, years, "mgamma");
 }

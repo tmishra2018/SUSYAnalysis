@@ -25,15 +25,21 @@ void analysis_sig(){
 	TH1D *p_PU = new TH1D("p_PU","",100,0,100);
 	TH1D *p_nJet = new TH1D("p_nJet","p_nJet",10,0,10);
 	TH1D *p_nBJet = new TH1D("p_nBJet","p_nBJet",5,0,5);
+
+	TH1D *p_LepPt_TT = new TH1D("p_LepPt_TT","p_LepPt",nBkgPtBins,bkgPtBins);
+        TH1D *p_nJet_TT = new TH1D("p_nJet_TT","p_nJet",10,0,10);
+        TH1D *p_nBJet_TT = new TH1D("p_nBJet_TT","p_nBJet",5,0,5);
 	TH1D *p_PhoEt_TT = new TH1D("p_PhoEt_TT","#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
 	TH1D *p_MET_TT = new TH1D("p_MET_TT","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
 	TH1D *p_Mt_TT = new TH1D("p_Mt_TT","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins);
 	TH1D *p_HT_TT = new TH1D("p_HT_TT","HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
+	TH1D *p_dPhiEleMET_TT = new TH1D("p_dPhiEleMET_TT","dPhiEleMET",32,0,3.2);
+
 	//************ Signal Tree **********************//
 	TChain *sigtree = new TChain("signalTree");
 	// signatree from data
                 if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
-                if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
+                if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
 
 	float phoEt(0);
 	float phoEta(0);
@@ -70,8 +76,6 @@ void analysis_sig(){
 
 	for (unsigned ievt(0); ievt<sigtree->GetEntries(); ++ievt){//loop on entries
 		sigtree->GetEntry(ievt);
-		if (channelType == 1 && nJetFloat <1 ) continue; // suggestion from convenors
-                if (channelType == 2 && nJetInt <1 ) continue;
 		p_PU->Fill(nVertex);
 		/** cut flow *****/
 		if(phoEt < 35 || fabs(phoEta) > 1.4442)continue;
@@ -100,6 +104,11 @@ void analysis_sig(){
 			p_MET_TT->Fill(sigMET);
 			p_Mt_TT->Fill(sigMT);
 			p_HT_TT->Fill(HT);
+			p_LepPt_TT->Fill(lepPt);
+                        if (channelType == 1) p_nJet_TT->Fill(nJetFloat);
+                        if (channelType == 2) p_nJet_TT->Fill(nJetInt);
+                        p_nBJet_TT->Fill(nBJet);
+			p_dPhiEleMET_TT->Fill(fabs(dPhiLepMET));
 		}
 	} 
 //	for (int ibin=0;ibin<p_MET->GetNbinsX();++ibin){
@@ -136,6 +145,10 @@ void analysis_sig(){
 	p_MET_TT->Write();
 	p_Mt_TT->Write();
 	p_HT_TT->Write();
+	p_LepPt_TT->Write();
+	p_nJet_TT->Write();
+	p_nBJet_TT->Write();
+	p_dPhiEleMET_TT->Write();
 	outputfile->Write();
 	outputfile->Close();
 }

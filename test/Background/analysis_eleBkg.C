@@ -2,7 +2,7 @@
 #include "../../include/analysis_commoncode.h"
 
 #define NTOY 1000
-bool useGaussFit;
+bool useGaussFit=false;
 
 void analysis_eleBkg(){
 
@@ -16,7 +16,16 @@ void analysis_eleBkg(){
   	if(RunYear==2016 and preVFP == 1) whichVFP = "preVFP";
   	if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
   	if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
-	
+
+	float correction =1.0;
+        if (RunYear == 2016 and preVFP == 1 and ichannel == 1) correction = 0.948005;
+        else if (RunYear == 2016 and preVFP == 1 and ichannel == 2) correction = 0.900015;
+        else if (RunYear == 2016 and preVFP == 0 and ichannel == 1) correction = 0.775942;
+        else if (RunYear == 2016 and preVFP == 0 and ichannel == 2) correction = 0.730433;
+        else if (RunYear == 2017 and ichannel == 1) correction = 1.39352;
+        else if (RunYear == 2017 and ichannel == 2) correction = 1.03558;
+        else if (RunYear == 2018 and ichannel == 1) correction = 1.35192;
+        else if (RunYear == 2018 and ichannel == 2) correction = 1.20607;
 
   	/**********************************/
 	/*	double normfactor = par[0]; 	*/  
@@ -29,7 +38,7 @@ void analysis_eleBkg(){
   	/**********************************/
 	
 	std::ifstream elefake_file;
-	elefake_file.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-ByPtVtx-EB.txt",RunYear,whichVFP.c_str()));
+	elefake_file.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-ByPtVtx-EB.txt",RunYear,whichVFP.c_str()));
 	// fake rate as input
 	double scalefactor(0);
 	double ptslope(0);
@@ -54,12 +63,12 @@ void analysis_eleBkg(){
 	}
 	elefake_file.close();
 	TF3 h_nominal_fakerate("h_nominal_fakerate", fakerate_func,10,1000,0,100,0,1.5,7);
-	h_nominal_fakerate.SetParameters(scalefactor, ptslope, ptconstant, ptindex, ptcoeff, vtxconst, vtxslope);
+	h_nominal_fakerate.SetParameters(scalefactor*correction, ptslope, ptconstant, ptindex, ptcoeff, vtxconst, vtxslope);
 
 	TF3 *h_toymc_fakerate[NTOY];
 	std::ostringstream funcname;
 	std::ifstream elefake_toyfile;
-	elefake_toyfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/ToyFakeRate_Data_EB.txt",RunYear,whichVFP.c_str()));
+	elefake_toyfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/ToyFakeRate_Data_EB.txt",RunYear,whichVFP.c_str()));
 	// toy fake rate as input
 	if(elefake_toyfile.is_open()){
   	for(int i(0); i<NTOY; i++){ 
@@ -67,7 +76,7 @@ void analysis_eleBkg(){
 			funcname.str("");
 			funcname << "h_toymc_fakerate_" << i;
 			h_toymc_fakerate[i] = new TF3(funcname.str().c_str(), fakerate_func,10,1000,0,100,0,1.5,7);
-			h_toymc_fakerate[i]->SetParameters(scalefactor, ptslope, ptconstant, ptindex, 1, vtxconst, vtxslope); 
+			h_toymc_fakerate[i]->SetParameters(scalefactor*correction, ptslope, ptconstant, ptindex, 1, vtxconst, vtxslope); 
 	  }
 	}
 	elefake_toyfile.close();
@@ -85,10 +94,15 @@ void analysis_eleBkg(){
 	TH1D *p_PU = new TH1D("p_PU","",100,0,100);
 	TH1D *p_nJet = new TH1D("p_nJet","p_nJet",10,0,10);
 	TH1D *p_nBJet = new TH1D("p_nBJet","p_nBJet",5,0,5);
+
+	TH1D *p_LepPt_TT = new TH1D("p_LepPt_TT","p_LepPt",nBkgPtBins,bkgPtBins);
+        TH1D *p_nJet_TT = new TH1D("p_nJet_TT","p_nJet",10,0,10);
+        TH1D *p_nBJet_TT = new TH1D("p_nBJet_TT","p_nBJet",5,0,5);
 	TH1D *p_PhoEt_TT = new TH1D("p_PhoEt_TT","#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
 	TH1D *p_MET_TT = new TH1D("p_MET_TT","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
 	TH1D *p_Mt_TT = new TH1D("p_Mt_TT","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins);
 	TH1D *p_HT_TT = new TH1D("p_HT_TT","HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
+	TH1D *p_dPhiEleMET_TT = new TH1D("p_dPhiEleMET_TT","dPhiEleMET",32,0,3.2);
 
 	TH1D *toy_PhoEt[NTOY];
 	TH1D *toy_LepPt[NTOY];
@@ -96,10 +110,12 @@ void analysis_eleBkg(){
 	TH1D *toy_MET[NTOY];
 	TH1D *toy_Mt[NTOY];
 	TH1D *toy_dPhiEleMET[NTOY];
+
 	TH1D *toy_PhoEt_TT[NTOY];
 	TH1D *toy_HT_TT[NTOY];
 	TH1D *toy_MET_TT[NTOY];
 	TH1D *toy_Mt_TT[NTOY];
+	TH1D *toy_dPhiEleMET_TT[NTOY];
 	for(unsigned ih(0); ih < NTOY; ih++){
 		histname.str("");
 		histname << "toy_PhoEt_ " << ih;
@@ -131,12 +147,15 @@ void analysis_eleBkg(){
 		histname.str("");
 		histname << "toy_Mt_TT_" << ih;
 		toy_Mt_TT[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),nBkgMtBins,bkgMtBins);
+		histname.str("");
+		histname << "toy_eledPhiEleMET_TT_" << ih;
+		toy_dPhiEleMET_TT[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),32,0,3.2);
 	}
 	//************ Proxy Tree **********************//
 	// background estimated from data, with proxyTree
 	TChain *proxytree = new TChain("proxyTree");
                 if(channelType==1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
-                if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
+                if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
 	float phoEt(0);
 	float phoEta(0);
 	float phoPhi(0);
@@ -175,8 +194,6 @@ void analysis_eleBkg(){
 
 	for (unsigned ievt(0); ievt<proxytree->GetEntries(); ++ievt){//loop on entries
 		proxytree->GetEntry(ievt);
-		if (channelType == 1 && nJetFloat <1 ) continue; // suggestion from convenors
-		if (channelType == 2 && nJetInt <1 ) continue;
 		p_PU->Fill(nVertex);
 		/** cut flow *****/
 		if(phoEt < 35 || fabs(phoEta) > 1.4442)continue;
@@ -202,14 +219,6 @@ void analysis_eleBkg(){
 
 		//p_nJet->Fill(nJet, w_ele);
 		p_nBJet->Fill(nBJet, w_ele);
-		// ttbar events when nBJets >= 1
-		if(nBJet >= 1){
-			p_PhoEt_TT->Fill(phoEt,  w_ele);
-			p_MET_TT->Fill(sigMET,  w_ele);
-			p_Mt_TT->Fill(sigMT,  w_ele);
-			p_HT_TT->Fill(HT,  w_ele);
-		}
-
 		for(unsigned it(0); it < NTOY; it++){
 			double toy_ele = h_toymc_fakerate[it]->Eval(phoEt,nVertex,fabs(phoEta));
 			toy_PhoEt[it]->Fill(phoEt,toy_ele);
@@ -218,13 +227,29 @@ void analysis_eleBkg(){
 			toy_HT[it]->Fill(HT, toy_ele);
 			toy_LepPt[it]->Fill(lepPt, toy_ele);
 			toy_dPhiEleMET[it]->Fill(fabs(dPhiLepMET), toy_ele);
-			if(nBJet >= 1){
+		}
+
+		// ttbar events when nBJets >= 1
+		if(nBJet >= 1){
+			p_PhoEt_TT->Fill(phoEt,  w_ele);
+			p_MET_TT->Fill(sigMET,  w_ele);
+			p_Mt_TT->Fill(sigMT,  w_ele);
+			p_HT_TT->Fill(HT,  w_ele);
+			p_LepPt_TT->Fill(lepPt,  w_ele);
+                        if (channelType == 1) p_nJet_TT->Fill(nJetFloat,  w_ele);
+                        if (channelType == 2) p_nJet_TT->Fill(nJetInt,  w_ele);
+                        p_nBJet_TT->Fill(nBJet, w_ele);
+			p_dPhiEleMET_TT->Fill(fabs(dPhiLepMET), w_ele);
+			for(unsigned it(0); it < NTOY; it++){
+				double toy_ele = h_toymc_fakerate[it]->Eval(phoEt,nVertex,fabs(phoEta));
 				toy_PhoEt_TT[it]->Fill(phoEt,toy_ele);
 				toy_MET_TT[it]->Fill(sigMET, toy_ele);
 				toy_HT_TT[it]->Fill(HT, toy_ele);
 				toy_Mt_TT[it]->Fill(sigMT, toy_ele);
+				toy_dPhiEleMET_TT[it]->Fill(fabs(dPhiLepMET), toy_ele);
 			}
 		}
+
 	}
 
 
@@ -303,6 +328,14 @@ void analysis_eleBkg(){
 		double totalerror = sqrt(syserr*syserr + p_Mt_TT->GetBinError(ibin)*p_Mt_TT->GetBinError(ibin));
 		p_Mt_TT->SetBinError(ibin, totalerror);
 	}
+	for(int ibin(1); ibin < p_dPhiEleMET_TT->GetSize(); ibin++){
+		toyvec.clear();
+		toyvec.push_back(p_dPhiEleMET_TT->GetBinContent(ibin));
+		for(unsigned it(0); it < NTOY; it++)toyvec.push_back(toy_dPhiEleMET_TT[it]->GetBinContent(ibin));
+		double syserr = calcToyError( toyvec, useGaussFit, channelType); 
+		double totalerror = sqrt(syserr*syserr + p_dPhiEleMET_TT->GetBinError(ibin)*p_dPhiEleMET_TT->GetBinError(ibin));
+		p_dPhiEleMET_TT->SetBinError(ibin, totalerror);
+	}
 	std::ostringstream outputname;
 	outputname << "/eos/uscms/store/user/tmishra/Background/";
 	switch(anatype){
@@ -330,9 +363,13 @@ void analysis_eleBkg(){
 	p_nJet->Write();
 	p_nBJet->Write();
 	p_PhoEt_TT->Write();
+	p_dPhiEleMET_TT->Write();
 	p_MET_TT->Write();
 	p_Mt_TT->Write();
 	p_HT_TT->Write();
+	p_LepPt_TT->Write();
+	p_nJet_TT->Write();
+	p_nBJet_TT->Write();
 	for(unsigned it(0); it < NTOY; it++){
 		toy_dPhiEleMET[it]->Write();
 	}

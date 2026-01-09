@@ -42,7 +42,7 @@
 // ../../include/analysis_scalefactor.h
 // change the file /uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/Background/BkgPredConfig.txt
 //bool doEB=false;
-bool ApplyISR = false;
+bool ApplyISR = true;
 
 void plot_ISRweight(int RunYear, bool preVFP){
 
@@ -158,6 +158,9 @@ void plot_ISRweight(int RunYear, bool preVFP){
 				if(jetfake_file.is_open()){
                 			for(int i(0); i < 9; i++){
                         			jetfake_file >> pt_lower >> pt_upper >> fakerate >> error >> systematic >> truefake;
+						if (std::isnan(fakerate) || fakerate <= 1e-2 || fakerate >= 1.0) {
+     							   fakerate = 0.03;  // set default
+    						}
 						if(phoEt > pt_lower && phoEt < pt_upper) weight = 1-fakerate;            
 					}
                 			jetfake_file.close();
@@ -247,44 +250,45 @@ void plot_ISRweight(int RunYear, bool preVFP){
 		if(ZG_dRPhoLep < 0.8)continue;
 		if(ZG_dilepMass < 80 || ZG_dilepMass >100)continue;
 		if(RunYear==2016 && preVFP==1){
-			if(ZG_JetPt < 50)reweightF = 1.07048;
-	                 else if(ZG_JetPt >= 50 && ZG_JetPt < 100)reweightF  = 1.33745;
-        	         else if(ZG_JetPt >= 100 && ZG_JetPt < 150)reweightF = 1.11197;
-               	  	 else if(ZG_JetPt >= 150 && ZG_JetPt < 200)reweightF = 0.921799;
-                	 else if(ZG_JetPt >= 200 && ZG_JetPt < 250)reweightF = 1.02533;
-                 	 else if(ZG_JetPt >= 250 && ZG_JetPt < 300)reweightF = 0.986267;
-                 	 else if(ZG_JetPt >= 300)reweightF = 0.857941;
-                   	 Normalization = 0.853805;    }
+			if(ZG_JetPt < 50)reweightF = 1.06013;
+                 	else if(ZG_JetPt >= 50 && ZG_JetPt < 100)reweightF  = 1.33663;
+                 	else if(ZG_JetPt >= 100 && ZG_JetPt < 150)reweightF = 1.11327;
+                 	else if(ZG_JetPt >= 150 && ZG_JetPt < 200)reweightF = 0.924185;
+                 	else if(ZG_JetPt >= 200 && ZG_JetPt < 250)reweightF = 1.02436;
+                 	else if(ZG_JetPt >= 250 && ZG_JetPt < 300)reweightF = 0.985401;
+                 	else if(ZG_JetPt >= 300)reweightF = 0.856943;
+                 	Normalization = 0.855896;    }
 
 		else if(RunYear==2016 && preVFP==0){
-			if(ZG_JetPt < 50)reweightF = 1.0823;
-                 	else if(ZG_JetPt >= 50 && ZG_JetPt < 100)reweightF  = 1.36705;
-                 	else if(ZG_JetPt >= 100 && ZG_JetPt < 150)reweightF = 1.03422;
-                 	else if(ZG_JetPt >= 150 && ZG_JetPt < 200)reweightF = 0.996796;
-                 	else if(ZG_JetPt >= 200 && ZG_JetPt < 250)reweightF = 0.90385;
-                 	else if(ZG_JetPt >= 250 && ZG_JetPt < 300)reweightF = 0.780053;
-                 	else if(ZG_JetPt >= 300)reweightF = 0.705875;
-                 	Normalization = 0.854942;    }
+			if(ZG_JetPt < 50)reweightF = 1.07271;
+                 	else if(ZG_JetPt >= 50 && ZG_JetPt < 100)reweightF  = 1.36455;
+                 	else if(ZG_JetPt >= 100 && ZG_JetPt < 150)reweightF = 1.03338;
+                 	else if(ZG_JetPt >= 150 && ZG_JetPt < 200)reweightF = 0.995769;
+                 	else if(ZG_JetPt >= 200 && ZG_JetPt < 250)reweightF = 0.903379;
+                 	else if(ZG_JetPt >= 250 && ZG_JetPt < 300)reweightF = 0.779008;
+                 	else if(ZG_JetPt >= 300)reweightF = 0.705609;
+                 	Normalization = 0.857841;    }
 
 		else if(RunYear==2017){
-			if(ZG_JetPt < 50)reweightF = 1.0457;
-	                else if(ZG_JetPt >= 50 && ZG_JetPt < 100)reweightF  = 1.28507;
-        	        else if(ZG_JetPt >= 100 && ZG_JetPt < 150)reweightF = 1.05021;
-           	      	else if(ZG_JetPt >= 150 && ZG_JetPt < 200)reweightF = 0.895376;
-                 	else if(ZG_JetPt >= 200 && ZG_JetPt < 250)reweightF = 0.986146;
-                 	else if(ZG_JetPt >= 250 && ZG_JetPt < 300)reweightF = 0.792056;
-                 	else if(ZG_JetPt >= 300)reweightF = 0.929084;
-                 	Normalization = 0.889139;    }
+			if(ZG_JetPt < 50)reweightF = 1.03426;
+                 	else if(ZG_JetPt >= 50 && ZG_JetPt < 100)reweightF  = 1.29097;
+                 	else if(ZG_JetPt >= 100 && ZG_JetPt < 150)reweightF = 1.04963;
+                 	else if(ZG_JetPt >= 150 && ZG_JetPt < 200)reweightF = 0.896268;
+                 	else if(ZG_JetPt >= 200 && ZG_JetPt < 250)reweightF = 0.98738;
+                 	else if(ZG_JetPt >= 250 && ZG_JetPt < 300)reweightF = 0.78903;
+                 	else if(ZG_JetPt >= 300)reweightF = 0.934105;
+                 	Normalization = 0.889374;    }
 
 		else if(RunYear==2018){
-			if(ZG_JetPt < 50)reweightF = 1.17242;
-                 	else if(ZG_JetPt >= 50 && ZG_JetPt < 100)reweightF  = 1.33113;
-                 	else if(ZG_JetPt >= 100 && ZG_JetPt < 150)reweightF = 0.957966;
-                 	else if(ZG_JetPt >= 150 && ZG_JetPt < 200)reweightF = 0.921558;
-                 	else if(ZG_JetPt >= 200 && ZG_JetPt < 250)reweightF = 0.805571;
-                 	else if(ZG_JetPt >= 250 && ZG_JetPt < 300)reweightF = 0.904798;
-                 	else if(ZG_JetPt >= 300)reweightF = 0.828803;
-                 	Normalization = 0.860178;    }
+			if(ZG_JetPt < 50)reweightF = 1.12976;
+                 	else if(ZG_JetPt >= 50 && ZG_JetPt < 100)reweightF  = 1.33412;
+                 	else if(ZG_JetPt >= 100 && ZG_JetPt < 150)reweightF = 0.965748;
+                 	else if(ZG_JetPt >= 150 && ZG_JetPt < 200)reweightF = 0.928858;
+                 	else if(ZG_JetPt >= 200 && ZG_JetPt < 250)reweightF = 0.814481;
+                 	else if(ZG_JetPt >= 250 && ZG_JetPt < 300)reweightF = 0.900957;
+                 	else if(ZG_JetPt >= 300)reweightF = 0.829659;
+                 	Normalization = 0.866053;    }
+
 		ISRWeight = reweightF*Normalization;
 		
 		double weight;
@@ -379,44 +383,44 @@ void plot_ISRweight(int RunYear, bool preVFP){
 		if(rare_dRPhoLep < 0.8)continue;
 		if(rare_dilepMass < 80 || rare_dilepMass > 100)continue;
                 if(RunYear==2016 && preVFP==1){
-                        if(rare_JetPt < 50)reweightF = 1.07048;
-                         else if(rare_JetPt >= 50 && rare_JetPt < 100)reweightF  = 1.33745;
-                         else if(rare_JetPt >= 100 && rare_JetPt < 150)reweightF = 1.11197;
-                         else if(rare_JetPt >= 150 && rare_JetPt < 200)reweightF = 0.921799;
-                         else if(rare_JetPt >= 200 && rare_JetPt < 250)reweightF = 1.02533;
-                         else if(rare_JetPt >= 250 && rare_JetPt < 300)reweightF = 0.986267;
-                         else if(rare_JetPt >= 300)reweightF = 0.857941;
-                         Normalization = 0.853805;    }
+				if(rare_JetPt < 50)reweightF = 1.06013;
+                 		else if(rare_JetPt >= 50 && rare_JetPt < 100)reweightF  = 1.33663;
+                 		else if(rare_JetPt >= 100 && rare_JetPt < 150)reweightF = 1.11327;
+                 		else if(rare_JetPt >= 150 && rare_JetPt < 200)reweightF = 0.924185;
+                 		else if(rare_JetPt >= 200 && rare_JetPt < 250)reweightF = 1.02436;
+                 		else if(rare_JetPt >= 250 && rare_JetPt < 300)reweightF = 0.985401;
+                 		else if(rare_JetPt >= 300)reweightF = 0.856943;
+                 		Normalization = 0.855896;    }
 
                 else if(RunYear==2016 && preVFP==0){
-                        if(rare_JetPt < 50)reweightF = 1.0823;
-                        else if(rare_JetPt >= 50 && rare_JetPt < 100)reweightF  = 1.36705;
-                        else if(rare_JetPt >= 100 && rare_JetPt < 150)reweightF = 1.03422;
-                        else if(rare_JetPt >= 150 && rare_JetPt < 200)reweightF = 0.996796;
-                        else if(rare_JetPt >= 200 && rare_JetPt < 250)reweightF = 0.90385;
-                        else if(rare_JetPt >= 250 && rare_JetPt < 300)reweightF = 0.780053;
-                        else if(rare_JetPt >= 300)reweightF = 0.705875;
-                        Normalization = 0.854942;    }
+			if(rare_JetPt < 50)reweightF = 1.07271;
+                 	else if(rare_JetPt >= 50 && rare_JetPt < 100)reweightF  = 1.36455;
+                 	else if(rare_JetPt >= 100 && rare_JetPt < 150)reweightF = 1.03338;
+                 	else if(rare_JetPt >= 150 && rare_JetPt < 200)reweightF = 0.995769;
+                 	else if(rare_JetPt >= 200 && rare_JetPt < 250)reweightF = 0.903379;
+                 	else if(rare_JetPt >= 250 && rare_JetPt < 300)reweightF = 0.779008;
+                 	else if(rare_JetPt >= 300)reweightF = 0.705609;
+                 	Normalization = 0.857841;    }
 
 		else if(RunYear==2017){
-			if(rare_JetPt < 50)reweightF = 1.0457;
-                 	else if(rare_JetPt >= 50 && rare_JetPt < 100)reweightF  = 1.28507;
-                 	else if(rare_JetPt >= 100 && rare_JetPt < 150)reweightF = 1.05021;
-                 	else if(rare_JetPt >= 150 && rare_JetPt < 200)reweightF = 0.895376;
-                 	else if(rare_JetPt >= 200 && rare_JetPt < 250)reweightF = 0.986146;
-                 	else if(rare_JetPt >= 250 && rare_JetPt < 300)reweightF = 0.792056;
-                 	else if(rare_JetPt >= 300)reweightF = 0.929084;
-                 	Normalization = 0.889139;    }
+			if(rare_JetPt < 50)reweightF = 1.03426;
+                 	else if(rare_JetPt >= 50 && rare_JetPt < 100)reweightF  = 1.29097;
+                 	else if(rare_JetPt >= 100 && rare_JetPt < 150)reweightF = 1.04963;
+                 	else if(rare_JetPt >= 150 && rare_JetPt < 200)reweightF = 0.896268;
+                 	else if(rare_JetPt >= 200 && rare_JetPt < 250)reweightF = 0.98738;
+                 	else if(rare_JetPt >= 250 && rare_JetPt < 300)reweightF = 0.78903;
+                 	else if(rare_JetPt >= 300)reweightF = 0.934105;
+                 	Normalization = 0.889374;    }
 
 		else if(RunYear==2018){
-			  if(rare_JetPt < 50)reweightF = 1.17242;
-                        else if(rare_JetPt >= 50 && rare_JetPt < 100)reweightF  = 1.33113;
-                        else if(rare_JetPt >= 100 && rare_JetPt < 150)reweightF = 0.957966;
-                        else if(rare_JetPt >= 150 && rare_JetPt < 200)reweightF = 0.921558;
-                        else if(rare_JetPt >= 200 && rare_JetPt < 250)reweightF = 0.805571;
-                        else if(rare_JetPt >= 250 && rare_JetPt < 300)reweightF = 0.904798;
-                        else if(rare_JetPt >= 300)reweightF = 0.828803;
-                        Normalization = 0.860178;    }
+			if(rare_JetPt < 50)reweightF = 1.12976;
+                 	else if(rare_JetPt >= 50 && rare_JetPt < 100)reweightF  = 1.33412;
+                 	else if(rare_JetPt >= 100 && rare_JetPt < 150)reweightF = 0.965748;
+                 	else if(rare_JetPt >= 150 && rare_JetPt < 200)reweightF = 0.928858;
+                 	else if(rare_JetPt >= 200 && rare_JetPt < 250)reweightF = 0.814481;
+                 	else if(rare_JetPt >= 250 && rare_JetPt < 300)reweightF = 0.900957;
+                 	else if(rare_JetPt >= 300)reweightF = 0.829659;
+                 	Normalization = 0.866053;    }
 
 		ISRWeight = reweightF*Normalization;
 		
@@ -584,10 +588,11 @@ void plot_ISRweight(int RunYear, bool preVFP){
 	TLatex *text = new TLatex();
 	text->SetTextSize(0.1);
 	text->DrawLatexNDC(0.7, 0.5, Form("Mean: %.2f", p_JetPt_data->Integral() / p_JetPt_ZG->Integral()));
-
+	delete text;
+	delete ratio_JetPt;
 	if (ApplyISR)	can_JetPt->SaveAs(Form("/eos/uscms/store/user/tmishra/ISRweighting/PLOT_ISRweight_%d%s-ISR-weighted.pdf",RunYear,whichVFP.c_str()));
 	else	can_JetPt->SaveAs(Form("/eos/uscms/store/user/tmishra/ISRweighting/PLOT_ISRweight_%d%s.pdf",RunYear,whichVFP.c_str()));
-
+	    gSystem->Sleep(500);  
 }
 int main(int argc, char** argv)
 {

@@ -1,6 +1,8 @@
 #include<string>
 #include "../../include/analysis_commoncode.h"
 
+
+
 void analysis_VGBkg(){
 	
 	SetRunConfig();
@@ -12,6 +14,8 @@ void analysis_VGBkg(){
         if(RunYear==2016 and preVFP == 1) whichVFP = "preVFP";
         if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
         if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
+	
+	bool noISRweight = true;
 	
 	esfScaleFactor  objectESF;
 	bool toDeriveScale(false);
@@ -57,7 +61,7 @@ void analysis_VGBkg(){
 		}
 	}
 
-	//*********** histo list **********************//
+	//*********** histo list ********************* 
 	std::ostringstream outputname;
 	outputname << "/eos/uscms/store/user/tmishra/Background/";
 	switch(anatype){
@@ -77,7 +81,7 @@ void analysis_VGBkg(){
 	std::ostringstream histname;
 
 	TH1D *p_PhoEt = new TH1D("p_PhoEt","#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
-	TH1D *p_LepPt = new TH1D("p_LepPt","p_LepPt",nBkgPtBins,bkgPtBins);
+	TH1D *p_LepPt = new TH1D("p_LepPt","Lepton p_{T}",nBkgPtBins,bkgPtBins);
 	TH1D *p_MET = new TH1D("p_MET","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
 	TH1D *p_Mt = new TH1D("p_Mt","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins);
 	TH1D *p_HT = new TH1D("p_HT","HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
@@ -89,28 +93,51 @@ void analysis_VGBkg(){
 	TH1D *p_PU = new TH1D("p_PU","",100,0,100);
 	TH1D *p_nJet = new TH1D("p_nJet","p_nJet",10,0,10);
 	TH1D *p_nBJet = new TH1D("p_nBJet","p_nBJet",5,0,5);
+
+	TH1D *p_LepPt_TT = new TH1D("p_LepPt_TT","p_LepPt",nBkgPtBins,bkgPtBins);
+        TH1D *p_nJet_TT = new TH1D("p_nJet_TT","p_nJet",10,0,10);
+        TH1D *p_nBJet_TT = new TH1D("p_nBJet_TT","p_nBJet",5,0,5);
 	TH1D *p_PhoEt_TT = new TH1D("p_PhoEt_TT","#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
 	TH1D *p_MET_TT = new TH1D("p_MET_TT","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
 	TH1D *p_Mt_TT = new TH1D("p_Mt_TT","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins);
 	TH1D *p_HT_TT = new TH1D("p_HT_TT","HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
+	TH1D *p_dPhiEleMET_TT = new TH1D("p_dPhiEleMET_TT","dPhiEleMET",32,0,3.2);
 
 	TH1D *jesup_MET = new TH1D("jesup_MET","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
 	TH1D *jesup_Mt = new TH1D("jesup_Mt","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins);
 	TH1D *jesup_HT = new TH1D("jesup_HT","HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
 	TH1D *jesup_dPhiEleMET = new TH1D("jesup_dPhiEleMET","dPhiEleMET",32,0,3.2); 
+	
+	TH1D *jesup_MET_TT = new TH1D("jesup_MET_TT","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
+	TH1D *jesup_Mt_TT = new TH1D("jesup_Mt_TT","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins);
+	TH1D *jesup_HT_TT = new TH1D("jesup_HT_TT","HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
+	TH1D *jesup_dPhiEleMET_TT = new TH1D("jesup_dPhiEleMET_TT","dPhiEleMET",32,0,3.2); 
 
 	TH1D *jesdo_MET = new TH1D("jesdo_MET","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
 	TH1D *jesdo_Mt = new TH1D("jesdo_Mt","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins); 
 	TH1D *jesdo_HT = new TH1D("jesdo_HT","HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
 	TH1D *jesdo_dPhiEleMET = new TH1D("jesdo_dPhiEleMET","dPhiEleMET",32,0,3.2); 
+	
+	TH1D *jesdo_MET_TT = new TH1D("jesdo_MET_TT","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
+	TH1D *jesdo_Mt_TT = new TH1D("jesdo_Mt_TT","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins); 
+	TH1D *jesdo_HT_TT = new TH1D("jesdo_HT_TT","HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
+	TH1D *jesdo_dPhiEleMET_TT = new TH1D("jesdo_dPhiEleMET_TT","dPhiEleMET",32,0,3.2); 
 
 	TH1D *jerup_MET = new TH1D("jerup_MET","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
 	TH1D *jerup_Mt = new TH1D("jerup_Mt","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins); 
 	TH1D *jerup_dPhiEleMET = new TH1D("jerup_dPhiEleMET","dPhiEleMET",32,0,3.2); 
 
+	TH1D *jerup_MET_TT = new TH1D("jerup_MET_TT","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
+	TH1D *jerup_Mt_TT = new TH1D("jerup_Mt_TT","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins); 
+	TH1D *jerup_dPhiEleMET_TT = new TH1D("jerup_dPhiEleMET_TT","dPhiEleMET",32,0,3.2); 
+
 	TH1D *jerdo_MET = new TH1D("jerdo_MET","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
 	TH1D *jerdo_Mt = new TH1D("jerdo_Mt","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins); 
 	TH1D *jerdo_dPhiEleMET = new TH1D("jerdo_dPhiEleMET","dPhiEleMET",32,0,3.2); 
+
+	TH1D *jerdo_MET_TT = new TH1D("jerdo_MET_TT","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
+	TH1D *jerdo_Mt_TT = new TH1D("jerdo_Mt_TT","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins); 
+	TH1D *jerdo_dPhiEleMET_TT = new TH1D("jerdo_dPhiEleMET_TT","dPhiEleMET",32,0,3.2); 
 
 	TH1D *scaleup_PhoEt = new TH1D("scaleup_PhoEt","#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
 	TH1D *scaleup_PhoEta = new TH1D("scaleup_PhoEta","#gamma #eta; #eta;",60,-3,3);
@@ -121,6 +148,13 @@ void analysis_VGBkg(){
 	TH1D *scaleup_HT = new TH1D("scaleup_HT","HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
 	TH1D *scaleup_dPhiEleMET = new TH1D("scaleup_dPhiEleMET","dPhiEleMET",32,0,3.2); 
 
+	TH1D *scaleup_PhoEt_TT = new TH1D("scaleup_PhoEt_TT","#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
+	TH1D *scaleup_LepPt_TT = new TH1D("scaleup_LepPt_TT","scaleup_LepPt",nBkgPtBins,bkgPtBins);
+	TH1D *scaleup_MET_TT = new TH1D("scaleup_MET_TT","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
+	TH1D *scaleup_Mt_TT = new TH1D("scaleup_Mt_TT","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins); 
+	TH1D *scaleup_HT_TT = new TH1D("scaleup_HT_TT","HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
+	TH1D *scaleup_dPhiEleMET_TT = new TH1D("scaleup_dPhiEleMET_TT","dPhiEleMET",32,0,3.2); 
+
 	TH1D *normup_PhoEt = new TH1D("normup_PhoEt","#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
 	TH1D *normup_PhoEta = new TH1D("normup_PhoEta","#gamma #eta; #eta;",60,-3,3);
 	TH1D *normup_LepPt = new TH1D("normup_LepPt","normup_LepPt",nBkgPtBins,bkgPtBins);
@@ -129,6 +163,13 @@ void analysis_VGBkg(){
 	TH1D *normup_Mt = new TH1D("normup_Mt","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins); 
 	TH1D *normup_HT = new TH1D("normup_HT","HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
 	TH1D *normup_dPhiEleMET = new TH1D("normup_dPhiEleMET","dPhiEleMET",32,0,3.2); 
+	
+	TH1D *normup_PhoEt_TT  = new TH1D("normup_PhoEt_TT","#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
+	TH1D *normup_LepPt_TT  = new TH1D("normup_LepPt_TT","normup_LepPt",nBkgPtBins,bkgPtBins);
+	TH1D *normup_MET_TT  = new TH1D("normup_MET_TT","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
+	TH1D *normup_Mt_TT  = new TH1D("normup_Mt_TT","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins); 
+	TH1D *normup_HT_TT  = new TH1D("normup_HT_TT","HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
+	TH1D *normup_dPhiEleMET_TT = new TH1D("normup_dPhiEleMET_TT","dPhiEleMET",32,0,3.2); 
 
 	TH1D *isrup_PhoEt = new TH1D("isrup_PhoEt","#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
 	TH1D *isrup_PhoEta = new TH1D("isrup_PhoEta","#gamma #eta; #eta;",60,-3,3);
@@ -138,12 +179,25 @@ void analysis_VGBkg(){
 	TH1D *isrup_Mt = new TH1D("isrup_Mt","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins); 
 	TH1D *isrup_HT = new TH1D("isrup_HT","HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
 	TH1D *isrup_dPhiEleMET = new TH1D("isrup_dPhiEleMET","dPhiEleMET",32,0,3.2); 
+	
+	TH1D *isrup_PhoEt_TT  = new TH1D("isrup_PhoEt_TT","#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
+	TH1D *isrup_LepPt_TT  = new TH1D("isrup_LepPt_TT","isrup_LepPt",nBkgPtBins,bkgPtBins);
+	TH1D *isrup_MET_TT  = new TH1D("isrup_MET_TT","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
+	TH1D *isrup_Mt_TT  = new TH1D("isrup_Mt_TT","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins); 
+	TH1D *isrup_HT_TT  = new TH1D("isrup_HT_TT","HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
+	TH1D *isrup_dPhiEleMET_TT = new TH1D("isrup_dPhiEleMET_TT","dPhiEleMET",32,0,3.2); 
 
 	TH1D *toy_dPhiEleMET[500];
 	for(unsigned ih(0); ih < 500; ih++){
 		histname.str("");
 		histname << "toy_VGdPhiEleMET_" << ih;
 		toy_dPhiEleMET[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),32,0,3.2);
+	}
+	TH1D *toy_dPhiEleMET_TT[500];
+	for(unsigned ih(0); ih < 500; ih++){
+		histname.str("");
+		histname << "toy_VGdPhiEleMET_TT_" << ih;
+		toy_dPhiEleMET_TT[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),32,0,3.2);
 	}
 	// ********  MC *************************//
 	std::ostringstream chainname;
@@ -254,9 +308,7 @@ void analysis_VGBkg(){
 	//   start filling ///
 	for(unsigned ievt(0); ievt < mctree->GetEntries(); ievt++){
 		mctree->GetEntry(ievt);
-		if(nJet <1)continue;  // suggestion from convenors
 		p_PU->Fill(nVertex,PUweight);
-
 		double scalefactor(1);
 		double scalefactorup(1);
 		if(channelType == 1){
@@ -295,58 +347,117 @@ void analysis_VGBkg(){
                         else if(RunYear == 2017)                        XS_weight = lumi_2017_MuonEG*1000*crosssection/ntotalevent;
                         else if(RunYear == 2018)                        XS_weight = lumi_2018_MuonEG*1000*crosssection/ntotalevent;}
 
-		double reweightF=1.0;
-                double Normalization=1.0;
+
+		double reweightPt=1.0;
+		double NormPt=1.0;
 		
 		if(RunYear==2016 && preVFP==1){
-                        if(ISRJetPt < 50)reweightF = 1.07048;
-                         else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.33745;
-                         else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 1.11197;
-                         else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.921799;
-                         else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 1.02533;
-                         else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.986267;
-                         else if(ISRJetPt >= 300)reweightF = 0.857941;
-                         Normalization = 0.853805;    }
-
+			if(ichannel == 1){     
+				NormPt = 0.902349;
+                 		if(phoEt < 50)reweightPt = 1.28212;
+                 		else if(phoEt >= 50 && phoEt < 100)reweightPt  = 1.03049;
+                 		else if(phoEt >= 100 && phoEt < 150)reweightPt = 0.9531;
+                 		else if(phoEt >= 150 && phoEt < 200)reweightPt = 0.953816;
+                 		else if(phoEt >= 200 && phoEt < 250)reweightPt = 1.03967;
+                 		else if(phoEt >= 250 && phoEt < 300)reweightPt = 1.07921;
+                 		else if(phoEt >= 300 && phoEt < 500)reweightPt = 1.10223;
+                 		else if(phoEt >= 500 && phoEt < 800)reweightPt = 1.42878;}
+			else if(ichannel == 2){
+				NormPt = 1.01353;
+                 		if(phoEt < 50)reweightPt = 1.09103;
+                 		else if(phoEt >= 50 && phoEt < 100)reweightPt  = 0.890823;
+                 		else if(phoEt >= 100 && phoEt < 150)reweightPt = 0.689855;
+                 		else if(phoEt >= 150 && phoEt < 200)reweightPt = 0.617876;
+                 		else if(phoEt >= 200 && phoEt < 250)reweightPt = 0.575871;
+                 		else if(phoEt >= 250 && phoEt < 300)reweightPt = 0.634576;
+                 		else if(phoEt >= 300 && phoEt < 500)reweightPt = 0.632047;
+                 		else if(phoEt >= 500 && phoEt < 800)reweightPt = 0.873833;}
+		}
                 else if(RunYear==2016 && preVFP==0){
-                        if(ISRJetPt < 50)reweightF = 1.0823;
-                        else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.36705;
-                        else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 1.03422;
-                        else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.996796;
-                        else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.90385;
-                        else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.780053;
-                        else if(ISRJetPt >= 300)reweightF = 0.705875;
-                        Normalization = 0.854942;    }
+			if(ichannel == 1){
+				NormPt = 1.11914;
+                 		if(phoEt < 50)reweightPt = 1.06132;
+                 		else if(phoEt >= 50 && phoEt < 100)reweightPt  = 0.748704;
+                 		else if(phoEt >= 100 && phoEt < 150)reweightPt = 0.870131;
+                 		else if(phoEt >= 150 && phoEt < 200)reweightPt = 1.18874;
+                 		else if(phoEt >= 200 && phoEt < 250)reweightPt = 1.18161;
+                 		else if(phoEt >= 250 && phoEt < 300)reweightPt = 1.08044;
+                 		else if(phoEt >= 300 && phoEt < 500)reweightPt = 1.30831;
+                 		else if(phoEt >= 500 && phoEt < 800)reweightPt = 0.481584;}
 
+			else if(ichannel == 2){
+				NormPt = 1.04551;
+                 		if(phoEt < 50)reweightPt = 1.08342;
+                 		else if(phoEt >= 50 && phoEt < 100)reweightPt  = 0.820422;
+                 		else if(phoEt >= 100 && phoEt < 150)reweightPt = 0.723338;
+                 		else if(phoEt >= 150 && phoEt < 200)reweightPt = 0.56966;
+                 		else if(phoEt >= 200 && phoEt < 250)reweightPt = 0.460661;
+                 		else if(phoEt >= 250 && phoEt < 300)reweightPt = 0.440407;
+                 		else if(phoEt >= 300 && phoEt < 500)reweightPt = 0.583253;
+                 		else if(phoEt >= 500 && phoEt < 800)reweightPt = 0.432163;}
+		}
                 else if(RunYear==2017){
-                        if(ISRJetPt < 50)reweightF = 1.0457;
-                        else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.28507;
-                        else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 1.05021;
-                        else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.895376;
-                        else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.986146;
-                        else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.792056;
-                        else if(ISRJetPt >= 300)reweightF = 0.929084;
-                        Normalization = 0.889139;    }
-
+			if(ichannel == 1){
+				NormPt = 0.942539;
+                 		if(phoEt < 50)reweightPt = 1.14592;
+                 		else if(phoEt >= 50 && phoEt < 100)reweightPt  = 0.950863;
+                 		else if(phoEt >= 100 && phoEt < 150)reweightPt = 1.12263;
+                 		else if(phoEt >= 150 && phoEt < 200)reweightPt = 1.3817;
+                 		else if(phoEt >= 200 && phoEt < 250)reweightPt = 1.39352;
+                 		else if(phoEt >= 250 && phoEt < 300)reweightPt = 1.4926;
+                 		else if(phoEt >= 300 && phoEt < 500)reweightPt = 1.27273;
+                 		else if(phoEt >= 500 && phoEt < 800)reweightPt = 1.04809;}
+			else if(ichannel == 2){
+				NormPt = 0.955486;
+                 		if(phoEt < 50)reweightPt = 1.05087;
+                 		else if(phoEt >= 50 && phoEt < 100)reweightPt  = 1.07524;
+                 		else if(phoEt >= 100 && phoEt < 150)reweightPt = 0.92892;
+                 		else if(phoEt >= 150 && phoEt < 200)reweightPt = 0.825291;
+                 		else if(phoEt >= 200 && phoEt < 250)reweightPt = 0.899771;
+                 		else if(phoEt >= 250 && phoEt < 300)reweightPt = 0.837221;
+                 		else if(phoEt >= 300 && phoEt < 500)reweightPt = 0.732376;
+                 		else if(phoEt >= 500 && phoEt < 800)reweightPt = 0.685758;}
+		}
                 else if(RunYear==2018){
-                        if(ISRJetPt < 50)reweightF = 1.17242;
-                        else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.33113;
-                        else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.957966;
-                        else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.921558;
-                        else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.805571;
-                        else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.904798;
-                        else if(ISRJetPt >= 300)reweightF = 0.828803;
-                        Normalization = 0.860178;    }
-		 
-                  ISRWeight = reweightF*Normalization;
-
-
-
+			if(ichannel == 1){
+				NormPt = 0.907516;
+                 		if(phoEt < 50)reweightPt = 1.21675;
+                 		else if(phoEt >= 50 && phoEt < 100)reweightPt  = 1.03955;
+                 		else if(phoEt >= 100 && phoEt < 150)reweightPt = 1.00025;
+                 		else if(phoEt >= 150 && phoEt < 200)reweightPt = 1.08549;
+                 		else if(phoEt >= 200 && phoEt < 250)reweightPt = 1.14779;
+                 		else if(phoEt >= 250 && phoEt < 300)reweightPt = 1.31126;
+                 		else if(phoEt >= 300 && phoEt < 500)reweightPt = 1.08117;
+                 		else if(phoEt >= 500 && phoEt < 800)reweightPt = 1.3491;}
+			else if(ichannel == 2){
+				NormPt = 0.989044;
+                 		if(phoEt < 50)reweightPt = 1.09491;
+                 		else if(phoEt >= 50 && phoEt < 100)reweightPt  = 0.939154;
+                 		else if(phoEt >= 100 && phoEt < 150)reweightPt = 0.732848;
+                 		else if(phoEt >= 150 && phoEt < 200)reweightPt = 0.691871;
+                 		else if(phoEt >= 200 && phoEt < 250)reweightPt = 0.676227;
+                 		else if(phoEt >= 250 && phoEt < 300)reweightPt = 0.523843;
+                 		else if(phoEt >= 300 && phoEt < 500)reweightPt = 0.569649;
+                 		else if(phoEt >= 500 && phoEt < 800)reweightPt = 0.347228;}
+		}
 		// check all weights used
-		float weight = PUweight*XS_weight*ISRWeight*factorMC*scalefactor;
-		float weight_scaleup = PUweight*XS_weight*ISRWeight*factorMC*scalefactorup;
-		float weight_normup = PUweight*XS_weight*ISRWeight*factorMCUP*scalefactor;
-		float weight_noisr = PUweight*XS_weight*factorMC*scalefactor;
+		
+		float weight = 1.0;
+		float weight_scaleup = 1.0;
+		float weight_normup = 1.0;
+		float weight_noisr = 1.0;
+		
+                weight = PUweight*XS_weight*factorMC*scalefactor;
+                weight_scaleup = PUweight*XS_weight*factorMC*scalefactorup;
+                weight_normup = PUweight*XS_weight*factorMCUP*scalefactor;
+                weight_noisr = PUweight*XS_weight*factorMC*scalefactor;
+
+	        if (!toDeriveScale){
+			weight = weight*reweightPt*NormPt;
+			weight_scaleup = weight_scaleup*reweightPt*NormPt;
+			weight_normup = weight_normup*reweightPt*NormPt;
+			weight_noisr = weight_noisr*reweightPt*NormPt;
+		}
 
 		double weight_toy[500];
 		for(unsigned ii(0); ii < 500; ii++){
@@ -390,15 +501,8 @@ void analysis_VGBkg(){
 		else if( mcType == 4 || mcType == 5)p_dPhiEleMET_ZG->Fill(fabs(dPhiLepMET), weight);
 		p_nJet->Fill(nJet, weight);
 		p_nBJet->Fill(nBJet, weight);
-		// when >= 2 bJets, tt events
-		if(nBJet >= 1){
-			p_PhoEt_TT->Fill(phoEt,  weight);
-			p_MET_TT->Fill(sigMET,  weight);
-			p_Mt_TT->Fill(sigMT,  weight);
-			p_HT_TT->Fill(HT,  weight);
-		}
 
-		for(unsigned ii(0);  ii < 500; ii++)toy_dPhiEleMET[ii]->Fill(fabs(dPhiLepMET), weight_toy[ii]); 
+
 		// JES and JER are stored in ntuple
 		jesup_MET->Fill(sigMETJESup, weight);
 		jesup_Mt->Fill(sigMTJESup, weight);
@@ -444,10 +548,63 @@ void analysis_VGBkg(){
 		isrup_Mt->Fill(sigMT, weight_noisr);
 		isrup_HT->Fill(HT, weight_noisr);
 		isrup_dPhiEleMET->Fill(fabs(dPhiLepMET), weight_noisr);
+		
+		
+		
+		// when >= 2 bJets, tt events
+		if(nBJet >= 1){
+			p_PhoEt_TT->Fill(phoEt,  weight);
+			p_MET_TT->Fill(sigMET,  weight);
+			p_Mt_TT->Fill(sigMT,  weight);
+			p_HT_TT->Fill(HT,  weight);
+			p_LepPt_TT->Fill(lepPt,  weight);
+                        p_nJet_TT->Fill(nJet,  weight);
+                        p_nBJet_TT->Fill(nBJet, weight);
+			p_dPhiEleMET_TT->Fill(fabs(dPhiLepMET), weight);
+
+			jesup_MET_TT->Fill(sigMETJESup, weight);
+			jesup_Mt_TT->Fill(sigMTJESup, weight);
+			jesup_HT_TT->Fill(HTJESup, weight);
+			jesup_dPhiEleMET_TT->Fill(fabs(dPhiLepMETJESup), weight);
+
+			jesdo_MET_TT->Fill(sigMETJESdo, weight);
+			jesdo_Mt_TT->Fill(sigMTJESdo, weight);
+			jesdo_HT_TT->Fill(HTJESdo, weight);
+			jesdo_dPhiEleMET_TT->Fill(fabs(dPhiLepMETJESdo), weight);
+
+			jerup_MET_TT->Fill(sigMETJERup, weight);
+			jerup_Mt_TT->Fill(sigMTJERup, weight);
+			jerup_dPhiEleMET_TT->Fill(fabs(dPhiLepMETJERup), weight);
+
+			jerdo_MET_TT->Fill(sigMETJERdo, weight);
+			jerdo_Mt_TT->Fill(sigMTJERdo, weight);
+			jerdo_dPhiEleMET_TT->Fill(fabs(dPhiLepMETJERdo), weight);
+
+			scaleup_PhoEt_TT->Fill(phoEt, weight_scaleup);
+			scaleup_LepPt_TT->Fill(lepPt, weight_scaleup);
+			scaleup_MET_TT->Fill(sigMET, weight_scaleup);
+			scaleup_Mt_TT->Fill(sigMT, weight_scaleup);
+			scaleup_HT_TT->Fill(HT, weight_scaleup);
+			scaleup_dPhiEleMET_TT->Fill(fabs(dPhiLepMET), weight_scaleup);
+
+			normup_PhoEt_TT->Fill(phoEt,  weight_normup);
+			normup_LepPt_TT->Fill(lepPt,  weight_normup);
+			normup_MET_TT->Fill(sigMET,   weight_normup);
+			normup_Mt_TT->Fill(sigMT,     weight_normup);
+			normup_HT_TT->Fill(HT,        weight_normup);
+			normup_dPhiEleMET_TT->Fill(fabs(dPhiLepMET), weight_normup);
+
+			isrup_PhoEt_TT->Fill(phoEt, weight_noisr);
+			isrup_LepPt_TT->Fill(lepPt, weight_noisr);
+			isrup_MET_TT->Fill(sigMET, weight_noisr);
+			isrup_Mt_TT->Fill(sigMT, weight_noisr);
+			isrup_HT_TT->Fill(HT, weight_noisr);
+			isrup_dPhiEleMET_TT->Fill(fabs(dPhiLepMET), weight_noisr);
+		}
+			for(unsigned ii(0);  ii < 500; ii++)toy_dPhiEleMET[ii]->Fill(fabs(dPhiLepMET), weight_toy[ii]); 
+			for(unsigned ii(0);  ii < 500; ii++)toy_dPhiEleMET_TT[ii]->Fill(fabs(dPhiLepMET), weight_toy[ii]); 
+
 	}
-//	 for (int ibin=0;ibin<p_MET->GetNbinsX();++ibin){
-//               cout<<"Bin "<<ibin <<" "<<p_MET->GetBinContent(ibin)<<endl;
-//        }
 
 
 	// Stat and Syst error
@@ -458,8 +615,14 @@ void analysis_VGBkg(){
 		syserror += pow((normup_PhoEt->GetBinContent(ibin)-p_PhoEt->GetBinContent(ibin)),2);   // normalisation scale
 		syserror += pow((isrup_PhoEt->GetBinContent(ibin)-p_PhoEt->GetBinContent(ibin)),2);    // ISR corrections
 		p_PhoEt->SetBinError(ibin,sqrt(syserror));
-		//cout<<p_PhoEt->GetBinError(ibin)<<endl;
-		// quadrature sum of all errors
+	}	
+	for(int ibin(1); ibin < p_PhoEt_TT->GetSize(); ibin++){
+		double syserror(0);
+		syserror += p_PhoEt_TT->GetBinError(ibin)* p_PhoEt_TT->GetBinError(ibin);                    // stat
+		syserror += pow((scaleup_PhoEt_TT->GetBinContent(ibin)-p_PhoEt_TT->GetBinContent(ibin)),2);  // ID and trigger ESF
+		syserror += pow((normup_PhoEt_TT->GetBinContent(ibin)-p_PhoEt_TT->GetBinContent(ibin)),2);   // normalisation scale
+		syserror += pow((isrup_PhoEt_TT->GetBinContent(ibin)-p_PhoEt_TT->GetBinContent(ibin)),2);    // ISR corrections
+		p_PhoEt_TT->SetBinError(ibin,sqrt(syserror));
 	}	
 	for(int ibin(1); ibin < p_LepPt->GetSize(); ibin++){
 		double syserror(0);
@@ -468,6 +631,14 @@ void analysis_VGBkg(){
 		syserror += pow((normup_LepPt->GetBinContent(ibin)-p_LepPt->GetBinContent(ibin)),2);
 		syserror += pow((isrup_LepPt->GetBinContent(ibin)-p_LepPt->GetBinContent(ibin)),2);
 		p_LepPt->SetBinError(ibin,sqrt(syserror));
+	}	
+	for(int ibin(1); ibin < p_LepPt_TT->GetSize(); ibin++){
+		double syserror(0);
+		syserror += p_LepPt_TT->GetBinError(ibin)* p_LepPt_TT->GetBinError(ibin);
+		syserror += pow((scaleup_LepPt_TT->GetBinContent(ibin)-p_LepPt_TT->GetBinContent(ibin)),2);
+		syserror += pow((normup_LepPt_TT->GetBinContent(ibin)-p_LepPt_TT->GetBinContent(ibin)),2);
+		syserror += pow((isrup_LepPt_TT->GetBinContent(ibin)-p_LepPt_TT->GetBinContent(ibin)),2);
+		p_LepPt_TT->SetBinError(ibin,sqrt(syserror));
 	}	
 	for(int ibin(1); ibin < p_MET->GetSize(); ibin++){
 		double syserror(0);
@@ -481,6 +652,18 @@ void analysis_VGBkg(){
 		syserror += pow(jererror,2);
 		p_MET->SetBinError(ibin,sqrt(syserror));
 	}	
+	for(int ibin(1); ibin < p_MET_TT->GetSize(); ibin++){
+		double syserror(0);
+		syserror += p_MET_TT->GetBinError(ibin)* p_MET_TT->GetBinError(ibin);
+		syserror += pow((scaleup_MET_TT->GetBinContent(ibin)-p_MET_TT->GetBinContent(ibin)),2);
+		syserror += pow((normup_MET_TT->GetBinContent(ibin)-p_MET_TT->GetBinContent(ibin)),2);
+		syserror += pow((isrup_MET_TT->GetBinContent(ibin)-p_MET_TT->GetBinContent(ibin)),2);
+		double jeserror = max( fabs(jesup_MET_TT->GetBinContent(ibin)-p_MET_TT->GetBinContent(ibin)), fabs(jesdo_MET_TT->GetBinContent(ibin)-p_MET_TT->GetBinContent(ibin))); // JEC
+		double jererror = max( fabs(jerup_MET_TT->GetBinContent(ibin)-p_MET_TT->GetBinContent(ibin)), fabs(jerdo_MET_TT->GetBinContent(ibin)-p_MET_TT->GetBinContent(ibin))); // JER
+		syserror += pow(jeserror,2);
+		syserror += pow(jererror,2);
+		p_MET_TT->SetBinError(ibin,sqrt(syserror));
+	}	
 	for(int ibin(1); ibin < p_Mt->GetSize(); ibin++){
 		double syserror(0);
 		syserror += p_Mt->GetBinError(ibin)* p_Mt->GetBinError(ibin);
@@ -493,6 +676,18 @@ void analysis_VGBkg(){
 		syserror += pow(jererror,2);
 		p_Mt->SetBinError(ibin,sqrt(syserror));
 	}	
+	for(int ibin(1); ibin < p_Mt_TT->GetSize(); ibin++){
+		double syserror(0);
+		syserror += p_Mt_TT->GetBinError(ibin)* p_Mt_TT->GetBinError(ibin);
+		syserror += pow((scaleup_Mt_TT->GetBinContent(ibin)-p_Mt_TT->GetBinContent(ibin)),2);
+		syserror += pow((normup_Mt_TT->GetBinContent(ibin)-p_Mt_TT->GetBinContent(ibin)),2);
+		syserror += pow((isrup_Mt_TT->GetBinContent(ibin)-p_Mt_TT->GetBinContent(ibin)),2);
+		double jeserror = max( fabs(jesup_Mt_TT->GetBinContent(ibin)-p_Mt_TT->GetBinContent(ibin)), fabs(jesdo_Mt_TT->GetBinContent(ibin)-p_Mt_TT->GetBinContent(ibin)));
+		double jererror = max( fabs(jerup_Mt_TT->GetBinContent(ibin)-p_Mt_TT->GetBinContent(ibin)), fabs(jerdo_Mt_TT->GetBinContent(ibin)-p_Mt_TT->GetBinContent(ibin)));
+		syserror += pow(jeserror,2);
+		syserror += pow(jererror,2);
+		p_Mt_TT->SetBinError(ibin,sqrt(syserror));
+	}	
 	for(int ibin(1); ibin < p_HT->GetSize(); ibin++){
 		double syserror(0);
 		syserror += p_HT->GetBinError(ibin)* p_HT->GetBinError(ibin);
@@ -502,6 +697,16 @@ void analysis_VGBkg(){
 		double jeserror = max( fabs(jesup_HT->GetBinContent(ibin)-p_HT->GetBinContent(ibin)), fabs(jesdo_HT->GetBinContent(ibin)-p_HT->GetBinContent(ibin)));
 		syserror += pow(jeserror,2);
 		p_HT->SetBinError(ibin,sqrt(syserror));
+	}	
+	for(int ibin(1); ibin < p_HT_TT->GetSize(); ibin++){
+		double syserror(0);
+		syserror += p_HT_TT->GetBinError(ibin)* p_HT_TT->GetBinError(ibin);
+		syserror += pow((normup_HT_TT->GetBinContent(ibin)-p_HT_TT->GetBinContent(ibin)),2);
+		syserror += pow((isrup_HT_TT->GetBinContent(ibin)-p_HT_TT->GetBinContent(ibin)),2);
+		syserror += pow((scaleup_HT_TT->GetBinContent(ibin)-p_HT_TT->GetBinContent(ibin)),2);
+		double jeserror = max( fabs(jesup_HT_TT->GetBinContent(ibin)-p_HT_TT->GetBinContent(ibin)), fabs(jesdo_HT_TT->GetBinContent(ibin)-p_HT_TT->GetBinContent(ibin)));
+		syserror += pow(jeserror,2);
+		p_HT_TT->SetBinError(ibin,sqrt(syserror));
 	}	
 	for(int ibin(1); ibin < p_dPhiEleMET->GetSize(); ibin++){
 		double syserror(0);
@@ -515,7 +720,22 @@ void analysis_VGBkg(){
 		syserror += pow(jererror,2);
 		p_dPhiEleMET->SetBinError(ibin,sqrt(syserror));
 	}	
-
+	for(int ibin(1); ibin < p_dPhiEleMET_TT->GetSize(); ibin++){
+		double syserror(0);
+		syserror += p_dPhiEleMET_TT->GetBinError(ibin)* p_dPhiEleMET_TT->GetBinError(ibin);
+		syserror += pow((scaleup_dPhiEleMET_TT->GetBinContent(ibin)-p_dPhiEleMET_TT->GetBinContent(ibin)),2);
+		syserror += pow((normup_dPhiEleMET_TT->GetBinContent(ibin)-p_dPhiEleMET_TT->GetBinContent(ibin)),2);
+		syserror += pow((isrup_dPhiEleMET_TT->GetBinContent(ibin)-p_dPhiEleMET_TT->GetBinContent(ibin)),2);
+		double jeserror = max( fabs(jesup_dPhiEleMET_TT->GetBinContent(ibin)-p_dPhiEleMET_TT->GetBinContent(ibin)), fabs(jesdo_dPhiEleMET_TT->GetBinContent(ibin)-p_dPhiEleMET_TT->GetBinContent(ibin)));
+		double jererror = max( fabs(jerup_dPhiEleMET_TT->GetBinContent(ibin)-p_dPhiEleMET_TT->GetBinContent(ibin)), fabs(jerdo_dPhiEleMET_TT->GetBinContent(ibin)-p_dPhiEleMET_TT->GetBinContent(ibin)));
+		syserror += pow(jeserror,2);
+		syserror += pow(jererror,2);
+		p_dPhiEleMET_TT->SetBinError(ibin,sqrt(syserror));
+	}	
+	p_LepPt_TT->Write();
+	p_nJet_TT->Write();
+	p_nBJet_TT->Write();
+	p_dPhiEleMET_TT->Write();
 	outputfile->Write();
 	outputfile->Close();
 

@@ -40,11 +40,10 @@ void analysis_egMC(int RunYear, bool preVFP, const char *Sample){//main
   if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
 
   ofstream logfile;
-  logfile.open(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_%s_%d%s.log",Sample,RunYear,whichVFP.c_str())); 
+  logfile.open(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_%s_%d%s_.log",Sample,RunYear,whichVFP.c_str())); 
 
   logfile << "analysis_eg()" << std::endl;
   logfile << "medium eleID+miniIso" << std::endl;
-  //logfile << "Loose the proxy definition: no upper bounds for photon; LooseFakeProxy for electron" << std::endl;
 
   RunType datatype;
   if(RunYear==2016) datatype = MCDoubleEG2016;
@@ -56,7 +55,7 @@ void analysis_egMC(int RunYear, bool preVFP, const char *Sample){//main
 	
   char* inputfile = new char[300];
 
-  if (strstr(Sample, "DYJetsToLL") != NULL or strstr(Sample, "TTJets") != NULL or strstr(Sample, "WJetsToLNu"))
+  if (strstr(Sample, "DYJetsToLL") != NULL or strstr(Sample, "TTJets") != NULL)
         sprintf(inputfile,"/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());
   else
         sprintf(inputfile,"/eos/uscms/store/user/tmishra/InputFilesMC/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());
@@ -555,7 +554,7 @@ void analysis_egMC(int RunYear, bool preVFP, const char *Sample){//main
 					if(fabs((signalPho->getCalibP4()+signalLep->getCalibP4()).M() - 91.188) > 10.0){
 
 						npassZ+=1;
-						if(raw.passMETFilter(METFilter)){
+						if(raw.passMETFilter(RunYear,METFilter)){
 							npassMETFilter +=1;
 
 							float deltaPhi = DeltaPhi(signalLep->getPhi(), METPhi);
@@ -629,7 +628,7 @@ void analysis_egMC(int RunYear, bool preVFP, const char *Sample){//main
 					double dRlepphoton = DeltaR(proxyPho->getEta(), proxyPho->getPhi(), proxyEle->getEta(), proxyEle->getPhi());
 					if(dRlepphoton>0.8){
 						if(fabs((proxyPho->getCalibP4()+proxyEle->getCalibP4()).M() - 91.188) > 10.0){
-							if(raw.passMETFilter(METFilter)){
+							if(raw.passMETFilter(RunYear,METFilter)){
 
 								float proxy_deltaPhi = DeltaPhi(proxyEle->getPhi(), METPhi);
 								float proxy_MT = sqrt(2*MET*proxyEle->getCalibPt()*(1-std::cos(proxy_deltaPhi)));
@@ -683,7 +682,7 @@ void analysis_egMC(int RunYear, bool preVFP, const char *Sample){//main
 					double dRlepphoton = DeltaR(jetPho->getEta(), jetPho->getPhi(), jetEle->getEta(), jetEle->getPhi());
 					if(dRlepphoton>0.8){
 						if(fabs((jetPho->getCalibP4()+jetEle->getCalibP4()).M() - 91.188) > 10.0){
-							if(raw.passMETFilter(METFilter)){
+							if(raw.passMETFilter(RunYear,METFilter)){
 
 
 								float jet_deltaPhi = DeltaPhi(jetEle->getPhi(), METPhi);
@@ -735,7 +734,7 @@ void analysis_egMC(int RunYear, bool preVFP, const char *Sample){//main
 					double dRlepphoton = DeltaR(fakeLepPho->getEta(), fakeLepPho->getPhi(), fakeLep->getEta(), fakeLep->getPhi());
 					if(dRlepphoton>0.8){
 						if(fabs((fakeLepPho->getCalibP4()+fakeLep->getCalibP4()).M() - 91.188) > 10.0){
-							if(raw.passMETFilter(METFilter)){
+							if(raw.passMETFilter(RunYear,METFilter)){
 
 								fakeLepdRPhoLep = 3;
 								for(std::vector<recoPhoton>::iterator itpho = Photon.begin() ; itpho != Photon.end(); ++itpho){
@@ -806,7 +805,7 @@ void analysis_egMC(int RunYear, bool preVFP, const char *Sample){//main
 				double DeltaPhoLep = DeltaR(hadronPho->getEta(), hadronPho->getPhi(), signalLep->getEta(), signalLep->getPhi());
 				double DoubleMass  = (hadronPho->getP4()+signalLep->getP4()).M();
 				if(DeltaPhoLep > 0.8 && DoubleMass > 90 && fabs(DoubleMass - 91.188) > 10.0){
-				if(raw.passMETFilter(METFilter)){
+				if(raw.passMETFilter(RunYear,METFilter)){
 					float deltaPhi = DeltaPhi(signalLep->getPhi(), METPhi);
 					float MT = sqrt(2*MET*signalLep->getPt()*(1-std::cos(deltaPhi)));
 					hadron_phoEt = hadronPho->getCalibEt();
@@ -829,7 +828,7 @@ void analysis_egMC(int RunYear, bool preVFP, const char *Sample){//main
 					std::vector<recoPhoton>::iterator proxyPho = hadeleproxyPhoCollection[ip];
 					std::vector<recoEle>::iterator proxyEle = proxyLepCollection[ie];
 					double dRlepphoton = DeltaR(proxyPho->getEta(), proxyPho->getPhi(), proxyEle->getEta(), proxyEle->getPhi());
-					if(dRlepphoton>0.8 && fabs((proxyPho->getCalibP4()+proxyEle->getCalibP4()).M() - 91.188) > 10.0 && raw.passMETFilter(METFilter)){
+					if(dRlepphoton>0.8 && fabs((proxyPho->getCalibP4()+proxyEle->getCalibP4()).M() - 91.188) > 10.0 && raw.passMETFilter(RunYear,METFilter)){
 						hadron_eleproxyEt.push_back(proxyPho->getCalibEt());
 						hadron_eleproxyEta.push_back(proxyPho->getEta());
 						hadron_eleproxyPhi.push_back(proxyPho->getPhi());
@@ -876,6 +875,9 @@ void analysis_egMC(int RunYear, bool preVFP, const char *Sample){//main
   p_eventcount->Fill(4.5, npassdR);
   p_eventcount->Fill(5.5, npassZ);
   p_eventcount->Fill(6.5, npassMETFilter);
+cout<< "signal tree entries "<< sigtree->GetEntries()<<endl;
+cout<< "proxy tree entries "<< proxytree->GetEntries()<<endl;
+
 
 	outputfile->Write();
 	outputfile->Close();

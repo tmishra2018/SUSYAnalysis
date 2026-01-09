@@ -1,116 +1,174 @@
 #include <iostream>
+#include <iomanip>
 #include <TFile.h>
 #include <TH1D.h>
-bool channel = 1;
 
-void printLatexTable() {
-    const char* files_egamma[] = {
-        "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_2016preVFP.root",
-        "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_2016postVFP.root",
-        "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_2017.root",
-        "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_2018.root"};
-
-    const char* signal_1_egamma[] = {
-	  "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_eg_T5Wg_1500-1_2016preVFP.root",
-	  "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_eg_T5Wg_1500-1_2016postVFP.root",
-	  "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_eg_T5Wg_1500-1_2017.root",
-	  "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_eg_T5Wg_1500-1_2017.root"};
-    const char* signal_2_egamma[] = {
-	  "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_eg_T5Wg_1800-800_2016preVFP.root",
-	  "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_eg_T5Wg_1800-800_2016postVFP.root",
-	  "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_eg_T5Wg_1800-800_2017.root",
-	  "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_eg_T5Wg_1800-800_2017.root"};
-    const char* signal_3_egamma[] = {
-	  "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_eg_T5Wg_1800-1600_2016preVFP.root",
-	  "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_eg_T5Wg_1800-1600_2016postVFP.root",
-	  "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_eg_T5Wg_1800-1600_2017.root",
-	  "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_eg_T5Wg_1800-1600_2017.root"};
-    
-    const char* files_mgamma[] = {
-        "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2016preVFP_Muon20.root",
-        "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2016postVFP_Muon20.root",
-        "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2017_Muon20.root",
-        "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2018_Muon20.root"};
-    const char* signal_1_mgamma[] = {
-	  "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1500-1_2016preVFP.root",
-	  "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1500-1_2016postVFP.root",
-	  "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1500-1_2017.root",
-	  "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1500-1_2017.root"};
-    const char* signal_2_mgamma[] = {
-	  "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1800-800_2016preVFP.root",
-	  "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1800-800_2016postVFP.root",
-	  "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1800-800_2017.root",
-	  "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1800-800_2017.root"};
-    const char* signal_3_mgamma[] = {
-	  "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1800-1600_2016preVFP.root",
-	  "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1800-1600_2016postVFP.root",
-	  "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1800-1600_2017.root",
-	  "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1800-1600_2017.root"};
+// root -l 
+// .L printLatexTable.C+
+// printLatexTable(1); // eγ
+// printLatexTable(2); // μγ
 
 
+double pct(double num, double den) {
+    if (den <= 0) return 0.0;
+    return 100.0 * num / den;
+}
+
+void printLatexTable(int channel = 1) {
 
     const char* years[] = {"2016preVFP", "2016postVFP", "2017", "2018"};
 
-    for (int year_idx = 0; year_idx < 4; ++year_idx) {
-        std::cout << "\\begin{table*}[tbp]" << std::endl;
-        std::cout << "  \\begin{center}" << std::endl;
-        std::cout << "    \\caption{Event selection and the number of events after successive cuts for " << years[year_idx] << "." << std::endl;
-        std::cout << "    \\label{tab:cutflow_" << years[year_idx] << "}" << std::endl;
-        std::cout << "    \\begin{tabular}{|l|l|l|}" << std::endl;
-        std::cout << "      \\hline" << std::endl;
-        std::cout << "      Cut & Data & T5Wg(1500, 1)  & T5Wg (1800, 1600) & T5Wg (1800, 800) \\\\" << std::endl;
-        std::cout << "      \\hline" << std::endl;
-        std::cout << "      \\hline" << std::endl;
+    /* =======================
+       File lists by channel
+       ======================= */
 
-        TFile *file_egamma = TFile::Open(files_egamma[year_idx]);
-        TFile *file_mgamma = TFile::Open(files_mgamma[year_idx]);
+    const char* data_egamma[] = {
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_2016preVFP.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_2016postVFP.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_2017.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_2018.root"
+    };
 
-        TH1D* hist_egamma = (TH1D*)file_egamma->Get("p_eventcount");
-        TH1D* hist_mgamma = (TH1D*)file_mgamma->Get("p_eventcount");
+    const char* data_mgamma[] = {
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2016preVFP.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2016postVFP.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2017.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2018.root"
+    };
 
-        double egamma_bin1 = hist_egamma->GetBinContent(1);
-        double mgamma_bin1 = hist_mgamma->GetBinContent(1);
+    const char* sig1500_eg[] = {
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_eg_T5Wg_1500-1_2016preVFP.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_eg_T5Wg_1500-1_2016postVFP.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_eg_T5Wg_1500-1_2017.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_eg_T5Wg_1500-1_2018.root"
+    };
 
-        std::cout << "      Total & " << egamma_bin1 << " & " << mgamma_bin1 << " \\\\" << std::endl;
+    const char* sig1500_mg[] = {
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1500-1_2016preVFP.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1500-1_2016postVFP.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1500-1_2017.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1500-1_2018.root"
+    };
 
-        double egamma_bin2 = hist_egamma->GetBinContent(2);
-        double mgamma_bin2 = hist_mgamma->GetBinContent(2);
-        std::cout << "      HLT & " << egamma_bin2 << " (" << (egamma_bin2 / egamma_bin1) * 100 << "\\%) & " 
-                  << mgamma_bin2 << " (" << (mgamma_bin2 / mgamma_bin1) * 100 << "\\%) \\\\" << std::endl;
+    const char* sig1800_800_eg[] = {
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_eg_T5Wg_1800-800_2016preVFP.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_eg_T5Wg_1800-800_2016postVFP.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_eg_T5Wg_1800-800_2017.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_eg_T5Wg_1800-800_2018.root"
+    };
 
-        double egamma_bin3 = hist_egamma->GetBinContent(3);
-        double mgamma_bin3 = hist_mgamma->GetBinContent(3);
-        std::cout << "      $\\geq 1$ good $\\gamma$ & " << egamma_bin3 << " (" << (egamma_bin3 / egamma_bin1) * 100 << "\\%) & " 
-                  << mgamma_bin3 << " (" << (mgamma_bin3 / mgamma_bin1) * 100 << "\\%) \\\\" << std::endl;
+    const char* sig1800_800_mg[] = {
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1800-800_2016preVFP.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1800-800_2016postVFP.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1800-800_2017.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1800-800_2018.root"
+    };
 
-        double egamma_bin4 = hist_egamma->GetBinContent(4);
-        double mgamma_bin4 = hist_mgamma->GetBinContent(4);
-        std::cout << "      $\\geq 1$ good $\\ell$ & " << egamma_bin4 << " (" << (egamma_bin4 / egamma_bin1) * 100 << "\\%) & " 
-                  << mgamma_bin4 << " (" << (mgamma_bin4 / mgamma_bin1) * 100 << "\\%) \\\\" << std::endl;
+    const char* sig1800_1600_eg[] = {
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_eg_T5Wg_1800-1600_2016preVFP.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_eg_T5Wg_1800-1600_2016postVFP.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_eg_T5Wg_1800-1600_2017.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_eg_T5Wg_1800-1600_2018.root"
+    };
 
-        double egamma_bin5 = hist_egamma->GetBinContent(5);
-        double mgamma_bin5 = hist_mgamma->GetBinContent(5);
-        std::cout << "      $\\Delta R(\\gamma, l) > 0.8$ & " << egamma_bin5 << " (" << (egamma_bin5 / egamma_bin1) * 100 << "\\%) & " 
-                  << mgamma_bin5 << " (" << (mgamma_bin5 / mgamma_bin1) * 100 << "\\%) \\\\" << std::endl;
+    const char* sig1800_1600_mg[] = {
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1800-1600_2016preVFP.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1800-1600_2016postVFP.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1800-1600_2017.root",
+        "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_T5Wg_1800-1600_2018.root"
+    };
 
-        double egamma_bin6 = hist_egamma->GetBinContent(6);
-        double mgamma_bin6 = hist_mgamma->GetBinContent(6);
-        std::cout << "      Z veto & " << egamma_bin6 << " (" << (egamma_bin6 / egamma_bin1) * 100 << "\\%) & " 
-                  << mgamma_bin6 << " (" << (mgamma_bin6 / mgamma_bin1) * 100 << "\\%) \\\\" << std::endl;
+    /* =======================
+       Select channel
+       ======================= */
 
-        double egamma_bin7 = hist_egamma->GetBinContent(7);
-        double mgamma_bin7 = hist_mgamma->GetBinContent(7);
-        std::cout << "      MET filters & " << egamma_bin7 << " (" << (egamma_bin7 / egamma_bin1) * 100 << "\\%) & " 
-                  << mgamma_bin7 << " (" << (mgamma_bin7 / mgamma_bin1) * 100 << "\\%) \\\\" << std::endl;
+    const char** dataFiles;
+    const char** sig1500;
+    const char** sig1800_800;
+    const char** sig1800_1600;
 
-        std::cout << "      \\hline" << std::endl;
-        std::cout << "    \\end{tabular}" << std::endl;
-        std::cout << "  \\end{center}" << std::endl;
-        std::cout << "\\end{table*}" << std::endl;
+    const char* channelName;
+    const char* channelLabel;
 
-        file_egamma->Close();
-        file_mgamma->Close();
+    if (channel == 1) {
+        dataFiles       = data_egamma;
+        sig1500         = sig1500_eg;
+        sig1800_800     = sig1800_800_eg;
+        sig1800_1600    = sig1800_1600_eg;
+        channelName     = "$e\\gamma$";
+        channelLabel    = "egamma";
+    } else {
+        dataFiles       = data_mgamma;
+        sig1500         = sig1500_mg;
+        sig1800_800     = sig1800_800_mg;
+        sig1800_1600    = sig1800_1600_mg;
+        channelName     = "$\\mu\\gamma$";
+        channelLabel    = "mgamma";
     }
+
+    /* =======================
+       LaTeX header
+       ======================= */
+
+    std::cout << "\\begin{table*}[tbp]\n"
+              << "  \\begin{center}\n"
+              << "    \\caption{Event selection and the number of events after successive cuts for "
+              << channelName << " channel.}\n"
+              << "    \\label{tab:cutflow_" << channelLabel << "}\n"
+              << "\\resizebox{\\textwidth}{!}{\n"
+              << "    \\begin{tabular}{|l|l|l|l|l|l|}\n"
+              << "      \\hline\n"
+              << "      Year & Cut & Data & T5Wg(1500, 1) & T5Wg(1800, 800) & T5Wg(1800, 1600) \\\\\n"
+              << "      \\hline\n";
+
+    std::cout << std::fixed << std::setprecision(2);
+
+    const char* cuts[] = {
+        "Total",
+        "HLT",
+        "$\\geq 1$ good $\\gamma$",
+        "$\\geq 1$ good $\\ell$",
+        "$\\geq 1$ good $\\ell$ and $\\geq 1$ good $\\gamma$",
+        "$\\Delta R(\\gamma, l) > 0.8$",
+        "Z veto",
+        "MET filters"
+    };
+
+    for (int y = 0; y < 4; ++y) {
+
+        TFile *fD = TFile::Open(dataFiles[y]);
+        TFile *f1 = TFile::Open(sig1500[y]);
+        TFile *f2 = TFile::Open(sig1800_800[y]);
+        TFile *f3 = TFile::Open(sig1800_1600[y]);
+
+        TH1D *hD = (TH1D*)fD->Get("p_eventcount");
+        TH1D *h1 = (TH1D*)f1->Get("p_eventcount");
+        TH1D *h2 = (TH1D*)f2->Get("p_eventcount");
+        TH1D *h3 = (TH1D*)f3->Get("p_eventcount");
+
+        double D0 = hD->GetBinContent(1);
+        double S10 = h1->GetBinContent(1);
+        double S20 = h2->GetBinContent(1);
+        double S30 = h3->GetBinContent(1);
+
+        for (int i = 0; i < 8; ++i) {
+            int bin = i + 1;
+
+            std::cout << (i == 0 ? years[y] : "")
+                      << " & " << cuts[i]
+                      << " & " << hD->GetBinContent(bin)  << " (" << pct(hD->GetBinContent(bin),  D0)  << "\\%)"
+                      << " & " << h1->GetBinContent(bin)  << " (" << pct(h1->GetBinContent(bin), S10) << "\\%)"
+                      << " & " << h2->GetBinContent(bin)  << " (" << pct(h2->GetBinContent(bin), S20) << "\\%)"
+                      << " & " << h3->GetBinContent(bin)  << " (" << pct(h3->GetBinContent(bin), S30) << "\\%) \\\\\n";
+        }
+
+        std::cout << "      \\hline\n";
+
+        fD->Close(); f1->Close(); f2->Close(); f3->Close();
+    }
+
+    std::cout << "    \\end{tabular}\n"
+              << "}\n"
+              << "  \\end{center}\n"
+              << "\\end{table*}\n";
 }
-
-

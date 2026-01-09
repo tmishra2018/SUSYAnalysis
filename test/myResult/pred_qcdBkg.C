@@ -177,7 +177,7 @@ void pred_qcdBkg(){
        TChain *fakeEtree = new TChain("fakeLepTree","fakeLepTree");
 
        if(channelType==1)fakeEtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
-       if(channelType==2)fakeEtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
+       if(channelType==2)fakeEtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
 
        int   run(0);
        Long64_t event(0);
@@ -226,16 +226,17 @@ void pred_qcdBkg(){
 
 	for(unsigned ievt(0); ievt < fakeEtree->GetEntries(); ievt++){
 		fakeEtree->GetEntry(ievt);
-		if (channelType == 1 && nJetFloat <1 ) continue;
-                if (channelType == 2 && nJetInt <1 ) continue; // NEW
 
 		double w_qcd = 1.; 
 		double w_qcd_up = 1.; 
 		double w_qcd_unweight = 1.;
 
 		// Corrections on lepton proxy sample
-			w_qcd = factorQCD*p_scale->GetBinContent(p_scale->FindBin(lepPt));
-			w_qcd_up = factorQCDUP*p_scale->GetBinContent(p_scale->FindBin(lepPt));
+//			w_qcd = factorQCD*p_scale->GetBinContent(p_scale->FindBin(lepPt));
+//			w_qcd_up = factorQCDUP*p_scale->GetBinContent(p_scale->FindBin(lepPt));
+//			w_qcd_unweight = factorQCD;
+			w_qcd = factorQCD;
+			w_qcd_up = factorQCDUP;
 			w_qcd_unweight = factorQCD;
 
 		p_PU->Fill(nVertex);

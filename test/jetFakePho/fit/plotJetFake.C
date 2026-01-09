@@ -27,8 +27,8 @@
 #include "../../../include/tdrstyle.C"
 #include "../../../include/analysis_tools.h"
 
-#define NBIN 13
-int ichannel = 2;
+#define NBIN 18
+int ichannel = 1;
 
 void plotJetFake(){//main 
 	gROOT->SetBatch(kTRUE);
@@ -204,7 +204,7 @@ void plotJetFake(){//main
 //	pad1->SetBottomMargin(0);
 //	pad1->Draw();  
 //	pad1->cd();  
-	TH1F *dummy = new TH1F("Hadron Fraction","e#gamma channel;p_{T}(GeV);hadron fraction",17,30,200);
+	TH1F *dummy = new TH1F("Hadron Fraction","e#gamma channel;p_{T}(GeV);hadron fraction",19,30,300);
 	dummy->GetXaxis()->SetTitle("p_{T} (GeV)");
 	dummy->GetXaxis()->SetTitleOffset(1);
 	dummy->SetTitleOffset(1);
@@ -232,7 +232,7 @@ void plotJetFake(){//main
 	leg->AddEntry(jetfrac_18, "2018");
 	//if(useMC)leg->AddEntry(jetfracTrue,"MC truth");
 	leg->Draw("same");
-	CMS_lumi( canvas, 7,ichannel, 11 );
+//	CMS_lumi( canvas, 7,ichannel, 11 );
 //	canvas->cd();
 //	TPad *pad2 = new TPad("pad2", "pad2", 0, 0.05, 1, 0.3);
 //	pad2->Draw();

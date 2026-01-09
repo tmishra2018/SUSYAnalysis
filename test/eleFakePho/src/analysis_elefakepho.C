@@ -179,9 +179,9 @@ void analysis_elefakepho(int RunYear, const char *Era){//main
         tracks = ntrks;
         nVertex = nvtx;
 	
-	if(RunYear==2017 && !passPixelIssue17(raw)) continue;
-        if(RunYear==2018 && !passPixelIssue18(raw)) continue;
-        passPixelIssue++;
+	//if(RunYear==2017 && !passPixelIssue17(raw)) continue;
+        //if(RunYear==2018 && !passPixelIssue18(raw)) continue;
+        //passPixelIssue++;
 
         if(MET > 70.0)continue;
         //if(!raw.passHLT())continue;

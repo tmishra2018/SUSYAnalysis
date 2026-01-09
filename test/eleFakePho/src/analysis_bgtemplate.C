@@ -31,8 +31,6 @@
 #include "../../../src/analysis_ele.cc"
 #include "../../../src/analysis_photon.cc"
 #include "../../../src/analysis_muon.cc"
-bool apply_HEMveto=false;
-bool apply_L1=false;
 
 void analysis_bgtemplate(int RunYear, const char *Era){//main
 
@@ -46,22 +44,24 @@ void analysis_bgtemplate(int RunYear, const char *Era){//main
   if(RunYear==2016) datatype = SingleMuon2016;
   if(RunYear==2017) datatype = SingleMuon2017;
   if(RunYear==2018) datatype = SingleMuon2018;
-  TFile *f = TFile::Open(Form("/eos/uscms/store/user/tmishra/InputFilesDATA/%d/SingleMuon/SingleMuon_%d%s.root",RunYear,RunYear,Era));
+
+
+    TFile *f = nullptr;
+  if (RunYear == 2016)
+    f = TFile::Open(Form("/eos/uscms/store/user/tmishra/InputFilesDATA/2016/SingleMuon/SingleMuon_%d%s.root", RunYear, Era));
+  else
+    f = TFile::Open(Form("/eos/uscms/store/user/lpcsusyphotons/SoftPhoton/Tribeni/SingleMuon/SingleMuon_%d%s.root", RunYear, Era));
+
   TTree *es =(TTree*)f->Get("ggNtuplizer/EventTree");
   TFile *output = TFile::Open(Form("/eos/uscms/store/user/tmishra/elefakepho/files/plot_bgtemplate_FullEcal_%d%s.root",RunYear,Era),"RECREATE");
   output->cd();
 
-  if(RunYear==2016 || RunYear==2017) apply_L1=true;
-  if(RunYear==2018) apply_HEMveto=true;
   int   tracks(0);
   int   nVertex(0); 
   int   mcType = MCType::NOMC;
   if(datatype == MC && mcType == MCType::NOMC){std::cout << "wrong MC type" << std::endl; throw;} 
   logfile << "mcType" << mcType << std::endl;
 
-  cout<<"Applying L1 prefiring prob.? "<<apply_L1<<endl;
-  cout<<"Applying HEM veto? "<<apply_HEMveto<<endl;
- 
   TTree *mtree = new TTree("BGTree","BGTree");
   float tagEta_mg;
   float tagPhi_mg;

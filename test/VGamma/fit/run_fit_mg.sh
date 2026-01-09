@@ -34,9 +34,28 @@ for RunYear in "${RunYears[@]}"; do
       echo "Running Fitfractionmg for RunYear=$RunYear, VFP=$VFP"
       for i in {0..999}; do
         root_command="root -b -q \"Fitfractionmg.C+($i,40,70,0,1000,4, $RunYear, $VFP_flag)\""
-        echo "Running: $root_command"
         eval $root_command
       done
+      #for i in {0..999}; do
+      #  root_command="root -b -q \"Fitfractionmg.C+($i,40,70,0,50,4, $RunYear, $VFP_flag)\""
+      #  eval $root_command
+      #done
+      #for i in {0..999}; do
+      #  root_command="root -b -q \"Fitfractionmg.C+($i,40,70,50,70,4, $RunYear, $VFP_flag)\""
+      #  eval $root_command
+      #done
+      #for i in {0..999}; do
+      #  root_command="root -b -q \"Fitfractionmg.C+($i,40,70,70,100,4, $RunYear, $VFP_flag)\""
+      #  eval $root_command
+      #done
+      #for i in {0..999}; do
+      #  root_command="root -b -q \"Fitfractionmg.C+($i,40,70,100,1000,4, $RunYear, $VFP_flag)\""
+      #  eval $root_command
+      #done
+      #for i in {0..999}; do
+      #  root_command="root -b -q \"Fitfractionmg.C+($i,40,70, 50, 1000,4, $RunYear, $VFP_flag)\""
+      #  eval $root_command
+      #done
     fi
   done
 done

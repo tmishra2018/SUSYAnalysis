@@ -298,7 +298,6 @@ void pred_VGBkg(){
 
 	for(unsigned ievt(0); ievt < mctree->GetEntries(); ievt++){
 		mctree->GetEntry(ievt);
-		if(nJet <1)continue;  // NEW
 		p_PU->Fill(nVertex,PUweight);
 		double scalefactor(0);
 		double scalefactorup(0);
@@ -337,55 +336,119 @@ void pred_VGBkg(){
         		else if(RunYear == 2017) 			XS_weight = lumi_2017_MuonEG*1000*crosssection/ntotalevent;
         		else if(RunYear == 2018) 			XS_weight = lumi_2018_MuonEG*1000*crosssection/ntotalevent;
         		else if(RunYear == 678) 			XS_weight = lumi_678_MuonEG*1000*crosssection/ntotalevent;}
+		double reweightPt=1.0;
+		double NormPt=1.0;
 
-		double reweightF=1.0;
-                double Normalization=1.0;
+
 		if(RunYear==2016 && preVFP==1){
-                        if(ISRJetPt < 50)reweightF = 1.07048;
-                         else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.33745;
-                         else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 1.11197;
-                         else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.921799;
-                         else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 1.02533;
-                         else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.986267;
-                         else if(ISRJetPt >= 300)reweightF = 0.857941;
-                         Normalization = 0.853805;    }
-
+			if(ichannel == 1){
+				NormPt = 0.902349;
+                 		if(phoEt < 50)reweightPt = 1.28212;
+                 		else if(phoEt >= 50 && phoEt < 100)reweightPt  = 1.03049;
+                 		else if(phoEt >= 100 && phoEt < 150)reweightPt = 0.9531;
+                 		else if(phoEt >= 150 && phoEt < 200)reweightPt = 0.953816;
+                 		else if(phoEt >= 200 && phoEt < 250)reweightPt = 1.03967;
+                 		else if(phoEt >= 250 && phoEt < 300)reweightPt = 1.07921;
+                 		else if(phoEt >= 300 && phoEt < 500)reweightPt = 1.10223;
+                 		else if(phoEt >= 500 && phoEt < 800)reweightPt = 1.42878;}
+			else if(ichannel == 2){
+				NormPt = 1.01353;
+                 		if(phoEt < 50)reweightPt = 1.09103;
+                 		else if(phoEt >= 50 && phoEt < 100)reweightPt  = 0.890823;
+                 		else if(phoEt >= 100 && phoEt < 150)reweightPt = 0.689855;
+                 		else if(phoEt >= 150 && phoEt < 200)reweightPt = 0.617876;
+                 		else if(phoEt >= 200 && phoEt < 250)reweightPt = 0.575871;
+                 		else if(phoEt >= 250 && phoEt < 300)reweightPt = 0.634576;
+                 		else if(phoEt >= 300 && phoEt < 500)reweightPt = 0.632047;
+                 		else if(phoEt >= 500 && phoEt < 800)reweightPt = 0.873833;}
+		}
                 else if(RunYear==2016 && preVFP==0){
-                        if(ISRJetPt < 50)reweightF = 1.0823;
-                        else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.36705;
-                        else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 1.03422;
-                        else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.996796;
-                        else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.90385;
-                        else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.780053;
-                        else if(ISRJetPt >= 300)reweightF = 0.705875;
-                        Normalization = 0.854942;    }
+			if(ichannel == 1){
+				NormPt = 1.11914;
+                 		if(phoEt < 50)reweightPt = 1.06132;
+                 		else if(phoEt >= 50 && phoEt < 100)reweightPt  = 0.748704;
+                 		else if(phoEt >= 100 && phoEt < 150)reweightPt = 0.870131;
+                 		else if(phoEt >= 150 && phoEt < 200)reweightPt = 1.18874;
+                 		else if(phoEt >= 200 && phoEt < 250)reweightPt = 1.18161;
+                 		else if(phoEt >= 250 && phoEt < 300)reweightPt = 1.08044;
+                 		else if(phoEt >= 300 && phoEt < 500)reweightPt = 1.30831;
+                 		else if(phoEt >= 500 && phoEt < 800)reweightPt = 0.481584;}
 
+			else if(ichannel == 2){
+				NormPt = 1.04551;
+                 		if(phoEt < 50)reweightPt = 1.08342;
+                 		else if(phoEt >= 50 && phoEt < 100)reweightPt  = 0.820422;
+                 		else if(phoEt >= 100 && phoEt < 150)reweightPt = 0.723338;
+                 		else if(phoEt >= 150 && phoEt < 200)reweightPt = 0.56966;
+                 		else if(phoEt >= 200 && phoEt < 250)reweightPt = 0.460661;
+                 		else if(phoEt >= 250 && phoEt < 300)reweightPt = 0.440407;
+                 		else if(phoEt >= 300 && phoEt < 500)reweightPt = 0.583253;
+                 		else if(phoEt >= 500 && phoEt < 800)reweightPt = 0.432163;}
+		}
                 else if(RunYear==2017){
-                        if(ISRJetPt < 50)reweightF = 1.0457;
-                        else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.28507;
-                        else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 1.05021;
-                        else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.895376;
-                        else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.986146;
-                        else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.792056;
-                        else if(ISRJetPt >= 300)reweightF = 0.929084;
-                        Normalization = 0.889139;    }
-
+			if(ichannel == 1){
+				NormPt = 0.942539;
+                 		if(phoEt < 50)reweightPt = 1.14592;
+                 		else if(phoEt >= 50 && phoEt < 100)reweightPt  = 0.950863;
+                 		else if(phoEt >= 100 && phoEt < 150)reweightPt = 1.12263;
+                 		else if(phoEt >= 150 && phoEt < 200)reweightPt = 1.3817;
+                 		else if(phoEt >= 200 && phoEt < 250)reweightPt = 1.39352;
+                 		else if(phoEt >= 250 && phoEt < 300)reweightPt = 1.4926;
+                 		else if(phoEt >= 300 && phoEt < 500)reweightPt = 1.27273;
+                 		else if(phoEt >= 500 && phoEt < 800)reweightPt = 1.04809;}
+			else if(ichannel == 2){
+				NormPt = 0.955486;
+                 		if(phoEt < 50)reweightPt = 1.05087;
+                 		else if(phoEt >= 50 && phoEt < 100)reweightPt  = 1.07524;
+                 		else if(phoEt >= 100 && phoEt < 150)reweightPt = 0.92892;
+                 		else if(phoEt >= 150 && phoEt < 200)reweightPt = 0.825291;
+                 		else if(phoEt >= 200 && phoEt < 250)reweightPt = 0.899771;
+                 		else if(phoEt >= 250 && phoEt < 300)reweightPt = 0.837221;
+                 		else if(phoEt >= 300 && phoEt < 500)reweightPt = 0.732376;
+                 		else if(phoEt >= 500 && phoEt < 800)reweightPt = 0.685758;}
+		}
                 else if(RunYear==2018){
-                        if(ISRJetPt < 50)reweightF = 1.17242;
-                        else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.33113;
-                        else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.957966;
-                        else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.921558;
-                        else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.805571;
-                        else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.904798;
-                        else if(ISRJetPt >= 300)reweightF = 0.828803;
-                        Normalization = 0.860178;    }
+			if(ichannel == 1){
+				NormPt = 0.907516;
+                 		if(phoEt < 50)reweightPt = 1.21675;
+                 		else if(phoEt >= 50 && phoEt < 100)reweightPt  = 1.03955;
+                 		else if(phoEt >= 100 && phoEt < 150)reweightPt = 1.00025;
+                 		else if(phoEt >= 150 && phoEt < 200)reweightPt = 1.08549;
+                 		else if(phoEt >= 200 && phoEt < 250)reweightPt = 1.14779;
+                 		else if(phoEt >= 250 && phoEt < 300)reweightPt = 1.31126;
+                 		else if(phoEt >= 300 && phoEt < 500)reweightPt = 1.08117;
+                 		else if(phoEt >= 500 && phoEt < 800)reweightPt = 1.3491;}
+			else if(ichannel == 2){
+				NormPt = 0.989044;
+                 		if(phoEt < 50)reweightPt = 1.09491;
+                 		else if(phoEt >= 50 && phoEt < 100)reweightPt  = 0.939154;
+                 		else if(phoEt >= 100 && phoEt < 150)reweightPt = 0.732848;
+                 		else if(phoEt >= 150 && phoEt < 200)reweightPt = 0.691871;
+                 		else if(phoEt >= 200 && phoEt < 250)reweightPt = 0.676227;
+                 		else if(phoEt >= 250 && phoEt < 300)reweightPt = 0.523843;
+                 		else if(phoEt >= 300 && phoEt < 500)reweightPt = 0.569649;
+                 		else if(phoEt >= 500 && phoEt < 800)reweightPt = 0.347228;}
+		}
 
-		ISRWeight = reweightF*Normalization;
-		float weight = PUweight*XS_weight*scalefactor*ISRWeight*factorMC;
-		float weight_scaleup = PUweight*XS_weight*scalefactorup*ISRWeight*factorMC;
-		float weight_normup = PUweight*XS_weight*scalefactor*ISRWeight*factorMCUP;
-		float weight_noisr = PUweight*XS_weight*scalefactor*factorMC;
+		// check all weights used
 
+		float weight = 1.0;
+		float weight_scaleup = 1.0;
+		float weight_normup = 1.0;
+		float weight_noisr = 1.0;
+
+                weight = PUweight*XS_weight*factorMC*scalefactor;
+                weight_scaleup = PUweight*XS_weight*factorMC*scalefactorup;
+                weight_normup = PUweight*XS_weight*factorMCUP*scalefactor;
+                weight_noisr = PUweight*XS_weight*factorMC*scalefactor;
+
+		if (!toDeriveScale){
+			weight = weight*reweightPt*NormPt;
+			weight_scaleup = weight_scaleup*reweightPt*NormPt;
+			weight_normup = weight_normup*reweightPt*NormPt;
+			weight_noisr = weight_noisr*reweightPt*NormPt;
+		}
+		
 		/** cut flow *****/
 		if(phoEt < 35 || fabs(phoEta) > 1.4442)continue;
 		// Mt and lepton pT cuts
@@ -585,7 +648,16 @@ void pred_VGBkg(){
         		jerdoerror = fabs(h_VGamma_jerDown->GetBinContent(contbin) - nominalsig);
         		h_VGamma_syserr_jes->SetBinContent(contbin, std::max(jesuperror, jesdoerror));
         		h_VGamma_syserr_jer->SetBinContent(contbin, std::max(jeruperror, jerdoerror));
-
+        		
+			std::cout <<"Bin: " << contbin << "\tNominal: " << nominalsig << "\tjesUp: "
+			<< h_VGamma_jesUp->GetBinContent(contbin) << "\tjesDown: "
+			<< h_VGamma_jesDown->GetBinContent(contbin) << "\tjerUp: "
+			<< h_VGamma_jerUp->GetBinContent(contbin) << "\tjerDown: "
+			<< h_VGamma_jerDown->GetBinContent(contbin) << "\t"
+                  	<< std::max(jesuperror, jesdoerror) << "\t"
+                  	<< std::max(jeruperror, jerdoerror) << "\t"
+                  	<< std::max(std::max(jesuperror, jesdoerror), std::max(jeruperror, jerdoerror)) << "\t" 
+			<< max_jes_jer / 2.0 << std::endl;
 		}
 
 		h_VGamma_syserr_esf->SetBinContent(contbin, esfuperror);

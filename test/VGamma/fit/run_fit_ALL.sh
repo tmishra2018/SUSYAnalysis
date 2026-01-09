@@ -57,5 +57,4 @@ for RunYear in "${RunYears[@]}"; do
     fi
   done
 done
-
 echo "All tasks completed successfully."

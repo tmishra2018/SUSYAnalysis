@@ -1,21 +1,21 @@
 
 Processing pred_sig.C++...
-1 bin 100
-2 bin 304
-3 bin 49
-4 bin 6
+1 bin 194
+2 bin 309
+3 bin 50
+4 bin 18
 5 bin 41
 6 bin 22
-7 bin 0
+7 bin 1
 8 bin 0
 9 bin 2
-10 bin 4
+10 bin 7
 11 bin 22
 12 bin 9
-13 bin 1
+13 bin 2
 14 bin 6
 15 bin 4
-16 bin 0
+16 bin 1
 17 bin 0
 18 bin 2
-100  304  49  6  41  22  0  0  2  4  22  9  1  6  4  0  0  2  
+194  309  50  18  41  22  1  0  2  7  22  9  2  6  4  1  0  2  

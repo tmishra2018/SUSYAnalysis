@@ -54,7 +54,7 @@
 #include "TROOT.h"
 
 #define NTOY 1000
-#define NBIN 9
+#define NBIN 18
 #define REBINSIZE 1
 
 Double_t tmpjetfake_func(Double_t *x, Double_t *par)
@@ -69,10 +69,44 @@ Double_t tmpjetfake_func(Double_t *x, Double_t *par)
 
 	double jetfakes_lowedge = c1*exp(lamda1*pt_low)/lamda1 + c2*exp(lamda2*pt_low)/lamda2;
 	double jetfakes_highedge =  c1*exp(lamda1*pt_high)/lamda1 + c2*exp(lamda2*pt_high)/lamda2;
-	//return (jetfakes_highedge + jetfakes_lowedge)/2.0*REBINSIZE;
 	return (jetfakes_highedge - jetfakes_lowedge);
 }
-// root -l -q "fitJetFunc.C(1,2016,1)"
+
+double exp_safe(double x) {
+    if (x > 700) return std::exp(700);   // avoid overflow
+    if (x < -700) return 0.0;            // avoid underflow
+    return std::exp(x);
+}
+
+double exp2c_func(double *x, double *par) {
+    double pt = x[0];
+    double c1 = par[0];
+    double c2 = par[1];
+    double lamda1 = par[2];
+    double lamda2 = par[3];
+    double shift = par[4];
+    double offset = par[5];
+
+    double arg1 = -lamda1 * pt;
+    double arg2 = -lamda2 * (pt - shift - 200);
+
+    double term1 = c1 * exp_safe(arg1);
+    double term2 = c2 * exp_safe(arg2);
+    double value = term1 + term2 + offset;
+
+    if (!std::isfinite(value)) {
+        std::cout << "[WARNING] Non-finite value at pt = " << pt
+                  << ", arg1 = " << arg1
+                  << ", arg2 = " << arg2
+                  << ", shift = " << shift
+                  << ", lamda1 = " << lamda1
+                  << ", lamda2 = " << lamda2
+                  << std::endl;
+    }
+
+    return value;
+}
+
 void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 	int detType = 1;
 	int channel = ichannel;
@@ -83,6 +117,16 @@ void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 	gStyle->SetErrorX(0.5);
 	gStyle->SetTitleX(0.5);
 	
+	  float correction =1.0;
+	  if (RunYear == 2016 and ISpreVFP == 1 and ichannel == 1) correction = 0.948005;
+          else if (RunYear == 2016 and ISpreVFP == 1 and ichannel == 2) correction = 0.900015;
+          else if (RunYear == 2016 and ISpreVFP == 0 and ichannel == 1) correction = 0.775942;
+          else if (RunYear == 2016 and ISpreVFP == 0 and ichannel == 2) correction = 0.730433;
+          else if (RunYear == 2017 and ichannel == 1) correction = 1.39352;
+          else if (RunYear == 2017 and ichannel == 2) correction = 1.03558;
+          else if (RunYear == 2018 and ichannel == 1) correction = 1.35192;
+          else if (RunYear == 2018 and ichannel == 2) correction = 1.20607;
+
 	std::string whichVFP;
 	if(RunYear==2016 and ISpreVFP == true) whichVFP = "preVFP";
 	if(RunYear==2016 and ISpreVFP == false) whichVFP = "postVFP";
@@ -92,15 +136,15 @@ void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 
 	TChain *sigtree = new TChain("signalTree");
 	if(channel == 1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
-	else if(channel ==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
+	else if(channel ==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
 
 	TChain *controltree = new TChain("jetTree");
 	if(channel == 1)controltree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
-	else if(channel ==2)controltree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
+	else if(channel ==2)controltree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
 
 	std::stringstream fakerate_filename;
 	fakerate_filename.str("");
-	if(channel == 1) fakerate_filename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<whichVFP<<"/JetFakeRate-DoubleEG-";  // some issue here
+	if(channel == 1) fakerate_filename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<whichVFP<<"/JetFakeRate-DoubleEG-";
         if(channel == 2) fakerate_filename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<whichVFP<<"/JetFakeRate-MuonEG-";
 
 	if(detType == 1)fakerate_filename << "EB.txt";
@@ -126,8 +170,8 @@ void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 
 	std::ostringstream elefake_config;
 	elefake_config.str("");
-	if(detType == 1) elefake_config << "/eos/uscms/store/user/tmishra/elefakepho/DataResult"<<RunYear<<whichVFP<<"/EleFakeRate-Data-ByPtVtx-EB.txt";
-	else if(detType == 2) elefake_config << "/eos/uscms/store/user/tmishra/elefakepho/DataResult"<<RunYear<<whichVFP<<"/EleFakeRate-Data-ByPtVtx-EE.txt";
+	if(detType == 1) elefake_config << "/eos/uscms/store/user/tmishra/elefakepho/DATAResult"<<RunYear<<whichVFP<<"/EleFakeRate-Data-ByPtVtx-EB.txt";
+	else if(detType == 2) elefake_config << "/eos/uscms/store/user/tmishra/elefakepho/DATAResult"<<RunYear<<whichVFP<<"/EleFakeRate-Data-ByPtVtx-EE.txt";
 	
 	std::ifstream elefake_file(elefake_config.str().c_str());
 	double scalefactor(0);
@@ -164,14 +208,13 @@ void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 	/*  double vtx_slope = par[6];    */
 	/**********************************/
 	TF3 f3("f3", fakerate_func,10,1000,0,100,0,2.5,7);
-	f3.SetParameters(scalefactor, ptslope, ptconstant, ptindex, 1.0, vtxconst, vtxslope);
+	f3.SetParameters(scalefactor*correction, ptslope, ptconstant, ptindex, 1.0, vtxconst, vtxslope);
 
-
-	TH1D *p_controlPhoEt = new TH1D("p_controlPhoEt",";p_{T} (GeV);Events",265,35,300);
-	TH1D *p_sigPhoEt  = new TH1D("p_sigPhoEt",";p_{T} (GeV);Events",265,35,300);
-	TH1D *p_fakesPhoEt = new TH1D("p_fakesPhoEt",";p_{T} (GeV);Events",265,35,300);
-	TH1D *p_fakesPhoEt_stat = new TH1D("p_fakesPhoEt_stat",";p_{T} (GeV);Events",265,35,300);
-	TH1D *p_elebkgPhoEt = new TH1D("p_elebkgPhoEt",";p_{T} (GeV);Events",265,35,300);
+	TH1D *p_controlPhoEt = new TH1D("p_controlPhoEt",";p_{T} (GeV);Events",565,35,600);
+	TH1D *p_sigPhoEt  = new TH1D("p_sigPhoEt",";p_{T} (GeV);Events",565,35,600);
+	TH1D *p_fakesPhoEt = new TH1D("p_fakesPhoEt",";p_{T} (GeV);Events",565,35,600);
+	TH1D *p_fakesPhoEt_stat = new TH1D("p_fakesPhoEt_stat",";p_{T} (GeV);Events",565,35,600);
+	TH1D *p_elebkgPhoEt = new TH1D("p_elebkgPhoEt",";p_{T} (GeV);Events",565,35,600);
 
 	TH1D *p_checkEt = new TH1D("p_checkEt","p_checkEt",465,35,500);
 	if(detType == 1){
@@ -194,7 +237,7 @@ void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 	//e fake photon background events
 	TChain *proxytree = new TChain("proxyTree");
 	if(channel == 1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
-	else if(channel ==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
+	else if(channel ==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
 
 	float proxyphoEt(0);
 	float proxyphoEta(0);
@@ -250,8 +293,8 @@ void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 	can_pad1->Draw();          
 	can_pad1->cd();          
 
-	TGraphAsymmErrors *new_controlPhoEt = new TGraphAsymmErrors(95);
-	TGraphAsymmErrors *new_fakesPhoEt   = new TGraphAsymmErrors(95);
+	TGraphAsymmErrors *new_controlPhoEt = new TGraphAsymmErrors(125);
+	TGraphAsymmErrors *new_fakesPhoEt   = new TGraphAsymmErrors(125);
 	// bins 1-75, bin width 1, pt 35-110
 	for(unsigned ibin(1); ibin <= 75; ibin++){
 		double new_control_value = p_controlPhoEt->GetBinContent(ibin); 
@@ -269,8 +312,8 @@ void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 		//new_fakesPhoEt->SetPointError(ibin,0.5, 0.5, min(new_fakes_error, new_fakes_value - 0.001), new_fakes_error);
 		new_fakesPhoEt->SetPointError(ibin,0.5, 0.5, new_fakes_error, new_fakes_error);
 	}
-	// bins 76-94, bin width =  10, pt 110-300
-	for(unsigned ibin(76); ibin <= 94; ibin++){
+	// bins 76-94, bin width =  10, pt 110-600
+	for(unsigned ibin(76); ibin <= 124; ibin++){
 		double new_control_value = 0;
 		double new_fakes_value = 0;
 		double new_control_error = 0;
@@ -300,22 +343,39 @@ void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 		cout<<p_fakesPhoEt->GetBinCenter(80+(ibin-76)*10) <<"  "<< new_fakes_value << "  "<<new_fakes_error<<endl;
 	}
 	{ // overflow bin
-		double new_control_value = p_controlPhoEt->GetBinContent(266); 
-		double new_fakes_value = p_fakesPhoEt->GetBinContent(266);
-		double new_control_error = p_controlPhoEt->GetBinError(266); 
-		double new_fakes_error = p_fakesPhoEt->GetBinError(266);
-		new_controlPhoEt->SetPoint(95,300,  new_control_value);
-		new_controlPhoEt->SetPointError(95,5, 5, min(new_control_error, new_control_value-0.001), new_control_error);
-		new_fakesPhoEt->SetPoint(95, 300,  new_fakes_value);
-		new_fakesPhoEt->SetPointError(95,5, 5, min(new_fakes_error, new_fakes_value - 0.001), new_fakes_error);
+		double new_control_value = p_controlPhoEt->GetBinContent(566); 
+		double new_fakes_value = p_fakesPhoEt->GetBinContent(566);
+		double new_control_error = p_controlPhoEt->GetBinError(566); 
+		double new_fakes_error = p_fakesPhoEt->GetBinError(566);
+		new_controlPhoEt->SetPoint(125,600,  new_control_value);
+		new_controlPhoEt->SetPointError(125,5, 5, min(new_control_error, new_control_value-0.001), new_control_error);
+		new_fakesPhoEt->SetPoint(125, 600,  new_fakes_value);
+		new_fakesPhoEt->SetPointError(125,5, 5, min(new_fakes_error, new_fakes_value - 0.001), new_fakes_error);
 	}
+
+	TFile* fout = nullptr;
+	if (channel == 1)
+    		fout = new TFile(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/fitJetFunc_Output_DoubleEG_%d%s.root", RunYear, whichVFP.c_str()), "RECREATE");
+	else if (channel == 2)
+    		fout = new TFile(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/fitJetFunc_Output_MuonEG_%d%s.root", RunYear, whichVFP.c_str()), "RECREATE");
+
+	new_fakesPhoEt->GetListOfFunctions()->Delete();
+	new_fakesPhoEt->SetName("new_fakesPhoEt");
+	new_fakesPhoEt->Write();
+
+	new_controlPhoEt->GetListOfFunctions()->Delete();
+	new_controlPhoEt->SetName("new_controlPhoEt");
+	new_controlPhoEt->Write();
+
+	fout->Close();
+	std::cout << "Histograms written to fitJetFunc_Output.root without extra functions." << std::endl;
 	
 	new_fakesPhoEt->GetXaxis()->SetTitle("p_{T} (GeV)");
 	new_controlPhoEt->GetXaxis()->SetTitle("p_{T} (GeV)");
 	new_controlPhoEt->GetXaxis()->SetTitleOffset(1);
 	new_controlPhoEt->GetXaxis()->SetTitleSize(20);
-	new_controlPhoEt->GetXaxis()->SetRangeUser(35,300);
-	new_fakesPhoEt->GetXaxis()->SetRangeUser(35,300);
+	new_controlPhoEt->GetXaxis()->SetRangeUser(35,600);
+	new_fakesPhoEt->GetXaxis()->SetRangeUser(35,600);
 	gPad->SetLogy();
 	TH1D *new_dummy=new TH1D("dummy",";p_{T} (GeV); Event/GeV",265,35,300);
 	new_dummy->SetMinimum(0.001);
@@ -344,20 +404,9 @@ void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 	mccan->Divide(2);
 
 	//********************   denominator *****************************************************//
-	new_controlPhoEt->Fit("expo");
-	TF1 *inifitden = new_controlPhoEt->GetFunction("expo");
-	double iniLambda_den1 = inifitden->GetParameter(1);
-	double iniCoeff_den   = exp(inifitden->GetParameter(0))/2;
-	//double iniLambda_den2 = (log(new_controlPhoEt->GetBinContent(38)- 2*iniCoeff_den*exp(iniLambda_den1*new_controlPhoEt->GetBinCenter(38))) - log(new_controlPhoEt->GetBinContent(56)- 2*iniCoeff_den*exp(iniLambda_den1*new_controlPhoEt->GetBinCenter(56))) )/(new_controlPhoEt->GetBinCenter(38)-new_controlPhoEt->GetBinCenter(56));
-	double iniLambda_den2 = (log(new_controlPhoEt->Eval(111)- 2*iniCoeff_den*exp(iniLambda_den1*111.0)) - log(new_controlPhoEt->Eval(250)- 2*iniCoeff_den*exp(iniLambda_den1*250.0)) )/( 111.0-250.0);
-
-	cout<<"iniLambda_den2  : "<<iniLambda_den2<<endl; 
-	// Denominator fitting function
-	TF1 *fitfunc_den= new TF1("fitfunc_den", tmpjetfake_func, 35, 300, 4);
-	fitfunc_den->SetParameters(iniCoeff_den, iniCoeff_den/10, iniLambda_den1, iniLambda_den1);
-	//fitfunc_den->SetParameters(iniCoeff_den, iniCoeff_den/10, iniLambda_den1, iniLambda_den2);
-	//if(iniLambda_den2 > 0 && iniLambda_den2 < 1e6)fitfunc_den->SetParameters(iniCoeff_den, iniCoeff_den/10, iniLambda_den1, iniLambda_den2);
-	//else fitfunc_den->SetParameters(iniCoeff_den, iniCoeff_den/10, iniLambda_den1, iniLambda_den1);
+	
+	TF1 *fitfunc_den= new TF1("fitfunc_den", exp2c_func, 20, 600, 6);
+	fitfunc_den->SetParameters(1e4, 1e3, 0.05, 0.01, 1.0);
 	new_controlPhoEt->Fit("fitfunc_den","S");
 	TF1 *fitden = new_controlPhoEt->GetFunction("fitfunc_den");
 
@@ -368,7 +417,7 @@ void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 	if(channel == 2 and detType == 1)myfile.open(Form("/eos/uscms/store/user/tmishra/jetfakepho/txt%d%s/JetFakeRate-transferfactor-MuonEG-EB.txt",RunYear,whichVFP.c_str()), std::ios_base::ate | std::ios_base::out);
 	if(channel == 2 and detType == 2)myfile.open(Form("/eos/uscms/store/user/tmishra/jetfakepho/txt%d%s/JetFakeRate-transferfactor-MuonEG-EE.txt",RunYear,whichVFP.c_str()), std::ios_base::ate | std::ios_base::out);
 	
-	TH1D *ratio = new TH1D("transfer fraction","",int(p_fakesPhoEt->GetXaxis()->GetNbins()/REBINSIZE),35,300);
+	TH1D *ratio = new TH1D("transfer fraction","",int(p_fakesPhoEt->GetXaxis()->GetNbins()/REBINSIZE),35,600);
 	for(int ibin(1); ibin < int(p_fakesPhoEt->GetXaxis()->GetNbins()/REBINSIZE); ibin++){
 		ratio->SetBinContent(ibin, new_fakesPhoEt->Eval(35+(ibin-1)*2 +1)/new_controlPhoEt->Eval(35+(ibin-1)*2 +1));
 	}
@@ -377,11 +426,16 @@ void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 	myfile << "den_coeff2 " << fitden->GetParameter(1) << std::endl;
 	myfile << "den_lambd1 " << fitden->GetParameter(2) << std::endl;
 	myfile << "den_lambd2 " << fitden->GetParameter(3) << std::endl;
+	myfile << "den_shift " << fitden->GetParameter(4) << std::endl;
+	myfile << "den_offset " << fitden->GetParameter(5) << std::endl;
 
 	cout << "den_coeff1 " << fitden->GetParameter(0) << std::endl;
 	cout << "den_coeff2 " << fitden->GetParameter(1) << std::endl;
 	cout << "den_lambd1 " << fitden->GetParameter(2) << std::endl;
 	cout << "den_lambd2 " << fitden->GetParameter(3) << std::endl;
+	cout << "den_shift " << fitden->GetParameter(4) << std::endl;
+	cout << "den_offset " << fitden->GetParameter(5) << std::endl;
+
 	cout << "chiSquare/ndf:  " << fitden->GetChisquare()/fitden->GetNDF() << std::endl;
 	cout << "chiSquare:  " << fitden->GetChisquare() << std::endl;
 
@@ -390,36 +444,43 @@ void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 	TMatrixDSym covden = rden->GetCovarianceMatrix(); 
 	rden->Print("V");
 	fitfunc_den->Draw("same");
-	TVectorD muden(4) ;
-	muden(0) = rden->Parameter(0); 
-	muden(1) = rden->Parameter(1);
-	muden(2) = rden->Parameter(2);
-	muden(3) = rden->Parameter(3);
+	TVectorD muden(6) ;
+	muden(0) = rden->Parameter(0);  // c1
+        muden(1) = rden->Parameter(1);  // c2
+        muden(2) = rden->Parameter(2);  // λ1
+        muden(3) = rden->Parameter(3);  // λ2
+        muden(4) = rden->Parameter(4);  // center shift
+        muden(5) = rden->Parameter(5);  // offset
+
 	RooRealVar central_coeff1_den("central_coeff1_den","central_coeff1_den",muden(0)-rden->ParError(0), muden(0)+rden->ParError(0));
 	RooRealVar central_coeff2_den("central_coeff2_den","central_coeff2_den",muden(1)-rden->ParError(1), muden(1)+rden->ParError(1));
 	RooRealVar central_lambda1_den("central_lambda1_den","central_lambda1_den",muden(2)-rden->ParError(2),muden(2)+rden->ParError(2));
 	RooRealVar central_lambda2_den("central_lambda2_den","central_lambda2_den",muden(3)-rden->ParError(3),muden(3)+rden->ParError(3));
+        RooRealVar shift_den("shift_den","shift_den", muden(4) - rden->ParError(4), muden(4) + rden->ParError(4));
+        RooRealVar offset_den("offset_den","offset_den", muden(5) - rden->ParError(5), muden(5) + rden->ParError(5));
 	// Multivariant Gaussian pdf, get NTOY numbers of paramters
-	RooMultiVarGaussian mvgden("mvgden","mvgden",RooArgList(central_coeff1_den,central_coeff2_den,central_lambda1_den,central_lambda2_den),muden,covden);
-	RooDataSet* toymcdataden = mvgden.generate(RooArgSet(central_coeff1_den,central_coeff2_den,central_lambda1_den,central_lambda2_den),NTOY);
+	RooMultiVarGaussian mvgden("mvgden","mvgden",RooArgList(central_coeff1_den,central_coeff2_den,central_lambda1_den,central_lambda2_den, shift_den, offset_den),muden,covden);
+	RooDataSet* toymcdataden = mvgden.generate(RooArgSet(central_coeff1_den,central_coeff2_den,central_lambda1_den,central_lambda2_den, shift_den, offset_den),NTOY);
 	std::ostringstream modelnameden;
 	TF1 *gen_den[NTOY];
-	TH1D *den_upper = new TH1D("den_upper","den_upper",265,35,300);
-	TH1D *den_lower = new TH1D("den_lower","den_lower",265,35,300);
+	TH1D *den_upper = new TH1D("den_upper","den_upper",565,35,600);
+	TH1D *den_lower = new TH1D("den_lower","den_lower",565,35,600);
 	can_pad1->cd();          
-	for(unsigned ibin(1); ibin <= 265; ibin++)den_lower->SetBinContent(ibin, fitfunc_den->Eval(den_upper->GetBinCenter(ibin)));
+	for(unsigned ibin(1); ibin <= 565; ibin++)den_lower->SetBinContent(ibin, fitfunc_den->Eval(den_upper->GetBinCenter(ibin)));
 	for(int i(0); i<NTOY; i++){
 		double data1 = toymcdataden->get(i)->getRealValue("central_coeff1_den");
 		double data2 = toymcdataden->get(i)->getRealValue("central_coeff2_den");
 		double data3 = toymcdataden->get(i)->getRealValue("central_lambda1_den");
 		double data4 = toymcdataden->get(i)->getRealValue("central_lambda2_den");
+		double data5 = toymcdataden->get(i)->getRealValue("shift_den");
+		double data6 = toymcdataden->get(i)->getRealValue("offset_den");
 		modelnameden.str("");
 		modelnameden << "gen_den_" << i;
-		gen_den[i] = new TF1(modelnameden.str().c_str(), tmpjetfake_func, 35, 300, 4);
-		gen_den[i]->SetParameters(data1, data2, data3, data4);
+		gen_den[i] = new TF1(modelnameden.str().c_str(), exp2c_func, 20, 600, 6);
+		gen_den[i]->SetParameters(data1, data2, data3, data4, data5, data6);
 		gen_den[i]->SetLineColorAlpha(kBlue, 0.35);
 		//gen_den[i]->Draw("same");
-	 	for(unsigned ibin(1); ibin <= 265; ibin++){
+	 	for(unsigned ibin(1); ibin <= 565; ibin++){
 			double estimated = gen_den[i]->Eval(den_upper->GetBinCenter(ibin));
 			if(den_upper->GetBinContent(ibin) < estimated)den_upper->SetBinContent(ibin, estimated);
 			if(den_lower->GetBinContent(ibin) > estimated)den_lower->SetBinContent(ibin, estimated);
@@ -429,87 +490,115 @@ void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 	den_upper->Draw("L same");
 	den_lower->Draw("L same");
 // *************************  Numerator ******************************************************************//
- 
-new_fakesPhoEt->Fit("expo");
-TF1 *inifit = new_fakesPhoEt->GetFunction("expo");
-double iniLambda_num1 = inifit->GetParameter(1);
-double iniCoeff_num  	= exp(inifit->GetParameter(0))/2;
-//double iniLambda_num2 = (log(new_fakesPhoEt->GetBinContent(38)- 2*iniCoeff_num*exp(iniLambda_num1*new_fakesPhoEt->GetBinCenter(38))) - log(new_fakesPhoEt->GetBinContent(56)- 2*iniCoeff_num*exp(iniLambda_num1*new_fakesPhoEt->GetBinCenter(56))) )/(new_fakesPhoEt->GetBinCenter(38)-new_fakesPhoEt->GetBinCenter(56));
-double iniLambda_num2 = (log(new_fakesPhoEt->Eval(111)- 2*iniCoeff_num*exp(iniLambda_num1*111.0)) - log(new_fakesPhoEt->Eval(200)- 2*iniCoeff_num*exp(iniLambda_num1*200.0)) )/(111.0-200.0);
 
+TF1 *fitfunc_num = new TF1("fitfunc_num", exp2c_func, 20, 600, 6);
 
+fitfunc_num->SetParameters(51521, 1.13974, 0.0560658, 0.0200371, 125.136, 0.0970124);
+fitfunc_num->SetParLimits(0, 0, 1e9);      // c1: positive
+fitfunc_num->SetParLimits(1, 0, 1e5);      // c2: positive
+fitfunc_num->SetParLimits(2, 0.0001, 1);   // lamda1: decay rate
+fitfunc_num->SetParLimits(3, 0.0001, 1);   // lamda2: decay rate
+fitfunc_num->SetParLimits(4, 0, 300);      // shift
+fitfunc_num->SetParLimits(5, -100, 100);   // offset
 
-std::cout << "log(new_fakesPhoEt->Eval(111)- 2*iniCoeff_num*exp(iniLambda_num1*111.0)) = " << log(new_fakesPhoEt->Eval(111)- 2*iniCoeff_num*exp(iniLambda_num1*111.0)) << "  log(new_fakesPhoEt->Eval(200)- 2*iniCoeff_num*exp(iniLambda_num1*200.0)) = " << log(new_fakesPhoEt->Eval(200)- 2*iniCoeff_num*exp(iniLambda_num1*200.0))  << "  lambda2 = " << iniLambda_num2 << std::endl;
+if (ichannel == 1 and RunYear == 2016 and ISpreVFP == 1)	
+	fitfunc_num->FixParameter(5, 0);
 
-TF1 *fitfunc_num= new TF1("fitfunc_num", tmpjetfake_func, 35, 300, 4);
-// Eqn 6, 7 AN
-cout<<iniCoeff_num<<"\t"<<iniCoeff_num/10<<"\t"<<iniLambda_num1<<"\t"<<iniLambda_num2<<endl;
-//if(channel == 1)fitfunc_num->SetParameters(iniCoeff_num, iniCoeff_num/10, iniLambda_num1, iniLambda_num2);
-if(channel == 1)fitfunc_num->SetParameters(31140, 2199.48, -0.0862613, -0.0402501);
-//if(channel == 1)fitfunc_num->SetParameters(14300, 300, -0.070, -0.04);
-//else if(channel == 2)fitfunc_num->SetParameters(iniCoeff_num, iniCoeff_num/10, iniLambda_num1, iniLambda_num2);
-else if(channel == 2) fitfunc_num->SetParameters(23900, 300, -0.082, -0.01);
+if (ichannel == 2 and RunYear == 2016 and ISpreVFP == 0){	
+	fitfunc_num->FixParameter(2, 0.066);    
+	fitfunc_num->FixParameter(3, 0.02);  
+	fitfunc_num->FixParameter(4, 25.0);    
+	fitfunc_num->FixParameter(5, 0);    
+}
+//if (ichannel == 2 and RunYear == 2016 and ISpreVFP == 1){
+//	fitfunc_num->SetParLimits(0, 0, 1e6);
+//	fitfunc_num->SetParLimits(1, 0, 1e3);
+//	fitfunc_num->SetParLimits(2, 0.0001, 0.5);
+//	fitfunc_num->SetParLimits(3, 0.0001, 0.5);
+//	fitfunc_num->SetParLimits(4, 0, 100);
+//	fitfunc_num->SetParLimits(5, -10, 10);
+//}
+
+cout << "[DEBUG] Initial Parameters Set: " << endl;
+for (int i = 0; i < 6; ++i) {
+    cout << "  p" << i << " = " << fitfunc_num->GetParameter(i) << endl;
+}
+
+cout << "[DEBUG] Histogram integral (total entries): " << new_fakesPhoEt->Integral() << endl;
+if (new_fakesPhoEt->Integral() == 0) {
+    cout << "[ERROR] Histogram has zero total content. Fit will fail." << endl;
+}
+
+new_fakesPhoEt->Fit("fitfunc_num", "S"); // silent fit, retrieve result below
+TF1 *fitnum = new_fakesPhoEt->GetFunction("fitfunc_num");
 
 TVirtualFitter::SetMaxIterations(1000000);
-TFitResultPtr r = new_fakesPhoEt->Fit("fitfunc_num","R S");
+
+TFitResultPtr r = new_fakesPhoEt->Fit("fitfunc_num", "R S");
+
+fitfunc_num->SetNpx(1000);
+
+if (r.Get() == nullptr || r->IsValid() == false) {
+    cout << "[ERROR] Fit failed or returned invalid result!" << endl;
+} else {
+    cout << "[DEBUG] Fit successful. Status: " << r->Status() << ", IsValid: " << r->IsValid() << endl;
+    cout << "[DEBUG] EDM: " << r->Edm() << ", NCalls: " << r->NCalls() << endl;
+}
+
 TF1 *fit = new_fakesPhoEt->GetFunction("fitfunc_num");
-myfile << "num_coeff1 " << fit->GetParameter(0) << std::endl;
-myfile << "num_coeff2 " << fit->GetParameter(1) << std::endl;
-myfile << "num_lambd1 " << fit->GetParameter(2) << std::endl;
-myfile << "num_lambd2 " << fit->GetParameter(3) << std::endl;
 
-cout << "num_coeff1 " << fit->GetParameter(0) << std::endl;
-cout << "num_coeff2 " << fit->GetParameter(1) << std::endl;
-cout << "num_lambd1 " << fit->GetParameter(2) << std::endl;
-cout << "num_lambd2 " << fit->GetParameter(3) << std::endl;
+        myfile << "num_coeff1 " << fit->GetParameter(0) << std::endl;
+        myfile << "num_coeff2 " << fit->GetParameter(1) << std::endl;
+        myfile << "num_lambd1 " << fit->GetParameter(2) << std::endl;
+        myfile << "num_lambd2 " << fit->GetParameter(3) << std::endl;
+        myfile << "num_shift " 	<< fit->GetParameter(4) << std::endl;
+        myfile << "num_offset " << fit->GetParameter(5) << std::endl;
+
+
 cout << "chiSquare/ndf:  " << fit->GetChisquare()/fit->GetNDF() << std::endl;
-cout << "chiSquare:  " << fit->GetChisquare() << std::endl;
+cout << "chiSquare:      " << fit->GetChisquare() << std::endl;
 
-//std::ostringstream testname;
-//TF1 *test_num[200][200];
-//for(unsigned i(0); i < 200; i++){
-//	for(unsigned j(0); j < 200; j++){
-//		testname.str("");
-//		testname << "test_" << i << "_" << j;
-//		test_num[i][j] = new TF1(testname.str().c_str(), tmpjetfake_func, 35, 300, 4);
-//		test_num[i][j]->SetParameters(iniCoeff_num, 20+i*5, iniLambda_num1, -0.001-0.001*j);
-//		//TVirtualFitter::SetMaxIterations(1000000);
-//	  int status = new_fakesPhoEt->Fit(testname.str().c_str(),"R");
-//		TF1 *tmpf1 = new_fakesPhoEt->GetFunction(testname.str().c_str());
-//		float diff = fabs(tmpf1->Eval(200) - new_fakesPhoEt->Eval(200))/new_fakesPhoEt->Eval(200);
-//		if(tmpf1->GetParError(0)/tmpf1->GetParameter(0) < 1 && tmpf1->GetParError(1)/tmpf1->GetParameter(1) < 1 && tmpf1->GetParError(2)/tmpf1->GetParameter(2) < 1 && tmpf1->GetParError(3)/tmpf1->GetParameter(3) < 1	)std::cout << "good point " << i*5 << " " << -1+0.005*j << " status = " << status << " diff " << diff <<  std::endl;
-//		delete tmpf1;
-//	}
-//}
- 
-	can_pad1->cd();          
-	TMatrixDSym cov = r->GetCovarianceMatrix(); 
-	r->Print("V");     
-	fitfunc_num->Draw("same");
-	float nominalvalue_num[265];
-	for(unsigned ibin(0); ibin < 265; ibin++){
-		nominalvalue_num[ibin] =  fitfunc_num->Eval(35+ibin);
-	}
-	TVectorD mu(4) ;
-	mu(0) = r->Parameter(0); 
-	mu(1) = r->Parameter(1);
-	mu(2) = r->Parameter(2);
-	mu(3) = r->Parameter(3);
+can_pad1->cd();
+r->Print("V"); // Verbose print
+fitfunc_num->Draw("same");
+
+float nominalvalue_num[565];
+for(unsigned ibin = 0; ibin < 565; ibin++){
+    double xval = 35 + ibin;
+    nominalvalue_num[ibin] = fitfunc_num->Eval(xval);
+    if (!std::isfinite(nominalvalue_num[ibin])) {
+        cout << "[WARNING] Fit function returned non-finite value at x = " << xval << endl;
+    }
+}
+
+	TVectorD mu(6);
+	mu(0) = r->Parameter(0);  // c1
+	mu(1) = r->Parameter(1);  // c2
+	mu(2) = r->Parameter(2);  // λ1
+	mu(3) = r->Parameter(3);  // λ2
+	mu(4) = r->Parameter(4);  // center shift
+	mu(5) = r->Parameter(5);  // offset
+	TMatrixDSym cov = r->GetCovarianceMatrix();
+
 	RooRealVar central_coeff1_num("central_coeff1_num","central_coeff1_num",mu(0)-r->ParError(0), mu(0)+r->ParError(0));
-	RooRealVar central_coeff2_num("central_coeff2_num","central_coeff2_num",mu(1)-r->ParError(1), mu(1)+r->ParError(1));
-	RooRealVar central_lambda1_num("central_lambda1_num","central_lambda1_num",mu(2)-r->ParError(2),mu(2)+r->ParError(2));
-	RooRealVar central_lambda2_num("central_lambda2_num","central_lambda2_num",mu(3)-r->ParError(3),mu(3)+r->ParError(3));
-	
-	RooMultiVarGaussian mvg("mvg","mvg",RooArgList(central_coeff1_num,central_coeff2_num,central_lambda1_num,central_lambda2_num),mu,cov);
-	RooDataSet* toymcdata = mvg.generate(RooArgSet(central_coeff1_num,central_coeff2_num,central_lambda1_num,central_lambda2_num),NTOY);
+        RooRealVar central_coeff2_num("central_coeff2_num","central_coeff2_num",mu(1)-r->ParError(1), mu(1)+r->ParError(1));
+        RooRealVar central_lambda1_num("central_lambda1_num","central_lambda1_num",mu(2)-r->ParError(2),mu(2)+r->ParError(2));
+        RooRealVar central_lambda2_num("central_lambda2_num","central_lambda2_num",mu(3)-r->ParError(3),mu(3)+r->ParError(3));
+	RooRealVar shift_num("shift_num","shift_num", mu(4) - r->ParError(4), mu(4) + r->ParError(4));
+	RooRealVar offset_num("offset_num","offset_num", mu(5) - r->ParError(5), mu(5) + r->ParError(5));
+
+	RooMultiVarGaussian mvg("mvg","mvg",RooArgList(central_coeff1_num,central_coeff2_num,central_lambda1_num,central_lambda2_num, shift_num, offset_num),mu,cov);
+        RooDataSet* toymcdata = mvg.generate(RooArgSet(central_coeff1_num,central_coeff2_num,central_lambda1_num,central_lambda2_num, shift_num, offset_num),NTOY);
+
 	std::ostringstream modelname;
 	TF1 *gen_num[NTOY];
-	TH1D *num_upper = new TH1D("num_upper","num_upper",265,35,300);
-	TH1D *num_lower = new TH1D("num_lower","num_lower",265,35,300);
-	float toyptvalue[265][NTOY];
-	float lowtoyptvalue[265];
-	float hightoyptvalue[265];
-	for(unsigned ii(0); ii < 265; ii++){
+
+	TH1D *num_upper = new TH1D("num_upper","num_upper",565,35,600);
+	TH1D *num_lower = new TH1D("num_lower","num_lower",565,35,600);
+	float toyptvalue[565][NTOY];
+	float lowtoyptvalue[565];
+	float hightoyptvalue[565];
+for(unsigned ii(0); ii < 565; ii++){
 		lowtoyptvalue[ii] = 100000;
 		hightoyptvalue[ii] = 0;
 	}
@@ -519,34 +608,50 @@ cout << "chiSquare:  " << fit->GetChisquare() << std::endl;
 		double data2 = toymcdata->get(i)->getRealValue("central_coeff2_num");
 		double data3 = toymcdata->get(i)->getRealValue("central_lambda1_num");
 		double data4 = toymcdata->get(i)->getRealValue("central_lambda2_num");
-		if(data1 < 1e8 && data2 < 1e8 && data3 < 1e8 && data4 < 1e8){
+		double data5 = toymcdata->get(i)->getRealValue("shift_num");
+		double data6 = toymcdata->get(i)->getRealValue("offset_num");
+		if(data1 < 1e8 && data2 < 1e8 && data3 < 1e8 && data4 < 1e8 && data5 < 1e8 && data6 < 1e8){
 			modelname.str("");
 			modelname << "gen_num_" << i;
-			gen_num[i] = new TF1(modelname.str().c_str(), tmpjetfake_func, 35, 300, 4);
-			gen_num[i]->SetParameters(data1, data2, data3, data4);
+			gen_num[i] = new TF1(modelname.str().c_str(), exp2c_func, 20, 600, 6);
+			gen_num[i]->SetParameters(data1, data2, data3, data4, data5, data6);
 			gen_num[i]->SetLineColorAlpha(kBlue, 0.35);
-			//gen_num[i]->Draw("same");
 			bool exception(false);
-			//std::cout << std::endl;
-			//for(unsigned ibin(1); ibin < new_fakesPhoEt->GetSize(); ibin++){
-			//	std::cout << gen_num[i]->Eval(new_fakesPhoEt->GetBinCenter(ibin)) << " " << new_fakesPhoEt->GetBinContent(ibin) << std::endl; 
-			//	if(gen_num[i]->Eval(new_fakesPhoEt->GetBinCenter(ibin)) - new_fakesPhoEt->GetBinContent(ibin) < -1*1.5*new_fakesPhoEt->GetBinError(ibin))exception=true;
-			//}
 			if(exception)continue; 
-			for(unsigned ibin(0); ibin < 265; ibin++){
+
+			for(unsigned ibin(0); ibin < 565; ibin++){
 				double estimated = gen_num[i]->Eval(35+ibin);
+				if (std::isnan(estimated) || std::isinf(estimated)) {
+				    std::cout << "[WARNING] Fit function returned non-finite value at bin " << ibin
+              				<< " for toy " << i << std::endl;
+    				    		std::cout << "  Parameters: c1=" << data1 << ", c2=" << data2
+              					<< ", lambda1=" << data3 << ", lambda2=" << data4
+              					<< ", shift=" << data5 << ", offset=" << data6 << std::endl;
+    					exception = true;
+    					break; 
+				}
+	//			if (estimated < 0){
+        //				std::cout << "[WARNING] Negative toy value: " << estimated << " at bin " << ibin << ", toy " << i << std::endl;
+        //				estimated = 0;
+    	//			}
 				toyptvalue[ibin][i] = estimated;
 				if(lowtoyptvalue[ibin] > estimated)lowtoyptvalue[ibin] = estimated;
 				if(hightoyptvalue[ibin]< estimated)hightoyptvalue[ibin] = estimated;
 			}
+
 		}
+		if (data3 < 0 || data4 < 0) 
+			    std::cout << "[DEBUG] λ1 or λ2 negative: λ1 = " << data3 << ", λ2 = " << data4 << std::endl;
+		if (data5 + 200 > 600) 
+    			std::cout << "[DEBUG] Shift too large: shift+200 = " << (data5 + 200) << std::endl;
 	}
 	
 	TCanvas *cangaus = new TCanvas("cangaus","",600,600);
 	cangaus->cd();
-	for(unsigned ibin(0); ibin < 265; ibin++){
+	for(unsigned ibin(0); ibin < 565; ibin++){
 		num_upper->SetBinContent(ibin, hightoyptvalue[ibin]); 
 		num_lower->SetBinContent(ibin, lowtoyptvalue[ibin]);
+		cout<< ibin << " "<< hightoyptvalue[ibin] << " " << lowtoyptvalue[ibin]<<endl;
 	}
 	
 	can_pad1->cd();          

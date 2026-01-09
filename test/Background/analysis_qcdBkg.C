@@ -64,7 +64,7 @@ void analysis_qcdBkg(){
 	if(channelType == 1)p_scale = (TH1D*)scaleFile->Get("transfer_factor");
 	else if(channelType == 2)p_scale = (TH1D*)scaleFile->Get("transfer_factor");
 	
-	//*********** histo list **********************//
+	//*********** histo list ********************** 
 	std::ostringstream histname;
 	TH1D *p_PhoEt = new TH1D("p_PhoEt","#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
 	TH1D *p_LepPt = new TH1D("p_LepPt","p_LepPt",nBkgPtBins,bkgPtBins);
@@ -77,6 +77,11 @@ void analysis_qcdBkg(){
 	TH1D *p_PU = new TH1D("p_PU","",100,0,100);
 	TH1D *p_nJet = new TH1D("p_nJet","p_nJet",10,0,10);
 	TH1D *p_nBJet = new TH1D("p_nBJet","p_nBJet",5,0,5);
+
+	TH1D *p_dPhiEleMET_TT = new TH1D("p_dPhiEleMET_TT","dPhiEleMET",32,0,3.2); 
+	TH1D *p_LepPt_TT = new TH1D("p_LepPt_TT","p_LepPt",nBkgPtBins,bkgPtBins);
+	TH1D *p_nJet_TT = new TH1D("p_nJet_TT","p_nJet",10,0,10);
+	TH1D *p_nBJet_TT = new TH1D("p_nBJet_TT","p_nBJet",5,0,5);
 	TH1D *p_PhoEt_TT = new TH1D("p_PhoEt_TT","#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
 	TH1D *p_MET_TT = new TH1D("p_MET_TT","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
 	TH1D *p_Mt_TT = new TH1D("p_Mt_TT","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins);
@@ -91,6 +96,15 @@ void analysis_qcdBkg(){
 	TH1D *normup_HT = new TH1D("normup_HT","HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
 	TH1D *normup_dPhiEleMET = new TH1D("normup_dPhiEleMET","dPhiEleMET",32,0,3.2); 
 
+	TH1D *normup_PhoEt_TT = new TH1D("normup_PhoEt_TT","#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
+	TH1D *normup_PhoEta_TT = new TH1D("normup_PhoEta_TT","#gamma #eta; #eta;",60,-3,3);
+	TH1D *normup_LepPt_TT = new TH1D("normup_LepPt_TT","normup_LepPt",nBkgPtBins,bkgPtBins);
+	TH1D *normup_LepEta_TT = new TH1D("normup_LepEta_TT","normup_LepEta",60,-3,3);
+	TH1D *normup_MET_TT = new TH1D("normup_MET_TT","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
+	TH1D *normup_Mt_TT = new TH1D("normup_Mt_TT","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins); 
+	TH1D *normup_HT_TT = new TH1D("normup_HT_TT","HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
+	TH1D *normup_dPhiEleMET_TT = new TH1D("normup_dPhiEleMET_TT","dPhiEleMET",32,0,3.2); 
+	
 	TH1D *unweight_PhoEt = new TH1D("unweight_PhoEt","#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
 	TH1D *unweight_PhoEta = new TH1D("unweight_PhoEta","#gamma #eta; #eta;",60,-3,3);
 	TH1D *unweight_LepPt = new TH1D("unweight_LepPt","unweight_LepPt",nBkgPtBins,bkgPtBins);
@@ -99,12 +113,22 @@ void analysis_qcdBkg(){
 	TH1D *unweight_Mt = new TH1D("unweight_Mt","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins); 
 	TH1D *unweight_HT = new TH1D("unweight_HT","HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
 	TH1D *unweight_dPhiEleMET = new TH1D("unweight_dPhiEleMET","dPhiEleMET",32,0,3.2); 
-// ********** fake lepton tree ************** //
+	
+	TH1D *unweight_PhoEt_TT = new TH1D("unweight_PhoEt_TT","#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
+	TH1D *unweight_PhoEta_TT = new TH1D("unweight_PhoEta_TT","#gamma #eta; #eta;",60,-3,3);
+	TH1D *unweight_LepPt_TT = new TH1D("unweight_LepPt_TT","unweight_LepPt",nBkgPtBins,bkgPtBins);
+	TH1D *unweight_LepEta_TT = new TH1D("unweight_LepEta_TT","unweight_LepEta",60,-3,3);
+	TH1D *unweight_MET_TT = new TH1D("unweight_MET_TT","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
+	TH1D *unweight_Mt_TT = new TH1D("unweight_Mt_TT","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins); 
+	TH1D *unweight_HT_TT = new TH1D("unweight_HT_TT","HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
+	TH1D *unweight_dPhiEleMET_TT = new TH1D("unweight_dPhiEleMET_TT","dPhiEleMET",32,0,3.2); 
+
+	// ********** fake lepton tree ************** //
   TChain *fakeEtree = new TChain("fakeLepTree","fakeLepTree");
   // fake lepton is predicted from data, fakeLeptree
 
   if(channelType==1)fakeEtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
-  if(channelType==2)fakeEtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
+  if(channelType==2)fakeEtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
   float phoEt(0);
   float phoEta(0);
   float phoPhi(0);
@@ -147,15 +171,18 @@ void analysis_qcdBkg(){
 
   for(unsigned ievt(0); ievt < fakeEtree->GetEntries(); ievt++){
 		fakeEtree->GetEntry(ievt);
-		if (channelType == 1 && nJetFloat <1 ) continue;
-                if (channelType == 2 && nJetInt <1 ) continue; // suggestion from convenors
 		double w_qcd = 0; 
 		double w_qcd_up = 0; 
 		double w_qcd_unweight = 0;
-			w_qcd = factorQCD*p_scale->GetBinContent(p_scale->FindBin(lepPt));
-			w_qcd_up = factorQCDUP*p_scale->GetBinContent(p_scale->FindBin(lepPt));
-			w_qcd_unweight = factorQCD;
-	
+		w_qcd = factorQCD;
+		w_qcd_up = factorQCDUP;
+		w_qcd_unweight = factorQCD;
+		
+	//	w_qcd = factorQCD*p_scale->GetBinContent(p_scale->FindBin(lepPt));
+	//	w_qcd_up = factorQCDUP*p_scale->GetBinContent(p_scale->FindBin(lepPt));
+	//	w_qcd_unweight = factorQCD;
+
+
 		p_PU->Fill(nVertex);
 		/** cut flow *****/
 		if(phoEt < 35 || fabs(phoEta) > 1.4442)continue;
@@ -191,6 +218,25 @@ void analysis_qcdBkg(){
 			p_MET_TT->Fill(sigMET,  w_qcd);
 			p_Mt_TT->Fill(sigMT,  w_qcd);
 			p_HT_TT->Fill(HT,  w_qcd);
+			p_LepPt_TT->Fill(lepPt,  w_qcd);
+                        if (channelType == 1) p_nJet_TT->Fill(nJetFloat,  w_qcd);
+                        if (channelType == 2) p_nJet_TT->Fill(nJetInt,  w_qcd);
+                        p_nBJet_TT->Fill(nBJet, w_qcd);
+			p_dPhiEleMET_TT->Fill(fabs(dPhiLepMET), w_qcd);
+		
+			normup_PhoEt_TT->Fill(phoEt, w_qcd_up);
+			normup_LepPt_TT->Fill(lepPt, w_qcd_up);
+			normup_MET_TT->Fill(sigMET, w_qcd_up);
+			normup_Mt_TT->Fill(sigMT, w_qcd_up);
+			normup_HT_TT->Fill(HT, w_qcd_up);
+			normup_dPhiEleMET_TT->Fill(fabs(dPhiLepMET), w_qcd_up);
+
+			unweight_PhoEt_TT->Fill(phoEt, w_qcd_unweight);
+			unweight_LepPt_TT->Fill(lepPt, w_qcd_unweight);
+			unweight_MET_TT->Fill(sigMET, w_qcd_unweight);
+			unweight_Mt_TT->Fill(sigMT, w_qcd_unweight);
+			unweight_HT_TT->Fill(HT, w_qcd_unweight);
+			unweight_dPhiEleMET_TT->Fill(fabs(dPhiLepMET), w_qcd_unweight);
 		}
 
 		normup_PhoEt->Fill(phoEt, w_qcd_up);
@@ -218,7 +264,13 @@ void analysis_qcdBkg(){
 		syserror += pow((normup_PhoEt->GetBinContent(ibin)-p_PhoEt->GetBinContent(ibin)),2);
 		syserror += pow((unweight_PhoEt->GetBinContent(ibin)-p_PhoEt->GetBinContent(ibin)),2);
 		p_PhoEt->SetBinError(ibin,sqrt(syserror));
-		// systematic weight
+	}	
+	for(int ibin(1); ibin < p_PhoEt_TT->GetSize(); ibin++){
+		double syserror(0);
+		syserror += p_PhoEt_TT->GetBinError(ibin)* p_PhoEt_TT->GetBinError(ibin);
+		syserror += pow((normup_PhoEt_TT->GetBinContent(ibin)-p_PhoEt_TT->GetBinContent(ibin)),2);
+		syserror += pow((unweight_PhoEt_TT->GetBinContent(ibin)-p_PhoEt_TT->GetBinContent(ibin)),2);
+		p_PhoEt_TT->SetBinError(ibin,sqrt(syserror));
 	}	
 	for(int ibin(1); ibin < p_LepPt->GetSize(); ibin++){
 		double syserror(0);
@@ -227,12 +279,26 @@ void analysis_qcdBkg(){
 		syserror += pow((unweight_LepPt->GetBinContent(ibin)-p_LepPt->GetBinContent(ibin)),2);
 		p_LepPt->SetBinError(ibin,sqrt(syserror));
 	}	
+	for(int ibin(1); ibin < p_LepPt_TT->GetSize(); ibin++){
+		double syserror(0);
+		syserror += p_LepPt_TT->GetBinError(ibin)* p_LepPt_TT->GetBinError(ibin);
+		syserror += pow((normup_LepPt_TT->GetBinContent(ibin)-p_LepPt_TT->GetBinContent(ibin)),2);
+		syserror += pow((unweight_LepPt_TT->GetBinContent(ibin)-p_LepPt_TT->GetBinContent(ibin)),2);
+		p_LepPt_TT->SetBinError(ibin,sqrt(syserror));
+	}	
 	for(int ibin(1); ibin < p_MET->GetSize(); ibin++){
 		double syserror(0);
 		syserror += p_MET->GetBinError(ibin)* p_MET->GetBinError(ibin);// stat
 		syserror += pow((normup_MET->GetBinContent(ibin)-p_MET->GetBinContent(ibin)),2); // error of normalisation scale and lepton pt scaling
 		syserror += pow((unweight_MET->GetBinContent(ibin)-p_MET->GetBinContent(ibin)),2); // central value w/o error of normalisation and no pt scaling
 		p_MET->SetBinError(ibin,sqrt(syserror));
+	}	
+	for(int ibin(1); ibin < p_MET_TT->GetSize(); ibin++){
+		double syserror(0);
+		syserror += p_MET_TT->GetBinError(ibin)* p_MET_TT->GetBinError(ibin);// stat
+		syserror += pow((normup_MET_TT->GetBinContent(ibin)-p_MET_TT->GetBinContent(ibin)),2); // error of normalisation scale and lepton pt scaling
+		syserror += pow((unweight_MET_TT->GetBinContent(ibin)-p_MET_TT->GetBinContent(ibin)),2); // central value w/o error of normalisation and no pt scaling
+		p_MET_TT->SetBinError(ibin,sqrt(syserror));
 	}	
 	for(int ibin(1); ibin < p_Mt->GetSize(); ibin++){
 		double syserror(0);
@@ -241,12 +307,26 @@ void analysis_qcdBkg(){
 		syserror += pow((unweight_Mt->GetBinContent(ibin)-p_Mt->GetBinContent(ibin)),2);
 		p_Mt->SetBinError(ibin,sqrt(syserror));
 	}	
+	for(int ibin(1); ibin < p_Mt_TT->GetSize(); ibin++){
+		double syserror(0);
+		syserror += p_Mt_TT->GetBinError(ibin)* p_Mt_TT->GetBinError(ibin);
+		syserror += pow((normup_Mt_TT->GetBinContent(ibin)-p_Mt_TT->GetBinContent(ibin)),2);
+		syserror += pow((unweight_Mt_TT->GetBinContent(ibin)-p_Mt_TT->GetBinContent(ibin)),2);
+		p_Mt_TT->SetBinError(ibin,sqrt(syserror));
+	}	
 	for(int ibin(1); ibin < p_HT->GetSize(); ibin++){
 		double syserror(0);
 		syserror += p_HT->GetBinError(ibin)* p_HT->GetBinError(ibin);
 		syserror += pow((normup_HT->GetBinContent(ibin)-p_HT->GetBinContent(ibin)),2);
 		syserror += pow((unweight_HT->GetBinContent(ibin)-p_HT->GetBinContent(ibin)),2);
 		p_HT->SetBinError(ibin,sqrt(syserror));
+	}	
+	for(int ibin(1); ibin < p_HT_TT->GetSize(); ibin++){
+		double syserror(0);
+		syserror += p_HT_TT->GetBinError(ibin)* p_HT_TT->GetBinError(ibin);
+		syserror += pow((normup_HT_TT->GetBinContent(ibin)-p_HT_TT->GetBinContent(ibin)),2);
+		syserror += pow((unweight_HT_TT->GetBinContent(ibin)-p_HT_TT->GetBinContent(ibin)),2);
+		p_HT_TT->SetBinError(ibin,sqrt(syserror));
 	}	
 
 	std::ostringstream outputname;
@@ -279,6 +359,10 @@ void analysis_qcdBkg(){
 	p_MET_TT->Write();
 	p_Mt_TT->Write();
 	p_HT_TT->Write();
+	p_dPhiEleMET_TT->Write();
+	p_LepPt_TT->Write();
+	p_nJet_TT->Write();
+	p_nBJet_TT->Write();
 	outputfile->Write();
 	outputfile->Close();
 }

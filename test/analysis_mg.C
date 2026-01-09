@@ -54,7 +54,7 @@ void analysis_mg(int RunYear, const char *Era){//main
   std::cout << "Total event: " << nEvts << std::endl;
   logfile << "Output file: " << "/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_"<<RunYear<<Era<<".root" << std::endl;
 
-	int nTotal(0),npassHLT(0), npassPho(0), npassLep(0), npassdR(0), npassZ(0), npassMETFilter(0);
+	int nTotal(0),npassHLT(0), npassPho(0), npassLep(0), npassLepPho(0), npassdR(0), npassZ(0), npassMETFilter(0);
 
   TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,Era),"RECREATE");
   outputfile->cd();
@@ -310,7 +310,7 @@ void analysis_mg(int RunYear, const char *Era){//main
 
 
 //*********** histo list **********************//
-  TH1F *p_eventcount = new TH1F("p_eventcount","p_eventcount",7,0,7);
+  TH1F *p_eventcount = new TH1F("p_eventcount","p_eventcount",8,0,8);
 
   rawData raw(es, datatype);
   std::vector<mcData>  MCData;
@@ -493,6 +493,7 @@ void analysis_mg(int RunYear, const char *Era){//main
 
 
 			if(hasPho && hasLep){
+				npassLepPho+=1;
 				double dRlepphoton = DeltaR(signalPho->getEta(), signalPho->getPhi(), signalLep->getEta(), signalLep->getPhi());
 				if(dRlepphoton > 0.8){
 					npassdR+=1;
@@ -807,8 +808,9 @@ logfile << "hadrontree events: " << hadrontree->GetEntries() <<"; "<<100*hadront
 
 p_eventcount->Fill("Total",nTotal);
 p_eventcount->Fill("passHLT",npassHLT);
-p_eventcount->Fill("passPho",npassPho);	  // decrease by 2%
-p_eventcount->Fill("passMuon",npassLep); // increase by 4%
+p_eventcount->Fill("passPho",npassPho);
+p_eventcount->Fill("passMuon",npassLep);
+p_eventcount->Fill("passLepPho",npassLepPho);
 p_eventcount->Fill("passdR",npassdR);
 p_eventcount->Fill("passMETFilter",npassMETFilter);
 p_eventcount->Fill("passZ",npassZ);

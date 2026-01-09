@@ -32,7 +32,7 @@ void pred_sig(){
 	//************ Signal Tree **********************//
 	TChain *sigtree = new TChain("signalTree");
         if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
-        if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
+        if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
 
   	int   run(0);
   	Long64_t  event(0);
@@ -76,8 +76,6 @@ void pred_sig(){
 
 	for (unsigned ievt(0); ievt<sigtree->GetEntries(); ++ievt){
 		sigtree->GetEntry(ievt);
-		if (channelType == 1 && nJetFloat <1 ) continue; // NEW
-                if (channelType == 2 && nJetInt <1 ) continue;
 		p_PU->Fill(nVertex);
 		/** cut flow *****/
 		if(phoEt < 35 || fabs(phoEta) > 1.4442)continue;

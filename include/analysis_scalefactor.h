@@ -25,9 +25,12 @@ class esfScaleFactor{
 		std::string current_path = std::filesystem::current_path().string();
         	std::string configFilePath;
 
+
         	if (current_path.find("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/myResult") != std::string::npos) {
             		configFilePath = "/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/myResult/SigConfig.txt";}
         	else if (current_path.find("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/Background") != std::string::npos) {
+            		configFilePath = "/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/Background/BkgPredConfig.txt";} 
+        	else if (current_path.find("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/Reweight") != std::string::npos) {
             		configFilePath = "/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/Background/BkgPredConfig.txt";} 
 		else {	std::cerr << "Error: Unknown execution path!" << std::endl;
             		return;}

@@ -108,7 +108,6 @@ int Fitfractioneg(int ih,int metlow, int methigh, int leplow, int lephigh, int i
 	//  CHECK !!!!
 	// JetFakePhoton is twice for menglei compare to me in the Control region
 	cout<< "\tRare : "<< p_rare->Integral()/p_target->Integral() <<"\t efakePho : "<<p_ele->Integral()/p_target->Integral() <<"\t jetfakePho : "<<p_jet->Integral()/p_target->Integral() << "\n";
-	cout<< "\tRare : "<< p_rare->Integral() <<"\t efakePho : "<<p_ele->Integral() <<"\t jetfakePho : "<<p_jet->Integral() << "\n";
 	// Target distribution is deltaPhi shape of the data in the CR, with jet fake photon, ele fake photon, rare EWK backgrounds subtracted.
 	p_target->Add(p_rare, -1);
 	p_target->Add(p_ele, -1);
@@ -117,27 +116,37 @@ int Fitfractioneg(int ih,int metlow, int methigh, int leplow, int lephigh, int i
 	// fake lepton template
   	TH1D *p_proxy = (TH1D*)file_qcd->Get("p_dPhiEleMET");
   	TH1D *p_MC;
-//	if(ih < 500){
-		// VGamma template
-		p_MC = (TH1D*)file_VG->Get("p_dPhiEleMET"); 
-//		gRandom = new TRandom3(0);
-//		gRandom->SetSeed(0);
-//		double radomMC = -1+ gRandom->Rndm()*2.0;
-//		if(ih == 0)radomMC = 0;
-//		for(int ibin(1); ibin < p_MC->GetSize(); ibin++)p_MC->SetBinContent(ibin, p_MC->GetBinContent(ibin)+radomMC*p_MC->GetBinError(ibin));
-//	}
-//	else{
-//		histname.str("");
-//		histname << "toy_VGdPhiEleMET_" << ih-500;
-//		p_MC = (TH1D*)file_VG->Get(histname.str().c_str());
-//	}
-	
+	float bkgIntegral = 0.0;
+
+
+        if(ih < 1000){
+                // VGamma template
+                p_MC = (TH1D*)file_VG->Get("p_dPhiEleMET");
+		bkgIntegral = p_proxy->Integral() + p_MC->Integral() + p_rare->Integral() + p_ele->Integral() + p_jet->Integral();
+		if(ih == 0){
+			cout<< "\tJetFakeLep : "<< p_proxy->Integral() << "\tVGamma :"<<p_MC->Integral() << "\tRare : "<< p_rare->Integral() <<"\t efakePho : "<<p_ele->Integral() <<"\t jetfakePho : "<<p_jet->Integral() << "\n";
+			cout<< "\tJetFakeLep : "<< p_proxy->Integral()/bkgIntegral << "\tVGamma :"<<p_MC->Integral()/bkgIntegral << "\tRare : "<< p_rare->Integral()/bkgIntegral <<"\t efakePho : "<<p_ele->Integral()/bkgIntegral <<"\t jetfakePho : "<<p_jet->Integral()/bkgIntegral << "\n"; }
+                gRandom = new TRandom3(0);
+                gRandom->SetSeed(0);
+                double radomMC = gRandom->Gaus(0, 1);
+                if(ih == 0)radomMC = 0;
+                for(int ibin(1); ibin < p_MC->GetSize(); ibin++){
+                        radomMC =  gRandom->Gaus(0, 1);
+                        // VGamma get error from random number times error
+                        if(ih != 0)p_MC->SetBinContent(ibin, p_MC->GetBinContent(ibin)+radomMC*p_MC->GetBinError(ibin));
+                }
+        }
+        else{
+                histname.str("");
+                histname << "toy_VGdPhiEleMET_" << ih-500;
+                p_MC = (TH1D*)file_VG->Get(histname.str().c_str());
+        }
+        p_MC->Sumw2();
 	std::cout << "\n\n\n";
 	cout<<"\t target integral()  "<<p_target->Integral()<<endl;
 	cout<<"\t QCD template       "<<p_proxy->Integral()<<"\t"<<p_proxy->Integral()/p_target->Integral()<<endl;
 	cout<<"\t VGamma template    "<<p_MC->Integral()<<"\t"<<p_MC->Integral()/p_target->Integral()<<endl;
 	std::cout << "\n\n\n";
-	p_MC->Sumw2();
 
   RooRealVar dphi("dphi","",0,3.2);
 	// RooDataHist for target and two fitting templates
@@ -266,6 +275,8 @@ int Fitfractioneg(int ih,int metlow, int methigh, int leplow, int lephigh, int i
         else if(RunYear==2016 and preVFP == 0)  CMS_lumi( canpt_pad1,2,1, 11 );
         else if(RunYear==2017)                  CMS_lumi( canpt_pad1,3,1, 11 );
         else if(RunYear==2018)                  CMS_lumi( canpt_pad1,4,1, 11 );
+	else if(RunYear==678) 			CMS_lumi( canpt_pad1,6,1, 11 );
+
 
 
   	TLatex chantex;

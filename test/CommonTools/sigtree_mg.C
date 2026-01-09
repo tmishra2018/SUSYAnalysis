@@ -69,7 +69,7 @@ void sigtree_mg(int RunYear, const char *Era /*for Data*/, bool preVFP, bool isM
 
   const unsigned nEvts = es->GetEntries();
   logfile << "Output file: " << "/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_"<<Sample<<"_"<<RunYear<<whichVFP<<".root" << std::endl;
-  int nTotal(0),npassHLT(0), npassPho(0), npassLep(0), npassdR(0), npassZ(0), npassMETFilter(0);
+  int nTotal(0),npassHLT(0), npassPho(0), npassLep(0), npassLepPho(0), npassdR(0), npassZ(0), npassMETFilter(0);
   TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/sigtree_mg_%s_%d%s.root",Sample,RunYear,whichVFP.c_str()),"RECREATE");
   outputfile->cd();
   TH1D *p_METFilter = new TH1D("p_METFilter","",12,-2,10);
@@ -139,7 +139,7 @@ void sigtree_mg(int RunYear, const char *Era /*for Data*/, bool preVFP, bool isM
 	}
 
 //*********** histo list **********************
-  TH1F *p_eventcount = new TH1F("p_eventcount","p_eventcount",7,0,7);
+  TH1F *p_eventcount = new TH1F("p_eventcount","p_eventcount",8,0,8);
 
   rawData raw(es, datatype);
   std::vector<mcData>  MCData;
@@ -273,6 +273,7 @@ void sigtree_mg(int RunYear, const char *Era /*for Data*/, bool preVFP, bool isM
 			if(hasDoubleEG)continue;
 
 			if(hasPho && hasLep){
+				npassLepPho+=1;
 				double dRlepphoton = DeltaR(signalPho->getEta(), signalPho->getPhi(), signalLep->getEta(), signalLep->getPhi());
 				if(dRlepphoton > 0.8){
 					npassdR+=1;
@@ -353,13 +354,14 @@ void sigtree_mg(int RunYear, const char *Era /*for Data*/, bool preVFP, bool isM
 	logfile << "sigTree events: " << sigtree->GetEntries() <<"; "<<100*sigtree->GetEntries()/nEvts<<"\%"<<std::endl;
 
 
-p_eventcount->Fill("Total",nTotal);
-p_eventcount->Fill("passHLT",npassHLT);
-p_eventcount->Fill("passPho",npassPho);
-p_eventcount->Fill("passMuon",npassLep); 
-p_eventcount->Fill("passdR",npassdR);
-p_eventcount->Fill("passMETFilter",npassMETFilter);
-p_eventcount->Fill("passZ",npassZ);
+	p_eventcount->Fill("Total",nTotal);
+	p_eventcount->Fill("passHLT",npassHLT);
+	p_eventcount->Fill("passPho",npassPho);
+	p_eventcount->Fill("passMuon",npassLep); 
+	p_eventcount->Fill("passLepPho",npassLepPho); 
+	p_eventcount->Fill("passdR",npassdR);
+	p_eventcount->Fill("passMETFilter",npassMETFilter);
+	p_eventcount->Fill("passZ",npassZ);
 	if(RunYear==2018) logfile << "pass HEM cut:  " << passHEM*100/nEvts<<endl;
 	p_METFilter->Write();
 	outputfile->Write();

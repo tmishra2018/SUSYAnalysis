@@ -1,59 +1,102 @@
 import os
 
-# Define the directory containing the text files
-directory = 'logs/'
+# Directory containing input tables
+directory = "logs"
 
-# Define the filenames
-filenames = [
-    'eventcount_2016postVFP.txt',
-    'eventcount_2016preVFP.txt',
-    'eventcount_2017.txt',
-    'eventcount_2018.txt'
+# Input files and labels (ordered)
+files = [
+    ("eventcount_2016preVFP.txt", "2016 preVFP"),
+    ("eventcount_2016postVFP.txt", "2016 postVFP"),
+    ("eventcount_2017.txt", "2017"),
+    ("eventcount_2018.txt", "2018"),
 ]
 
-# Initialize an empty list to store the tables
-tables = []
+# --------------------------------------
+# Extract rows inside tabular environment
+# --------------------------------------
+def extract_table_rows(text):
+    start = text.find(r"\begin{tabular")
+    end = text.find(r"\end{tabular}")
 
-# Read each file and extract the table content
-for filename in filenames:
-    with open(os.path.join(directory, filename), 'r') as file:
-        content = file.read()
-        start = content.find('\\begin{tabular}')
-        end = content.find('\\end{tabular}') + len('\\end{tabular}')
-        table_content = content[start:end]
-        tables.append(table_content)
+    if start == -1 or end == -1:
+        return []
 
-# Merge the tables into a single table
-merged_table = """
-\\begin{table}[h]
-\\centering
-\\resizebox{\\linewidth}{!}{
-\\begin{tabular}{|c||c|c|c|c|c|}
-\\hline
-\\multicolumn{6}{|c|}{\\textbf{Systematic uncertainties of the SM backgrounds (2016 preVFP)}} \\\\
-\\hline
-\\hline
-  Source of Uncertainties & $e\\rightarrow\\gamma$ fakes & $\\text{jet}\\rightarrow\\gamma$ fakes & $\\text{jet}\\rightarrow l$ fakes & $V+\\gamma$ & rare EWK \\\\
-  \\hline
-""" + tables[1][len('\\begin{tabular}{|c|c|c|c|c|c|}'):] + """
-\\multicolumn{6}{|c|}{\\textbf{Systematic uncertainties of the SM backgrounds (2016 postVFP)}} \\\\
-\\hline
-""" + tables[0][len('\\begin{tabular}{|c|c|c|c|c|c|}'):] + """
-\\multicolumn{6}{|c|}{\\textbf{Systematic uncertainties of the SM backgrounds (2017)}} \\\\
-\\hline
-""" + tables[2][len('\\begin{tabular}{|c|c|c|c|c|c|}'):] + """
-\\multicolumn{6}{|c|}{\\textbf{Systematic uncertainties of the SM backgrounds (2018)}} \\\\
-\\hline
-""" + tables[3][len('\\begin{tabular}{|c|c|c|c|c|c|}'):] + """
-\\end{tabular}
-}
-\\caption{Systematic uncertainties of the SM backgrounds for different years.}
-\\label{table:ch4-systematic}
-\\end{table}
+    block = text[start:end]
+    lines = block.splitlines()
+
+    cleaned = []
+    for ln in lines:
+        ln = ln.strip()
+        if not ln:
+            continue
+        if ln.startswith(r"\begin{tabular"):
+            continue
+        if ln.startswith(r"\end{tabular"):
+            continue
+        if "Source of Uncertainties" in ln:
+            continue
+        if ln.startswith(r"\hline"):
+            continue
+        cleaned.append(ln)
+
+    return cleaned
+
+
+# --------------------------------------
+# Read tables
+# --------------------------------------
+year_tables = []
+
+for fname, label in files:
+    path = os.path.join(directory, fname)
+    with open(path, "r") as f:
+        rows = extract_table_rows(f.read())
+
+    if not rows:
+        raise RuntimeError(f"❌ No table extracted from {fname}")
+
+    year_tables.append((label, rows))
+
+
+# --------------------------------------
+# Build merged LaTeX table
+# --------------------------------------
+merged = r"""
+\begin{table}[h]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}{|c||c|c|c|c|c|}
+\hline
+\multicolumn{6}{|c|}{\textbf{Systematic uncertainties of the SM backgrounds}} \\
+\hline
+\textbf{Source of Uncertainties} &
+$e\rightarrow\gamma$ fakes &
+$\text{jet}\rightarrow\gamma$ fakes &
+$\text{jet}\rightarrow l$ fakes &
+$V+\gamma$ &
+rare EWK \\
+\hline
 """
 
-# Save the merged table to a new file
-with open('merged_table.tex', 'w') as file:
-    file.write(merged_table)
+for label, rows in year_tables:
+    merged += rf"\multicolumn{{6}}{{|c|}}{{\textbf{{{label}}}}} \\"
+    merged += "\n\\hline\n"
+    for r in rows:
+        merged += f"  {r}\n"
+    merged += "\\hline\n"
 
-print("The tables have been successfully merged into merged_table.tex.")
+merged += r"""
+\end{tabular}
+}
+\caption{Systematic uncertainties of the SM backgrounds for different years.}
+\label{table:ch4-systematic}
+\end{table}
+"""
+
+# --------------------------------------
+# Write output
+# --------------------------------------
+with open("merged_table.tex", "w") as f:
+    f.write(merged)
+
+print("✅ merged_table.tex created successfully")

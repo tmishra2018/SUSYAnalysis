@@ -60,6 +60,9 @@ void closure_jetfakelep(int ichannel, int RunYear, bool ISpreVFP){
 	gROOT->SetBatch(1);
 	// Signal Tree //
 
+	double chi2_pval = 1.0;
+        double ks_pval = 0.012; 
+
 	//*********** hist o list **********************//
 	TH1D *p_PhoEt = new TH1D("p_PhoEt","; E_{T} (GeV);",20,0,200);
 	TH1D *p_LepPt = new TH1D("p_LepPt","LepPt; p_{T} (GeV);",nBkgPtBins,bkgPtBins_);
@@ -164,7 +167,7 @@ void closure_jetfakelep(int ichannel, int RunYear, bool ISpreVFP){
 	// proxy events enriched in fake leptons from data
 	TChain *proxytree = new TChain("fakeLepTree");
         if(channelType==1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
-        if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
+        if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
 
 	float proxyphoEt(0);
 	float proxyphoEta(0);
@@ -348,7 +351,7 @@ void closure_jetfakelep(int ichannel, int RunYear, bool ISpreVFP){
 	pred_dPhiEleMET->Draw("hist same");
 
 	// Legend adjusted to avoid overlap
-	TLegend *leg = new TLegend(0.55, 0.77, 0.95, 0.92); // Adjust position
+	TLegend *leg = new TLegend(0.55, 0.75, 0.95, 0.87); // Adjust position
 	leg->SetFillStyle(0);
 	pred_dPhiEleMET->SetMarkerColor(kRed);
 	leg->AddEntry(p_dPhiEleMET, "Simulation");
@@ -359,6 +362,18 @@ void closure_jetfakelep(int ichannel, int RunYear, bool ISpreVFP){
         else if(RunYear==2016 and ISpreVFP == 0)  CMS_lumi( c_dphi, 2, ichannel, 11 );
         else if(RunYear==2017)                    CMS_lumi( c_dphi, 3, ichannel, 11 );
         else if(RunYear==2018)                    CMS_lumi( c_dphi, 4, ichannel, 11 );
+
+	chi2_pval = p_dPhiEleMET->Chi2Test(pred_dPhiEleMET, " P");
+        ks_pval   = p_dPhiEleMET->KolmogorovTest(pred_dPhiEleMET);
+
+        TLatex *latex = new TLatex();
+        latex->SetNDC();
+        latex->SetTextSize(0.025);
+        latex->SetTextFont(42);
+        latex->DrawLatex(0.63, 0.91, Form("#chi^{2} p-value = %.3f", chi2_pval));
+        latex->DrawLatex(0.63, 0.88, Form("KS p-value = %.3f", ks_pval));
+
+
 
 	if (channelType == 1) c_dphi->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_dPhi_eg_%d%s.pdf", RunYear, whichVFP.c_str()));
 	if (channelType == 2) c_dphi->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_dPhi_mg_%d%s.pdf", RunYear, whichVFP.c_str()));
@@ -392,6 +407,11 @@ void closure_jetfakelep(int ichannel, int RunYear, bool ISpreVFP){
         else if(RunYear==2017)                    CMS_lumi( c_met, 3, ichannel, 11 );
         else if(RunYear==2018)                    CMS_lumi( c_met, 4, ichannel, 11 );
 
+	chi2_pval = p_MET->Chi2Test(pred_MET, " P");
+	ks_pval   = p_MET->KolmogorovTest(pred_MET);
+	latex->DrawLatex(0.63, 0.91, Form("#chi^{2} p-value = %.3f", chi2_pval));
+	latex->DrawLatex(0.63, 0.88, Form("KS p-value = %.3f", ks_pval));
+
 	if (channelType == 1) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_MET_eg_%d%s.pdf", RunYear, whichVFP.c_str()));
 	if (channelType == 2) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_MET_mg_%d%s.pdf", RunYear, whichVFP.c_str()));
 
@@ -418,6 +438,11 @@ void closure_jetfakelep(int ichannel, int RunYear, bool ISpreVFP){
         else if(RunYear==2017)                    CMS_lumi( c_mt, 3, ichannel, 11 );
         else if(RunYear==2018)                    CMS_lumi( c_mt, 4, ichannel, 11 );
 
+	chi2_pval = p_Mt->Chi2Test(pred_Mt, "P");
+	ks_pval   = p_Mt->KolmogorovTest(pred_Mt);
+	latex->DrawLatex(0.63, 0.91, Form("#chi^{2} p-value = %.3f", chi2_pval));
+	latex->DrawLatex(0.63, 0.88, Form("KS p-value = %.3f", ks_pval));
+
 	if(channelType==1) c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_MT_eg_%d%s.pdf",RunYear,whichVFP.c_str()));
 	if(channelType==2) c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_MT_mg_%d%s.pdf",RunYear,whichVFP.c_str()));
 
@@ -442,6 +467,10 @@ void closure_jetfakelep(int ichannel, int RunYear, bool ISpreVFP){
         else if(RunYear==2016 and ISpreVFP == 0)  CMS_lumi( c_HT, 2, ichannel, 11 );
         else if(RunYear==2017)                    CMS_lumi( c_HT, 3, ichannel, 11 );
         else if(RunYear==2018)                    CMS_lumi( c_HT, 4, ichannel, 11 );
+	chi2_pval = p_HT->Chi2Test(pred_HT, "P");
+	ks_pval   = p_HT->KolmogorovTest(pred_HT);
+	latex->DrawLatex(0.63, 0.91, Form("#chi^{2} p-value = %.3f", chi2_pval));
+	latex->DrawLatex(0.63, 0.88, Form("KS p-value = %.3f", ks_pval));
 
 	if(channelType==1) c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_HT_eg_%d%s.pdf",RunYear,whichVFP.c_str()));
 	if(channelType==2) c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_HT_mg_%d%s.pdf",RunYear,whichVFP.c_str()));
@@ -485,6 +514,10 @@ void closure_jetfakelep(int ichannel, int RunYear, bool ISpreVFP){
         else if(RunYear==2017)                    CMS_lumi( LepPt_pad1, 3, ichannel, 11 );
         else if(RunYear==2018)                    CMS_lumi( LepPt_pad1, 4, ichannel, 11 );
 
+	chi2_pval = p_LepPt->Chi2Test(pred_LepPt, "P");
+	ks_pval   = p_LepPt->KolmogorovTest(pred_LepPt);
+	latex->DrawLatex(0.63, 0.91, Form("#chi^{2} p-value = %.3f", chi2_pval));
+	latex->DrawLatex(0.63, 0.88, Form("KS p-value = %.3f", ks_pval));
 
 	c_LepPt->cd();
 	TPad *LepPt_pad2 = new TPad("LepPt_pad2", "LepPt_pad2", 0, 0.05, 1, 0.3);

@@ -1,96 +1,96 @@
-highbound = 0.812544
-lowbound = 0.638307
+highbound = 0.951442
+lowbound = 0.80131
 
-double factor_mgQCD_2016preVFP(0.739132);
-double factorerror_mgQCD_2016preVFP(0.118601);
+double factor_mgQCD_2016preVFP(0.87261);
+double factorerror_mgQCD_2016preVFP(0.0820623);
 
-highbound = 1.34566
-lowbound = 1.17124
+highbound = 1.45888
+lowbound = 1.26646
 
-double factor_mgVGamma_2016preVFP(1.24291);
-double factorerror_mgVGamma_2016preVFP(0.130425);
+double factor_mgVGamma_2016preVFP(1.35197);
+double factorerror_mgVGamma_2016preVFP(0.107935);
 
-highbound = 0.870958
-lowbound = 0.564384
+highbound = 1.00443
+lowbound = 0.772375
 
-double factor_mgQCD_2016postVFP(0.753186);
-double factorerror_mgQCD_2016postVFP(0.168324);
+double factor_mgQCD_2016postVFP(0.919834);
+double factorerror_mgQCD_2016postVFP(0.173638);
 
-highbound = 1.49829
-lowbound = 1.19644
+highbound = 1.62755
+lowbound = 1.36106
 
-double factor_mgVGamma_2016postVFP(1.33974);
-double factorerror_mgVGamma_2016postVFP(0.183504);
+double factor_mgVGamma_2016postVFP(1.47747);
+double factorerror_mgVGamma_2016postVFP(0.165919);
 
-highbound = 0.888767
-lowbound = 0.633227
+highbound = 1.02508
+lowbound = 0.764372
 
-double factor_mgQCD_2017(0.761983);
-double factorerror_mgQCD_2017(0.165275);
+double factor_mgQCD_2017(0.915692);
+double factorerror_mgQCD_2017(0.254747);
 
-highbound = 1.31899
-lowbound = 1.06824
+highbound = 1.66604
+lowbound = 1.36837
 
-double factor_mgVGamma_2017(1.17676);
-double factorerror_mgVGamma_2017(0.163964);
+double factor_mgVGamma_2017(1.49914);
+double factorerror_mgVGamma_2017(0.238776);
 
-highbound = 0.82937
-lowbound = 0.6298
+highbound = 0.952142
+lowbound = 0.743112
 
-double factor_mgQCD_2018(0.747404);
-double factorerror_mgQCD_2018(0.112466);
+double factor_mgQCD_2018(0.859031);
+double factorerror_mgQCD_2018(0.128368);
 
-highbound = 0.939899
-lowbound = 0.788416
+highbound = 1.50043
+lowbound = 1.25365
 
-double factor_mgVGamma_2018(0.860239);
-double factorerror_mgVGamma_2018(0.0994205);
+double factor_mgVGamma_2018(1.36389);
+double factorerror_mgVGamma_2018(0.1488);
 
-highbound = 0.528453
-lowbound = 0.517081
+highbound = 0.574845
+lowbound = 0.395395
 
-double factor_egQCD_2016preVFP(0.522713);
-double factorerror_egQCD_2016preVFP(0.0561421);
+double factor_egQCD_2016preVFP(0.491149);
+double factorerror_egQCD_2016preVFP(0.12104);
 
-highbound = 0.573493
-lowbound = 0.558246
+highbound = 0.750031
+lowbound = 0.57985
 
-double factor_egQCD_2016postVFP(0.564892);
-double factorerror_egQCD_2016postVFP(0.0583635);
+double factor_egQCD_2016postVFP(0.674543);
+double factorerror_egQCD_2016postVFP(0.105477);
 
-highbound = 1.33284
-lowbound = 1.31169
+highbound = 1.4061
+lowbound = 0.900708
 
-double factor_egVGamma_2016postVFP(1.32072);
-double factorerror_egVGamma_2016postVFP(0.142714);
+double factor_egVGamma_2016postVFP(1.13285);
+double factorerror_egVGamma_2016postVFP(0.334537);
 
-highbound = 1.22952
-lowbound = 1.21041
+highbound = 1.66457
+lowbound = 1.21433
 
-double factor_egVGamma_2016preVFP(1.2199);
-double factorerror_egVGamma_2016preVFP(0.120218);
+double factor_egVGamma_2016preVFP(1.42088);
+double factorerror_egVGamma_2016preVFP(0.311331);
 
-highbound = 0.460873
-lowbound = 0.454656
+highbound = 0.528486
+lowbound = 0.372714
 
-double factor_egQCD_2017(0.45779);
-double factorerror_egQCD_2017(0.0530971);
+double factor_egQCD_2017(0.457467);
+double factorerror_egQCD_2017(0.112141);
 
-highbound = 1.25292
-lowbound = 1.23941
+highbound = 1.4962
+lowbound = 0.910772
 
-double factor_egVGamma_2017(1.24552);
-double factorerror_egVGamma_2017(0.15372);
+double factor_egVGamma_2017(1.18835);
+double factorerror_egVGamma_2017(0.432986);
 
-highbound = 0.452829
-lowbound = 0.448242
+highbound = 0.497579
+lowbound = 0.321496
 
-double factor_egQCD_2018(0.450664);
-double factorerror_egQCD_2018(0.0538993);
+double factor_egQCD_2018(0.411959);
+double factorerror_egQCD_2018(0.0950488);
 
-highbound = 0.961534
-lowbound = 0.951039
+highbound = 1.85852
+lowbound = 1.22237
 
-double factor_egVGamma_2018(0.9572);
-double factorerror_egVGamma_2018(0.1178);
+double factor_egVGamma_2018(1.53025);
+double factorerror_egVGamma_2018(0.349885);
 

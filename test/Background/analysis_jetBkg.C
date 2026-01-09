@@ -3,7 +3,7 @@
 #include <TApplication.h>
 #include "../../include/analysis_commoncode.h"
 #define NTOY 1000
-bool useGaussFit;
+bool useGaussFit=true;
 
 void analysis_jetBkg(){
 	gROOT->SetBatch(kTRUE);
@@ -18,6 +18,15 @@ void analysis_jetBkg(){
         if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
         if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
 
+	float correction = 1.0;
+        if (RunYear == 2016 and preVFP == 1 and ichannel == 1) correction = 0.816828;
+        else if (RunYear == 2016 and preVFP == 1 and ichannel == 2) correction = 1.11658;
+        else if (RunYear == 2016 and preVFP == 0 and ichannel == 1) correction = 0.788482;
+        else if (RunYear == 2016 and preVFP == 0 and ichannel == 2) correction = 1.03158;
+        else if (RunYear == 2017 and ichannel == 1) correction = 0.866308;
+        else if (RunYear == 2017 and ichannel == 2) correction = 1.00739;
+        else if (RunYear == 2018 and ichannel == 1) correction = 0.713093;
+        else if (RunYear == 2018 and ichannel == 2) correction = 0.976136;
 
 	gRandom = new TRandom3(0);
 	gRandom->SetSeed(0);
@@ -26,10 +35,10 @@ void analysis_jetBkg(){
 	for(unsigned ir(1); ir<NTOY; ir++)	
 		randomweight_jet[ir] = -1+ gRandom->Rndm()*2.0;
 	// numerator and denominator function for fake rate
-	TF1 *fitfunc_num = new TF1("fitfunc_num",jetfake_func,35,1000,4);
-	TF1 *fitfunc_den = new TF1("fitfunc_den",jetfake_func,35,1000,4);
-	double jetfake_numerror[264];
-	double jetfake_denerror[264];
+	TF1 *fitfunc_num = new TF1("fitfunc_num",Exp2c_Func,35,1000,6);
+	TF1 *fitfunc_den = new TF1("fitfunc_den",Exp2c_Func,35,1000,6);
+	double jetfake_numerror[265];
+	double jetfake_denerror[265];
 	
 	std::stringstream JetFakeRateFile;
   	JetFakeRateFile.str();
@@ -40,20 +49,20 @@ void analysis_jetBkg(){
 	std::ifstream jetfakefile(JetFakeRateFile.str().c_str());
 	std::string paratype;
 	float paravalue;	
-	for(int i(0); i < 4; i++){
+	for(int i(0); i < 6; i++){
 		jetfakefile >> paratype >> paravalue;
 		fitfunc_den->SetParameter(i, paravalue);
 	}
-	for(int i(0); i < 4; i++){
+	for(int i(0); i < 6; i++){
 		jetfakefile >> paratype >> paravalue;
 		fitfunc_num->SetParameter(i, paravalue);
 	}
 	int binnumber;
-	for(int i(0); i < 264; i++){
+	for(int i(0); i < 265; i++){
 		jetfakefile >> paratype >> binnumber >> paravalue;
 		jetfake_numerror[i] = paravalue/2;
 	}
-	for(int i(0); i < 264; i++){
+	for(int i(0); i < 265; i++){
 		jetfakefile >> paratype >> binnumber >>  paravalue;
 		jetfake_denerror[i] = paravalue/2;
 	}
@@ -71,10 +80,15 @@ void analysis_jetBkg(){
 	TH1D *p_PU = new TH1D("p_PU","",100,0,100);
 	TH1D *p_nJet = new TH1D("p_nJet","p_nJet",10,0,10);
 	TH1D *p_nBJet = new TH1D("p_nBJet","p_nBJet",5,0,5);
+
+	TH1D *p_LepPt_TT = new TH1D("p_LepPt_TT","p_LepPt",nBkgPtBins,bkgPtBins);
+        TH1D *p_nJet_TT = new TH1D("p_nJet_TT","p_nJet",10,0,10);
+        TH1D *p_nBJet_TT = new TH1D("p_nBJet_TT","p_nBJet",5,0,5);
 	TH1D *p_PhoEt_TT = new TH1D("p_PhoEt_TT","#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
 	TH1D *p_MET_TT = new TH1D("p_MET_TT","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
 	TH1D *p_Mt_TT = new TH1D("p_Mt_TT","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins);
 	TH1D *p_HT_TT = new TH1D("p_HT_TT","HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
+	TH1D *p_dPhiEleMET_TT = new TH1D("p_dPhiEleMET_TT","dPhiEleMET",32,0,3.2);
 	
 	TH1D *toy_PhoEt[NTOY];
 	TH1D *toy_LepPt[NTOY];
@@ -83,9 +97,11 @@ void analysis_jetBkg(){
 	TH1D *toy_HT[NTOY];
 	TH1D *toy_dPhiEleMET[NTOY];
 	TH1D *toy_PhoEt_TT[NTOY];
+	TH1D *toy_LepPt_TT[NTOY];
 	TH1D *toy_MET_TT[NTOY];
 	TH1D *toy_Mt_TT[NTOY];
 	TH1D *toy_HT_TT[NTOY];
+	TH1D *toy_dPhiEleMET_TT[NTOY];
 	for(unsigned ih(0); ih < NTOY; ih++){
 		histname.str("");
 		histname << "toy_PhoEt_ " << ih;
@@ -93,6 +109,9 @@ void analysis_jetBkg(){
 		histname.str("");
 		histname << "toy_LepPt_" << ih;
 		toy_LepPt[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),nBkgPtBins,bkgPtBins);
+		histname.str("");
+		histname << "toy_LepPt_TT_" << ih;
+		toy_LepPt_TT[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),nBkgPtBins,bkgPtBins);
 		histname.str("");
 		histname << "toy_MET_ " << ih;
 		toy_MET[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),nBkgMETBins, bkgMETBins);
@@ -117,6 +136,9 @@ void analysis_jetBkg(){
 		histname.str("");
 		histname << "toy_HT_TT_" << ih;
 		toy_HT_TT[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),nBkgHTBins, bkgHTBins);
+		histname.str("");
+		histname << "toy_eledPhiEleMET_TT_" << ih;
+		toy_dPhiEleMET_TT[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),32,0,3.2);
 	}
 
 	/************ jet tree **************************/ 
@@ -124,7 +146,7 @@ void analysis_jetBkg(){
 		TChain *jettree = new TChain("jetTree");
 
                 if(channelType==1)jettree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
-                if(channelType==2)jettree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
+                if(channelType==2)jettree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
 	
 		float phoEt(0);
 		float phoEta(0);
@@ -164,8 +186,6 @@ void analysis_jetBkg(){
 	 
 		for (unsigned ievt(0); ievt<jettree->GetEntries(); ++ievt){//loop on entries
 			jettree->GetEntry(ievt);
-			if (channelType == 1 && nJetFloat <1 ) continue; // suggestion from convenors
-                	if (channelType == 2 && nJetInt <1 ) continue;
 			p_PU->Fill(nVertex);
 			/** cut flow *****/
 			if(phoEt < 35 || fabs(phoEta) > 1.4442)continue;
@@ -180,14 +200,14 @@ void analysis_jetBkg(){
 
 			double w_jet(0);
 			// weight for fake background, central value from function
-			w_jet = fitfunc_num->Eval(phoEt)/fitfunc_den->Eval(phoEt);
+			w_jet = correction*fitfunc_num->Eval(phoEt)/fitfunc_den->Eval(phoEt);
 
 			double jetfakeerror(0);
-			for(int ipt(0); ipt < 264; ipt++){
+			for(int ipt(0); ipt < 265; ipt++){
 				// weight for fake background, errors are stored for pt value
 				if(phoEt >= ipt+35 && phoEt < ipt+1+35)jetfakeerror = sqrt(jetfake_numerror[ipt]*jetfake_numerror[ipt] + jetfake_denerror[ipt]*jetfake_denerror[ipt]*w_jet*w_jet)/fitfunc_den->Eval(phoEt);
 			}
-			if(phoEt >= 264)jetfakeerror = sqrt(jetfake_numerror[263]*jetfake_numerror[263] + jetfake_denerror[263]*jetfake_denerror[263]*w_jet*w_jet)/fitfunc_den->Eval(300); 
+			if(phoEt >= 265)jetfakeerror = sqrt(jetfake_numerror[264]*jetfake_numerror[264] + jetfake_denerror[264]*jetfake_denerror[264]*w_jet*w_jet)/fitfunc_den->Eval(300); 
 			double sysJetFakePho = jetfakeerror/w_jet;
 		
 			p_PhoEt->Fill(phoEt,w_jet);
@@ -203,13 +223,6 @@ void analysis_jetBkg(){
 			//p_nJet->Fill(nJet, w_jet);
 			p_nBJet->Fill(nBJet, w_jet);
 
-			if(nBJet >= 1){
-				p_PhoEt_TT->Fill(phoEt,  w_jet);
-				p_MET_TT->Fill(sigMET,  w_jet);
-				p_Mt_TT->Fill(sigMT,  w_jet);
-				p_HT_TT->Fill(HT,  w_jet);
-			}
-
 			for(unsigned ih(0); ih<NTOY; ih++){
 				toy_PhoEt[ih]->Fill(phoEt,w_jet*(1+sysJetFakePho*randomweight_jet[ih]));
 				toy_MET[ih]->Fill(sigMET,w_jet*(1+sysJetFakePho*randomweight_jet[ih]));
@@ -217,13 +230,28 @@ void analysis_jetBkg(){
 				toy_HT[ih]->Fill(HT, w_jet*(1+sysJetFakePho*randomweight_jet[ih]));
 				toy_LepPt[ih]->Fill(lepPt,w_jet*(1+sysJetFakePho*randomweight_jet[ih]));
 				toy_dPhiEleMET[ih]->Fill(fabs(dPhiLepMET), w_jet*(1+sysJetFakePho*randomweight_jet[ih]));
-				if(nBJet >= 1){
+			}
+			if(nBJet >= 1){
+				p_PhoEt_TT->Fill(phoEt,  w_jet);
+				p_MET_TT->Fill(sigMET,  w_jet);
+				p_Mt_TT->Fill(sigMT,  w_jet);
+				p_HT_TT->Fill(HT,  w_jet);
+				p_dPhiEleMET_TT->Fill(fabs(dPhiLepMET), w_jet);
+				p_LepPt_TT->Fill(lepPt,  w_jet);
+				if (channelType == 1) p_nJet_TT->Fill(nJetFloat,  w_jet);
+				if (channelType == 2) p_nJet_TT->Fill(nJetInt,  w_jet);
+				p_nBJet_TT->Fill(nBJet, w_jet);
+					
+				for(unsigned ih(0); ih<NTOY; ih++){
+					toy_LepPt_TT[ih]->Fill(lepPt,w_jet*(1+sysJetFakePho*randomweight_jet[ih]));
 					toy_PhoEt_TT[ih]->Fill(phoEt,w_jet*(1+sysJetFakePho*randomweight_jet[ih]));
 					toy_MET_TT[ih]->Fill(sigMET,w_jet*(1+sysJetFakePho*randomweight_jet[ih]));
 					toy_Mt_TT[ih]->Fill(sigMT, w_jet*(1+sysJetFakePho*randomweight_jet[ih]));
 					toy_HT_TT[ih]->Fill(HT, w_jet*(1+sysJetFakePho*randomweight_jet[ih]));
+					toy_dPhiEleMET_TT[ih]->Fill(fabs(dPhiLepMET), w_jet*(1+sysJetFakePho*randomweight_jet[ih]));
 				}
 			}
+
 		} 
 
 	std::vector<double> toyvec; 
@@ -283,6 +311,15 @@ void analysis_jetBkg(){
 		double totalerror = sqrt(syserr*syserr + p_PhoEt_TT->GetBinError(ibin)*p_PhoEt_TT->GetBinError(ibin));
 		p_PhoEt_TT->SetBinError(ibin, totalerror);
 	}
+	for(int ibin(1); ibin < p_LepPt_TT->GetSize(); ibin++){
+		toyvec.clear();
+		toyvec.push_back(p_LepPt_TT->GetBinContent(ibin));
+		for(unsigned it(0); it < NTOY; it++)
+			toyvec.push_back(toy_LepPt_TT[it]->GetBinContent(ibin));
+		double syserr = calcToyError( toyvec, useGaussFit, channelType); 
+		double totalerror = sqrt(syserr*syserr + p_LepPt_TT->GetBinError(ibin)*p_LepPt_TT->GetBinError(ibin));
+		p_LepPt_TT->SetBinError(ibin, totalerror);
+	}
 	for(int ibin(1); ibin < p_MET_TT->GetSize(); ibin++){
 		toyvec.clear();
 		toyvec.push_back(p_MET_TT->GetBinContent(ibin));
@@ -340,6 +377,11 @@ void analysis_jetBkg(){
 	p_MET_TT->Write();
 	p_Mt_TT->Write();
 	p_HT_TT->Write();
+	p_LepPt_TT->Write();
+	p_nJet_TT->Write();
+	p_nBJet_TT->Write();
+	p_dPhiEleMET_TT->Write();
+
 	for(unsigned it(0); it < NTOY; it++){
 	//	toy_PhoEt[it]->Write();
 	//	toy_MET[it]->Write();
@@ -347,6 +389,7 @@ void analysis_jetBkg(){
 	//	toy_HT[it]->Write();
 	//	toy_LepPt[it]->Write();
 		toy_dPhiEleMET[it]->Write();
+		toy_dPhiEleMET_TT[it]->Write();
 	}
 	outputfile->Write();
 	outputfile->Close();

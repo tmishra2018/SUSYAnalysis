@@ -4,7 +4,7 @@ void printPhoEtMinMax() {
 
     // Open the two ROOT files
     TFile *file1 = TFile::Open("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2018.root");
-    TFile *file2 = TFile::Open("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2018_Muon20.root");
+    TFile *file2 = TFile::Open("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2018.root");
 
     if (!file1 || !file2) {
         std::cout << "Error: One or both files could not be opened!" << std::endl;
@@ -56,7 +56,7 @@ void printPhoEtMinMax() {
         std::cout << "  Minimum phoEt: " << minPhoEt1 << std::endl;
         std::cout << "  Maximum phoEt: " << maxPhoEt1 << std::endl;
 
-        std::cout << "File 2: /eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2018_Muon20.root" << std::endl;
+        std::cout << "File 2: /eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_2018.root" << std::endl;
         std::cout << "  Minimum phoEt: " << minPhoEt2 << std::endl;
         std::cout << "  Maximum phoEt: " << maxPhoEt2 << std::endl;
 

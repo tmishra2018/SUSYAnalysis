@@ -1,13 +1,10 @@
 #(int RunYear, int preVFP, int isQCD, int ichannel)
 rm scaleFactors.txt
-
 # Compile
 g++ `root-config --cflags` plotGauss.C -o plotGauss.exe `root-config --libs`
-
 # Set flags for execution
 mg=true  
 eg=true
-
 # Run based on the flags
 if [ "$mg" = true ]; then
   ./plotGauss.exe 2016 1 1 2

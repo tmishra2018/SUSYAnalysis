@@ -131,9 +131,9 @@ void DY_fakerates(int RunYear, bool preVFP){//main
         		fakeRateFile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult%d%s/EleFakeRate-DrellYan-ByPtVtx-EB.txt", RunYear, whichVFP.c_str()));
         		etafile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult%d%s/result_eta_dependence_DY.txt", RunYear, whichVFP.c_str()));
     		} else {
-        		resultfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/result_fitFakeFunc_Data.txt", RunYear, whichVFP.c_str()));
-        		fakeRateFile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-ByPtVtx-EB.txt", RunYear, whichVFP.c_str()));
-        		etafile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/result_eta_dependence_Data.txt", RunYear, whichVFP.c_str()));
+        		resultfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/result_fitFakeFunc_Data.txt", RunYear, whichVFP.c_str()));
+        		fakeRateFile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-ByPtVtx-EB.txt", RunYear, whichVFP.c_str()));
+        		etafile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/result_eta_dependence_Data.txt", RunYear, whichVFP.c_str()));
     		}} 
 	else {  
     		if (doDrellYan == true) {
@@ -141,9 +141,9 @@ void DY_fakerates(int RunYear, bool preVFP){//main
         		fakeRateFile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult%d%s/EleFakeRate-DrellYan-ByPtVtx-EE.txt", RunYear, whichVFP.c_str()));
         		etafile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult%d%s/result_eta_dependence_DY_EE.txt", RunYear, whichVFP.c_str()));
     		} else {
-        		resultfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/result_fitFakeFunc_Data_EE.txt", RunYear, whichVFP.c_str()));
-        		fakeRateFile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-ByPtVtx-EE.txt", RunYear, whichVFP.c_str()));
-        		etafile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/result_eta_dependence_Data_EE.txt", RunYear, whichVFP.c_str()));}}
+        		resultfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/result_fitFakeFunc_Data_EE.txt", RunYear, whichVFP.c_str()));
+        		fakeRateFile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-ByPtVtx-EE.txt", RunYear, whichVFP.c_str()));
+        		etafile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/result_eta_dependence_Data_EE.txt", RunYear, whichVFP.c_str()));}}
 
 
 	gSystem->Load("../../../lib/libAnaClasses.so");
@@ -174,28 +174,28 @@ void DY_fakerates(int RunYear, bool preVFP){//main
 
 	/****************************   Data   *********************************/
 	else {
-		Pt_file.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-Bw-ker-pt-60-120.txt",RunYear,whichVFP.c_str()));
+		Pt_file.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-Bw-ker-pt-60-120.txt",RunYear,whichVFP.c_str()));
 		if(RunYear==2016 and preVFP == true){
-		       	Pt_DYfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-Bw-ker-pt-60-120.txt",RunYear,whichVFP.c_str()));
-			Pt_Polfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-Bw-ker-pt-60-120.txt",RunYear,whichVFP.c_str()));}
+		       	Pt_DYfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-Bw-ker-pt-60-120.txt",RunYear,whichVFP.c_str()));
+			Pt_Polfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-Bw-ker-pt-60-120.txt",RunYear,whichVFP.c_str()));}
 		else{
-			Pt_DYfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-DY-ker-pt-60-120.txt",RunYear,whichVFP.c_str()));
-        		Pt_Polfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-Bw-expo-pt-60-120.txt",RunYear,whichVFP.c_str()));}
+			Pt_DYfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-DY-ker-pt-60-120.txt",RunYear,whichVFP.c_str()));
+        		Pt_Polfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-Bw-expo-pt-60-120.txt",RunYear,whichVFP.c_str()));}
         	
 
 
-		Eta_file.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-Bw-ker-eta-60-120.txt",RunYear,whichVFP.c_str()));
-        	Eta_DYfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-DY-ker-eta-60-120.txt",RunYear,whichVFP.c_str()));
-        	Eta_Polfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-Bw-expo-eta-60-120.txt",RunYear,whichVFP.c_str()));
+		Eta_file.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-Bw-ker-eta-60-120.txt",RunYear,whichVFP.c_str()));
+        	Eta_DYfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-DY-ker-eta-60-120.txt",RunYear,whichVFP.c_str()));
+        	Eta_Polfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-Bw-expo-eta-60-120.txt",RunYear,whichVFP.c_str()));
 
 		if(RunYear==2017){
-        		Vtx_file.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-Bw-ker-vtx-60-120_above18.txt",RunYear,whichVFP.c_str()));
-        		Vtx_DYfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-DY-ker-vtx-60-120_above18.txt",RunYear,whichVFP.c_str()));
-        		Vtx_Polfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-Bw-expo-vtx-60-120_above18.txt",RunYear,whichVFP.c_str())); }
+        		Vtx_file.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-Bw-ker-vtx-60-120_above18.txt",RunYear,whichVFP.c_str()));
+        		Vtx_DYfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-DY-ker-vtx-60-120_above18.txt",RunYear,whichVFP.c_str()));
+        		Vtx_Polfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-Bw-expo-vtx-60-120_above18.txt",RunYear,whichVFP.c_str())); }
         	else {
-        		Vtx_file.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-Bw-ker-vtx-60-120_above12.txt",RunYear,whichVFP.c_str()));
-        		Vtx_DYfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-DY-ker-vtx-60-120_above12.txt",RunYear,whichVFP.c_str()));
-        		Vtx_Polfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DataResult%d%s/EleFakeRate-Data-Bw-expo-vtx-60-120_above12.txt",RunYear,whichVFP.c_str())); }
+        		Vtx_file.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-Bw-ker-vtx-60-120_above12.txt",RunYear,whichVFP.c_str()));
+        		Vtx_DYfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-DY-ker-vtx-60-120_above12.txt",RunYear,whichVFP.c_str()));
+        		Vtx_Polfile.open(Form("/eos/uscms/store/user/tmishra/elefakepho/DATAResult%d%s/EleFakeRate-Data-Bw-expo-vtx-60-120_above12.txt",RunYear,whichVFP.c_str())); }
         }
 	std::string line;
 	unsigned nPtBins(0);

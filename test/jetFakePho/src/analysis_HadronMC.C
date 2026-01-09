@@ -51,7 +51,7 @@ void analysis_HadronMC(int RunYear, bool ISpreVFP){//main
 	outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/jetfakepho/files/plot_hadron_GJet_%d%s.root",RunYear,whichVFP.c_str()),"RECREATE");
 	outputfile->cd();
 
-  //************ Signal Tree **********************//
+  //************ Signal Tree ********************** /
   TTree *egtree = new TTree("egTree","egTree");
   float eg_phoEt(0);
   float eg_phoEta(0);
@@ -166,7 +166,15 @@ void analysis_HadronMC(int RunYear, bool ISpreVFP){//main
 				ismgCandidate = true;
 			}
 			if(!itpho->fireDoubleTrg(5) && !itpho->fireDoubleTrg(6))isegCandidate=false;
-			if(!itpho->fireL1Trg(12))ismgCandidate=false;
+			if (RunYear == 2016) {
+				    if (!itpho->fireL1Trg(12)) {
+        				ismgCandidate = false;
+    					}
+			}else {
+    				if (!itpho->fireL1Trg(32)) {
+        				ismgCandidate = false;
+    				}
+			}
 
 			if(isegCandidate && !hasegCandidate && hasDiEM){
 				eg_phoEt = itpho->getCalibEt();

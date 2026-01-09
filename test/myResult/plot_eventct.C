@@ -1,5 +1,8 @@
+#include <sstream>
+#include <iomanip>
+#include <string>
+
 #include <TROOT.h>
-#include<string>
 #include<iostream>
 #include<fstream>
 #include<sstream>
@@ -29,6 +32,16 @@
 #include "Math/QuantFuncMathCore.h"
 #include "../../include/analysis_commoncode.h"
 
+std::string to_string_with_precision(double value, int precision = 1) {
+    std::ostringstream out;
+    out << std::fixed << std::setprecision(precision) << value;
+    std::string result = out.str();
+    if (result.find(".0") != std::string::npos) {
+        result = result.substr(0, result.find(".0"));
+    }
+    return result;
+}
+
 bool total16 = false; // ON and OFF
 
 void plot_eventct(int NBIN){//main  
@@ -56,6 +69,8 @@ void plot_eventct(int NBIN){//main
         TFile *egfile_ele = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_egamma_eleBkg_%d%s.root",RunYear,whichVFP.c_str()));
         TFile *egfile_jet = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_egamma_jetbkg_%d%s.root",RunYear,whichVFP.c_str()));
         TFile *egfile_qcd = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_egamma_qcd_%d%s.root",RunYear,whichVFP.c_str()));
+	
+
         TFile *egfile_VG  = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_egamma_VGBkg_%d%s.root",RunYear,whichVFP.c_str()));
         TFile *egfile_rare= TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_egamma_rareBkg_%d%s.root",RunYear,whichVFP.c_str()));
 
@@ -439,7 +454,6 @@ void plot_eventct(int NBIN){//main
 
 	double bkgContent_elefakepho(0), bkgContent_jetfakepho(0), bkgContent_jetfakelep(0), bkgContent_VGamma(0), bkgContent_rare(0), bkgContent_Total(0), dataEvents(0);
 	double bkgContent_elefakepho_mg(0), bkgContent_jetfakepho_mg(0), bkgContent_jetfakelep_mg(0), bkgContent_VGamma_mg(0), bkgContent_rare_mg(0), bkgContent_Total_mg(0), dataEvents_mg(0);
-	double totalerror[36]={39.987,93.704,26.113, 3.992,14.471,13.323, 0.202, 1.356, 2.037, 2.362, 7.202, 4.811, 1.805, 3.183, 1.957, 0.400, 0.234, 0.209,15.745,50.100,19.984, 2.664,11.223, 8.607, 0.269, 0.466, 0.759, 1.936, 6.924, 3.647, 1.421, 3.230, 1.795, 0.194, 0.213, 0.502};
 	
 	for(int ibin(1); ibin <= 2*NBIN; ibin++){
 		bkgContent=0; 
@@ -505,11 +519,132 @@ void plot_eventct(int NBIN){//main
 		error_bkg->SetPointError(ibin-1, 0.5, bkgError);
 		error_ratio->SetPoint(ibin-1, ibin -1 + 0.5, 1);
 		error_ratio->SetPointError(ibin-1, 0.5, bkgError/bkgContent);
-	
-		if(ibin==1) cout<<"Bin Number efakePho jetFakePho QCD VGamma rare :"<<endl<<endl;
 
+                if (ibin == 1) cout<<"eleshape jetshape QCDscale VGamma (Esf scale jes jer) Rare (jes jer esf xs lumi)     "<<endl;
+                cout << std::fixed << std::setprecision(2)
+                        << ibin << "\t"
+                        << h_elefakepho_syserr_eleshape->GetBinContent(ibin) << "\t"
+                        << h_jetfakepho_syserr_jetshape->GetBinContent(ibin) << "\t"
+                        << h_qcdfakelep_syserr_scale->GetBinContent(ibin) << "\t"
+        									//                << h_qcdfakelep_syserr_qcdshape->GetBinContent(ibin) << "\t"
+                        << h_VGamma_syserr_esf->GetBinContent(ibin) << "\t"
+                        << h_VGamma_syserr_scale->GetBinContent(ibin) << "\t"
+                        << h_VGamma_syserr_jes->GetBinContent(ibin) << "\t"
+                        << h_VGamma_syserr_jer->GetBinContent(ibin) << "\t"
 
-		//cout<<ibin<<"\t"<<h_elefakepho_norm->GetBinContent(ibin)<<"\t"<<h_jetfakepho_norm->GetBinContent(ibin)<<"\t"<<h_qcdfakelep_norm->GetBinContent(ibin)<<"\t"<<h_VGamma_norm->GetBinContent(ibin)<<"\t"<<h_rare_norm->GetBinContent(ibin)<<"\t"<<h_elefakepho_norm->GetBinContent(ibin) + h_jetfakepho_norm->GetBinContent(ibin) + h_qcdfakelep_norm->GetBinContent(ibin) + h_VGamma_norm->GetBinContent(ibin) + h_rare_norm->GetBinContent(ibin)<<"\t"<<h_sig->GetBinContent(ibin)<<endl;
+                        << h_rare_syserr_jes->GetBinContent(ibin) << "\t"
+                        << h_rare_syserr_jer->GetBinContent(ibin) << "\t"
+                        << h_rare_syserr_esf->GetBinContent(ibin) << "\t"
+                        << h_rare_syserr_xs->GetBinContent(ibin) << "\t"
+                        << h_rare_syserr_lumi->GetBinContent(ibin) << endl;
+
+		bool exceeded = false;
+		std::vector<double> values = {
+    			(h_elefakepho_norm->GetBinContent(ibin) != 0 ? (100 * h_elefakepho_syserr_eleshape->GetBinContent(ibin)) / h_elefakepho_norm->GetBinContent(ibin) : 0),
+    			(h_jetfakepho_norm->GetBinContent(ibin) != 0 ? (100 * h_jetfakepho_syserr_jetshape->GetBinContent(ibin)) / h_jetfakepho_norm->GetBinContent(ibin) : 0),
+    			(h_qcdfakelep_norm->GetBinContent(ibin) != 0 ? (100 * h_qcdfakelep_syserr_scale->GetBinContent(ibin)) / h_qcdfakelep_norm->GetBinContent(ibin) : 0),
+    			(h_VGamma_norm->GetBinContent(ibin) != 0 ? (100 * h_VGamma_syserr_esf->GetBinContent(ibin)) / h_VGamma_norm->GetBinContent(ibin) : 0),
+    			(h_VGamma_norm->GetBinContent(ibin) != 0 ? (100 * h_VGamma_syserr_scale->GetBinContent(ibin)) / h_VGamma_norm->GetBinContent(ibin) : 0),
+    			(h_VGamma_norm->GetBinContent(ibin) != 0 ? (100 * h_VGamma_syserr_jes->GetBinContent(ibin)) / h_VGamma_norm->GetBinContent(ibin) : 0),
+    			(h_VGamma_norm->GetBinContent(ibin) != 0 ? (100 * h_VGamma_syserr_jer->GetBinContent(ibin)) / h_VGamma_norm->GetBinContent(ibin) : 0),
+    			(h_rare_norm->GetBinContent(ibin) != 0 ? (100 * h_rare_syserr_jes->GetBinContent(ibin)) / h_rare_norm->GetBinContent(ibin) : 0),
+    			(h_rare_norm->GetBinContent(ibin) != 0 ? (100 * h_rare_syserr_jer->GetBinContent(ibin)) / h_rare_norm->GetBinContent(ibin) : 0),
+    			(h_rare_norm->GetBinContent(ibin) != 0 ? (100 * h_rare_syserr_esf->GetBinContent(ibin)) / h_rare_norm->GetBinContent(ibin) : 0),
+    			(h_rare_norm->GetBinContent(ibin) != 0 ? (100 * h_rare_syserr_xs->GetBinContent(ibin)) / h_rare_norm->GetBinContent(ibin) : 0),
+    			(h_rare_norm->GetBinContent(ibin) != 0 ? (100 * h_rare_syserr_lumi->GetBinContent(ibin)) / h_rare_norm->GetBinContent(ibin) : 0),
+		};
+
+		for (float value : values) {
+    			if (value > 100.1) {
+        			exceeded = true;
+    				std::cerr << "Exceeding 100% uncertainty detected:\n";
+    				std::cerr << "ibin\t" << ibin << "\nValues: ";
+    				std::cerr << value << " ";
+    				std::cerr << "\n";
+        			break;
+    			}
+		}
+	}
+    	std::cout << "\\begin{table}[h]" << std::endl;
+    	std::cout << "\\centering" << std::endl;
+    	std::cout << "  \\resizebox{\\linewidth}{!}{" << std::endl;
+    	std::cout << "  \\begin{tabular}{|c|c|c|c|c|c|}" << std::endl;
+    	std::cout << "  \\hline" << std::endl;
+    	std::cout << "  Source of Uncertainties & $e\\rightarrow\\gamma$ fakes & $\\text{jet}\\rightarrow\\gamma$ fakes & $\\text{jet}\\rightarrow l$ fakes & $V+\\gamma$ & rare EWK \\\\" << std::endl;
+    	std::cout << "  \\hline" << std::endl;
+
+    	std::map<std::string, std::pair<double, double>> sysRanges;
+
+    	for (int ibin = 1; ibin <= 2 * NBIN; ibin++) {
+        	std::vector<std::pair<std::string, double>> sysErrors = {
+            		{"JEC_rare", 100 * h_rare_syserr_jes->GetBinContent(ibin) / h_rare_norm->GetBinContent(ibin)},
+            		{"JER_rare", 100 * h_rare_syserr_jer->GetBinContent(ibin) / h_rare_norm->GetBinContent(ibin)},
+            		{"ESF_rare", 100 * h_rare_syserr_esf->GetBinContent(ibin) / h_rare_norm->GetBinContent(ibin)},
+            		{"Electron Fake Photon Shape", 100 * h_elefakepho_syserr_eleshape->GetBinContent(ibin) / h_elefakepho_norm->GetBinContent(ibin)},
+            		{"Jet Fake Photon Shape", 100 * h_jetfakepho_syserr_jetshape->GetBinContent(ibin) / h_jetfakepho_norm->GetBinContent(ibin)},
+            		{"QCD Fake Lepton Scale", 100 * h_qcdfakelep_syserr_scale->GetBinContent(ibin) / h_qcdfakelep_norm->GetBinContent(ibin)},
+            		{"JEC", 100 * h_VGamma_syserr_jes->GetBinContent(ibin) / h_VGamma_norm->GetBinContent(ibin)},
+            		{"JER", 100 * h_VGamma_syserr_jer->GetBinContent(ibin) / h_VGamma_norm->GetBinContent(ibin)},
+            		{"ESF", 100 * h_VGamma_syserr_esf->GetBinContent(ibin) / h_VGamma_norm->GetBinContent(ibin)},
+            		{"Scale", 100 * h_VGamma_syserr_scale->GetBinContent(ibin) / h_VGamma_norm->GetBinContent(ibin)},
+            		{"XS", 100 * h_rare_syserr_xs->GetBinContent(ibin) / h_rare_norm->GetBinContent(ibin)},
+            		{"Lumi", 100 * h_rare_syserr_lumi->GetBinContent(ibin) / h_rare_norm->GetBinContent(ibin)}
+        	};
+
+        	for (auto& sys : sysErrors) {
+            		if (sys.second > 0) {
+				sys.second = round(sys.second * 10) / 10.0;
+                		if (sysRanges.find(sys.first) == sysRanges.end()) {
+                    			sysRanges[sys.first] = {sys.second, sys.second};
+                		} else {
+                    			sysRanges[sys.first].first = std::min(sysRanges[sys.first].first, sys.second);
+                    			sysRanges[sys.first].second = std::max(sysRanges[sys.first].second, sys.second);
+                		}
+            		}
+        	}
+    	}
+
+     	std::map<std::string, std::vector<std::string>> tableData = {
+    	{"Jet energy scale", {"-", "-", "-", to_string_with_precision(sysRanges["JEC"].first) + "-" + to_string_with_precision(sysRanges["JEC"].second), to_string_with_precision(sysRanges["JEC_rare"].first) + "-" + to_string_with_precision(sysRanges["JEC_rare"].second)}},
+
+    	{"Jet energy resolution", {"-", "-", "-", to_string_with_precision(sysRanges["JER"].first) + "-" + to_string_with_precision(sysRanges["JER"].second), to_string_with_precision(sysRanges["JER_rare"].first) + "-" + to_string_with_precision(sysRanges["JER_rare"].second)}},
+
+    	{"ID, trigger ESF", {"-", "-", "-", to_string_with_precision(sysRanges["ESF"].first) + "-" + to_string_with_precision(sysRanges["ESF"].second), to_string_with_precision(sysRanges["ESF_rare"].first) + "-" + to_string_with_precision(sysRanges["ESF_rare"].second)}},
+
+    	{"e-fake-photon shape", {to_string_with_precision(sysRanges["Electron Fake Photon Shape"].first) + "-" + to_string_with_precision(sysRanges["Electron Fake Photon Shape"].second), "-", "-", "-", "-"}},
+
+    	{"jet-fake-photon shape", {"-", to_string_with_precision(sysRanges["Jet Fake Photon Shape"].first) + "-" + to_string_with_precision(sysRanges["Jet Fake Photon Shape"].second), "-", "-", "-"}},
+
+    	{"normalization scale", {"-", "-", to_string_with_precision(sysRanges["QCD Fake Lepton Scale"].first) + "-" + to_string_with_precision(sysRanges["QCD Fake Lepton Scale"].second), to_string_with_precision(sysRanges["Scale"].first) + "-" + to_string_with_precision(sysRanges["Scale"].second), "-"}},
+
+    	{"Integrated luminosity", {"-", "-", "-", "-", to_string_with_precision(sysRanges["Lumi"].first)}},
+
+    	{"Cross section", {"-", "-", "-", "-", to_string_with_precision(sysRanges["XS"].first)}}
+	};
+
+	for (auto& row : tableData) {
+    		std::cout << "  " << row.first;
+    		for (const auto& col : row.second) {
+        		std::cout << " & " << col;
+    		}
+    		std::cout << " \\\\" << std::endl;
+	}
+
+    	std::cout << "  \\hline" << std::endl;
+    	std::cout << "  \\end{tabular}" << std::endl;
+    	std::cout << "  }" << std::endl;
+    	std::cout << "  \\caption{Systematic uncertainties of the SM backgrounds.}" << std::endl;
+    	std::cout << "  \\label{table:ch4-systematic}" << std::endl;
+    	std::cout << "\\end{table}" << std::endl;
+
+	for(int ibin(1); ibin <= 2*NBIN; ibin++){
+                cout << std::fixed << std::setprecision(2)
+                        << ibin << "\t"
+                        << h_elefakepho_norm->GetBinContent(ibin) << "\t"
+                        << h_jetfakepho_norm->GetBinContent(ibin) << "\t"
+                        << h_qcdfakelep_norm->GetBinContent(ibin) << "\t"
+                        << h_VGamma_norm->GetBinContent(ibin) << "\t"
+                        << h_rare_norm->GetBinContent(ibin) << endl;
 	}
 	
 	cout<<endl<<endl<<"eg channel : 		"<<endl;
@@ -517,7 +652,7 @@ void plot_eventct(int NBIN){//main
 	cout<<"jetfakePho :   "<<bkgContent_jetfakepho<<endl;
 	cout<<"jetfakeLep :   "<<bkgContent_jetfakelep<<endl;
 	cout<<"VGamma :       "<<bkgContent_VGamma<<endl;
-	cout<<"Rare :         "<<bkgContent_rare<<endl;
+	cout<<"Electroweak :         "<<bkgContent_rare<<endl;
 	cout<<"total SM backgrounds:	"<<bkgContent_Total<<"\tTotal data  "<<dataEvents<<endl;
 	cout<<"Discrepancy :  "<<100*(bkgContent_Total-dataEvents)/dataEvents<<" % "<<endl;
 	
@@ -526,7 +661,7 @@ void plot_eventct(int NBIN){//main
 	cout<<"jetfakePho :   "<<bkgContent_jetfakepho_mg<<endl;
 	cout<<"jetfakeLep :   "<<bkgContent_jetfakelep_mg<<endl;
 	cout<<"VGamma :       "<<bkgContent_VGamma_mg<<endl;
-	cout<<"Rare :         "<<bkgContent_rare_mg<<endl;
+	cout<<"Electroweak :         "<<bkgContent_rare_mg<<endl;
 	cout<<"total SM backgrounds:	"<<bkgContent_Total_mg<<"\tTotal data  "<<dataEvents_mg<<endl;
 	cout<<"Discrepancy :  "<<100*(bkgContent_Total_mg-dataEvents_mg)/dataEvents_mg<<" % "<<endl;
 	

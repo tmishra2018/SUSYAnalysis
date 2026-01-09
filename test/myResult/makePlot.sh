@@ -40,7 +40,7 @@ for RunYear in "${RunYears[@]}"; do
 
         echo "Running for RunYear=$RunYear and preVFP=$preVFP"
 
-        ch=1
+        #ch=2
         anatype=3
         lmt=100
         hmt=-1
@@ -51,7 +51,7 @@ for RunYear in "${RunYears[@]}"; do
         hpt=-1
 
         rm -f SigConfig.txt
-        echo 'ichannel' $ch >> SigConfig.txt
+        #echo 'ichannel' $ch >> SigConfig.txt
         echo 'anatype' $anatype >> SigConfig.txt
         echo 'lowMt' $lmt >> SigConfig.txt
         echo 'highMt' $hmt >> SigConfig.txt
@@ -63,16 +63,24 @@ for RunYear in "${RunYears[@]}"; do
         echo 'RunYear' $RunYear >> SigConfig.txt
         echo 'preVFP' $preVFP >> SigConfig.txt
 
-	#root -l -q "plot_newbkg.C"
+	log_file="logs/eventcount_${RunYear}${VFP_string}.txt"
+	rm -f "$log_file"
+	root -l -q "plot_eventct.C+($NBIN)" >> "logs/eventcount_${RunYear}${VFP_string}.txt"
+	root -l -q "plot_pie_chart.C(\"$log_file\",\"$RunYear\",\"$VFP_string\")"
+
 	root -l -q "plot_newbkg_NoData.C"
+	root -l -q "plot_eventct_NoData.C+($NBIN)"
+	
+	
+	
+	log_file="../Background/logs/BKG_${RunYear}${VFP_string}.log"
+	root -l -q "plot_pie_chart.C(\"$log_file\",\"$RunYear\",\"$VFP_string\")"
 
-	#log_file="logs/eventcount_${RunYear}${VFP_string}.txt"
-	#rm -f "$log_file"
+	log_file="../Background/logs/VALID_${RunYear}${VFP_string}.log"
+	root -l -q "plot_pie_chart.C(\"$log_file\",\"$RunYear\",\"$VFP_string\")"
+
+	#root -l -q "plot_newbkg.C"
 	#root -l -q "Detail_RareBkgs_plot_eventct_NoData.C+($NBIN)" >> "$log_file"
-        #root -l -q "plot_eventct.C+($NBIN)" >> "logs/eventcount_${RunYear}.txt"
-
-	root -l -q "plot_eventct_NoData.C+($NBIN)" >> "logs/eventcount_${RunYear}${VFP_string}.txt"
-	#root -l -q "plot_pie_chart.C(\"$log_file\", \"${RunYear}\", \"${VFP_string}\")"
 	
     done
 done

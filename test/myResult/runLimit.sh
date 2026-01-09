@@ -23,9 +23,9 @@ RunYears=("2016" "2017" "2018")
 
 for RunYear in "${RunYears[@]}"; do
     if [ "$RunYear" -eq 2016 ]; then
-        preVFPs=("0" "1")  # 2016 has both preVFP=0 and preVFP=1
+        preVFPs=("0" "1") 
     else
-        preVFPs=("0")  # 2017 and 2018 have only preVFP=0
+        preVFPs=("0")  
     fi
 
     for preVFP in "${preVFPs[@]}"; do

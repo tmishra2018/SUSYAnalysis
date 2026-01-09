@@ -153,6 +153,9 @@ inline bool isEE(){
 }
 
 inline float getCutValueHoverE(){ return HoverEcut_;}
+inline bool isPosi(){
+  return (eleCharge_ > 0);
+}
 
 
 bool passSignalSelection();

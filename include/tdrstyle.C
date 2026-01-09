@@ -79,6 +79,12 @@ CMS_lumi( TPad* pad, int iPeriod, int ichannel, int iPosX )
     lumiText += (ichannel == 1) ? "41.46 fb^{-1} (13 TeV)" : (ichannel == 2) ? "27.1 fb^{-1} (13 TeV)" : "(13 TeV)";
   else if (iPeriod == 4)
     lumiText += "59.81 fb^{-1} (13 TeV)";
+  else if (iPeriod == 5)				      
+    lumiText += "123.2 (137.6) fb^{-1} (13 TeV)";
+  else if (iPeriod == 6)				      
+    lumiText += "137.6 fb^{-1} (13 TeV)";
+  else if (iPeriod == 7)				      
+    lumiText += "123.2 fb^{-1} (13 TeV)";
   else
     lumiText += "(13 TeV)"; // Fallback for unexpected iPeriod
 

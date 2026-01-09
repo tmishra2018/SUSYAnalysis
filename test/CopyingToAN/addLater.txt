@@ -1,4 +1,0 @@
-ls /eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho*2016postVFP.pdf
-ls /eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho*2016preVFP.pdf
-ls /eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho*2017.pdf
-ls /eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho*2018.pdf

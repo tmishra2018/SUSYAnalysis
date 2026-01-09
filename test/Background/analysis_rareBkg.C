@@ -43,10 +43,15 @@ void analysis_rareBkg(){
 	TH1D *p_PU = new TH1D("p_PU","",100,0,100);
 	TH1D *p_nJet = new TH1D("p_nJet","p_nJet",10,0,10);
 	TH1D *p_nBJet = new TH1D("p_nBJet","p_nBJet",5,0,5);
+
+	TH1D *p_LepPt_TT = new TH1D("p_LepPt_TT","p_LepPt",nBkgPtBins,bkgPtBins);
+        TH1D *p_nJet_TT = new TH1D("p_nJet_TT","p_nJet",10,0,10);
+        TH1D *p_nBJet_TT = new TH1D("p_nBJet_TT","p_nBJet",5,0,5);
 	TH1D *p_PhoEt_TT = new TH1D("p_PhoEt_TT","#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
 	TH1D *p_MET_TT = new TH1D("p_MET_TT","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
 	TH1D *p_Mt_TT = new TH1D("p_Mt_TT","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins);
 	TH1D *p_HT_TT = new TH1D("p_HT_TT","HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
+	TH1D *p_dPhiEleMET_TT = new TH1D("p_dPhiEleMET_TT","dPhiEleMET",32,0,3.2);
 
 	TH1D *jesup_MET = new TH1D("jesup_MET","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
 	TH1D *jesup_Mt = new TH1D("jesup_Mt","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins);
@@ -88,6 +93,7 @@ void analysis_rareBkg(){
   		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WZG_%d%s.root",RunYear,whichVFP.c_str()));
   		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WW_%d%s.root",RunYear,whichVFP.c_str()));
   		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WZ_%d%s.root",RunYear,whichVFP.c_str()));
+  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_ZZ_%d%s.root",RunYear,whichVFP.c_str()));
   		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_TTJets_%d%s.root",RunYear,whichVFP.c_str()));
 	float crosssection(0);
 	float ntotalevent(0);
@@ -180,7 +186,6 @@ void analysis_rareBkg(){
 
 	for(unsigned ievt(0); ievt < mctree->GetEntries(); ievt++){
 		mctree->GetEntry(ievt);
-		if(nJet <1)continue; // suggestion from convenors
 		p_PU->Fill(nVertex,PUweight);
 		double scalefactor(0);
 		double scalefactorup(0);
@@ -276,6 +281,10 @@ void analysis_rareBkg(){
 			p_MET_TT->Fill(sigMET,  weight);
 			p_Mt_TT->Fill(sigMT,  weight);
 			p_HT_TT->Fill(HT,  weight);
+			p_LepPt_TT->Fill(lepPt,  weight);
+                        p_nJet_TT->Fill(nJet,  weight);
+                        p_nBJet_TT->Fill(nBJet, weight);
+			p_dPhiEleMET_TT->Fill(fabs(dPhiLepMET), weight);
 		}
 
 		jesup_MET->Fill(sigMETJESup, weight);
@@ -380,6 +389,10 @@ void analysis_rareBkg(){
 		p_HT_TT->SetBinError(ibin,sqrt(syserror));
 	}	
 	//p_PhoEt->Sumw2();
+	p_LepPt_TT->Write();
+	p_nJet_TT->Write();
+	p_nBJet_TT->Write();
+	p_dPhiEleMET_TT->Write();
 	outputfile->Write();
 	outputfile->Close();
 

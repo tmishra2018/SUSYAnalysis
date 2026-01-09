@@ -37,6 +37,7 @@
 #include "RooFitResult.h"
 #include "RooAbsReal.h"
 #include "RooNumIntConfig.h"
+#include "TROOT.h"
 
 #include "../../../include/analysis_rawData.h"
 #include "../../../include/analysis_jet.h"
@@ -46,25 +47,24 @@
 #include "../../../include/analysis_mcData.h"
 #include "../../../include/analysis_tools.h"
 
-int RunYear = 2016;
-int ichannel = 2;
-void plotFit(){
+std::string whichVFP;
+
+void plotFit(int RunYear, int preVFP, int ichannel){
+        if(RunYear==2016 and preVFP == 1) whichVFP = "preVFP";
+        else if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
+        else whichVFP = "";
+
 	gROOT->SetBatch(kTRUE);
 	gStyle->SetOptStat(0);
-	// VGamma scale factor as a function of lepton pT(Figure 27 AN)
 	TGraphErrors *p_frac = new TGraphErrors(4);
-	// VGamma scale factor in full pT range
 	TGraphErrors *p_frac_total = new TGraphErrors(1);
 	TGraphErrors *p_error_total = new TGraphErrors(1);
-	// distribution of VGamma scale factor in full pT range(Figure 29 AN)
 	TH1F *p_frac_0;
-	if(ichannel == 1) p_frac_0  = new TH1F("p_frac_0","a_{V#gamma}",50,1.5,2.5);
-	if(ichannel == 2) p_frac_0  = new TH1F("p_frac_0","a_{V#gamma}",50,1.,1.75);
+	p_frac_0  = new TH1F("p_frac_0","a_{V#gamma}",50,1.,1.5);
 
 	std::ifstream vgammascalefile;
-//	if(ichannel == 1) vgammascalefile.open("/uscms/homes/m/mengleis/work/SUSY2016/SUSYAnalysis/test/VGamma/fit/VGamma_scalefactor_eg.txt");
-	if(ichannel == 1) vgammascalefile.open(Form("/eos/uscms/store/user/tmishra/VGamma/VGamma_scalefactor_eg_%d.txt",RunYear));
-	if(ichannel == 2) vgammascalefile.open(Form("/eos/uscms/store/user/tmishra/VGamma/VGamma_scalefactor_mg_%d.txt",RunYear));
+	if(ichannel == 1) vgammascalefile.open(Form("/eos/uscms/store/user/tmishra/VGamma/VGamma_scalefactor_eg_%d%s.txt",RunYear,whichVFP.c_str()));
+        if(ichannel == 2) vgammascalefile.open(Form("/eos/uscms/store/user/tmishra/VGamma/VGamma_scalefactor_mg_%d%s.txt",RunYear,whichVFP.c_str()));
 	float fakescale, vgammascale, fakescaleerror, vgammascaleerror;
 	float leplow, lephigh;
 
@@ -74,20 +74,13 @@ void plotFit(){
 	TCanvas *cantemp = new TCanvas("cantemp","",1200,1200);
 	// four temporary histograms for four lepton pT bins, where scalefactor is derived
 	TH1D *temphist[4];
-	if(ichannel == 1) {
-		temphist[0] = new TH1D("temphist0","",100,1.5,2.5);
-		temphist[1] = new TH1D("temphist1","",100,1.5,2.5);
-		temphist[2] = new TH1D("temphist2","",100,1.5,2.5);
-		temphist[3] = new TH1D("temphist3","",100,1.5,2.5);}
-	
-	if(ichannel == 2) {
-		temphist[0] = new TH1D("temphist0","",100,1.,1.75);
-		temphist[1] = new TH1D("temphist1","",100,1.,1.75);
-		temphist[2] = new TH1D("temphist2","",100,1.,1.75);
-		temphist[3] = new TH1D("temphist3","",100,1.,1.75);}
+	temphist[0] = new TH1D("temphist0","",100,0.5,2);
+        temphist[1] = new TH1D("temphist1","",100,0.5,2);
+        temphist[2] = new TH1D("temphist2","",100,0.5,2);
+        temphist[3] = new TH1D("temphist3","",100,0.5,2);
 
 	double lowbound(3), highbound(0), norm(0);
-	for(unsigned i(0);  i < 50 ; i++){
+	for(unsigned i(0);  i < 1000 ; i++){
 		vgammascalefile >> leplow >> lephigh >> fakescale >> fakescaleerror >> vgammascale >> vgammascaleerror;
 		if(i == 0)p_frac_total->SetPoint(0, 100, vgammascale);
 		if(i == 0)p_error_total->SetPoint(0, 100, vgammascale);
@@ -98,11 +91,10 @@ void plotFit(){
 		if(vgammascale < lowbound)lowbound = vgammascale;
 		if(vgammascale > highbound)highbound = vgammascale;
 	}
-
 	cantemp->Divide(2,2);
-	for(unsigned i(0);  i < 4; i++){
+	for(unsigned i(0);  i < 2; i++){
 		double xvalue = 0, xerror = 0, yvalue = 0, yerror;
-		for(unsigned j(0);  j < 50 ; j++){
+		for(unsigned j(0);  j < 1000 ; j++){
 			vgammascalefile >> leplow >> lephigh >> fakescale >> fakescaleerror >> vgammascale >> vgammascaleerror;
 			if(j==0){
 				xvalue = (leplow + lephigh) < 200? (leplow + lephigh)/2 : (leplow + 200)/2;
@@ -113,13 +105,13 @@ void plotFit(){
 		}
 		cantemp->cd(i+1);
 		temphist[i]->Draw();
-		if(ichannel == 1) temphist[i]->Fit("gaus","","",1.5,2.5);
-		if(ichannel == 2) temphist[i]->Fit("gaus","","",1.,1.75);
+		temphist[i]->Fit("gaus","","",0.5,2);
 		yerror = temphist[i]->GetFunction("gaus")->GetParameter(2);
 		if(yerror > 0.5)yerror= temphist[i]->GetRMS()/2;
 		// set four point for VGamma scale factor
 		p_frac->SetPoint(i, xvalue, yvalue);
 		p_frac->SetPointError(i, xerror, yerror);
+		cout<<i <<"\t"<<yvalue <<"\t"<<yerror<<endl;
 	}
 	p_frac_0->Fit("gaus");
 	systematicerror = p_frac_0->GetFunction("gaus")->GetParameter(2);
@@ -129,6 +121,8 @@ void plotFit(){
 	totalerror = sqrt(systematicerror*systematicerror + fittingerror*fittingerror);
 	p_frac_total->SetPointError(0,100,totalerror);
 	p_error_total->SetPointError(0,100,totalerror);
+
+	cout << "\t"<<vgammascale <<"\t"<<totalerror<<endl;
 
 	std::cout << "highbound = " << highbound << std::endl;
 	std::cout << "lowbound = " << lowbound << std::endl;
@@ -161,12 +155,17 @@ void plotFit(){
 	gStyle->SetLegendBorderSize(0);
 	gStyle->SetLegendFillColor(0);
 	leg->Draw("same");
-	if(ichannel == 1) 	can->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/%d/scale_ptDependence_eg.png",RunYear));	
-	if(ichannel == 2) 	can->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/%d/scale_ptDependence_mg.png",RunYear));	
+	if(ichannel == 1)  can->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/scale_ptDependence_eg_%d%s.png",RunYear,whichVFP.c_str()));
+	if(ichannel == 2)  can->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/scale_ptDependence_mg_%d%s.png",RunYear,whichVFP.c_str()));	
 
 	TCanvas *canscale = new TCanvas("canscale","",600,600);
 	canscale->cd();
 	p_frac_0->Draw();	
-	if(ichannel == 1)  canscale->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/%d/VGammaScale_eg.png",RunYear));	
-	if(ichannel == 2)  canscale->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/%d/VGammaScale_mg.png",RunYear));	
+	if(ichannel == 1)  canscale->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/VGammaScale_eg_%d%s.png",RunYear,whichVFP.c_str()));
+	if(ichannel == 2)  canscale->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/VGammaScale_mg_%d%s.png",RunYear,whichVFP.c_str()));	
+}
+int main(int argc, char** argv)
+{
+    plotFit(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]));
+    return 0;
 }

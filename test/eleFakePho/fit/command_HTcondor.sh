@@ -7,9 +7,9 @@ export ARG5=$5
 export ARG6=$6
 export ARG7=$7
 
-export year=2016
+export year=2018
 export preVFP=0
-export isData=0
+export isData=1
 
 cd ${_CONDOR_SCRATCH_DIR}
 echo "source /cvmfs/cms.cern.ch/cmsset_default.sh"
@@ -33,38 +33,38 @@ voms-proxy-init --voms cms --valid 168:00 -out ~/.globus/gridproxy.cert
 
 if [ ${year} == 2016 -a ${isData} == 1 -a ${preVFP} == 1 ]
 then
-        xrdcp -f *.png         root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataFitting2016preVFP
-        xrdcp -f Ele*.txt      root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataResult16preVFP
+        xrdcp -f *.png         root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DATAFitting2016preVFP
+        xrdcp -f Ele*.txt      root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DATAResult2016preVFP
 elif [ ${year} == 2016 -a ${isData} == 1 -a ${preVFP} == 0 ]
 then
-        xrdcp -f *.png         root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataFitting2016postVFP
-        xrdcp -f Ele*.txt      root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataResult16postVFP
+        xrdcp -f *.png         root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DATAFitting2016postVFP
+        xrdcp -f Ele*.txt      root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DATAResult2016postVFP
 elif [ ${year} == 2017 -a ${isData} == 1 ]
 then
-	xrdcp -f *.png        root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataFitting2017
-	xrdcp -f Ele*.txt     root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataResult17
+	xrdcp -f *.png        root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DATAFitting2017
+	xrdcp -f Ele*.txt     root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DATAResult2017
 elif [ ${year} == 2018 -a ${isData} == 1 ]
 then
-	xrdcp -f *.png        root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataFitting2018
-	xrdcp -f Ele*.txt     root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DataResult18
+	xrdcp -f *.png        root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DATAFitting2018
+	xrdcp -f Ele*.txt     root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DATAResult2018
 fi
 
 if [ ${year} == 2016 -a ${isData} == 0 -a ${preVFP} == 1 ]
 then
-	xrdcp -f *.png        root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DYFitting16preVFP
-	xrdcp -f Ele*.txt     root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DYResult16preVFP
+	xrdcp -f *.png        root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DYFitting2016preVFP
+	xrdcp -f Ele*.txt     root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DYResult2016preVFP
 elif [ ${year} == 2016 -a ${isData} == 0 -a ${preVFP} == 0 ]
 then
-	xrdcp -f *.png        root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DYFitting16postVFP
-	xrdcp -f Ele*.txt     root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DYResult16postVFP
+	xrdcp -f *.png        root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DYFitting2016postVFP
+	xrdcp -f Ele*.txt     root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DYResult2016postVFP
 elif [ ${year} == 2017 -a ${isData} == 0 ]
 then
-	xrdcp -f *.png        root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DYFitting17
-	xrdcp -f Ele*.txt     root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DYResult17
+	xrdcp -f *.png        root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DYFitting2017
+	xrdcp -f Ele*.txt     root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DYResult2017
 elif [ ${year} == 2018 -a ${isData} == 0 ]
 then
-	xrdcp -f *.png        root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DYFitting18
-	xrdcp -f Ele*.txt     root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DYResult18
+	xrdcp -f *.png        root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DYFitting2018
+	xrdcp -f Ele*.txt     root://cmseos.fnal.gov//store/user/tmishra/elefakepho/DYResult2018
 fi
 
 rm *.txt  *.png

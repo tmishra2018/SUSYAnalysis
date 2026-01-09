@@ -1,13 +1,19 @@
-## int RunYear, const char *Era /*for Data*/, bool preVFP, bool isMC, const char *Sample /*for MC*/
-#
 g++ `root-config --cflags` ../../lib/libAnaClasses.so sigtree_eg.C -o sigtree_eg.exe `root-config --libs`
 ./sigtree_eg.exe 2016 "" 1 1 T5Wg_1500-1
 ./sigtree_eg.exe 2016 "" 1 1 T5Wg_1800-1600
 ./sigtree_eg.exe 2016 "" 1 1 T5Wg_1800-800
 
+./sigtree_eg.exe 2016 "" 0 1 T5Wg_1500-1
+./sigtree_eg.exe 2016 "" 0 1 T5Wg_1800-1600
+./sigtree_eg.exe 2016 "" 0 1 T5Wg_1800-800
+
 ./sigtree_eg.exe 2017 "" 0 1 T5Wg_1500-1
 ./sigtree_eg.exe 2017 "" 0 1 T5Wg_1800-1600
 ./sigtree_eg.exe 2017 "" 0 1 T5Wg_1800-800
+
+./sigtree_eg.exe 2018 "" 0 1 T5Wg_1500-1
+./sigtree_eg.exe 2018 "" 0 1 T5Wg_1800-1600
+./sigtree_eg.exe 2018 "" 0 1 T5Wg_1800-800
 ## MC
 ## 2016 preVFP
 #./sigtree_eg.exe 2016 "" 1 1 WGJet40

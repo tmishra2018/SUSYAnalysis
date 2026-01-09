@@ -22,6 +22,7 @@
 	};
 
    	// AN bins (18 bins)
+	
 	inline int findSignalBin(float MET, float HT, float Et){
 
 		int SigBinIndex(-1);
@@ -64,9 +65,34 @@
 			if(Et > PHOETbin_)SigBinIndex += halfbin;
 		}
 		return SigBinIndex;
+	}   
+
+   	// Merged bins(12)
+	/*
+	inline int findSignalBin(float MET, float HT, float Et){
+    		int SigBinIndex(-1);
+    		int halfbin = NBIN_/2;  
+
+    		if(HTbin1_ < HTbin2_ - 10){
+        		if(MET > 120 && MET <= METbin1_){
+            			if(HT < HTbin1_) SigBinIndex = 0;
+            			else if(HT > HTbin1_ && HT < HTbin2_) SigBinIndex = 1;
+            			else if(HT >= HTbin2_) SigBinIndex = 2;
+        		}
+
+        		else if(MET > METbin1_){
+            			if(HT < HTbin1_) SigBinIndex = 3;
+            			else if(HT > HTbin1_ && HT < HTbin2_) SigBinIndex = 4;
+            			else if(HT >= HTbin2_) SigBinIndex = 5;
+        		}
+    		}
+    		if(SigBinIndex >= 0 && PHOETbin_ > 10){
+        		if(Et > PHOETbin_) SigBinIndex += halfbin;  // bins 6–11 for high Et
+    		}
+    		return SigBinIndex;
 	}
 
-
+*/
 	//   option1 : 9 bins
 /*	inline int findSignalBin(float MET, float HT, float Et){
 

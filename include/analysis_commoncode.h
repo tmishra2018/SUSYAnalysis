@@ -37,15 +37,6 @@
 #include "../include/analysis_scalefactor.h"
 #include "../include/tdrstyle.C"
 
-//float lumi_2016preVFP_DoubleEG = 19.499256;
-//float lumi_2016postVFP_DoubleEG = 16.810813;
-//float lumi_2017_DoubleEG = 41.4613;
-//float lumi_2018_DoubleEG = 59.816229;
-
-//float lumi_2016preVFP_MuonEG = 19.495077;
-//float lumi_2016postVFP_MuonEG = 16.810813;
-//float lumi_2017_MuonEG = 27.100211; // considering only DEF eras, because of availabilty of trigger
-//float lumi_2018_MuonEG = 59.810698;
 
 int ichannel(1);
 int anatype(-1);
@@ -57,16 +48,6 @@ int lowPt(25);
 int highPt(-1);
 int lepIso(4);
 
-//int NBIN(32);
-//float METbin1(200), METbin2(350), METbin3(500);
-//float HTbin1(100),  HTbin2(300), HTbin3(500);
-//float PHOETbin(200), PHOETBin2(200);
-
-//int NBIN(24);
-//float METbin1(200), METbin2(300), METbin3(400);
-//float HTbin1(100),  HTbin2(250), HTbin3(400);
-//float PHOETbin(100), PHOETBin2(200);
-
 int NBIN(18);
 float METbin1(200), METbin2(400);
 float HTbin1(100),  HTbin2(400);
@@ -74,54 +55,41 @@ float PHOETbin(200);
 int RunYear(2016);
 bool preVFP(1);
 
-// for 2016 preVFP
+double factor_mgQCD_2016preVFP(0.87261);
+double factorerror_mgQCD_2016preVFP(0.0820623);
+double factor_mgVGamma_2016preVFP(1.35197);
+double factorerror_mgVGamma_2016preVFP(0.107935);
+double factor_egQCD_2016preVFP(0.491149);
+double factorerror_egQCD_2016preVFP(0.12104);
+double factor_egVGamma_2016preVFP(1.42088);
+double factorerror_egVGamma_2016preVFP(0.311331);
 
-double factor_mgQCD_2016preVFP(0.695689);
-double factorerror_mgQCD_2016preVFP(0.104913);
-double factor_mgVGamma_2016preVFP(1.1235);
-double factorerror_mgVGamma_2016preVFP(0.0751961);
+double factor_mgQCD_2016postVFP(0.919834);
+double factorerror_mgQCD_2016postVFP(0.173638);
+double factor_mgVGamma_2016postVFP(1.47747);
+double factorerror_mgVGamma_2016postVFP(0.165919);
+double factor_egQCD_2016postVFP(0.674543);
+double factorerror_egQCD_2016postVFP(0.105477);
+double factor_egVGamma_2016postVFP(1.13285);
+double factorerror_egVGamma_2016postVFP(0.334537);
 
-double factor_egQCD_2016preVFP(0.464027);
-double factorerror_egQCD_2016preVFP(0.0514618);
-double factor_egVGamma_2016preVFP(1.22017);
-double factorerror_egVGamma_2016preVFP(0.120506);
+double factor_mgQCD_2017(0.915692);
+double factorerror_mgQCD_2017(0.254747);
+double factor_mgVGamma_2017(1.49914);
+double factorerror_mgVGamma_2017(0.238776);
+double factor_egQCD_2017(0.457467);
+double factorerror_egQCD_2017(0.112141);
+double factor_egVGamma_2017(1.18835);
+double factorerror_egVGamma_2017(0.432986);
 
-
-// for 2016 postVFP
-double factor_mgQCD_2016postVFP(0.691499);
-double factorerror_mgQCD_2016postVFP(0.142102);
-double factor_mgVGamma_2016postVFP(1.21104);
-double factorerror_mgVGamma_2016postVFP(0.155407);
-
-double factor_egQCD_2016postVFP(0.488104);
-double factorerror_egQCD_2016postVFP(0.0542099);
-double factor_egVGamma_2016postVFP(1.35095);
-double factorerror_egVGamma_2016postVFP(0.143404);
-
-
-// for 2017
-
-double factor_mgQCD_2017(0.750253);
-double factorerror_mgQCD_2017(0.172809);
-double factor_mgVGamma_2017(1.06986);
-double factorerror_mgVGamma_2017(0.171718);
-
-double factor_egQCD_2017(0.386306);
-double factorerror_egQCD_2017(0.0519161);
-double factor_egVGamma_2017(1.3394);
-double factorerror_egVGamma_2017(0.161848);
-
-
-// for 2018
-double factor_mgQCD_2018(0.677605);
-double factorerror_mgQCD_2018(0.139168);
-double factor_mgVGamma_2018(1.05906);
-double factorerror_mgVGamma_2018(0.137579);
-
-double factor_egQCD_2018(0.380075);
-double factorerror_egQCD_2018(0.0429955);
-double factor_egVGamma_2018(1.33592);
-double factorerror_egVGamma_2018(0.129009);
+double factor_mgQCD_2018(0.859031);
+double factorerror_mgQCD_2018(0.128368);
+double factor_mgVGamma_2018(1.36389);
+double factorerror_mgVGamma_2018(0.1488);
+double factor_egQCD_2018(0.411959);
+double factorerror_egQCD_2018(0.0950488);
+double factor_egVGamma_2018(1.53025);
+double factorerror_egVGamma_2018(0.349885);
 
 bool SetRunConfig(){
 	
@@ -195,6 +163,7 @@ double calcToyError(vector<double> & vtoy, bool useGauss, int ic){
 		double syserr(0);
 		double normvalue = vtoy[0];
 		std::sort(vtoy.begin(), vtoy.end());
+
 		TH1D *temphist = new TH1D("temphist","",500,0.2*normvalue,1.8*normvalue);
 		for(unsigned it(0); it < vtoy.size(); it++){
 			temphist->Fill(vtoy[it]);
@@ -205,17 +174,15 @@ double calcToyError(vector<double> & vtoy, bool useGauss, int ic){
 			temphist->Draw();
 			temphist->Fit("gaus");
 			syserr = temphist->GetFunction("gaus")->GetParameter(2);
-			std::ostringstream canname;
-			canname.str("");
-			canname << ic << ".png";
-			can->SaveAs(canname.str().c_str());	
+			//std::ostringstream canname;
+			//canname.str("");
+			//canname << ic << ".png";
+			//can->SaveAs(canname.str().c_str());	
 		}
 		else syserr = std::max( fabs(vtoy.front() - normvalue), fabs(vtoy.back() - normvalue));
 		delete temphist;
-
 		return syserr;
 }
-
 
 double isrW(double isrPt){
 		double reweightF = 1;

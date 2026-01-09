@@ -453,7 +453,7 @@ void plot_PUReweight(){
   	if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
 
 	TChain *sigtree = new TChain("signalTree");
-	sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Muon20.root",RunYear,whichVFP.c_str()));
+	sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
 	sigtree->Draw("nVertex >> p_PU_data");
  
 	TChain *mctree;

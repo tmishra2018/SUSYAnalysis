@@ -79,9 +79,6 @@ void plot_newbkg_NoData(){
 	TFile *file_t5 = TFile::Open(Form("/uscms/home/tmishra/nobackup/signal_trees/signalTree_T5WG_%d%s.root",RunYear, whichVFP.c_str()));
 	TFile *file_tchi = TFile::Open(Form("/uscms/home/tmishra/nobackup/signal_trees/signalTree_TChiWG_%d%s.root",RunYear, whichVFP.c_str()));
 	
-//	TFile *file_t5 = TFile::Open("/uscms/homes/m/mengleis/work/SUSY2016/SUSYAnalysis/test/Result/signalTree_T5WG.root");
-//	TFile *file_tchi=TFile::Open("/uscms/homes/m/mengleis/work/SUSY2016/SUSYAnalysis/test/Result/signalTree_TChiWG.root");
-	
 	TH1D *p_t5wg_MET_signal_1700_1000= (TH1D*)file_t5->Get("p_t5wg_MET_signal_1700_1000_mg");
 	TH1D *p_tchiwg_MET_signal_800  = (TH1D*)file_tchi->Get("p_tchiwg_MET_signal_mg");
 	TH1D *p_t5wg_HT_signal_1700_1000= (TH1D*)file_t5->Get("p_t5wg_HT_signal_1700_1000_mg");
@@ -390,6 +387,9 @@ const int nSigHTBins= sizeof(sigHTBins)/sizeof(sigHTBins[0]) -1;
         else if(RunYear==2016 and preVFP == 0)  CMS_lumi( mt_pad1,2,1, 11 );
         else if(RunYear==2017)                  CMS_lumi( mt_pad1,3,1, 11 );
         else if(RunYear==2018)                  CMS_lumi( mt_pad1,4,1, 11 );
+	else if(ichannel == 1 and RunYear==678) CMS_lumi( mt_pad1,6,1, 11 );
+        else if(ichannel == 2 and RunYear==678) CMS_lumi( mt_pad1,7,1, 11 );
+
 
 	c_mt->cd();
 	TPad *mt_pad2 = new TPad("mt_pad2", "mt_pad2", 0, 0, 1, 0.3);
@@ -496,6 +496,9 @@ const int nSigHTBins= sizeof(sigHTBins)/sizeof(sigHTBins[0]) -1;
         else if(RunYear==2016 and preVFP == 0)  CMS_lumi( pt_pad1,2,1, 11 );
         else if(RunYear==2017)                  CMS_lumi( pt_pad1,3,1, 11 );
         else if(RunYear==2018)                  CMS_lumi( pt_pad1,4,1, 11 );
+	else if(ichannel == 1 and RunYear==678) CMS_lumi( pt_pad1,6,1, 11 );
+	else if(ichannel == 2 and RunYear==678) CMS_lumi( pt_pad1,7,1, 11 );
+
  	gPad->RedrawAxis();
 
 	c_pt->cd();
@@ -599,6 +602,9 @@ const int nSigHTBins= sizeof(sigHTBins)/sizeof(sigHTBins[0]) -1;
         else if(RunYear==2016 and preVFP == 0)  CMS_lumi( met_pad1,2,1, 11 );
         else if(RunYear==2017)                  CMS_lumi( met_pad1,3,1, 11 );
         else if(RunYear==2018)                  CMS_lumi( met_pad1,4,1, 11 );
+	else if(ichannel == 1 and RunYear==678) CMS_lumi( met_pad1,6,1, 11 );
+	else if(ichannel == 2 and RunYear==678) CMS_lumi( met_pad1,7,1, 11 );
+
   	chantex.SetTextSize(0.05);    
 	if(ichannel == 1) chantex.DrawLatex(0.4,0.85,"e#gamma, M_{T} > 100 GeV");
 	else if(ichannel == 2) chantex.DrawLatex(0.4,0.85,"#mu#gamma, M_{T} > 100 GeV");
@@ -702,6 +708,9 @@ const int nSigHTBins= sizeof(sigHTBins)/sizeof(sigHTBins[0]) -1;
         else if(RunYear==2016 and preVFP == 0)  CMS_lumi( leppt_pad1,2,1, 11 );
         else if(RunYear==2017)                  CMS_lumi( leppt_pad1,3,1, 11 );
         else if(RunYear==2018)                  CMS_lumi( leppt_pad1,4,1, 11 );
+	else if(ichannel == 1 and RunYear==678) CMS_lumi( leppt_pad1,6,1, 11 );
+        else if(ichannel == 2 and RunYear==678) CMS_lumi( leppt_pad1,7,1, 11 );
+
 
 	c_leppt->cd();
 	TPad *leppt_pad2 = new TPad("leppt_pad2", "leppt_pad2", 0, 0, 1, 0.3);
@@ -798,6 +807,9 @@ const int nSigHTBins= sizeof(sigHTBins)/sizeof(sigHTBins[0]) -1;
         else if(RunYear==2016 and preVFP == 0)  CMS_lumi( HT_pad1,2,1, 11 );
         else if(RunYear==2017)                  CMS_lumi( HT_pad1,3,1, 11 );
         else if(RunYear==2018)                  CMS_lumi( HT_pad1,4,1, 11 );
+	else if(ichannel == 1 and RunYear==678) CMS_lumi( HT_pad1,6,1, 11 );
+        else if(ichannel == 2 and RunYear==678) CMS_lumi( HT_pad1,7,1, 11 );
+
   	chantex.SetTextSize(0.05);    
 	if(ichannel == 1) chantex.DrawLatex(0.4,0.85,"e#gamma, M_{T} > 100 GeV, p_{T}^{miss} > 120 GeV");
 	else if(ichannel == 2) chantex.DrawLatex(0.4,0.85,"#mu#gamma, M_{T} > 100 GeV, p_{T}^{miss} > 120 GeV");

@@ -436,17 +436,17 @@ int FitJetFake(float lowercut, float uppercut, int detType, int RunYear, bool pr
         if(detType == 1)myfile << " EB" <<  std::endl;
         else if(detType == 2)myfile << " EE" <<  std::endl;
 	char* dt = ctime(&now);
-	if(uppercut > 500){
-		myfile<< std::endl;
-		myfile<< "ibin pt_lower pt_upper fakerate error errorsystematic" << std::endl;
-		myfile << dt << std::endl;
-		myfile << "SigmaCutLower = ";
-		for(unsigned l(0); l < nLower; l++)myfile << SigmaCutLower[l] << " ";
-		myfile << std::endl;
-		for(unsigned u(0); u < nUpper; u++)myfile << SigmaCutUpper[u] << " ";
-		myfile << std::endl;
-		myfile << datasetname.str().c_str() << std::endl;
-	} 
+	//if(uppercut > 500){
+	//	myfile<< std::endl;
+	//	myfile<< "ibin pt_lower pt_upper fakerate error errorsystematic" << std::endl;
+	//	myfile << dt << std::endl;
+	//	myfile << "SigmaCutLower = ";
+	//	for(unsigned l(0); l < nLower; l++)myfile << SigmaCutLower[l] << " ";
+	//	myfile << std::endl;
+	//	for(unsigned u(0); u < nUpper; u++)myfile << SigmaCutUpper[u] << " ";
+	//	myfile << std::endl;
+	//	myfile << datasetname.str().c_str() << std::endl;
+	//} 
 	myfile.close();
 	return 1;
 }
