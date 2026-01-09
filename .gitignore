@@ -1,0 +1,9 @@
+*.o
+*.so
+*.pcm
+*.exe
+*.pdf
+*.png
+*.tar.gz
+condorSubFile/
+*.log
