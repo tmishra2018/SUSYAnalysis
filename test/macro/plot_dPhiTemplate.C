@@ -110,8 +110,8 @@ void plot_dPhiTemplate(int RunYear, int channelType){
 
 	//************ Proxy Tree **********************//
 	TChain *proxytree = new TChain("fakeLepTree");
-	if(channelType==1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d_April.root",RunYear));
-	if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d_April.root",RunYear));
+	if(channelType==1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d.root",RunYear));
+	if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d.root",RunYear));
 
 	float proxyphoEt(0);
 	float proxyphoEta(0);

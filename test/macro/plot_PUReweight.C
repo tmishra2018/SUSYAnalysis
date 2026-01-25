@@ -16,8 +16,8 @@
 #include "TLine.h"
 #include "TLatex.h"
 #include "../../include/tdrstyle.C"
-int RunYear = 2018;
-bool preVFP = false;
+int RunYear = 2016;
+bool preVFP = true;
 bool getPUweight = false; // for making PU plots
 //bool getPUweight = true;
 

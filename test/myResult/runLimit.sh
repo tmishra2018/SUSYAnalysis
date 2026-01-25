@@ -122,6 +122,8 @@ for RunYear in "${RunYears[@]}"; do
             root -l -q pred_rareBkg.C++ > "logs/rare_mg_${RunYear}.log"
             root -l -q pred_sig.C++ > "logs/data_mg_${RunYear}.log"
         fi
+ 	
+	root -l -q Signal-samples/analysis_TChiWG.C++  # Run it here as it takes the values from SigConfig.txt
 
         if [ "$RunYear" -eq 2016 ]; then
             rm "logs/eventcount_${RunYear}${VFP_string}.txt"
@@ -130,14 +132,12 @@ for RunYear in "${RunYears[@]}"; do
             rm "logs/eventcount_${RunYear}.txt"
             root -l -q "plot_eventct.C+($NBIN)" >> "logs/eventcount_${RunYear}.txt"
         fi
-        python3 createDataCard.py ${NBIN} ${RunYear} ${preVFP}                  # takes input from plot_eventct.C
-
 
 # ======================================================================================================	
-
- 	root -l -q Signal-samples/analysis_TChiWG.C++  # Run it here as it takes the values from SigConfig.txt
 	
-        if [ "$RunYear" -eq 2016 ]; then
+        python3 createDataCard.py ${NBIN} ${RunYear} ${preVFP}                  # takes input from plot_eventct.C
+        
+	if [ "$RunYear" -eq 2016 ]; then
 		rm /eos/uscms/store/user/tmishra/CombinedLimit/T5WG/cards/cards_${RunYear}${VFP_string}/*
 		rm /eos/uscms/store/user/tmishra/CombinedLimit/T6WG/cards/cards_${RunYear}${VFP_string}/*
 		rm /eos/uscms/store/user/tmishra/CombinedLimit/TChiWG/cards/cards_${RunYear}${VFP_string}/*
@@ -155,7 +155,6 @@ for RunYear in "${RunYears[@]}"; do
         python3 writeT5WGcard.py ${NBIN} ${RunYear} ${preVFP}                   # takes input from Signal-samples/analysis_TChiWG.C      
         python3 writeT6WGcard.py ${NBIN} ${RunYear} ${preVFP}                   
         python3 writeTChiWGcard.py ${NBIN} ${RunYear} ${preVFP}                     
-
 
     done
 done

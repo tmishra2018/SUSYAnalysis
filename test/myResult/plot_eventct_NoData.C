@@ -43,7 +43,6 @@ std::string to_string_with_precision(double value, int precision = 1) {
     return result;
 }
 
-bool total16 = false; // ON and OFF
 
 void plot_eventct_NoData (int NBIN){//main  
 	gROOT->SetBatch(true);
@@ -58,8 +57,6 @@ void plot_eventct_NoData (int NBIN){//main
         if(RunYear==2016 and preVFP == 1) whichVFP = "preVFP";
         else if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
         else whichVFP = "";
-        if(RunYear==2016 and total16 == true) whichVFP = "";
-
 
 	//cout<<"Year : 	"<<RunYear<<"\t"<<whichVFP<<endl;
         TFile *mgfile_ele = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_mg_eleBkg_%d%s.root",RunYear,whichVFP.c_str()));

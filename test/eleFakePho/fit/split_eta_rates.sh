@@ -4,7 +4,7 @@ base_dir="/eos/uscms/store/user/tmishra/elefakepho/DATAResult"
 
 for year in "${years[@]}"; do
     infile="${base_dir}${year}/result_eta_dependence_Data.txt"
-    outfile="${base_dir}${year}/result_eta_dependence_Data.txt"
+    eb_outfile="${base_dir}${year}/result_eta_dependence_Data.txt"
     ee_outfile="${base_dir}${year}/result_eta_dependence_Data_EE.txt"
 
     # Extract everything between the braces { ... }
@@ -13,34 +13,45 @@ for year in "${years[@]}"; do
     # Convert to array
     IFS=',' read -ra values <<< "$content"
     
-    # Total values check
+    # Total number of points
     total=${#values[@]}
-    if [ "$total" -ne 48 ]; then
-        echo "Warning: $infile does not contain 48 values. Found $total. Skipping."
+    echo "Year: $year | Total points in original file: $total"
+
+    # If fewer than 48 points, skip this file
+    if [ "$total" -lt 48 ]; then
+        echo "Warning: $infile has less than 48 points. Skipping this file."
+        echo "-----------------------------------------"
         continue
     fi
 
-    # Write new EE file with last 19 values
+    # Enforce 29 points for EB, 19 for EE
+    eb_count=29
+    ee_count=$((total - eb_count))
+    echo "Points assigned: EB = $eb_count | EE = $ee_count"
+
+    # Write EB file (first eb_count points)
+    echo -n "double etaRatesEB_${year}[] = {" > "$eb_outfile"
+    for ((i=0; i<eb_count; i++)); do
+        if [ $i -ne $((eb_count-1)) ]; then
+            echo -n "${values[$i]}," >> "$eb_outfile"
+        else
+            echo -n "${values[$i]}" >> "$eb_outfile"
+        fi
+    done
+    echo "};" >> "$eb_outfile"
+    echo "Written EB: $eb_outfile"
+
+    # Write EE file (remaining points)
     echo -n "double etaRatesEE_${year}[] = {" > "$ee_outfile"
-    for ((i=29; i<48; i++)); do
-        if [ $i -ne 47 ]; then
+    for ((i=eb_count; i<total; i++)); do
+        if [ $i -ne $((total-1)) ]; then
             echo -n "${values[$i]}," >> "$ee_outfile"
         else
             echo -n "${values[$i]}" >> "$ee_outfile"
         fi
     done
     echo "};" >> "$ee_outfile"
-    echo "Written: $ee_outfile"
+    echo "Written EE: $ee_outfile"
 
-    # Rewrite original file with only first 29 values
-    echo -n "double etaRatesEB_${year}[] = {" > "$outfile"
-    for ((i=0; i<29; i++)); do
-        if [ $i -ne 28 ]; then
-            echo -n "${values[$i]}," >> "$outfile"
-        else
-            echo -n "${values[$i]}" >> "$outfile"
-        fi
-    done
-    echo "};" >> "$outfile"
-    echo "Updated: $outfile"
+    echo "-----------------------------------------"
 done

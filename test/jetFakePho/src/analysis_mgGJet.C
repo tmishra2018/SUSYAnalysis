@@ -47,7 +47,7 @@ void analysis_mgGJet(int RunYear, bool preVFP){//main
   RunType datatype(MC); 
 
   TChain* es = new TChain("ggNtuplizer/EventTree");
-  es->Add(Form("/eos/uscms/store/user/tmishra/InputFilesMC/GJets/GJets_DoubleEM_%d%s.root",RunYear,whichVFP.c_str()));
+  es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/GJets/GJets_DoubleEM_%d%s.root",RunYear,whichVFP.c_str()));
 
 
   TFile *outputfile;

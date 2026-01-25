@@ -58,7 +58,7 @@ void analysis_egMC(bool isQCD, bool isGJet, int RunYear, bool preVFP){
 
   TChain* es = new TChain("ggNtuplizer/EventTree");
   if(isQCD ==true)   es->Add(Form("/eos/uscms/store/user/tmishra/InputFilesMC/QCD_DoubleEM/QCD_DoubleEM_%d%s.root",RunYear,whichVFP.c_str()));
-  if(isGJet ==true)  es->Add(Form("/eos/uscms/store/user/tmishra/InputFilesMC/GJets/GJets_DoubleEM_%d%s.root",RunYear,whichVFP.c_str()));
+  if(isGJet ==true)  es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/GJets/GJets_DoubleEM_%d%s.root",RunYear,whichVFP.c_str()));
 
   const unsigned nEvts = es->GetEntries(); 
   logfile << "Total event: " << nEvts << std::endl;

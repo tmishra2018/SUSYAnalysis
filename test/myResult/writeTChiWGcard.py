@@ -22,7 +22,7 @@ else:
 
 susy_in = ROOT.TFile(f'/uscms/home/tmishra/nobackup/signal_trees/signalTree_TChiWG_{RunYear}{whichVFP}.root', 'read')
 
-syst_names = ['jes', 'jer', 'esf', 'scale', 'eleshape', 'jetshape', 'qcdshape', 'xs', 'lumi', 'isr']
+syst_names = ['jes', 'jer', 'esf', 'scale', 'eleshape', 'jetshape', 'qcdshape', 'xs', 'lumi']
 h_SUSYmass = susy_in.Get('h_chan1_rate_nom')
 h_rates = {}
 

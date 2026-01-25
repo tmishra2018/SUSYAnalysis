@@ -20,7 +20,7 @@ else:
     output_file_path = f'/eos/uscms/store/user/tmishra/CombinedLimit/T6WG/cards/cards_{RunYear}/'
 
 susy_in = ROOT.TFile(f'/uscms/home/tmishra/nobackup/signal_trees/signalTree_T6WG_{RunYear}{whichVFP}.root', 'read')
-syst_names = ['jes','jer','esf','scale','eleshape','jetshape','qcdshape','xs','lumi','isr']
+syst_names = ['jes','jer','esf','scale','eleshape','jetshape','qcdshape','xs','lumi']
 
 h_SUSYmass = susy_in.Get('T6WGSUSYMass')
 h_rates = {}

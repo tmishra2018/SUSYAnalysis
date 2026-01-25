@@ -82,7 +82,7 @@ ls -ltrh /uscms_data/d3/tmishra/Output/*Vali*.png \
  /eos/uscms/store/user/tmishra/VGamma/2016postVFP/fit_dPhi_eg_2016postVFP.png  /eos/uscms/store/user/tmishra/VGamma/2016preVFP/fit_dPhi_mg_2016preVFP.png  /eos/uscms/store/user/tmishra/VGamma/2018/fit_dPhi_eg_2018.png \
  /eos/uscms/store/user/tmishra/VGamma/2016postVFP/fit_dPhi_mg_2016postVFP.png  /eos/uscms/store/user/tmishra/VGamma/2017/fit_dPhi_eg_2017.png          	/eos/uscms/store/user/tmishra/VGamma/2018/fit_dPhi_mg_2018.png \
  /eos/uscms/store/user/tmishra/VGamma/2016preVFP/fit_dPhi_eg_2016preVFP.png	/eos/uscms/store/user/tmishra/VGamma/2017/fit_dPhi_mg_2017.png \
- /uscms_data/d3/tmishra/Output/signalCount_201*_NoData.pdf \
+ /uscms_data/d3/tmishra/Output/signalCount_*_NoData.pdf \
  /eos/uscms/store/user/tmishra/VGamma/2016postVFP/QCDScale_eg_2016postVFP.png 	/eos/uscms/store/user/tmishra/VGamma/2016preVFP/VGammaScale_eg_2016preVFP.png  /eos/uscms/store/user/tmishra/VGamma/2018/QCDScale_eg_2018.png \
  /eos/uscms/store/user/tmishra/VGamma/2016postVFP/QCDScale_mg_2016postVFP.png 	/eos/uscms/store/user/tmishra/VGamma/2016preVFP/VGammaScale_mg_2016preVFP.png  /eos/uscms/store/user/tmishra/VGamma/2018/QCDScale_mg_2018.png \
  /eos/uscms/store/user/tmishra/VGamma/2016postVFP/VGammaScale_eg_2016postVFP.png  /eos/uscms/store/user/tmishra/VGamma/2017/QCDScale_eg_2017.png             	/eos/uscms/store/user/tmishra/VGamma/2018/VGammaScale_eg_2018.png \

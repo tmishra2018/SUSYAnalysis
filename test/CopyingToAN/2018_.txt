@@ -9,7 +9,9 @@
 /uscms_data/d3/tmishra/Output/eg_ValidationRegion_2018.png
 /uscms_data/d3/tmishra/Output/mg_ValidationRegion_2018.png
 /uscms_data/d3/tmishra/Output/eg_SignalRegion_2018.png
+/uscms_data/d3/tmishra/Output/eg_SignalRegion_678.png
 /uscms_data/d3/tmishra/Output/mg_SignalRegion_2018.png
+/uscms_data/d3/tmishra/Output/mg_SignalRegion_678.png
 /uscms_data/d3/tmishra/Output/eg_CR_MET-40-70_2018.png
 /uscms_data/d3/tmishra/Output/mg_CR_MET-40-70_2018.png
 /uscms_data/d3/tmishra/Output/T5WG_Run2_2016-17-2018.pdf
@@ -134,6 +136,7 @@
 /eos/uscms/store/user/tmishra/VGamma/2018/fit_dPhi_eg_2018.png
 /eos/uscms/store/user/tmishra/VGamma/2018/fit_dPhi_mg_2018.png
 /uscms_data/d3/tmishra/Output/signalCount_2018_NoData.pdf
+/uscms_data/d3/tmishra/Output/signalCount_678_NoData.pdf
 /eos/uscms/store/user/tmishra/VGamma/2018/QCDScale_eg_2018.png
 /eos/uscms/store/user/tmishra/VGamma/2018/QCDScale_mg_2018.png
 /eos/uscms/store/user/tmishra/VGamma/2018/VGammaScale_eg_2018.png

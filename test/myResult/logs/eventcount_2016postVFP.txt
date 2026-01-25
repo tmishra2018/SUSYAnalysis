@@ -1,62 +1,26 @@
 
 Processing plot_eventct.C+(18)...
 Year : 	2016	postVFP
-eleshape jetshape QCDscale VGamma (Esf scale jes jer) Rare (jes jer esf xs lumi)     
-1	1.73	1.67	0.69	6.53	11.09	0.60	4.24	0.45	0.44	2.04	14.44	0.75
-2	4.95	2.08	2.78	8.77	11.09	3.01	2.56	5.44	6.05	8.09	59.55	3.10
-3	0.81	0.68	0.17	1.39	2.09	0.12	1.09	2.02	1.52	2.21	16.06	0.84
-4	0.07	0.12	-1.00	0.75	0.98	0.03	0.01	0.07	0.04	0.24	1.52	0.08
-5	0.61	0.27	0.17	0.54	0.72	0.80	0.73	1.03	0.24	1.21	8.43	0.44
-6	0.36	0.10	0.17	0.10	0.13	0.41	0.99	1.09	0.30	1.02	7.01	0.36
-7	0.00	-1.00	-1.00	0.02	0.03	0.01	0.00	0.00	0.00	0.01	0.04	0.00
-8	0.01	-1.00	-1.00	0.02	0.02	0.00	0.00	0.02	0.15	0.02	0.12	0.01
-9	0.03	0.02	0.35	0.05	0.06	0.43	0.43	0.01	0.13	0.07	0.49	0.03
-10	0.02	0.27	-1.00	0.14	0.18	0.02	0.04	0.08	0.03	0.08	0.50	0.03
-11	0.06	0.96	-1.00	0.25	0.36	0.04	0.16	0.16	0.55	0.67	4.20	0.22
-12	0.05	1.37	-1.00	0.17	0.25	0.16	0.10	0.24	0.18	0.23	1.47	0.08
-13	0.01	0.89	-1.00	0.13	0.17	0.02	0.01	0.05	0.05	0.07	0.48	0.03
-14	0.01	1.01	-1.00	0.09	0.12	0.02	0.03	0.08	0.08	0.25	1.66	0.09
-15	0.03	-1.00	-1.00	0.06	0.09	0.05	0.06	0.07	0.07	0.14	0.89	0.05
-16	-1.00	-1.00	-1.00	0.03	0.04	0.00	0.00	0.00	0.00	0.01	0.05	0.00
-17	0.00	0.13	-1.00	0.02	0.02	0.04	0.00	0.00	0.00	0.01	0.04	0.00
-18	0.01	-1.00	-1.00	0.01	0.01	0.05	0.01	0.07	0.07	0.05	0.26	0.01
-19	1.11	2.20	1.37	0.52	11.07	3.98	2.94	0.31	0.20	0.22	7.78	0.40
-20	2.99	2.28	1.69	0.48	7.87	1.23	1.86	2.50	1.11	0.81	29.76	1.55
-21	0.53	0.73	0.53	0.12	3.33	0.86	6.45	1.13	0.36	0.25	8.78	0.46
-22	0.09	0.06	0.21	0.19	3.31	4.17	3.81	0.09	0.17	0.04	1.39	0.07
-23	0.41	0.70	0.21	0.10	2.18	0.19	0.25	0.30	0.37	0.17	5.93	0.31
-24	0.22	0.37	-1.00	0.05	0.72	0.09	0.06	0.45	0.35	0.12	4.50	0.23
-25	0.00	-1.00	-1.00	0.00	0.06	0.00	0.00	0.00	0.00	0.00	0.02	0.00
-26	0.01	0.05	-1.00	0.00	0.08	0.00	0.00	0.01	0.00	0.00	0.03	0.00
-27	0.02	0.10	-1.00	0.01	0.17	0.00	0.00	0.01	0.00	0.01	0.27	0.01
-28	0.02	0.08	-1.00	0.08	1.04	0.14	0.21	0.13	0.06	0.03	0.69	0.04
-29	0.05	0.40	0.11	0.12	1.64	0.33	0.71	0.08	0.34	0.12	2.93	0.15
-30	0.05	0.16	0.21	0.06	0.88	0.26	0.33	0.25	0.06	0.07	1.65	0.09
-31	0.01	0.08	-1.00	0.06	0.68	0.02	0.02	0.03	0.05	0.03	0.66	0.03
-32	0.01	0.00	0.11	0.03	0.46	0.04	0.02	0.08	0.10	0.07	1.79	0.09
-33	0.03	0.08	-1.00	0.03	0.48	0.12	0.03	0.07	0.14	0.04	0.97	0.05
-34	0.00	-1.00	-1.00	0.01	0.12	0.00	0.00	0.00	0.00	0.00	0.11	0.01
-35	-1.00	-1.00	-1.00	0.00	0.06	0.00	0.00	0.07	0.07	0.01	0.17	0.01
-36	0.00	-1.00	-1.00	0.01	0.09	0.00	0.00	0.01	0.00	0.00	0.10	0.01
 \begin{table}[h]
 \centering
   \resizebox{\linewidth}{!}{
-  \begin{tabular}{|c|c|c|c|c|c|}
+  \begin{tabular}{|c|c|c|c|c|c|c|}
   \hline
-  Source of Uncertainties & $e\rightarrow\gamma$ fakes & $\text{jet}\rightarrow\gamma$ fakes & $\text{jet}\rightarrow l$ fakes & $V+\gamma$ & rare EWK \\
+  Source of Uncertainties & $e\rightarrow\gamma$ fakes & $\text{jet}\rightarrow\gamma$ fakes & $\text{jet}\rightarrow l$ fakes & $V+\gamma$ & rare EWK & SUSY signal \\
   \hline
-  Cross section & - & - & - & - & 50 \\
-  ID, trigger ESF & - & - & - & 1-9.6 & 1.4-9 \\
-  Integrated luminosity & - & - & - & - & 2.6 \\
-  Jet energy resolution & - & - & - & 0-86.4 & 0-61.5 \\
-  Jet energy scale & - & - & - & 0-79 & 0-21 \\
-  e-fake-photon shape & 9-13.8 & - & - & - & - \\
-  jet-fake-photon shape & - & 3.8-81.4 & - & - & - \\
-  normalization scale & - & - & 15.6-18.9 & 11.2-29.5 & - \\
+  Cross section & - & - & - & - & 50 & - \\
+  ID, trigger ESF & - & - & - & 1-9.6 & 1.4-9 & - \\
+  Integrated luminosity & - & - & - & - & 2.6 & 2.6 \\
+  Jet energy resolution & - & - & - & 0-86.4 & 0-61.5 & - \\
+  Jet energy scale & - & - & - & 0-79 & 0-21 & - \\
+  Pileup & - & - & - & - & - & 1-34 \\
+  e-fake-photon shape & 8.6-14 & - & - & - & - & - \\
+  jet-fake-photon shape & - & 3.7-79.1 & - & - & - & - \\
+  normalization scale & - & - & 15.6-18.9 & 11.2-29.5 & - & - \\
   \hline
   \end{tabular}
   }
-  \caption{Systematic uncertainties of the SM backgrounds.}
+  \caption{Systematic uncertainties for different years.}
   \label{table:ch4-systematic}
 \end{table}
 1	19.20	34.65	3.68	98.74	28.89
@@ -97,16 +61,6 @@ eleshape jetshape QCDscale VGamma (Esf scale jes jer) Rare (jes jer esf xs lumi)
 36	0.02	0.00	0.00	0.29	0.21
 
 
-eg channel : 		
-elefakePho :   58.34
-jetfakePho :   38.31
-jetfakeLep :   28.33
-VGamma :       115.93
-Electroweak :         135.06
-total SM backgrounds:	375.97	Total data  356.00
-Discrepancy :  5.61 % 
-
-
 mg channel : 		
 elefakePho :   94.84
 jetfakePho :   102.12
@@ -115,3 +69,13 @@ VGamma :       244.39
 Electroweak :         234.44
 total SM backgrounds:	698.79	Total data  631.00
 Discrepancy :  10.74 % 
+
+
+eg channel : 		
+elefakePho :   58.34
+jetfakePho :   38.31
+jetfakeLep :   28.33
+VGamma :       115.93
+Electroweak :         135.06
+total SM backgrounds:	375.97	Total data  356.00
+Discrepancy :  5.61 % 

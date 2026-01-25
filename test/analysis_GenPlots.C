@@ -30,7 +30,7 @@
 #include "../include/analysis_tools.h"
 
 
-void analysis_WGToLNuG() { // main
+void analysis_GenPlots() { // main
   gSystem->Load("../lib/libAnaClasses.so");
   gROOT->SetBatch(kTRUE);
 
@@ -61,7 +61,6 @@ TH1F* h_genMatchedMuonPt  = new TH1F("h_genMatchedMuonPt",  ";p_{T} [GeV];Normal
 TH1F* h_genMatchedEleCalibPt = new TH1F("h_genMatchedEleCalibPt", ";p_{T}^{e, calib} [GeV];Normalised Events", 750, 50, 800);
 TH1F* h_genMatchedEleRecoPt  = new TH1F("h_genMatchedEleRecoPt",  ";p_{T}^{e, reco} [GeV];Normalised Events", 750, 50, 800);
 
-  // -------------------- Event Loop --------------------
   for (unsigned ievt = 0; ievt < nEvts; ++ievt) {
     if (ievt % 1000000 == 0) std::cout << " -- Processing event " << ievt << std::endl;
 
@@ -76,8 +75,6 @@ TH1F* h_genMatchedEleRecoPt  = new TH1F("h_genMatchedEleRecoPt",  ";p_{T}^{e, re
 
     for (auto itMC = MCData.begin(); itMC != MCData.end(); ++itMC) {
       int pid = fabs(itMC->getPID());
-
-      // -------------------- Electron match (pid == 11) --------------------
       if (pid == 11) {
         float mindR = 0.1;
         for (auto itEle = Ele.begin(); itEle != Ele.end(); ++itEle) {
@@ -92,7 +89,6 @@ TH1F* h_genMatchedEleRecoPt  = new TH1F("h_genMatchedEleRecoPt",  ";p_{T}^{e, re
         }
       }
 
-      // -------------------- Muon match (pid == 13) --------------------
       if (pid == 13) {
         float mindR = 0.1;
         for (auto itMu = Muon.begin(); itMu != Muon.end(); ++itMu) {
@@ -107,19 +103,16 @@ TH1F* h_genMatchedEleRecoPt  = new TH1F("h_genMatchedEleRecoPt",  ";p_{T}^{e, re
     }
   } // end event loop
 
-  // -------------------- Normalize histograms --------------------
   auto normalize = [](TH1F* h) { if (h->Integral() > 0) h->Scale(1.0 / h->Integral()); };
   normalize(h_genMatchedEleCalibPt);
   normalize(h_genMatchedEleRecoPt);
   normalize(h_genMatchedMuonPt);
 
-  // -------------------- Save histograms --------------------
   outputfile->cd();
   h_genMatchedEleCalibPt->Write();
   h_genMatchedEleRecoPt->Write();
   h_genMatchedMuonPt->Write();
 
-  // -------------------- Canvas 1: Reco pT (electron vs muon) --------------------
   TCanvas* c1 = new TCanvas("c1", "Reco pT: Electron vs Muon", 800, 700);
   h_genMatchedMuonPt->SetLineColor(kBlue);
   h_genMatchedEleRecoPt->SetLineColor(kRed);
@@ -132,9 +125,8 @@ TH1F* h_genMatchedEleRecoPt  = new TH1F("h_genMatchedEleRecoPt",  ";p_{T}^{e, re
   leg1->AddEntry(h_genMatchedMuonPt, "Reco Muon", "l");
   leg1->Draw();
   c1->SetLogy();
-  c1->SaveAs("RecoPt_EleMuon.png");
+  //c1->SaveAs("RecoPt_EleMuon.png");
 
-  // -------------------- Canvas 2: Calib pT (electron) vs Reco pT (muon) --------------------
   TCanvas* c2 = new TCanvas("c2", "Calib Electron vs Reco Muon", 800, 700);
   h_genMatchedMuonPt->SetLineColor(kBlue);
   h_genMatchedEleCalibPt->SetLineColor(kMagenta);
@@ -144,7 +136,7 @@ TH1F* h_genMatchedEleRecoPt  = new TH1F("h_genMatchedEleRecoPt",  ";p_{T}^{e, re
   h_genMatchedEleRecoPt->Draw("HIST SAME");
   TLegend* leg2 = new TLegend(0.6, 0.7, 0.88, 0.88);
   leg2->AddEntry(h_genMatchedEleCalibPt, "Calib Electron", "l");
-  leg2->AddEntry(h_genMatchedEleRecoPt, "Reco Electron", "l");
+  //leg2->AddEntry(h_genMatchedEleRecoPt, "Reco Electron", "l");
   leg2->AddEntry(h_genMatchedMuonPt, "Reco Muon", "l");
   leg2->Draw();
   c2->SetLogy();

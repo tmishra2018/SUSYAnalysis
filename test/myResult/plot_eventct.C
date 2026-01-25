@@ -32,6 +32,35 @@
 #include "Math/QuantFuncMathCore.h"
 #include "../../include/analysis_commoncode.h"
 
+void getSignalBinLabels(int i, TString &channel, TString &ptmiss, TString &ht, TString &ptgamma) {
+    if (i < 1 || i > 36) {
+        channel = "ERR"; ptmiss  = "ERR"; ht      = "ERR"; ptgamma = "ERR"; return;
+    }
+    channel = (i <= 18) ? "$\\mu\\gamma$" : "$e\\gamma$";
+
+    int idx  = i - 1;
+    int cell = idx % 9;
+    
+    if (cell <= 2)
+        ptmiss = "120--200";
+    else if (cell <= 5)
+        ptmiss = "200--400";
+    else
+        ptmiss = "$>400$";
+    
+    if (cell % 3 == 0)
+        ht = "$<100$";
+    else if (cell % 3 == 1)
+        ht = "100--400";
+    else
+        ht = "$>400$";
+    
+    if ( (i >= 1 && i <= 9) || (i >= 19 && i <= 27) )
+        ptgamma = "$<200$";
+    else
+        ptgamma = "$>200$";
+}
+
 std::string to_string_with_precision(double value, int precision = 1) {
     std::ostringstream out;
     out << std::fixed << std::setprecision(precision) << value;
@@ -58,10 +87,9 @@ void plot_eventct(int NBIN){//main
         else if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
         else whichVFP = "";
         if(RunYear==2016 and total16 == true) whichVFP = "";
-
-
 	cout<<"Year : 	"<<RunYear<<"\t"<<whichVFP<<endl;
-        TFile *mgfile_ele = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_mg_eleBkg_%d%s.root",RunYear,whichVFP.c_str()));
+
+	TFile *mgfile_ele = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_mg_eleBkg_%d%s.root",RunYear,whichVFP.c_str()));
         TFile *mgfile_jet = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_mg_jetbkg_%d%s.root",RunYear,whichVFP.c_str()));
         TFile *mgfile_qcd = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_mg_qcd_%d%s.root",RunYear,whichVFP.c_str()));
         TFile *mgfile_VG  = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_mg_VGBkg_%d%s.root",RunYear,whichVFP.c_str()));
@@ -69,11 +97,8 @@ void plot_eventct(int NBIN){//main
         TFile *egfile_ele = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_egamma_eleBkg_%d%s.root",RunYear,whichVFP.c_str()));
         TFile *egfile_jet = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_egamma_jetbkg_%d%s.root",RunYear,whichVFP.c_str()));
         TFile *egfile_qcd = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_egamma_qcd_%d%s.root",RunYear,whichVFP.c_str()));
-	
-
         TFile *egfile_VG  = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_egamma_VGBkg_%d%s.root",RunYear,whichVFP.c_str()));
         TFile *egfile_rare= TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_egamma_rareBkg_%d%s.root",RunYear,whichVFP.c_str()));
-
         TFile *mgfile_sig = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_mg_signal_%d%s.root",RunYear,whichVFP.c_str()));
         TFile *egfile_sig = TFile::Open(Form("/uscms_data/d3/tmishra/Output/signalTree_egamma_signal_%d%s.root",RunYear,whichVFP.c_str()));
 
@@ -81,7 +106,7 @@ void plot_eventct(int NBIN){//main
 	TH1D  *mg_sig     = (TH1D*)mgfile_sig->Get("p_eventcount");
 	TH1D  *h_sig      = new TH1D("h_sig","",NBIN*2,0,NBIN*2);
 	h_sig->SetBinErrorOption(TH1::kPoisson);
-  TGraphAsymmErrors* ratio = new TGraphAsymmErrors();	
+  	TGraphAsymmErrors* ratio = new TGraphAsymmErrors();	
 	TH1D  *h_bkg      = new TH1D("h_bkg","",NBIN*2,0,NBIN*2);
 	TH1D  *h_bkg_elefakepho = new TH1D("h_bkg_elefakepho","",NBIN*2,0,NBIN*2);
 	TH1D  *h_bkg_jetfakepho = new TH1D("h_bkg_jetfakepho","",NBIN*2,0,NBIN*2);
@@ -122,7 +147,6 @@ void plot_eventct(int NBIN){//main
 	TH1D *h_jetfakepho_syserr_xs      = new TH1D("h_jetfakepho_syserr_xs",       "h_jetfakepho_syserr_xs",      NBIN*2,0,NBIN*2);
 	TH1D *h_jetfakepho_syserr_lumi    = new TH1D("h_jetfakepho_syserr_lumi",     "h_jetfakepho_syserr_lumi",    NBIN*2,0,NBIN*2); 
 	TH1D *h_jetfakepho_syserr_isr     = new TH1D("h_jetfakepho_syserr_isr",      "h_jetfakepho_syserr_isr",     NBIN*2,0,NBIN*2); 
-	                                                                                                          
 	                                                                             
 	TH1D *h_qcdfakelep_norm           = new TH1D("h_qcdfakelep_norm",            "h_qcdfakelep_norm",           NBIN*2,0,NBIN*2); 
 	TH1D *h_qcdfakelep_controlsample  = new TH1D("h_qcdfakelep_controlsample",   "h_qcdfakelep_controlsample",  NBIN*2,0,NBIN*2);
@@ -161,8 +185,6 @@ void plot_eventct(int NBIN){//main
 	TH1D *h_rare_syserr_xs      = new TH1D("h_rare_syserr_xs",         "h_rare_syserr_xs",      NBIN*2,0,NBIN*2);   
 	TH1D *h_rare_syserr_lumi    = new TH1D("h_rare_syserr_lumi",       "h_rare_syserr_lumi",    NBIN*2,0,NBIN*2);   
 	TH1D *h_rare_syserr_isr     = new TH1D("h_rare_syserr_isr",        "h_rare_syserr_isr",     NBIN*2,0,NBIN*2);   
-
-
 
 	TH1D *eg_elefakepho_norm           = (TH1D*)egfile_ele->Get("eg_elefakepho_norm");         
 	TH1D *eg_elefakepho_controlsample  = (TH1D*)egfile_ele->Get("eg_elefakepho_controlsample");
@@ -229,7 +251,6 @@ void plot_eventct(int NBIN){//main
 	TH1D *eg_rare_syserr_xs      = (TH1D*)egfile_rare->Get("eg_rare_syserr_xs");
 	TH1D *eg_rare_syserr_lumi    = (TH1D*)egfile_rare->Get("eg_rare_syserr_lumi");    
 	TH1D *eg_rare_syserr_isr     = (TH1D*)egfile_rare->Get("eg_rare_syserr_isr");    
-
 
 	TH1D *mg_elefakepho_norm           = (TH1D*)mgfile_ele->Get("mg_elefakepho_norm");         
 	TH1D *mg_elefakepho_controlsample  = (TH1D*)mgfile_ele->Get("mg_elefakepho_controlsample");
@@ -298,7 +319,7 @@ void plot_eventct(int NBIN){//main
 	TH1D *mg_rare_syserr_isr     = (TH1D*)mgfile_rare->Get("mg_rare_syserr_isr");    
 
 	double bkgContent(0);
-	double bkgError(0);
+	double bkgError(0), statError(0), totalerror(0);
 	// first 18 binning mg, next 18 for eg
 	for(int ibin(1); ibin <= NBIN; ibin++){
 		h_elefakepho_norm->SetBinContent(ibin, mg_elefakepho_norm->GetBinContent(ibin));
@@ -314,7 +335,7 @@ void plot_eventct(int NBIN){//main
 		h_elefakepho_syserr_xs->SetBinContent(ibin,       mg_elefakepho_syserr_xs->GetBinContent(ibin));       
 		h_elefakepho_syserr_lumi->SetBinContent(ibin,     mg_elefakepho_syserr_lumi->GetBinContent(ibin));     
 		h_elefakepho_syserr_isr->SetBinContent(ibin,      mg_elefakepho_syserr_isr->GetBinContent(ibin));     
-																																																																																																							
+																					 
 		h_jetfakepho_norm->SetBinContent(ibin,            mg_jetfakepho_norm->GetBinContent(ibin));            
 		h_jetfakepho_controlsample->SetBinContent(ibin,   mg_jetfakepho_controlsample->GetBinContent(ibin));
 		h_jetfakepho_transferfactor->SetBinContent(ibin,  mg_jetfakepho_transferfactor->GetBinContent(ibin));
@@ -328,7 +349,7 @@ void plot_eventct(int NBIN){//main
 		h_jetfakepho_syserr_xs->SetBinContent(ibin,       mg_jetfakepho_syserr_xs->GetBinContent(ibin));       
 		h_jetfakepho_syserr_lumi->SetBinContent(ibin,     mg_jetfakepho_syserr_lumi->GetBinContent(ibin));     
 		h_jetfakepho_syserr_isr->SetBinContent(ibin,     mg_jetfakepho_syserr_isr->GetBinContent(ibin));     
-																														
+		
 		h_qcdfakelep_norm->SetBinContent(ibin,            mg_qcdfakelep_norm->GetBinContent(ibin));            
 		h_qcdfakelep_controlsample->SetBinContent(ibin,   mg_qcdfakelep_controlsample->GetBinContent(ibin));
 		h_qcdfakelep_transferfactor->SetBinContent(ibin,  mg_qcdfakelep_transferfactor->GetBinContent(ibin));
@@ -367,7 +388,6 @@ void plot_eventct(int NBIN){//main
 		h_rare_syserr_lumi->SetBinContent(ibin,           mg_rare_syserr_lumi->GetBinContent(ibin));     
 		h_rare_syserr_isr->SetBinContent(ibin,           mg_rare_syserr_isr->GetBinContent(ibin));     
 
-
 		h_elefakepho_norm->SetBinContent(ibin+NBIN, eg_elefakepho_norm->GetBinContent(ibin));
 		h_elefakepho_controlsample->SetBinContent(ibin+NBIN,   eg_elefakepho_controlsample->GetBinContent(ibin));
 		h_elefakepho_transferfactor->SetBinContent(ibin+NBIN,  eg_elefakepho_transferfactor->GetBinContent(ibin));
@@ -381,7 +401,7 @@ void plot_eventct(int NBIN){//main
 		h_elefakepho_syserr_xs->SetBinContent(ibin+NBIN,       eg_elefakepho_syserr_xs->GetBinContent(ibin));       
 		h_elefakepho_syserr_lumi->SetBinContent(ibin+NBIN,     eg_elefakepho_syserr_lumi->GetBinContent(ibin));     
 		h_elefakepho_syserr_isr->SetBinContent(ibin+NBIN,     eg_elefakepho_syserr_isr->GetBinContent(ibin));     
-																																																																																																							
+		
 		h_jetfakepho_norm->SetBinContent(ibin+NBIN,            eg_jetfakepho_norm->GetBinContent(ibin));            
 		h_jetfakepho_controlsample->SetBinContent(ibin+NBIN,   eg_jetfakepho_controlsample->GetBinContent(ibin));
 		h_jetfakepho_transferfactor->SetBinContent(ibin+NBIN,  eg_jetfakepho_transferfactor->GetBinContent(ibin));
@@ -395,7 +415,7 @@ void plot_eventct(int NBIN){//main
 		h_jetfakepho_syserr_xs->SetBinContent(ibin+NBIN,       eg_jetfakepho_syserr_xs->GetBinContent(ibin));       
 		h_jetfakepho_syserr_lumi->SetBinContent(ibin+NBIN,     eg_jetfakepho_syserr_lumi->GetBinContent(ibin));     
 		h_jetfakepho_syserr_isr->SetBinContent(ibin+NBIN,     eg_jetfakepho_syserr_isr->GetBinContent(ibin));     
-																														
+		
 		h_qcdfakelep_norm->SetBinContent(ibin+NBIN,            eg_qcdfakelep_norm->GetBinContent(ibin));            
 		h_qcdfakelep_controlsample->SetBinContent(ibin+NBIN,   eg_qcdfakelep_controlsample->GetBinContent(ibin));
 		h_qcdfakelep_transferfactor->SetBinContent(ibin+NBIN,  eg_qcdfakelep_transferfactor->GetBinContent(ibin));
@@ -452,31 +472,57 @@ void plot_eventct(int NBIN){//main
 		h_qcdfakelep_transferfactor->SetBinError(ibin+NBIN,  eg_qcdfakelep_transferfactor->GetBinError(ibin));   
 	}
 
+
+
+
+	ofstream tex;
+	tex.open(Form("logs/SignalRegionTable_%d%s.tex",RunYear,whichVFP.c_str()));
+	tex << "\\begin{table}[htbp]\n";
+	tex << "\\centering\n";
+	tex << "\\caption{Observed number of events and predicted SM backgrounds in the search bins for the "
+    		<< RunYear << " " << whichVFP
+    		<< " data-taking period. "
+    		<< "The predicted yields are shown with their systematic uncertainties. "
+    		<< "The total SM background uncertainty is obtained by adding the individual background uncertainties in quadrature.}\n";
+	tex << "\\label{tab:sr_yields_" << RunYear << whichVFP << "}\n";
+	tex << "\\resizebox{\\textwidth}{!}{%\n";
+	tex << "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|}\n";
+	tex << "\\hline\n";
+	tex << "Bin & channel & $p_T^{miss}$ & $H_T$ & $p_T^{\\gamma}$ & "
+    		<< "$e\\to\\gamma$ fakes & jet$\\to\\gamma$ fakes & jet$\\to\\ell$ fakes & "
+    		<< "$W\\gamma$/$Z\\gamma$ & Electroweak & Total bkg & Obs \\\\\n";
+	tex << "\\hline\n";
+	
 	double bkgContent_elefakepho(0), bkgContent_jetfakepho(0), bkgContent_jetfakelep(0), bkgContent_VGamma(0), bkgContent_rare(0), bkgContent_Total(0), dataEvents(0);
 	double bkgContent_elefakepho_mg(0), bkgContent_jetfakepho_mg(0), bkgContent_jetfakelep_mg(0), bkgContent_VGamma_mg(0), bkgContent_rare_mg(0), bkgContent_Total_mg(0), dataEvents_mg(0);
-	
+	double VGamma_syserr(0), rare_syserr(0);
+
 	for(int ibin(1); ibin <= 2*NBIN; ibin++){
 		bkgContent=0; 
 		bkgError = 0;
+		statError = 0;
+		totalerror = 0;
+
+		VGamma_syserr = 0;
+		rare_syserr = 0;
+
 		bkgContent = h_elefakepho_norm->GetBinContent(ibin) + h_jetfakepho_norm->GetBinContent(ibin) + h_qcdfakelep_norm->GetBinContent(ibin) +
 								 h_VGamma_norm->GetBinContent(ibin)     + h_rare_norm->GetBinContent(ibin);
 		double bkgqcdfakelep = h_qcdfakelep_norm->GetBinContent(ibin);
 		double bkgelefakepho = h_qcdfakelep_norm->GetBinContent(ibin) + h_elefakepho_norm->GetBinContent(ibin);
 		double bkgjetfakepho = h_qcdfakelep_norm->GetBinContent(ibin) + h_elefakepho_norm->GetBinContent(ibin) + h_jetfakepho_norm->GetBinContent(ibin);
-		double bkgVGamma = h_elefakepho_norm->GetBinContent(ibin) + h_jetfakepho_norm->GetBinContent(ibin) + h_qcdfakelep_norm->GetBinContent(ibin) + h_VGamma_norm->GetBinContent(ibin);
+		double bkgVGamma = h_elefakepho_norm->GetBinContent(ibin) + h_jetfakepho_norm->GetBinContent(ibin) + h_qcdfakelep_norm->GetBinContent(ibin) + 
+			h_VGamma_norm->GetBinContent(ibin);
 
+		/*         Systematic uncertainties         */
 		if(h_elefakepho_syserr_eleshape->GetBinContent(ibin)>0)bkgError += pow(h_elefakepho_syserr_eleshape->GetBinContent(ibin), 2);
-		
 		if(h_jetfakepho_syserr_jetshape->GetBinContent(ibin)>0)bkgError += pow(h_jetfakepho_syserr_jetshape->GetBinContent(ibin), 2);
-		
 		if(h_qcdfakelep_syserr_scale->GetBinContent(ibin)   >0)bkgError += pow(h_qcdfakelep_syserr_scale->GetBinContent(ibin), 2);
-		if(h_qcdfakelep_syserr_qcdshape->GetBinContent(ibin)>0)bkgError += pow(h_qcdfakelep_syserr_qcdshape->GetBinContent(ibin), 2);
 		
 		if(h_VGamma_syserr_jes->GetBinContent(ibin) >0)bkgError += pow(h_VGamma_syserr_jes->GetBinContent(ibin), 2);
 		if(h_VGamma_syserr_jer->GetBinContent(ibin) >0)bkgError += pow(h_VGamma_syserr_jer->GetBinContent(ibin), 2);
 		if(h_VGamma_syserr_esf->GetBinContent(ibin)  >0)bkgError += pow(h_VGamma_syserr_esf->GetBinContent(ibin), 2);
 		if(h_VGamma_syserr_scale->GetBinContent(ibin)>0)bkgError += pow(h_VGamma_syserr_scale->GetBinContent(ibin), 2);
-		if(h_VGamma_syserr_isr->GetBinContent(ibin)  >0)bkgError += pow(h_VGamma_syserr_isr->GetBinContent(ibin), 2);
 		
 		if(h_rare_syserr_jes->GetBinContent(ibin)    >0)bkgError += pow(h_rare_syserr_jes->GetBinContent(ibin), 2);
 		if(h_rare_syserr_jer->GetBinContent(ibin)    >0)bkgError += pow(h_rare_syserr_jer->GetBinContent(ibin), 2);
@@ -484,9 +530,45 @@ void plot_eventct(int NBIN){//main
 		if(h_rare_syserr_xs->GetBinContent(ibin)     >0)bkgError += pow(h_rare_syserr_xs->GetBinContent(ibin), 2);
 		if(h_rare_syserr_lumi->GetBinContent(ibin)   >0)bkgError += pow(h_rare_syserr_lumi->GetBinContent(ibin), 2);
 
-		bkgError = sqrt(bkgError); // total systematic error
-		h_bkg->SetBinContent(ibin, bkgContent);
+		VGamma_syserr = sqrt(pow(h_VGamma_syserr_jes->GetBinContent(ibin), 2) + 
+				pow(h_VGamma_syserr_jer->GetBinContent(ibin), 2) + 
+				pow(h_VGamma_syserr_esf->GetBinContent(ibin), 2) + 
+				pow(h_VGamma_syserr_scale->GetBinContent(ibin), 2));
+		rare_syserr = sqrt(pow(h_rare_syserr_jes->GetBinContent(ibin), 2) + 
+				pow(h_rare_syserr_jer->GetBinContent(ibin), 2) + 
+				pow(h_rare_syserr_esf->GetBinContent(ibin), 2) + 
+				pow(h_rare_syserr_xs->GetBinContent(ibin), 2) + 
+				pow(h_rare_syserr_lumi->GetBinContent(ibin), 2));
 
+		/*         Statistical uncertainties         */
+		if(h_elefakepho_norm->GetBinError(ibin) >0) statError += pow(h_elefakepho_norm->GetBinError(ibin), 2);
+		if(h_jetfakepho_norm->GetBinError(ibin) >0) statError += pow(h_jetfakepho_norm->GetBinError(ibin), 2);
+		if(h_qcdfakelep_norm->GetBinError(ibin) >0) statError += pow(h_qcdfakelep_norm->GetBinError(ibin), 2);
+		if(h_VGamma_norm->GetBinError(ibin) >0) statError += pow(h_VGamma_norm->GetBinError(ibin), 2);
+		if(h_rare_norm->GetBinError(ibin) >0) statError += pow(h_rare_norm->GetBinError(ibin), 2);
+		totalerror = sqrt(bkgError + statError);
+		/***********************************************/
+		
+		bkgError = sqrt(bkgError); // total systematic error
+		//cout<< ibin <<"\t" << bkgError << "\t" << totalerror << "\n"; 
+		
+		
+		/*         Latex table for bin count with Unc.        */
+		TString channel, ptmiss, ht, ptgamma;
+		getSignalBinLabels(ibin, channel, ptmiss, ht, ptgamma);
+		tex << ibin << " & " << channel << " & " << ptmiss << " & " << ht << " & " << ptgamma << " & "
+		    	<< Form("%.2f $\\pm$ %.2f", h_elefakepho_norm->GetBinContent(ibin), max(0.0, h_elefakepho_syserr_eleshape->GetBinContent(ibin))) << " & "
+    		    	<< Form("%.2f $\\pm$ %.2f", h_jetfakepho_norm->GetBinContent(ibin), max(0.0, h_jetfakepho_syserr_jetshape->GetBinContent(ibin))) << " & "
+    			<< Form("%.2f $\\pm$ %.2f", h_qcdfakelep_norm->GetBinContent(ibin), max(0.0, h_qcdfakelep_syserr_scale->GetBinContent(ibin))) << " & "
+    			<< Form("%.2f $\\pm$ %.2f", h_VGamma_norm->GetBinContent(ibin), max(0.0, VGamma_syserr)) << " & "
+    			<< Form("%.2f $\\pm$ %.2f", h_rare_norm->GetBinContent(ibin), max(0.0, rare_syserr)) << " & "
+    			<< Form("%.2f $\\pm$ %.2f", bkgContent, max(0.0, bkgError)) << " & "
+         		//<< Form("%.2f $\\pm$ %.2f", h_sig->GetBinContent(ibin))
+         		<< " \\\\\n";
+		if(ibin == 18) tex << "\\hline\n";
+		/***********************************************/
+		
+		h_bkg->SetBinContent(ibin, bkgContent);
 		//printing ........
 		if(ibin<=NBIN){
 			dataEvents_mg 	      = dataEvents_mg + h_sig->GetBinContent(ibin);
@@ -506,7 +588,6 @@ void plot_eventct(int NBIN){//main
 			bkgContent_rare = bkgContent_rare + h_rare_norm->GetBinContent(ibin);
 			bkgContent_Total = bkgContent_Total + h_elefakepho_norm->GetBinContent(ibin) + h_jetfakepho_norm->GetBinContent(ibin) + h_qcdfakelep_norm->GetBinContent(ibin) + h_VGamma_norm->GetBinContent(ibin) + h_rare_norm->GetBinContent(ibin);
 		}
-
 		
 		//cout<<bkgContent<<"\t"<<bkgError<<endl;
 		//cout<<bkgContent<<"\t"<<1/sqrt(bkgContent)<<"\t"<<endl;
@@ -514,29 +595,27 @@ void plot_eventct(int NBIN){//main
 		h_bkg_elefakepho->SetBinContent(ibin, bkgelefakepho);
 		h_bkg_jetfakepho->SetBinContent(ibin, bkgjetfakepho);
 		h_bkg_VGamma->SetBinContent(ibin, bkgVGamma);
-		h_bkg->SetBinError( ibin, bkgError);
+		h_bkg->SetBinError( ibin, totalerror);
 		error_bkg->SetPoint(ibin-1, ibin -1 + 0.5, bkgContent);
-		error_bkg->SetPointError(ibin-1, 0.5, bkgError);
+		error_bkg->SetPointError(ibin-1, 0.5, totalerror);
 		error_ratio->SetPoint(ibin-1, ibin -1 + 0.5, 1);
-		error_ratio->SetPointError(ibin-1, 0.5, bkgError/bkgContent);
+		error_ratio->SetPointError(ibin-1, 0.5, totalerror/bkgContent);
 
-                if (ibin == 1) cout<<"eleshape jetshape QCDscale VGamma (Esf scale jes jer) Rare (jes jer esf xs lumi)     "<<endl;
-                cout << std::fixed << std::setprecision(2)
-                        << ibin << "\t"
-                        << h_elefakepho_syserr_eleshape->GetBinContent(ibin) << "\t"
-                        << h_jetfakepho_syserr_jetshape->GetBinContent(ibin) << "\t"
-                        << h_qcdfakelep_syserr_scale->GetBinContent(ibin) << "\t"
-        									//                << h_qcdfakelep_syserr_qcdshape->GetBinContent(ibin) << "\t"
-                        << h_VGamma_syserr_esf->GetBinContent(ibin) << "\t"
-                        << h_VGamma_syserr_scale->GetBinContent(ibin) << "\t"
-                        << h_VGamma_syserr_jes->GetBinContent(ibin) << "\t"
-                        << h_VGamma_syserr_jer->GetBinContent(ibin) << "\t"
-
-                        << h_rare_syserr_jes->GetBinContent(ibin) << "\t"
-                        << h_rare_syserr_jer->GetBinContent(ibin) << "\t"
-                        << h_rare_syserr_esf->GetBinContent(ibin) << "\t"
-                        << h_rare_syserr_xs->GetBinContent(ibin) << "\t"
-                        << h_rare_syserr_lumi->GetBinContent(ibin) << endl;
+                //if (ibin == 1) cout<<"eleshape jetshape QCDscale VGamma (Esf scale jes jer) Rare (jes jer esf xs lumi)     "<<endl;
+                //cout << std::fixed << std::setprecision(2)
+                //       << ibin << "\t"
+                //       << h_elefakepho_syserr_eleshape->GetBinContent(ibin) << "\t"
+                //       << h_jetfakepho_syserr_jetshape->GetBinContent(ibin) << "\t"
+                //       << h_qcdfakelep_syserr_scale->GetBinContent(ibin) << "\t"
+                //       << h_VGamma_syserr_esf->GetBinContent(ibin) << "\t"
+                //       << h_VGamma_syserr_scale->GetBinContent(ibin) << "\t"
+                //       << h_VGamma_syserr_jes->GetBinContent(ibin) << "\t"
+                //       << h_VGamma_syserr_jer->GetBinContent(ibin) << "\t"
+                //       << h_rare_syserr_jes->GetBinContent(ibin) << "\t"
+                //       << h_rare_syserr_jer->GetBinContent(ibin) << "\t"
+                //       << h_rare_syserr_esf->GetBinContent(ibin) << "\t"
+                //       << h_rare_syserr_xs->GetBinContent(ibin) << "\t"
+                //       << h_rare_syserr_lumi->GetBinContent(ibin) << endl;
 
 		bool exceeded = false;
 		std::vector<double> values = {
@@ -565,13 +644,19 @@ void plot_eventct(int NBIN){//main
     			}
 		}
 	}
+	
+	tex << "\\hline\n";
+	tex << "\\end{tabular}}\n";
+	tex << "\\end{table}\n";
+	tex.close();
+
     	std::cout << "\\begin{table}[h]" << std::endl;
     	std::cout << "\\centering" << std::endl;
     	std::cout << "  \\resizebox{\\linewidth}{!}{" << std::endl;
-    	std::cout << "  \\begin{tabular}{|c|c|c|c|c|c|}" << std::endl;
+	std::cout << "  \\begin{tabular}{|c|c|c|c|c|c|c|}" << std::endl;
     	std::cout << "  \\hline" << std::endl;
-    	std::cout << "  Source of Uncertainties & $e\\rightarrow\\gamma$ fakes & $\\text{jet}\\rightarrow\\gamma$ fakes & $\\text{jet}\\rightarrow l$ fakes & $V+\\gamma$ & rare EWK \\\\" << std::endl;
-    	std::cout << "  \\hline" << std::endl;
+    	std::cout << "  Source of Uncertainties & $e\\rightarrow\\gamma$ fakes & $\\text{jet}\\rightarrow\\gamma$ fakes & $\\text{jet}\\rightarrow l$ fakes & $V+\\gamma$ & rare EWK & SUSY signal \\\\" << std::endl;
+	std::cout << "  \\hline" << std::endl;
 
     	std::map<std::string, std::pair<double, double>> sysRanges;
 
@@ -605,21 +690,23 @@ void plot_eventct(int NBIN){//main
     	}
 
      	std::map<std::string, std::vector<std::string>> tableData = {
-    	{"Jet energy scale", {"-", "-", "-", to_string_with_precision(sysRanges["JEC"].first) + "-" + to_string_with_precision(sysRanges["JEC"].second), to_string_with_precision(sysRanges["JEC_rare"].first) + "-" + to_string_with_precision(sysRanges["JEC_rare"].second)}},
+    	{"Jet energy scale", {"-", "-", "-", to_string_with_precision(sysRanges["JEC"].first) + "-" + to_string_with_precision(sysRanges["JEC"].second), to_string_with_precision(sysRanges["JEC_rare"].first) + "-" + to_string_with_precision(sysRanges["JEC_rare"].second), "-"}},
 
-    	{"Jet energy resolution", {"-", "-", "-", to_string_with_precision(sysRanges["JER"].first) + "-" + to_string_with_precision(sysRanges["JER"].second), to_string_with_precision(sysRanges["JER_rare"].first) + "-" + to_string_with_precision(sysRanges["JER_rare"].second)}},
+    	{"Jet energy resolution", {"-", "-", "-", to_string_with_precision(sysRanges["JER"].first) + "-" + to_string_with_precision(sysRanges["JER"].second), to_string_with_precision(sysRanges["JER_rare"].first) + "-" + to_string_with_precision(sysRanges["JER_rare"].second), "-"}},
 
-    	{"ID, trigger ESF", {"-", "-", "-", to_string_with_precision(sysRanges["ESF"].first) + "-" + to_string_with_precision(sysRanges["ESF"].second), to_string_with_precision(sysRanges["ESF_rare"].first) + "-" + to_string_with_precision(sysRanges["ESF_rare"].second)}},
+    	{"ID, trigger ESF", {"-", "-", "-", to_string_with_precision(sysRanges["ESF"].first) + "-" + to_string_with_precision(sysRanges["ESF"].second), to_string_with_precision(sysRanges["ESF_rare"].first) + "-" + to_string_with_precision(sysRanges["ESF_rare"].second), "-"}},
 
-    	{"e-fake-photon shape", {to_string_with_precision(sysRanges["Electron Fake Photon Shape"].first) + "-" + to_string_with_precision(sysRanges["Electron Fake Photon Shape"].second), "-", "-", "-", "-"}},
+    	{"e-fake-photon shape", {to_string_with_precision(sysRanges["Electron Fake Photon Shape"].first) + "-" + to_string_with_precision(sysRanges["Electron Fake Photon Shape"].second), "-", "-", "-", "-", "-"}},
 
-    	{"jet-fake-photon shape", {"-", to_string_with_precision(sysRanges["Jet Fake Photon Shape"].first) + "-" + to_string_with_precision(sysRanges["Jet Fake Photon Shape"].second), "-", "-", "-"}},
+    	{"jet-fake-photon shape", {"-", to_string_with_precision(sysRanges["Jet Fake Photon Shape"].first) + "-" + to_string_with_precision(sysRanges["Jet Fake Photon Shape"].second), "-", "-", "-", "-"}},
 
-    	{"normalization scale", {"-", "-", to_string_with_precision(sysRanges["QCD Fake Lepton Scale"].first) + "-" + to_string_with_precision(sysRanges["QCD Fake Lepton Scale"].second), to_string_with_precision(sysRanges["Scale"].first) + "-" + to_string_with_precision(sysRanges["Scale"].second), "-"}},
+    	{"normalization scale", {"-", "-", to_string_with_precision(sysRanges["QCD Fake Lepton Scale"].first) + "-" + to_string_with_precision(sysRanges["QCD Fake Lepton Scale"].second), to_string_with_precision(sysRanges["Scale"].first) + "-" + to_string_with_precision(sysRanges["Scale"].second), "-", "-"}},
 
-    	{"Integrated luminosity", {"-", "-", "-", "-", to_string_with_precision(sysRanges["Lumi"].first)}},
+	{"Pileup", {"-", "-", "-", "-", "-", "1-34"}},
 
-    	{"Cross section", {"-", "-", "-", "-", to_string_with_precision(sysRanges["XS"].first)}}
+    	{"Integrated luminosity", {"-", "-", "-", "-", to_string_with_precision(sysRanges["Lumi"].first), to_string_with_precision(sysRanges["Lumi"].first)}},
+
+    	{"Cross section", {"-", "-", "-", "-", to_string_with_precision(sysRanges["XS"].first), "-"}}
 	};
 
 	for (auto& row : tableData) {
@@ -633,7 +720,7 @@ void plot_eventct(int NBIN){//main
     	std::cout << "  \\hline" << std::endl;
     	std::cout << "  \\end{tabular}" << std::endl;
     	std::cout << "  }" << std::endl;
-    	std::cout << "  \\caption{Systematic uncertainties of the SM backgrounds.}" << std::endl;
+    	std::cout << "  \\caption{Systematic uncertainties for different years.}" << std::endl;
     	std::cout << "  \\label{table:ch4-systematic}" << std::endl;
     	std::cout << "\\end{table}" << std::endl;
 
@@ -647,15 +734,6 @@ void plot_eventct(int NBIN){//main
                         << h_rare_norm->GetBinContent(ibin) << endl;
 	}
 	
-	cout<<endl<<endl<<"eg channel : 		"<<endl;
-	cout<<"elefakePho :   "<<bkgContent_elefakepho<<endl;
-	cout<<"jetfakePho :   "<<bkgContent_jetfakepho<<endl;
-	cout<<"jetfakeLep :   "<<bkgContent_jetfakelep<<endl;
-	cout<<"VGamma :       "<<bkgContent_VGamma<<endl;
-	cout<<"Electroweak :         "<<bkgContent_rare<<endl;
-	cout<<"total SM backgrounds:	"<<bkgContent_Total<<"\tTotal data  "<<dataEvents<<endl;
-	cout<<"Discrepancy :  "<<100*(bkgContent_Total-dataEvents)/dataEvents<<" % "<<endl;
-	
 	cout<<endl<<endl<<"mg channel : 		"<<endl;
 	cout<<"elefakePho :   "<<bkgContent_elefakepho_mg<<endl;
 	cout<<"jetfakePho :   "<<bkgContent_jetfakepho_mg<<endl;
@@ -664,6 +742,15 @@ void plot_eventct(int NBIN){//main
 	cout<<"Electroweak :         "<<bkgContent_rare_mg<<endl;
 	cout<<"total SM backgrounds:	"<<bkgContent_Total_mg<<"\tTotal data  "<<dataEvents_mg<<endl;
 	cout<<"Discrepancy :  "<<100*(bkgContent_Total_mg-dataEvents_mg)/dataEvents_mg<<" % "<<endl;
+	
+	cout<<endl<<endl<<"eg channel : 		"<<endl;
+	cout<<"elefakePho :   "<<bkgContent_elefakepho<<endl;
+	cout<<"jetfakePho :   "<<bkgContent_jetfakepho<<endl;
+	cout<<"jetfakeLep :   "<<bkgContent_jetfakelep<<endl;
+	cout<<"VGamma :       "<<bkgContent_VGamma<<endl;
+	cout<<"Electroweak :         "<<bkgContent_rare<<endl;
+	cout<<"total SM backgrounds:	"<<bkgContent_Total<<"\tTotal data  "<<dataEvents<<endl;
+	cout<<"Discrepancy :  "<<100*(bkgContent_Total-dataEvents)/dataEvents<<" % "<<endl;
 	
 	TFile *outputfile = TFile::Open(Form("/uscms_data/d3/tmishra/Output/SignalSystematic_%d%s.root",RunYear,whichVFP.c_str()),"RECREATE");
 	outputfile->cd();

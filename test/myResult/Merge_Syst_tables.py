@@ -65,21 +65,23 @@ merged = r"""
 \begin{table}[h]
 \centering
 \resizebox{\linewidth}{!}{
-\begin{tabular}{|c||c|c|c|c|c|}
+\begin{tabular}{|c||c|c|c|c|c|c|}
 \hline
-\multicolumn{6}{|c|}{\textbf{Systematic uncertainties of the SM backgrounds}} \\
+\multicolumn{6}{|c|}{\textbf{Systematic uncertainties (\%)}} \\
 \hline
 \textbf{Source of Uncertainties} &
 $e\rightarrow\gamma$ fakes &
 $\text{jet}\rightarrow\gamma$ fakes &
 $\text{jet}\rightarrow l$ fakes &
 $V+\gamma$ &
-rare EWK \\
+rare EWK &
+SUSY signal
+\\
 \hline
 """
 
 for label, rows in year_tables:
-    merged += rf"\multicolumn{{6}}{{|c|}}{{\textbf{{{label}}}}} \\"
+    merged += rf"\multicolumn{{7}}{{|c|}}{{\textbf{{{label}}}}} \\"
     merged += "\n\\hline\n"
     for r in rows:
         merged += f"  {r}\n"
@@ -88,7 +90,7 @@ for label, rows in year_tables:
 merged += r"""
 \end{tabular}
 }
-\caption{Systematic uncertainties of the SM backgrounds for different years.}
+\caption{Systematic uncertainties of the SM backgrounds and SUSY signal for different years. For each source, the quoted range represents the minimum and maximum of the average bin-wise uncertainty evaluated across all signal bins. For the JES and JER uncertainties, an upper bound of up to 100\% can appear in a small number of bins due to very few high-weight events migrating into or out of low-statistics bins under JES/JER variations, as discussed in  Appendix~\ref{JecJer}. Such cases occur in less than 1\% of the SUSY signal events. }
 \label{table:ch4-systematic}
 \end{table}
 """

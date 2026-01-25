@@ -25,7 +25,7 @@ for FILE in 2016preVFP_.txt 2016postVFP_.txt 2017_.txt 2018_.txt; do
             sed -i '/2017/!d' "$FILE"
             ;;
         2018_*.txt)
-            sed -i '/2018/!d' "$FILE"
+	    sed -i '/2018\|678/!d' "$FILE"
             ;;
     esac
 done

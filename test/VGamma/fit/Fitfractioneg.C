@@ -105,8 +105,6 @@ int Fitfractioneg(int ih,int metlow, int methigh, int leplow, int lephigh, int i
 
 
 
-	//  CHECK !!!!
-	// JetFakePhoton is twice for menglei compare to me in the Control region
 	cout<< "\tRare : "<< p_rare->Integral()/p_target->Integral() <<"\t efakePho : "<<p_ele->Integral()/p_target->Integral() <<"\t jetfakePho : "<<p_jet->Integral()/p_target->Integral() << "\n";
 	// Target distribution is deltaPhi shape of the data in the CR, with jet fake photon, ele fake photon, rare EWK backgrounds subtracted.
 	p_target->Add(p_rare, -1);

@@ -17,9 +17,7 @@ preVFP = sys.argv[3]
 n_processes= 6
 # 5 bkgrounds, 1 susy process
 pro_names = ['SUSY','elefakepho', 'jetfakepho', 'qcdfakelep','VGamma','rare']
-syst_names = ['jes','jer','esf','scale','e_to_pho_syst','j_to_pho_syst','fakelep_shape','xs','lumi','isr']
-
-
+syst_names = ['jes','jer','esf','scale','e_to_pho_syst','j_to_pho_syst','xs','lumi']
 
 if RunYear == '2016' and preVFP == '1':
     whichVFP = 'preVFP'
@@ -73,25 +71,6 @@ with open('logs/data_eg_{}{}.log'.format(RunYear, whichVFP)) as fileEG:
             v = int(l[1].strip())
             file_out.write('{:>4d} '.format(v))
 file_out.write('\n')
-
-
-#### from file pred_sig.C
-#if n_channels == 22 :
-#	file_out.write("observation    321 517 105 36 76 52 1 2 3 1 2 163 297 81 38 55 36 1 1 6 1 1  \n")
-
-#if n_channels == 36 :
-	# MET cut starts at 100
-	#file_out.write("747  862  138  32  64  45   1   1    5   15  44  28 4 12 7 1 1 0 345  483  109  32  46  32  1  1  4  11  31  17  6  9  4  0  1  3 \n")
-	# photon pT boundary 200
-	#file_out.write("observation    309  494  85  32  64  45  1  1  5  12  23  20  4  12  7  1  1  0  153  276  67   32   46   32   1  1  4  10  21  14  6  9  4  0  1  3  \n")
-	# photon pT boundary 100
-#	file_out.write("observation     262  436  60  20  52  37  1  1  3  59  81  45  16  24  15  1  1  2  107  225  54  21  35  24  1 0 2 56 72  27  17  20  12  0  2  5  \n")
-
-#if n_channels == 18 :
-#	file_out.write("observation    321  517  105  36  76  52  2  2  5  163  297  81  38  55  36  1  2  7  \n")
-
-#if n_channels == 20 :
-#	file_out.write("observation    321  517  105  36  76  52  1  2  3  3  163  297  81  38 55  36  1 1 6 2    \n")
 
 file_out.write("------------\n")
 
@@ -192,7 +171,6 @@ for ich in range(1,n_channels+1):
             file_out.write('{:>12s} '.format('-'))
 file_out.write('\n')
 
-# Add it later
 #file_out.write('{:15s} {:3s} {:6s}'.format('PDFSCALE','lnN',''))
 #for ich in range(1,n_channels+1):
 #    for p in pro_names:
