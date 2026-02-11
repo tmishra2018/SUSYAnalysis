@@ -89,12 +89,13 @@ void analysis_doubleFakeBkg(){
 
 	//************ Double Fake Tree **********************//
 	TChain *doubleFaketree = new TChain("doubleFakeTree");
-	if(channelType==1)doubleFaketree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_egsignal_DoubleEG_ReMiniAOD_FullEcal.root");
+	if(channelType==1)doubleFaketree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_egsignal_DoubleEG_ReMiniAOD_FullEcal_newEta.root");
 	if(channelType==2)doubleFaketree->Add("/uscms_data/d3/mengleis/FullStatusOct/resTree_mgsignal_MuonEG_FullEcal.root");
 
 	float phoEt(0);
 	float phoEta(0);
 	float phoPhi(0);
+	float phoChIso(0);
 	float lepPt(0);
 	float lepEta(0);
 	float lepPhi(0);
@@ -114,6 +115,7 @@ void analysis_doubleFakeBkg(){
 	doubleFaketree->SetBranchAddress("phoEt",     &phoEt);
 	doubleFaketree->SetBranchAddress("phoEta",    &phoEta);
 	doubleFaketree->SetBranchAddress("phoPhi",    &phoPhi);
+	doubleFaketree->SetBranchAddress("phoChIso",  &phoChIso);
 	doubleFaketree->SetBranchAddress("lepPt",     &lepPt);
 	doubleFaketree->SetBranchAddress("lepEta",    &lepEta);
 	doubleFaketree->SetBranchAddress("lepPhi",    &lepPhi);
@@ -160,7 +162,10 @@ void analysis_doubleFakeBkg(){
 			p_elePhoPart->Fill(0.5, w_lep*w_pho);
 		}
 		else if(phoType == 1){
-			w_pho = fitfunc_num->Eval(phoEt)/fitfunc_den->Eval(phoEt);
+			if(phoChIso > 5)continue;
+			double den = fitfunc_den->Eval(phoEt);
+			if(den <= 0)continue;
+			w_pho = fitfunc_num->Eval(phoEt)/den;
 			p_jetPhoPart->Fill(0.5, w_lep*w_pho);
 		}
 		else continue;
