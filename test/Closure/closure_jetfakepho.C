@@ -39,6 +39,13 @@
 #define MAXMET 399
 #define MAXHT 399
 
+bool isHardLepton(int momID){
+                if((fabs(momID) >= 0 && fabs(momID) <= 6) || momID==21 || fabs(momID) == 15 || fabs(momID) == 999 || fabs(momID) == 23 || fabs(momID) == 24)return true;
+                else return false;
+}
+
+
+
 void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 
   gSystem->Load("../../lib/libAnaClasses.so");
@@ -118,10 +125,10 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 		TChain *sigtree = new TChain("signalTree");
 		// signal events directly from simulation
 //		if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
-		if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WJetsToLNu_%d%s.root",RunYear,whichVFP.c_str()));
+		if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WJetsToLNu_%d%s_.root",RunYear,whichVFP.c_str()));
 
 //		if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
-		if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WJetsToLNu_%d%s.root",RunYear,whichVFP.c_str()));
+		if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WJetsToLNu_%d%s_.root",RunYear,whichVFP.c_str()));
 
 		float crosssection(0);
 		float ntotalevent(0);
@@ -271,8 +278,8 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 		TChain *proxytree = new TChain("jetTree");
 		// jetTree for proxy events
 		// proxy events weighted by fake rate, WJet has major contribution
-		if(channelType==1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WJetsToLNu_%d%s.root",RunYear,whichVFP.c_str()));
-		if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WJetsToLNu_%d%s.root",RunYear,whichVFP.c_str()));
+		if(channelType==1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WJetsToLNu_%d%s_.root",RunYear,whichVFP.c_str()));
+		if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WJetsToLNu_%d%s_.root",RunYear,whichVFP.c_str()));
 
 	float proxycrosssection(0);
 	float proxyntotalevent(0);
@@ -290,6 +297,13 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	float proxydRPhoLep(0);
 	float proxyHT(0);
 	float proxynJet(0);
+
+	std::vector<int>   *proxy_mcPID=0;
+	std::vector<float> *proxy_mcEta=0;
+	std::vector<float> *proxy_mcPhi=0;
+	std::vector<float> *proxy_mcPt=0;
+	std::vector<int>   *proxy_mcMomPID=0;
+	std::vector<int>   *proxy_mcGMomPID=0;
 	
 	proxytree->SetBranchAddress("crosssection",&proxycrosssection);
 	proxytree->SetBranchAddress("ntotalevent", &proxyntotalevent);
@@ -307,6 +321,19 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	proxytree->SetBranchAddress("dRPhoLep",  	 &proxydRPhoLep);
 	proxytree->SetBranchAddress("HT",        	 &proxyHT);
 	proxytree->SetBranchAddress("nJet",      	 &proxynJet);
+
+	proxytree->SetBranchAddress("mcPID",        &proxy_mcPID);
+        proxytree->SetBranchAddress("mcEta",        &proxy_mcEta);
+        proxytree->SetBranchAddress("mcPhi",        &proxy_mcPhi);
+        proxytree->SetBranchAddress("mcPt",         &proxy_mcPt);
+        proxytree->SetBranchAddress("mcMomPID",     &proxy_mcMomPID);
+        proxytree->SetBranchAddress("mcGMomPID",    &proxy_mcGMomPID);
+
+	// ---- Fake-lepton fraction counters for the proxy (jet->photon) sample ----
+	double proxy_wjet_total      = 0.0;  // sum of jet-fake weights for all proxy events
+	double proxy_wjet_fakelep    = 0.0;  // sum of jet-fake weights for events with a fake lepton
+	double proxy_n_total         = 0.0;  // unweighted event count (for cross-check)
+	double proxy_n_fakelep       = 0.0;  // unweighted fake-lepton event count
 
 	for (unsigned ievt(0); ievt<proxytree->GetEntries(); ++ievt){//loop on entries
 		proxytree->GetEntry(ievt);
@@ -341,6 +368,32 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 		w_jet = w_jet*weight;
 		// XSec weight * fake rate weight
 
+		// ---- Classify whether the lepton in this proxy event is a fake ----
+		// A lepton is considered prompt (real) if it MC-matches within dR<0.1
+		// to a generator-level lepton (|PID|=11 or 13) whose mother is a
+		// W (24), Z (23), or tau (15). Otherwise it is a fake lepton.
+		bool isRealLep = false;
+		double lepMindR = 999.0;
+		unsigned lepMatchIdx = 0;
+		for(unsigned iMC(0); iMC < proxy_mcPID->size(); iMC++){
+			int absPID = fabs((*proxy_mcPID)[iMC]);
+			if(absPID != 11 && absPID != 13)continue; // only match to gen leptons
+			double dR = DeltaR((*proxy_mcEta)[iMC], (*proxy_mcPhi)[iMC], proxylepEta, proxylepPhi);
+			if(dR < lepMindR){ lepMindR = dR; lepMatchIdx = iMC; }
+		}
+		if(lepMindR < 0.1){
+			if(isHardLepton((*proxy_mcMomPID)[lepMatchIdx])) isRealLep = true;
+		}
+		bool isFakeLep = !isRealLep;
+
+		// Accumulate fake-lepton fraction counters
+		proxy_wjet_total   += w_jet;
+		proxy_n_total      += 1.0;
+		if(isFakeLep){
+			proxy_wjet_fakelep += w_jet;
+			proxy_n_fakelep    += 1.0;
+		}
+
 		pred_PhoEt->Fill(proxyphoEt,w_jet);
 		pred_PhoEta->Fill(proxyphoEta, w_jet);
 		pred_MET->Fill(proxysigMET, w_jet);
@@ -362,12 +415,23 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 //			toy_dPhiEleMET[it]->Fill(fabs(proxydPhiLepMET), toy_jet);
 //		}
 	}
+	
+	// ---- Print fake-lepton fraction for the jet->photon proxy sample ----
+	double fakeLepFrac_wjet  = (proxy_wjet_total  > 0) ? proxy_wjet_fakelep / proxy_wjet_total  : 0.0;
+	double fakeLepFrac_unwtd = (proxy_n_total     > 0) ? proxy_n_fakelep    / proxy_n_total     : 0.0;
+	std::cout << "============================================================" << std::endl;
+	std::cout << " Jet->photon proxy sample: fake-lepton fraction" << std::endl;
+	std::cout << "  Weighted  : " << proxy_wjet_fakelep << " / " << proxy_wjet_total
+	          << "  = " << fakeLepFrac_wjet*100.0 << " %" << std::endl;
+	std::cout << "  Unweighted: " << proxy_n_fakelep    << " / " << proxy_n_total
+	          << "  = " << fakeLepFrac_unwtd*100.0 << " %" << std::endl;
+	std::cout << "============================================================" << std::endl;
 
 	//************ Proxy Tree **********************//
 	TChain *raretree = new TChain("jetTree");
 	// rare contribution from DY
-	if(channelType==1)raretree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
-	if(channelType==2)raretree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
+	if(channelType==1)raretree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_DYJetsToLL_%d%s_.root",RunYear,whichVFP.c_str()));
+	if(channelType==2)raretree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_DYJetsToLL_%d%s_.root",RunYear,whichVFP.c_str()));
 
 	float rarecrosssection(0);
 	float rarentotalevent(0);
@@ -385,6 +449,12 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	float raredRPhoLep(0);
 	float rareHT(0);
 	float rarenJet(0);
+	std::vector<int>   *rare_mcPID=0;
+	std::vector<float> *rare_mcEta=0;
+	std::vector<float> *rare_mcPhi=0;
+	std::vector<float> *rare_mcPt=0;
+	std::vector<int>   *rare_mcMomPID=0;
+	std::vector<int>   *rare_mcGMomPID=0;
 	
 	raretree->SetBranchAddress("crosssection",&rarecrosssection);
 	raretree->SetBranchAddress("ntotalevent", &rarentotalevent);
@@ -402,6 +472,19 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	raretree->SetBranchAddress("dRPhoLep",  	 &raredRPhoLep);
 	raretree->SetBranchAddress("HT",        	 &rareHT);
 	raretree->SetBranchAddress("nJet",      	 &rarenJet);
+
+	raretree->SetBranchAddress("mcPID",        &rare_mcPID);
+	raretree->SetBranchAddress("mcEta",        &rare_mcEta);
+	raretree->SetBranchAddress("mcPhi",        &rare_mcPhi);
+	raretree->SetBranchAddress("mcPt",         &rare_mcPt);
+	raretree->SetBranchAddress("mcMomPID",     &rare_mcMomPID);
+	raretree->SetBranchAddress("mcGMomPID",    &rare_mcGMomPID);
+
+	// ---- Fake-lepton fraction counters for the DY rare proxy sample ----
+	double rare_wjet_total   = 0.0;
+	double rare_wjet_fakelep = 0.0;
+	double rare_n_total      = 0.0;
+	double rare_n_fakelep    = 0.0;
 
 	for (unsigned ievt(0); ievt<raretree->GetEntries(); ++ievt){//loop on entries
 		raretree->GetEntry(ievt);
@@ -448,6 +531,28 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 //		pred_dPhiEleMET->Fill(fabs(raredPhiLepMET), w_jet);
 //		pred_nJet->Fill(rarenJet, w_jet);
 
+		// ---- Classify lepton in rare proxy event ----
+		bool isRealLep_rare = false;
+		double lepMindR_rare = 999.0;
+		unsigned lepMatchIdx_rare = 0;
+		for(unsigned iMC(0); iMC < rare_mcPID->size(); iMC++){
+			int absPID = fabs((*rare_mcPID)[iMC]);
+			if(absPID != 11 && absPID != 13)continue;
+			double dR = DeltaR((*rare_mcEta)[iMC], (*rare_mcPhi)[iMC], rarelepEta, rarelepPhi);
+			if(dR < lepMindR_rare){ lepMindR_rare = dR; lepMatchIdx_rare = iMC; }
+		}
+		if(lepMindR_rare < 0.1){
+                        if(isHardLepton((*rare_mcMomPID)[lepMatchIdx_rare])) isRealLep_rare = true;
+                }
+
+		bool isFakeLep_rare = !isRealLep_rare;
+
+		rare_wjet_total   += w_jet;
+		rare_n_total      += 1.0;
+		if(isFakeLep_rare){
+			rare_wjet_fakelep += w_jet;
+			rare_n_fakelep    += 1.0;
+		}
 		DY_PhoEt->Fill(proxyphoEt,w_jet);
 		DY_PhoEta->Fill(proxyphoEta, w_jet);
 		DY_MET->Fill(proxysigMET, w_jet);
@@ -467,6 +572,31 @@ void closure_jetfakepho(int ichannel, int RunYear, bool preVFP){
 	//		toy_dPhiEleMET[it]->Fill(fabs(raredPhiLepMET), toy_jet);
 	//	}
 	}
+	// ---- Print fake-lepton fraction for the DY rare proxy sample ----
+	double fakeLepFrac_rare_wjet  = (rare_wjet_total  > 0) ? rare_wjet_fakelep / rare_wjet_total  : 0.0;
+	double fakeLepFrac_rare_unwtd = (rare_n_total      > 0) ? rare_n_fakelep    / rare_n_total     : 0.0;
+	std::cout << "============================================================" << std::endl;
+	std::cout << " DY rare proxy sample (jet->photon): fake-lepton fraction" << std::endl;
+	std::cout << "  Weighted  : " << rare_wjet_fakelep << " / " << rare_wjet_total
+	          << "  = " << fakeLepFrac_rare_wjet*100.0 << " %" << std::endl;
+	std::cout << "  Unweighted: " << rare_n_fakelep    << " / " << rare_n_total
+	          << "  = " << fakeLepFrac_rare_unwtd*100.0 << " %" << std::endl;
+	std::cout << "============================================================" << std::endl;
+
+	// ---- Combined fake-lepton fraction across all proxy samples ----
+	double combined_wjet_total   = proxy_wjet_total   + rare_wjet_total;
+	double combined_wjet_fakelep = proxy_wjet_fakelep + rare_wjet_fakelep;
+	double combined_n_total      = proxy_n_total      + rare_n_total;
+	double combined_n_fakelep    = proxy_n_fakelep    + rare_n_fakelep;
+	double fakeLepFrac_combined_wjet  = (combined_wjet_total > 0) ? combined_wjet_fakelep / combined_wjet_total  : 0.0;
+	double fakeLepFrac_combined_unwtd = (combined_n_total    > 0) ? combined_n_fakelep    / combined_n_total     : 0.0;
+	std::cout << "============================================================" << std::endl;
+	std::cout << " Combined proxy sample (jet->photon): fake-lepton fraction" << std::endl;
+	std::cout << "  Weighted  : " << combined_wjet_fakelep << " / " << combined_wjet_total
+	          << "  = " << fakeLepFrac_combined_wjet*100.0 << " %" << std::endl;
+	std::cout << "  Unweighted: " << combined_n_fakelep    << " / " << combined_n_total
+	          << "  = " << fakeLepFrac_combined_unwtd*100.0 << " %" << std::endl;
+	std::cout << "============================================================" << std::endl;
 
 
 //	for(int ibin(1); ibin < pred_PhoEt->GetSize(); ibin++){

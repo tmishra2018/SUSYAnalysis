@@ -1,14 +1,13 @@
 #!/bin/bash
-
-ptbins=( 35 40 50 60 70 80 100 150 200 250)
-
+ptbins=( 35 40 50 60 70 80 150 250)
+#ptbins=( 35 40 50 60 70 80 100 150 200 250)
 declare -A year_preVFP
 year_preVFP[2016,0]=false
 year_preVFP[2016,1]=true
 year_preVFP[2017,0]=false
 year_preVFP[2018,0]=false
 
-for detType in 1 2; do
+for detType in 2; do
     if [[ $detType -eq 1 ]]; then
         whichRegion="EB"
     elif [[ $detType -eq 2 ]]; then
@@ -33,14 +32,14 @@ for detType in 1 2; do
     done
 
     # Loop for 2017 and 2018
-#    for year in 2017 2018; do
-#        whichVFP=""
-#        echo "Removing file: /eos/uscms/store/user/tmishra/jetfakepho/files/JetFakeRate-ISR-${whichRegion}_${year}${whichVFP}.txt"
-#        rm -f "/eos/uscms/store/user/tmishra/jetfakepho/files/JetFakeRate-ISR-${whichRegion}_${year}${whichVFP}.txt"
-#
-#        for (( i = 0; i < ${#ptbins[@]} - 1; i++ )); do
-#            j=$((i + 1))  # Get the next ptbin
-#            root -b -q "FitJetFake.C+(${ptbins[$i]},${ptbins[$j]},${detType},${year},0)"
-#        done
-#    done
+    for year in 2017 2018; do
+        whichVFP=""
+        echo "Removing file: /eos/uscms/store/user/tmishra/jetfakepho/files/JetFakeRate-ISR-${whichRegion}_${year}${whichVFP}.txt"
+        rm -f "/eos/uscms/store/user/tmishra/jetfakepho/files/JetFakeRate-ISR-${whichRegion}_${year}${whichVFP}.txt"
+
+        for (( i = 0; i < ${#ptbins[@]} - 1; i++ )); do
+            j=$((i + 1))  # Get the next ptbin
+            root -b -q "FitJetFake.C+(${ptbins[$i]},${ptbins[$j]},${detType},${year},0)"
+        done
+    done
 done

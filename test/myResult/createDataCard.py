@@ -17,7 +17,7 @@ preVFP = sys.argv[3]
 n_processes= 6
 # 5 bkgrounds, 1 susy process
 pro_names = ['SUSY','elefakepho', 'jetfakepho', 'qcdfakelep','VGamma','rare']
-syst_names = ['jes','jer','esf','scale','e_to_pho_syst','j_to_pho_syst','xs','lumi']
+syst_names = ['jes','jer','esf','scale','e_to_pho_syst','j_to_pho_syst','lumi']
 
 if RunYear == '2016' and preVFP == '1':
     whichVFP = 'preVFP'

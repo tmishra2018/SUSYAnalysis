@@ -143,8 +143,8 @@ void analysis_mgGJet(int RunYear, bool preVFP){//main
 
   for(unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
   
-    	if(ievt%100000==0)std::cout << " -- Processing event " << ievt << std::endl;
-    	if(ievt%100000==0)logfile << " -- Processing event " << ievt << std::endl;
+    	if(ievt%100000000==0)std::cout << " -- Processing event " << ievt << std::endl;
+    	if(ievt%100000000==0)logfile << " -- Processing event " << ievt << std::endl;
 
 	raw.GetData(es, ievt);
 	MCData.clear();
@@ -180,7 +180,8 @@ void analysis_mgGJet(int RunYear, bool preVFP){//main
       		ismgCandidate = true;
       		ishadCandidate = true;
 	}
-    	if(!itpho->fireL1Trg(12) && !itpho->fireL1Trg(17)) ismgCandidate=false;   // HLT_Mu17_Photon* || HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v3
+    	if(!itpho->fireL1Trg(12) && !itpho->fireL1Trg(17) && RunYear==2016) ismgCandidate=false;   // HLT_Mu17_Photon* || HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v3
+    	if(!itpho->fireL1Trg(32) && RunYear!=2016) ismgCandidate=false;
 	// this looks incorrect for 2017, 2018
     	if(ismgCandidate && !hasmgCandidate){
 			mg_phoEt = itpho->getCalibEt();

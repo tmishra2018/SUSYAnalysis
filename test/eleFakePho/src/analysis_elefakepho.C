@@ -25,11 +25,11 @@
 #include "../../../include/analysis_rawData.h"
 #include "../../../include/analysis_photon.h"
 #include "../../../include/analysis_muon.h"
-#include "../../../include/analysis_ele.h"
 #include "../../../include/analysis_jet.h"
-#include "../../../include/analysis_tools.h"
+#include "../../../include/analysis_ele.h"
 #include "../../../include/analysis_mcData.h"
-#include "../../../src/analysis_rawData.cc"
+#include "../../../include/analysis_tools.h"
+#include "../../../include/analysis_cuts.h"
 #include "../../../src/analysis_ele.cc"
 #include "../../../src/analysis_photon.cc"
 
@@ -44,7 +44,7 @@ void analysis_elefakepho(int RunYear, const char *Era){//main
   TFile *f = TFile::Open(Form("/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/DYJetsToLL/DYJetsToLL_%d%s.root",RunYear,Era));
   TTree *es =(TTree*)f->Get("ggNtuplizer/EventTree");
 
-  TFile *output = TFile::Open(Form("/eos/uscms/store/user/tmishra/elefakepho/files/plot_elefakepho_DYTnP_dR05_%d%s.root",RunYear,Era),"RECREATE");
+  TFile *output = TFile::Open(Form("/eos/uscms/store/user/tmishra/elefakepho/files/plot_elefakepho_DYTnP_dR05_%d%s_HT-added.root",RunYear,Era),"RECREATE");
   output->cd();
 
   int   tracks(0);
@@ -94,6 +94,8 @@ void analysis_elefakepho(int RunYear, const char *Era){//main
   etree->Branch("mcMomPID",			   &mcMomPID_bothcount);
   etree->Branch("mcGMomPID",		   &mcGMomPID_bothcount);
   etree->Branch("mcType",			   &mcType);
+  float HT(0);  
+  etree->Branch("HT",        &HT);
 
   TTree *rantree = new TTree("FakeRateRandomTree","FakeRateRandomTree");
   float tagEta_random;
@@ -147,6 +149,8 @@ void analysis_elefakepho(int RunYear, const char *Era){//main
   std::vector<recoPhoton> Photon;
   std::vector<recoMuon>   Muon;
   std::vector<recoEle>   Ele;
+  std::vector<recoJet>   JetCollection;
+
   float MET(0);
   float METPhi(0);
   int   ntrks(0);
@@ -168,10 +172,12 @@ void analysis_elefakepho(int RunYear, const char *Era){//main
         Photon.clear();
         Muon.clear();
         Ele.clear();
+	JetCollection.clear();
         if(datatype == MC)for(int iMC(0); iMC < raw.nMC; iMC++){MCData.push_back(mcData(raw, iMC));}
         for(int iPho(0); iPho < raw.nPho; iPho++){Photon.push_back(recoPhoton(raw, iPho));}
         for(int iMu(0); iMu < raw.nMu; iMu++){Muon.push_back(recoMuon(raw, iMu));}
         for(int iEle(0); iEle < raw.nEle; iEle++){Ele.push_back(recoEle(raw, iEle));}
+	for(int iJet(0); iJet < raw.nJet; iJet++){JetCollection.push_back(recoJet(raw, iJet));}
         MET = raw.pfMET;
         METPhi = raw.pfMETPhi;
         nvtx = raw.nVtx;
@@ -196,10 +202,56 @@ void analysis_elefakepho(int RunYear, const char *Era){//main
 					 if(RunYear==2016 && !itEle->fireTrgs(12))continue;  //HLT_Ele27_WPTight_Gsf_v
 					 if(RunYear==2017 && !itEle->fireTrgs(46))continue;  //HLT_Ele35_WPTight_Gsf_v
 					 if(RunYear==2018 && !itEle->fireTrgs(13))continue;  //HLT_Ele32_WPTight_Gsf_v
-	   if(itEle->passSignalSelection())ElectronCollection.push_back(itEle); // Tag electron selection
+	   				 if(itEle->passSignalSelection())ElectronCollection.push_back(itEle); // Tag electron selection
 		// pt > 30 GeV, medium ID, eta < 2.1 electron
         }
-        
+ 
+ 	bool hasEle(false);
+	std::vector<recoEle>::iterator signalEle = Ele.begin();
+	for(std::vector<recoEle>::iterator itEle = Ele.begin(); itEle != Ele.end(); itEle++){
+                   if(itEle->getCalibPt() < 25)continue;
+                   if((itEle->isEB() && itEle->getR9() < R9EBCut) || (itEle->isEE() && itEle->getR9() < R9EECut))continue;
+                   if(itEle->passSignalSelection()){
+                         if(!hasEle){
+                                hasEle=true;
+                                signalEle = itEle;
+                          }
+                   }
+	}
+
+	std::vector<recoPhoton>::iterator LeadingsignalPho = Photon.begin();
+	bool hasLeadingSigPho(false);
+	for(std::vector<recoPhoton>::iterator itpho = Photon.begin() ; itpho != Photon.end(); ++itpho){
+                                if(itpho->getR9() < 0.5)continue;
+                                if(!itpho->passBasicSelection())continue;
+                                bool passSigma = itpho->passSigma(1);
+                                bool passChIso = itpho->passChIso(1);
+                                bool PixelVeto = itpho->PixelSeed()==0? true: false;
+                                bool GSFveto(true);
+                                bool FSRVeto(true);
+                                for(std::vector<recoEle>::iterator ie = Ele.begin(); ie != Ele.end(); ie++){
+                                        if(DeltaR(itpho->getEta(), itpho->getPhi(), ie->getEta(), ie->getPhi()) <= 0.02)GSFveto = false;
+                                        if(DeltaR(itpho->getEta(), itpho->getPhi(), ie->getEta(), ie->getPhi()) < 0.3)FSRVeto=false;
+                                }
+                                for(std::vector<recoMuon>::iterator im = Muon.begin(); im != Muon.end(); im++)
+                                        if(DeltaR(itpho->getEta(), itpho->getPhi(), im->getEta(), im->getPhi()) < 0.3 && im->getEt()>2.0)FSRVeto=false;
+                                if(!itpho->passSignalSelection())continue;
+                                if(GSFveto && PixelVeto && FSRVeto){
+                                        if(!hasLeadingSigPho){
+                                                hasLeadingSigPho=true;
+                                                LeadingsignalPho = itpho;
+                                        }
+                                }
+         }
+
+	 HT = 0;
+	 for(std::vector<recoJet>::iterator itJet = JetCollection.begin() ; itJet != JetCollection.end(); ++itJet){
+                     if(!itJet->passSignalSelection())continue;
+                     if(DeltaR(itJet->getEta(), itJet->getPhi(), signalEle->getEta(), signalEle->getPhi()) <= 0.4)continue;
+                     if(DeltaR(itJet->getEta(), itJet->getPhi(), LeadingsignalPho->getEta(), LeadingsignalPho->getPhi()) <= 0.4)continue;
+                     HT += itJet->getPt();
+         }
+
         std::vector<std::vector<recoPhoton>::iterator> signalPho;
         std::vector<bool> PhoPixelVeto;
         std::vector<bool> PhoEleVeto;

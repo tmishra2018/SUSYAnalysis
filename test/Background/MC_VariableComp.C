@@ -37,7 +37,7 @@ for (int ichannel=0; ichannel<=1; ichannel++){
    	TH1F *p_ISRJetPt     = new TH1F("p_ISRJetPt","",7,plotEtBins);
    	TH1D *p_dPhiEleMET = new TH1D("p_dPhiEleMET","dPhiEleMET",32,0,3.2);
 	
-	TFile file_Trib("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_"+process_Trib[i]+"_2016postVFP.root");
+	TFile file_Trib("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_"+process_Trib[i]+"_2016postVFP.root");
 	//TFile file_Trib("/uscms_data/d3/mengleis/FullStatusOct/resTree_VGamma_"+process_Trib[i]+".root");
    	TTree *egtree = (TTree*)file_Trib.Get("egTree");
 

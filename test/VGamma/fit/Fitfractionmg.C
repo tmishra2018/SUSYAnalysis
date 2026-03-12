@@ -62,10 +62,15 @@ int Fitfractionmg(int ih,int metlow, int methigh, int leplow, int lephigh, int i
 	if(RunYear==2016 and preVFP == true) whichVFP = "preVFP";
 	else if(RunYear==2016 and preVFP == false) whichVFP = "postVFP";
         else whichVFP = "";
+	bool fullRange = (metlow == 40  && methigh == 70 && leplow == 0  && lephigh == 1000);
 
 	ofstream myfile;
-	myfile.open(Form("/eos/uscms/store/user/tmishra/VGamma/VGamma_scalefactor_mg_%d%s.txt",RunYear,whichVFP.c_str()), std::ios_base::app | std::ios_base::out);
-	TString filepath = "/eos/uscms/store/user/tmishra/Background/";
+	if (fullRange)
+		myfile.open(Form("/eos/uscms/store/user/tmishra/VGamma/VGamma_scalefactor_mg_%d%s.txt",RunYear,whichVFP.c_str()), std::ios_base::app | std::ios_base::out);
+	else
+		myfile.open(Form("/eos/uscms/store/user/tmishra/VGamma/VGamma_scalefactor_mg_%d%s_MET%d-%d_lep%d-%d.txt",RunYear,whichVFP.c_str(), metlow, methigh, leplow, lephigh), std::ios_base::app | std::ios_base::out);
+
+	TString filepath = "/uscms_data/d3/tmishra/Background/";
 	std::ostringstream filename;
 	filename.str("");
 	// // data in the control region
@@ -209,7 +214,7 @@ int Fitfractionmg(int ih,int metlow, int methigh, int leplow, int lephigh, int i
 	canpt_pad1->Draw();          
 	canpt_pad1->cd();  
 	p_target->GetYaxis()->SetTitleOffset(1.4);
-	p_target->GetYaxis()->SetTitle("Events / 0.1 radians");
+	p_target->GetYaxis()->SetTitle("Events / (0.1 radians)");
 	p_target->SetTitle(""); 
 	p_target->SetMaximum(1.5*p_target->GetBinContent(p_target->GetMaximumBin()));
 	p_target->SetMinimum(1);
@@ -271,8 +276,11 @@ int Fitfractionmg(int ih,int metlow, int methigh, int leplow, int lephigh, int i
 	dummy_ptratio->SetMaximum(1.3);
 	dummy_ptratio->SetMinimum(0.7);
 	dummy_ptratio->GetYaxis()->SetNdivisions(504);
+
+	dummy_ptratio->GetXaxis()->SetTitle("|#Delta#phi(#mu, #vec{p}_{T}^{ miss})| (radians)");
+        dummy_ptratio->GetXaxis()->SetTitleOffset(1.0);
 	dummy_ptratio->Draw();
-  TLine *flatratio = new TLine(0,1,3.2,1);
+  	TLine *flatratio = new TLine(0,1,3.2,1);
 	flatratio->Draw("same");
 	fitratio->SetMarkerStyle(20);
 	fitratio->Draw("EP same");

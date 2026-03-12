@@ -53,7 +53,7 @@
 #include "../../include/analysis_fakes.h"
 
 bool useMC = true;
-bool doIterate = false;
+bool doIterate = true;
 
 
 int FitJetFake(float lowercut, float uppercut, int detType, int RunYear, bool preVFP) {
@@ -302,6 +302,7 @@ int FitJetFake(float lowercut, float uppercut, int detType, int RunYear, bool pr
 	h_bg[0][0]->Draw();
 
 	std::cout << "target " << h_target->Integral(1,20) << std::endl;
+	std::cout << "MC " << mc_sig->Integral(1,20) << std::endl;
 
 	for(unsigned iUpper(0); iUpper<nUpper; iUpper++){
 		for(unsigned iLower(0); iLower<nLower; iLower++){

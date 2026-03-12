@@ -135,13 +135,13 @@ void pred_rareBkg(){
 	else if(channelType == 2)chainname << "mgTree";
   	TChain *mctree = new TChain(chainname.str().c_str(), chainname.str().c_str());
 	
-	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_TTGJets_%d%s.root",RunYear,whichVFP.c_str())); // looks correct
-	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_TTJets_%d%s.root",RunYear,whichVFP.c_str())); // 25% more
-	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WWG_%d%s.root",RunYear,whichVFP.c_str())); // 10 times larger
-	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WZG_%d%s.root",RunYear,whichVFP.c_str()));   //  6 times large
-	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WW_%d%s.root",RunYear,whichVFP.c_str()));     // ~ 0 entries
-	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WZ_%d%s.root",RunYear,whichVFP.c_str()));     // 0 entries
-	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_ZZ_%d%s.root",RunYear,whichVFP.c_str()));     // 0 entries
+	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_TTGJets_%d%s.root",RunYear,whichVFP.c_str())); // looks correct
+	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_TTJets_%d%s.root",RunYear,whichVFP.c_str())); // 25% more
+	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WWG_%d%s.root",RunYear,whichVFP.c_str())); // 10 times larger
+	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WZG_%d%s.root",RunYear,whichVFP.c_str()));   //  6 times large
+	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WW_%d%s.root",RunYear,whichVFP.c_str()));     // ~ 0 entries
+	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WZ_%d%s.root",RunYear,whichVFP.c_str()));     // 0 entries
+	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_ZZ_%d%s.root",RunYear,whichVFP.c_str()));     // 0 entries
 
 	float crosssection(0);
 	float ntotalevent(0);

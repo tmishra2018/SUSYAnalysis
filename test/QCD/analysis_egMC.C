@@ -57,7 +57,7 @@ void analysis_egMC(bool isQCD, bool isGJet, int RunYear, bool preVFP){
   if(datatype == MC || datatype == MCDoubleEG2018 || datatype == MCMuonEG2018||  datatype == MCSingleElectron2018 || datatype == MCSingleMuon2018||  datatype == MCDoubleMuon2018 || datatype == MCMET2018)isMC=true;
 
   TChain* es = new TChain("ggNtuplizer/EventTree");
-  if(isQCD ==true)   es->Add(Form("/eos/uscms/store/user/tmishra/InputFilesMC/QCD_DoubleEM/QCD_DoubleEM_%d%s.root",RunYear,whichVFP.c_str()));
+  if(isQCD ==true)   es->Add(Form("/eos/uscms/store/user/lpcsusyphotons/SoftPhoton/Tribeni/QCD_DoubleEM/QCD_DoubleEM_%d%s.root",RunYear,whichVFP.c_str()));
   if(isGJet ==true)  es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/GJets/GJets_DoubleEM_%d%s.root",RunYear,whichVFP.c_str()));
 
   const unsigned nEvts = es->GetEntries(); 
@@ -314,7 +314,7 @@ void analysis_egMC(bool isQCD, bool isGJet, int RunYear, bool preVFP){
 					if(fabs((signalPho->getP4()+signalLep->getCalibP4()).M() - 91.188) > 10.0){
 
 						npassZ+=1;
-						if(raw.passMETFilter(METFilter)){
+						if(raw.passMETFilter(RunYear,METFilter)){
 							npassMETFilter +=1;
 
 							float deltaPhi = DeltaPhi(signalLep->getPhi(), METPhi);
@@ -386,7 +386,7 @@ void analysis_egMC(bool isQCD, bool isGJet, int RunYear, bool preVFP){
 					double dRlepphoton = DeltaR(fakeLepPho->getEta(), fakeLepPho->getPhi(), fakeLep->getEta(), fakeLep->getPhi());
 					if(dRlepphoton>0.8){
 						if(fabs((fakeLepPho->getP4()+fakeLep->getCalibP4()).M() - 91.188) > 10.0){
-							if(raw.passMETFilter(METFilter)){
+							if(raw.passMETFilter(RunYear,METFilter)){
 
 								fakeLepdRPhoLep = 3;
 								for(std::vector<recoJet>::iterator itpho = JetCollection.begin() ; itpho != JetCollection.end(); ++itpho){

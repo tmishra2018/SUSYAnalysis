@@ -72,22 +72,12 @@ void plotGauss(int RunYear, int preVFP, int isQCD, int ichannel){
 	float lowRange,highRange;
 	for(unsigned i(0);  i < 1; i++){
 		vgammascalefile >> leplow >> lephigh >> fakescale >> fakescaleerror >> vgammascale >> vgammascaleerror;
-	//	if(ichannel == 1){
 			if(isQCD==1){
 				lowRange = 0.5*fakescale;
 				highRange = 1.5*fakescale;}
 			else{
 				lowRange = 0.5*vgammascale;
 				highRange = 1.5*vgammascale;}
-	//	}
-	//	else{
-	//		if(isQCD==1){
-	//			lowRange = 0.95*fakescale;
-	//			highRange = 1.05*fakescale;}
-	//		else{
-	//			lowRange = 0.95*vgammascale;
-	//			highRange = 1.05*vgammascale;}
-	//	}
 	}
 	cout<<"lowRange = "<<lowRange <<" highRange :"<<highRange<<endl;
 
@@ -206,31 +196,18 @@ void plotGauss(int RunYear, int preVFP, int isQCD, int ichannel){
     	chi2Text.SetNDC();          
     	chi2Text.DrawLatex(0.6, 0.8, Form("#chi^{2}/ndf = %.2f", chi2ndf));
 
-
 	if(RunYear==2016 and preVFP == 1)       CMS_lumi(canscale, 1,ichannel, 11);
         else if(RunYear==2016 and preVFP == 0)  CMS_lumi(canscale, 2,ichannel, 11);
         else if(RunYear==2017)                  CMS_lumi(canscale, 3,ichannel, 11);
         else if(RunYear==2018)                  CMS_lumi(canscale, 4,ichannel, 11);
 
-	TString localfile;
-
 	if(isQCD==1){
-    		if(ichannel == 1) localfile = Form("QCDScale_eg_%d%s.png",RunYear,whichVFP.c_str());
-    		if(ichannel == 2) localfile = Form("QCDScale_mg_%d%s.png",RunYear,whichVFP.c_str());}
-
-	else{
-    		if(ichannel == 1) localfile = Form("VGammaScale_eg_%d%s.png",RunYear,whichVFP.c_str());
-    		if(ichannel == 2) localfile = Form("VGammaScale_mg_%d%s.png",RunYear,whichVFP.c_str());}
-
-	canscale->SaveAs(localfile);
-	gSystem->Exec(Form("xrdcp -f %s root://cmseos.fnal.gov//store/user/tmishra/VGamma/%d%s/", localfile.Data(), RunYear, whichVFP.c_str()));
-
-/*	if(isQCD==1){
 		if(ichannel == 1) canscale->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/%d%s/QCDScale_eg_%d%s.png",RunYear,whichVFP.c_str(),RunYear,whichVFP.c_str()));	
 		if(ichannel == 2) canscale->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/%d%s/QCDScale_mg_%d%s.png",RunYear,whichVFP.c_str(),RunYear,whichVFP.c_str()));	}
 	else{
 		if(ichannel == 1) canscale->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/%d%s/VGammaScale_eg_%d%s.png",RunYear,whichVFP.c_str(),RunYear,whichVFP.c_str()));			
-		if(ichannel == 2) canscale->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/%d%s/VGammaScale_mg_%d%s.png",RunYear,whichVFP.c_str(),RunYear,whichVFP.c_str()));	}*/
+		if(ichannel == 2) canscale->SaveAs(Form("/eos/uscms/store/user/tmishra/VGamma/%d%s/VGammaScale_mg_%d%s.png",RunYear,whichVFP.c_str(),RunYear,whichVFP.c_str()));}
+
 }
 int main(int argc, char** argv)
 {

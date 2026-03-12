@@ -1,15 +1,22 @@
 #(int RunYear, int preVFP, int ichannel)
 
 # Compile
-g++ `root-config --cflags` plotFit.C -o plotFit.exe `root-config --libs`
+#g++ `root-config --cflags` plotFit.C -o plotFit.exe `root-config --libs`
+#./plotFit.exe 2016 1  2
+#./plotFit.exe 2016 0  2
+#./plotFit.exe 2017 1  2
+#./plotFit.exe 2018 1  2
+#./plotFit.exe 2016 1  1
+#./plotFit.exe 2016 0  1
+#./plotFit.exe 2017 1  1
+#./plotFit.exe 2018 1  1
 
-
-./plotFit.exe 2016 1  2
-./plotFit.exe 2016 0  2
-./plotFit.exe 2017 1  2
-./plotFit.exe 2018 1  2
-  
-./plotFit.exe 2016 1  1
-./plotFit.exe 2016 0  1
-./plotFit.exe 2017 1  1
-./plotFit.exe 2018 1  1
+g++ `root-config --cflags` plotVGammaScales.C -o plotVGammaScales.exe `root-config --libs`
+./plotVGammaScales.exe 2016 1  2
+./plotVGammaScales.exe 2016 0  2
+./plotVGammaScales.exe 2017 1  2
+./plotVGammaScales.exe 2018 1  2
+./plotVGammaScales.exe 2016 1  1
+./plotVGammaScales.exe 2016 0  1
+./plotVGammaScales.exe 2017 1  1
+./plotVGammaScales.exe 2018 1  1

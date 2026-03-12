@@ -615,51 +615,48 @@ void analysis_eg(int RunYear, const char *Era){//main
 			if(!hasPho){
 				for(unsigned ip(0); ip < jetPhoCollection.size(); ip++){
 					for(unsigned ie(0); ie < proxyLepCollection.size(); ie++){
-					std::vector<recoEle>::iterator jetEle = proxyLepCollection[ie];
-					std::vector<recoPhoton>::iterator jetPho = jetPhoCollection[ip];
-					double dRlepphoton = DeltaR(jetPho->getEta(), jetPho->getPhi(), jetEle->getEta(), jetEle->getPhi());
-					if(dRlepphoton>0.8){
-						if(((jetPho->getCalibP4()+jetEle->getCalibP4()).M() - 91.188) > 10.0){
-							if(raw.passMETFilter(RunYear, METFilter)){
-
-
-								float jet_deltaPhi = DeltaPhi(jetEle->getPhi(), METPhi);
-								float jet_MT = sqrt(2*MET*jetEle->getCalibPt()*(1-std::cos(jet_deltaPhi)));
-								jetphoEt = jetPho->getCalibEt();
-								jetphoEta= jetPho->getEta();
-								jetphoPhi= jetPho->getPhi();
-								jetphoChIso = jetPho->getChIso();
-								jetphoSigma = jetPho->getSigma();
-								jetlepPt = jetEle->getCalibPt();
-								jetlepEta= jetEle->getEta();
-								jetlepPhi= jetEle->getPhi();
-								jetsigMT = jet_MT;
-								jetsigMET= MET;
-								jetsigMETPhi = METPhi;
-								jetdPhiLepMET = jet_deltaPhi; 
-								jetnVertex = nVtx; 
-								jetdRPhoLep= dRlepphoton;
-								if(hasTrail){
-									jettrailPt = trailLep->getPt();
-									jettrailEta = trailLep->getEta();
-									jettrailPhi = trailLep->getPhi();
-								}
-								else{
-									jettrailPt  = 0; 
-									jettrailEta = 0;
-									jettrailPhi = 0;
-								}
-
-								jetnJet = 0;
-								jetHT = 0;
-								for(std::vector<recoJet>::iterator itJet = JetCollection.begin() ; itJet != JetCollection.end(); ++itJet){
-									if(!itJet->passSignalSelection())continue;
-									if(DeltaR(itJet->getEta(), itJet->getPhi(), jetPho->getEta(),jetPho->getPhi()) <= 0.4)continue;	
-									if(DeltaR(itJet->getEta(), itJet->getPhi(), jetEle->getEta(),jetEle->getPhi()) <= 0.4)continue;
-									jetnJet += 1;
-									jetHT += itJet->getPt();	
-								}
-							jettree->Fill();
+						std::vector<recoEle>::iterator jetEle = proxyLepCollection[ie];
+						std::vector<recoPhoton>::iterator jetPho = jetPhoCollection[ip];
+						double dRlepphoton = DeltaR(jetPho->getEta(), jetPho->getPhi(), jetEle->getEta(), jetEle->getPhi());
+						if(dRlepphoton>0.8){
+							if(((jetPho->getCalibP4()+jetEle->getCalibP4()).M() - 91.188) > 10.0){
+								if(raw.passMETFilter(RunYear, METFilter)){
+									float jet_deltaPhi = DeltaPhi(jetEle->getPhi(), METPhi);
+									float jet_MT = sqrt(2*MET*jetEle->getCalibPt()*(1-std::cos(jet_deltaPhi)));
+									jetphoEt = jetPho->getCalibEt();
+									jetphoEta= jetPho->getEta();
+									jetphoPhi= jetPho->getPhi();
+									jetphoChIso = jetPho->getChIso();
+									jetphoSigma = jetPho->getSigma();
+									jetlepPt = jetEle->getCalibPt();
+									jetlepEta= jetEle->getEta();
+									jetlepPhi= jetEle->getPhi();
+									jetsigMT = jet_MT;
+									jetsigMET= MET;
+									jetsigMETPhi = METPhi;
+									jetdPhiLepMET = jet_deltaPhi; 
+									jetnVertex = nVtx; 
+									jetdRPhoLep= dRlepphoton;
+									if(hasTrail){
+										jettrailPt = trailLep->getPt();
+										jettrailEta = trailLep->getEta();
+										jettrailPhi = trailLep->getPhi();
+									}
+									else{
+										jettrailPt  = 0; 
+										jettrailEta = 0;
+										jettrailPhi = 0;
+									}
+									jetnJet = 0;
+									jetHT = 0;
+									for(std::vector<recoJet>::iterator itJet = JetCollection.begin() ; itJet != JetCollection.end(); ++itJet){
+										if(!itJet->passSignalSelection())continue;
+										if(DeltaR(itJet->getEta(), itJet->getPhi(), jetPho->getEta(),jetPho->getPhi()) <= 0.4)continue;	
+										if(DeltaR(itJet->getEta(), itJet->getPhi(), jetEle->getEta(),jetEle->getPhi()) <= 0.4)continue;
+										jetnJet += 1;
+										jetHT += itJet->getPt();	
+									}
+									jettree->Fill();
 							}//MET Filter
 						}// Z mass Filter
 					}//dR filter

@@ -41,7 +41,6 @@ for RunYear in "${RunYears[@]}"; do
 
         echo "Running for RunYear=$RunYear and preVFP=$preVFP"
 
-        # ---- First Signal Configuration (eg) ----
         ch=1
         anatype=3
         lmt=100
@@ -65,24 +64,22 @@ for RunYear in "${RunYears[@]}"; do
         echo 'RunYear' $RunYear >> SigConfig.txt
 	echo 'preVFP' $preVFP >> SigConfig.txt
 
-        # Run the first set of background predictions (eg)
         if [ "$RunYear" -eq 2016 ]; then
-            root -l -q pred_VGBkg.C++ > "logs/VG_eg_${RunYear}${VFP_string}.log"
-            root -l -q pred_eleBkg.C++ > "logs/ele_eg_${RunYear}${VFP_string}.log"
-            root -l -q pred_jetBkg.C++ > "logs/jet_eg_${RunYear}${VFP_string}.log"
-            root -l -q pred_qcdBkg.C++ > "logs/qcd_eg_${RunYear}${VFP_string}.log"
-            root -l -q pred_rareBkg.C++ > "logs/rare_eg_${RunYear}${VFP_string}.log"
-      	    root -l -q pred_sig.C++ > "logs/data_eg_${RunYear}${VFP_string}.log"
+            root -l -q pred_VGBkg.C++ > "logs/VG_eg_${RunYear}${VFP_string}.log" 
+            root -l -q pred_eleBkg.C++ > "logs/ele_eg_${RunYear}${VFP_string}.log" 
+            root -l -q pred_jetBkg.C++ > "logs/jet_eg_${RunYear}${VFP_string}.log" 
+            root -l -q pred_qcdBkg.C++ > "logs/qcd_eg_${RunYear}${VFP_string}.log" 
+            root -l -q pred_rareBkg.C++ > "logs/rare_eg_${RunYear}${VFP_string}.log" 
+      	    root -l -q pred_sig.C++ > "logs/data_eg_${RunYear}${VFP_string}.log" 
         else
-            root -l -q pred_VGBkg.C++ > "logs/VG_eg_${RunYear}.log"
-            root -l -q pred_eleBkg.C++ > "logs/ele_eg_${RunYear}.log"
-            root -l -q pred_jetBkg.C++ > "logs/jet_eg_${RunYear}.log"
-            root -l -q pred_qcdBkg.C++ > "logs/qcd_eg_${RunYear}.log"
-            root -l -q pred_rareBkg.C++ > "logs/rare_eg_${RunYear}.log"
-            root -l -q pred_sig.C++ > "logs/data_eg_${RunYear}.log"
+            root -l -q pred_VGBkg.C++ > "logs/VG_eg_${RunYear}.log" 
+            root -l -q pred_eleBkg.C++ > "logs/ele_eg_${RunYear}.log" 
+            root -l -q pred_jetBkg.C++ > "logs/jet_eg_${RunYear}.log" 
+            root -l -q pred_qcdBkg.C++ > "logs/qcd_eg_${RunYear}.log" 
+            root -l -q pred_rareBkg.C++ > "logs/rare_eg_${RunYear}.log" 
+            root -l -q pred_sig.C++ > "logs/data_eg_${RunYear}.log" 
         fi
 
-        # ---- Second Signal Configuration (mg) ----
         ch=2
         anatype=3
         lmt=100
@@ -109,18 +106,18 @@ for RunYear in "${RunYears[@]}"; do
 
         if [ "$RunYear" -eq 2016 ]; then
             root -l -q pred_VGBkg.C++ > "logs/VG_mg_${RunYear}${VFP_string}.log"
-            root -l -q pred_eleBkg.C++ > "logs/ele_mg_${RunYear}${VFP_string}.log"
-            root -l -q pred_jetBkg.C++ > "logs/jet_mg_${RunYear}${VFP_string}.log"
-            root -l -q pred_qcdBkg.C++ > "logs/qcd_mg_${RunYear}${VFP_string}.log"
+            root -l -q pred_eleBkg.C++ > "logs/ele_mg_${RunYear}${VFP_string}.log" 
+            root -l -q pred_jetBkg.C++ > "logs/jet_mg_${RunYear}${VFP_string}.log" 
+            root -l -q pred_qcdBkg.C++ > "logs/qcd_mg_${RunYear}${VFP_string}.log" 
             root -l -q pred_rareBkg.C++ > "logs/rare_mg_${RunYear}${VFP_string}.log"
       	    root -l -q pred_sig.C++ > "logs/data_mg_${RunYear}${VFP_string}.log"
         else
-            root -l -q pred_VGBkg.C++ > "logs/VG_mg_${RunYear}.log"
-            root -l -q pred_eleBkg.C++ > "logs/ele_mg_${RunYear}.log"
-            root -l -q pred_jetBkg.C++ > "logs/jet_mg_${RunYear}.log"
-            root -l -q pred_qcdBkg.C++ > "logs/qcd_mg_${RunYear}.log"
-            root -l -q pred_rareBkg.C++ > "logs/rare_mg_${RunYear}.log"
-            root -l -q pred_sig.C++ > "logs/data_mg_${RunYear}.log"
+            root -l -q pred_VGBkg.C++ > "logs/VG_mg_${RunYear}.log" 
+            root -l -q pred_eleBkg.C++ > "logs/ele_mg_${RunYear}.log" 
+            root -l -q pred_jetBkg.C++ > "logs/jet_mg_${RunYear}.log" 
+            root -l -q pred_qcdBkg.C++ > "logs/qcd_mg_${RunYear}.log" 
+            root -l -q pred_rareBkg.C++ > "logs/rare_mg_${RunYear}.log" 
+            root -l -q pred_sig.C++ > "logs/data_mg_${RunYear}.log" 
         fi
  	
 	root -l -q Signal-samples/analysis_TChiWG.C++  # Run it here as it takes the values from SigConfig.txt

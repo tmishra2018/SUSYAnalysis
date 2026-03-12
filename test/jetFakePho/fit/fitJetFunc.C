@@ -147,7 +147,7 @@ void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 	if(channel == 1) fakerate_filename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<whichVFP<<"/JetFakeRate-DoubleEG-";
         if(channel == 2) fakerate_filename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<whichVFP<<"/JetFakeRate-MuonEG-";
 
-	if(detType == 1)fakerate_filename << "EB.txt";
+	if(detType == 1)fakerate_filename << "EB_Mar11.txt";
 	else if(detType == 2)fakerate_filename << "EE.txt";
 	std::ifstream jetfake_file(fakerate_filename.str().c_str());
 	double PtBin[NBIN];
@@ -501,8 +501,8 @@ fitfunc_num->SetParLimits(3, 0.0001, 1);   // lamda2: decay rate
 fitfunc_num->SetParLimits(4, 0, 300);      // shift
 fitfunc_num->SetParLimits(5, -100, 100);   // offset
 
-if (ichannel == 1 and RunYear == 2016 and ISpreVFP == 1)	
-	fitfunc_num->FixParameter(5, 0);
+//if (ichannel == 1 and RunYear == 2016 and ISpreVFP == 1)	
+//	fitfunc_num->FixParameter(5, 0);
 
 if (ichannel == 2 and RunYear == 2016 and ISpreVFP == 0){	
 	fitfunc_num->FixParameter(2, 0.066);    
@@ -510,6 +510,17 @@ if (ichannel == 2 and RunYear == 2016 and ISpreVFP == 0){
 	fitfunc_num->FixParameter(4, 25.0);    
 	fitfunc_num->FixParameter(5, 0);    
 }
+if (ichannel == 1 and RunYear == 2016)
+    fitfunc_num->SetParameters(800, 0.001, 0.056, 0.02, 0.0, 0.0);
+if (ichannel == 1 && RunYear == 2016 && ISpreVFP == true) {
+    fitfunc_num->SetParLimits(0, 0, 1e8);
+    fitfunc_num->SetParLimits(1, 0, 1e6);
+    fitfunc_num->SetParLimits(2, 0.001, 0.5);
+    fitfunc_num->SetParLimits(3, 0.0001, 0.1);
+    fitfunc_num->SetParLimits(4, -300, -165); // Force shift+200 < 35 GeV
+    fitfunc_num->FixParameter(5, 0);          // offset=0
+}
+
 //if (ichannel == 2 and RunYear == 2016 and ISpreVFP == 1){
 //	fitfunc_num->SetParLimits(0, 0, 1e6);
 //	fitfunc_num->SetParLimits(1, 0, 1e3);

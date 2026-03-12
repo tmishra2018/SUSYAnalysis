@@ -21,16 +21,18 @@
 #include "TLorentzVector.h"
 #include "TFileCollection.h"
 
+#include "../../../src/analysis_rawData.cc"
+#include "../../../src/analysis_muon.cc"
 #include "../../../include/analysis_rawData.h"
 #include "../../../include/analysis_photon.h"
 #include "../../../include/analysis_muon.h"
-#include "../../../include/analysis_ele.h"
 #include "../../../include/analysis_jet.h"
+#include "../../../include/analysis_ele.h"
+#include "../../../include/analysis_mcData.h"
 #include "../../../include/analysis_tools.h"
-#include "../../../src/analysis_rawData.cc"
+#include "../../../include/analysis_cuts.h"
 #include "../../../src/analysis_ele.cc"
 #include "../../../src/analysis_photon.cc"
-#include "../../../src/analysis_muon.cc"
 
 void analysis_bgtemplate(int RunYear, const char *Era){//main
 
@@ -86,7 +88,9 @@ void analysis_bgtemplate(int RunYear, const char *Era){//main
   mtree->Branch("invmass",             &invmass_mg);
   mtree->Branch("vetovalue",           &vetovalue_mg);
 	mtree->Branch("FSRveto",             &FSRveto_mg);
-  
+  float HT(0);  
+  mtree->Branch("HT",        &HT);
+
   const unsigned nEvts = es->GetEntries();
   logfile << "Total event: " << nEvts << std::endl;
   logfile << "Output file: " <<"/eos/uscms/store/user/tmishra/elefakepho/files/plot_bgtemplate_FullEcal_"<<RunYear<<Era<<".root"<< std::endl;
@@ -95,6 +99,8 @@ void analysis_bgtemplate(int RunYear, const char *Era){//main
   std::vector<recoPhoton> Photon;
   std::vector<recoMuon>   Muon;
   std::vector<recoEle>   Ele;
+  std::vector<recoJet>   JetCollection;
+
   float MET(0);
   float METPhi(0);
   int   ntrks(0);
@@ -105,19 +111,19 @@ void analysis_bgtemplate(int RunYear, const char *Era){//main
         if (RunYear==2016) pTcut = 30;
         if (RunYear==2017) pTcut = 38;
         if (RunYear==2018) pTcut = 35;
-
-
-    for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
-  
-      if (ievt%1000000==0) std::cout << " -- Processing event " << ievt << std::endl;
-
+    
+for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
+      	if (ievt%100000==0) std::cout << " -- Processing event " << ievt << std::endl;
         raw.GetData(es, ievt);
         Photon.clear();
         Muon.clear();
         Ele.clear();
+	JetCollection.clear();
         for(int iPho(0); iPho < raw.nPho; iPho++){Photon.push_back(recoPhoton(raw, iPho));}
         for(int iMu(0); iMu < raw.nMu; iMu++){Muon.push_back(recoMuon(raw, iMu));}
-        for(int iEle(0); iEle < raw.nEle; iEle++){Ele.push_back(recoEle(raw, iEle));}
+        for(int iEle(0); iEle < raw.nEle; iEle++){Ele.push_back(recoEle(raw, iEle));}	
+	for(int iJet(0); iJet < raw.nJet; iJet++){JetCollection.push_back(recoJet(raw, iJet));}
+
         MET = raw.pfMET;
         METPhi = raw.pfMETPhi;
         nvtx = raw.nVtx;
@@ -127,63 +133,119 @@ void analysis_bgtemplate(int RunYear, const char *Era){//main
 	if(RunYear==2018 && !passHEMVeto(0,raw)) continue;
 	passHEM++;
 
-	if(RunYear==2017 && !passPixelIssue17(raw)) continue;
+ 	if(RunYear==2017 && !passPixelIssue17(raw)) continue;
         if(RunYear==2018 && !passPixelIssue18(raw)) continue;
         passPixelIssue++;
 
         if(MET > 70.0)continue;
         if(!raw.passHLT())continue;
 
+	bool hasEle(false);
+	std::vector<recoEle>::iterator signalEle = Ele.begin();
+	for(std::vector<recoEle>::iterator itEle = Ele.begin(); itEle != Ele.end(); itEle++){
+                   if(itEle->getCalibPt() < 25)continue;
+                   if((itEle->isEB() && itEle->getR9() < R9EBCut) || (itEle->isEE() && itEle->getR9() < R9EECut))continue;
+                   if(itEle->passSignalSelection()){
+                         if(!hasEle){
+                                hasEle=true;
+                                signalEle = itEle;
+                          }
+                   }
+	}
+
+	bool hasMu(false);
+        std::vector<recoMuon>::iterator signalMu = Muon.begin();
+        for(std::vector<recoMuon>::iterator itMu = Muon.begin(); itMu != Muon.end(); itMu++){                
+		if(itMu->getPt() < 20)continue;
+                if(itMu->passSignalSelection()){
+                	if(!hasMu){
+                     		hasMu=true;
+                     		signalMu = itMu;
+                	}
+                }
+        }
+	
+	std::vector<recoPhoton>::iterator LeadingsignalPho = Photon.begin();
+	bool hasLeadingSigPho(false);
+	for(std::vector<recoPhoton>::iterator itpho = Photon.begin() ; itpho != Photon.end(); ++itpho){
+                                if(itpho->getR9() < 0.5)continue;
+                                if(!itpho->passBasicSelection())continue;
+                                bool passSigma = itpho->passSigma(1);
+                                bool passChIso = itpho->passChIso(1);
+                                bool PixelVeto = itpho->PixelSeed()==0? true: false;
+                                bool GSFveto(true);
+                                bool FSRVeto(true);
+                                for(std::vector<recoEle>::iterator ie = Ele.begin(); ie != Ele.end(); ie++){
+                                        if(DeltaR(itpho->getEta(), itpho->getPhi(), ie->getEta(), ie->getPhi()) <= 0.02)GSFveto = false;
+                                        if(DeltaR(itpho->getEta(), itpho->getPhi(), ie->getEta(), ie->getPhi()) < 0.3)FSRVeto=false;
+                                }
+                                for(std::vector<recoMuon>::iterator im = Muon.begin(); im != Muon.end(); im++)
+                                        if(DeltaR(itpho->getEta(), itpho->getPhi(), im->getEta(), im->getPhi()) < 0.3 && im->getEt()>2.0)FSRVeto=false;
+                                if(!itpho->passSignalSelection())continue;
+                                if(GSFveto && PixelVeto && FSRVeto){
+                                        if(!hasLeadingSigPho){
+                                                hasLeadingSigPho=true;
+                                                LeadingsignalPho = itpho;
+                                        }
+                                }
+         }
+
+	 HT = 0;
+	 for(std::vector<recoJet>::iterator itJet = JetCollection.begin() ; itJet != JetCollection.end(); ++itJet){
+                     		if(!itJet->passSignalSelection())continue;
+                     		if(hasMu == true and  DeltaR(itJet->getEta(), itJet->getPhi(), signalMu->getEta(), signalMu->getPhi()) <= 0.4)continue;
+                     		if(hasEle == true and DeltaR(itJet->getEta(), itJet->getPhi(), signalEle->getEta(), signalEle->getPhi()) <= 0.4)continue;
+                     		if(hasLeadingSigPho == true and DeltaR(itJet->getEta(), itJet->getPhi(), LeadingsignalPho->getEta(), LeadingsignalPho->getPhi()) <= 0.4)continue;
+                     		HT += itJet->getPt();
+         }
+
         std::vector< std::vector<recoMuon>::iterator > bgMuCollection;
         bgMuCollection.clear();
 				// Tag : muon pt > 30, eta < 2.1, medium ID, miniIso < 0.2, d0<0.05, dz< 0.1
-				for(std::vector<recoMuon>::iterator itMu = Muon.begin(); itMu != Muon.end(); itMu++){
-					if(itMu->getPt() < pTcut)continue;
-					if(fabs(itMu->getEta() > 2.1))continue;
-					if(itMu->passSignalSelection()){
-						bgMuCollection.push_back(itMu);
-					}
-				}
+	for(std::vector<recoMuon>::iterator itMu = Muon.begin(); itMu != Muon.end(); itMu++){
+		if(itMu->getPt() < pTcut)continue;
+		if(fabs(itMu->getEta() > 2.1))continue;
+		if(itMu->passSignalSelection())
+			bgMuCollection.push_back(itMu);
+	}
 
-				std::vector< std::vector<recoPhoton>::iterator > bgPhoCollection;
-				bgPhoCollection.clear();
+	std::vector< std::vector<recoPhoton>::iterator > bgPhoCollection;
+	bgPhoCollection.clear();
 				// photon : pt > 30 GeV, loose, no muon with pt> 2GeV within dR < 0.3 of photon
-				for(std::vector<recoPhoton>::iterator itpho = Photon.begin() ; itpho != Photon.end(); ++itpho){
-					if(itpho->getCalibEt() < 30)continue;
-					bool muFSRveto(true);
-					for(std::vector<recoMuon>::iterator im = Muon.begin(); im != Muon.end(); im++)
-				 		if(DeltaR(itpho->getEta(), itpho->getPhi(), im->getEta(), im->getPhi()) < 0.3 && im->getEt()>2.0)muFSRveto=false;
-					if(muFSRveto && itpho->isLoose()){
-				 		bgPhoCollection.push_back(itpho);
-				 	}
-			 	}
+	for(std::vector<recoPhoton>::iterator itpho = Photon.begin() ; itpho != Photon.end(); ++itpho){
+		if(itpho->getCalibEt() < 30)continue;
+		bool muFSRveto(true);
+		for(std::vector<recoMuon>::iterator im = Muon.begin(); im != Muon.end(); im++)
+			if(DeltaR(itpho->getEta(), itpho->getPhi(), im->getEta(), im->getPhi()) < 0.3 && im->getEt()>2.0)muFSRveto=false;
+			if(muFSRveto && itpho->isLoose())
+				 bgPhoCollection.push_back(itpho);
+	}
 
-     		for(unsigned iPho(0); iPho < bgPhoCollection.size(); iPho++){
-          for(unsigned iMu(0); iMu < bgMuCollection.size(); iMu++){
-            std::vector<recoMuon>::iterator bgMu = bgMuCollection[iMu];
-            std::vector<recoPhoton>::iterator bgPho = bgPhoCollection[iPho];
+     	for(unsigned iPho(0); iPho < bgPhoCollection.size(); iPho++){
+          	for(unsigned iMu(0); iMu < bgMuCollection.size(); iMu++){
+            		std::vector<recoMuon>::iterator bgMu = bgMuCollection[iMu];
+            		std::vector<recoPhoton>::iterator bgPho = bgPhoCollection[iPho];
        			bool PixelVeto = bgPho->PixelSeed()==0? true: false;
        			bool GSFveto(true);
-						bool FSRVeto(true);
+			bool FSRVeto(true);
        			for(std::vector<recoEle>::iterator ire = Ele.begin(); ire != Ele.end(); ire++){
          			if(ire->getCalibEt() > 2.0 && DeltaR(bgPho->getEta(), bgPho->getPhi(), ire->getEta(), ire->getPhi()) < 0.02)GSFveto=false;
-							if(DeltaR(bgPho->getEta(), bgPho->getPhi(), ire->getEta(), ire->getPhi()) < 0.3 && ire->getCalibEt()>2.0)FSRVeto=false;
+				if(DeltaR(bgPho->getEta(), bgPho->getPhi(), ire->getEta(), ire->getPhi()) < 0.3 && ire->getCalibEt()>2.0)FSRVeto=false;
        			}
 
-						 tagEta_mg = bgMu->getEta();
-						 tagPhi_mg = bgMu->getPhi();
-						 tagPt_mg = bgMu->getPt();
-						 probeEta_mg = bgPho->getEta();
-						 probePhi_mg = bgPho->getPhi();
-						 probePt_mg = bgPho->getCalibEt();
-						 probeUncalibPt_mg = bgPho->getEt();
-						 invmass_mg = (bgPho->getCalibP4()+bgMu->getP4()).M();
-						 vetovalue_mg = (PixelVeto && GSFveto);
-						 FSRveto_mg = FSRVeto;
-
-						 mtree->Fill();
+			tagEta_mg = bgMu->getEta();
+			tagPhi_mg = bgMu->getPhi();
+			tagPt_mg = bgMu->getPt();
+			probeEta_mg = bgPho->getEta();
+			probePhi_mg = bgPho->getPhi();
+			probePt_mg = bgPho->getCalibEt();
+			probeUncalibPt_mg = bgPho->getEt();
+			invmass_mg = (bgPho->getCalibP4()+bgMu->getP4()).M();
+			vetovalue_mg = (PixelVeto && GSFveto);
+			FSRveto_mg = FSRVeto;
+			mtree->Fill();
            }
-     		}
+     	}
 
   }//loop on  events
 float percent=100*mtree->GetEntries()/nEvts;

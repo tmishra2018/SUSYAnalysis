@@ -112,7 +112,7 @@ int FitJetFake(int  RunYear, bool ISpreVFP, int  eventType, float lowercut, floa
 
         // ------------------------------------------------------------------------------------------------------------
 
-	myfilename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<< whichVFP<<"/JetFakeRate-" << outputType << outputDet << ".txt";
+	myfilename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<< whichVFP<<"/JetFakeRate-" << outputType << outputDet << "_Mar11.txt";
 	Hist1Dname << "/eos/uscms/store/user/tmishra/jetfakepho/Plots"<<RunYear<< whichVFP<<"/"<<outputT<<"/frac-" << lowername << "-" << uppername << "-" << outputType << outputDet << ".png";
 	Hist2Dname << "/eos/uscms/store/user/tmishra/jetfakepho/Plots"<<RunYear<< whichVFP<<"/"<<outputT<<"/can2D-" << lowername << "-" << uppername << "-" << outputType << outputDet << ".png";
 	myfile.open(myfilename.str().c_str(), std::ios_base::app | std::ios_base::out);
@@ -127,7 +127,7 @@ int FitJetFake(int  RunYear, bool ISpreVFP, int  eventType, float lowercut, floa
 	
 	switch(eventType){
 		case 1: datatree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str())); break;
-		case 2: datatree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str())); break;
+		case 2: datatree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Mar11.root",RunYear,whichVFP.c_str())); break;
 		case 3: datatree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_DYJetsToLL_%d.root",RunYear));
 			datatree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WJetsToLNu_%d.root",RunYear));
 			datatree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_QCD_DoubleEM_%d.root",RunYear));

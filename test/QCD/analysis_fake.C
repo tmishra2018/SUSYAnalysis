@@ -73,7 +73,7 @@ void analysis_fake(){//main
 	bool  isMC(false);
 	if(datatype == MC || datatype == MCDoubleEG2016 || datatype == MCMuonEG2016||  datatype == MCSingleElectron2016 || datatype == MCSingleMuon2016||  datatype == MCDoubleMuon2016 || datatype == MCMET2016)isMC=true;
   TChain* es = new TChain("ggNtuplizer/EventTree");
-	es->Add(Form("/eos/uscms/store/user/tmishra/InputFilesMC/QCD_DoubleEM/QCD_DoubleEM_%d.root",RunYear));
+	es->Add(Form("/eos/uscms/store/user/lpcsusyphotons/SoftPhoton/Tribeni/QCD_DoubleEM/QCD_DoubleEM_%d%s.root",RunYear));
 	//es->Add("/eos/uscms/store/user/mengleis/copied/QCD_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TrancheIV_v6-v1.root");
 
   const unsigned nEvts = es->GetEntries(); 
@@ -253,8 +253,7 @@ void analysis_fake(){//main
 			event=raw.event;
 			lumis=raw.lumis;
 
-			/******************************************************************************************************************************************************************************/
-			/***********************************                                  Select Lepton                                              **********************************************/
+			/************    Select Lepton   ***************/
 			int eleOrder(0);
 			for(std::vector<recoEle>::iterator itEle = Ele.begin(); itEle != Ele.end(); itEle++){
 				eleOrder += 1;
@@ -270,8 +269,6 @@ void analysis_fake(){//main
 				bool isSig = passEleSignalSelection( itEle->getEta(), itEle->getSigma(),fabs(itEle->getdEtaIn()) , fabs(itEle->getdPhiIn()), itEle->getHoverE(), itEle->getEoverPInv(), itEle->getMissHits(), itEle->getConvVeto(), itEle->getMiniIso());
 				//if((itEle->isEB() && itEle->getR9() < 0.5) || (itEle->isEE() && itEle->getR9() < 0.8))isSig=false;
 				//if(itEle->passSignalSelection() && isSig){
-
-				
 				// electron signal selection
 				if(isSig){
 					if(eleOrder == 1)eff_pass->Fill(itEle->getCalibPt(), 1);
@@ -295,29 +292,27 @@ void analysis_fake(){//main
 					}
 					else nJet = -1;
 					HT = 0;
-          mcPID.clear();
-          mcEta.clear();
-          mcPhi.clear();
-          mcPt.clear();
-          mcMomPID.clear();
-          mcGMomPID.clear();
+          				mcPID.clear();
+          				mcEta.clear();
+          				mcPhi.clear();
+          				mcPt.clear();
+          				mcMomPID.clear();
+          				mcGMomPID.clear();
 					if(isMC){
-           for(std::vector<mcData>::iterator itMC = MCData.begin(); itMC!= MCData.end(); itMC++){
-             if(itMC->getEt() < 1.0)continue;
-						 double dR = DeltaR( itMC->getEta(), itMC->getPhi(), itEle->getEta(), itEle->getPhi());
-						 if(dR > 0.3)continue;
-             mcPID.push_back(itMC->getPID());
-             mcMomPID.push_back(itMC->getMomPID());
-             mcGMomPID.push_back(itMC->getGMomPID());
-             mcEta.push_back(itMC->getEta());
-             mcPhi.push_back(itMC->getPhi());
-             mcPt.push_back(itMC->getEt());
-           }
+           					for(std::vector<mcData>::iterator itMC = MCData.begin(); itMC!= MCData.end(); itMC++){
+             						if(itMC->getEt() < 1.0)continue;
+						 	double dR = DeltaR( itMC->getEta(), itMC->getPhi(), itEle->getEta(), itEle->getPhi());
+						 	if(dR > 0.3)continue;
+             						mcPID.push_back(itMC->getPID());
+             						mcMomPID.push_back(itMC->getMomPID());
+             						mcGMomPID.push_back(itMC->getGMomPID());
+             						mcEta.push_back(itMC->getEta());
+             						mcPhi.push_back(itMC->getPhi());
+             						mcPt.push_back(itMC->getEt());}
 					}
 					sigtree->Fill();
 				}
 				//else if(!itEle->passSignalSelection()){
-
 				// electron does n't pass signal selection
 				else{
 					if(eleOrder == 1)eff_pass->Fill(itEle->getCalibPt(), 0);
@@ -346,24 +341,23 @@ void analysis_fake(){//main
 					}
 					else fakeLepnJet = -1;
 					fakeLepHT = 0;
-          fakeLep_mcPID.clear();
-          fakeLep_mcEta.clear();
-          fakeLep_mcPhi.clear();
-          fakeLep_mcPt.clear();
-          fakeLep_mcMomPID.clear();
-          fakeLep_mcGMomPID.clear();
+          				fakeLep_mcPID.clear();
+          				fakeLep_mcEta.clear();
+          				fakeLep_mcPhi.clear();
+          				fakeLep_mcPt.clear();
+          				fakeLep_mcMomPID.clear();
+          				fakeLep_mcGMomPID.clear();
 					if(isMC){
-           for(std::vector<mcData>::iterator itMC = MCData.begin(); itMC!= MCData.end(); itMC++){
-             if(itMC->getEt() < 1.0)continue;
-						 double dR = DeltaR( itMC->getEta(), itMC->getPhi(), itEle->getEta(), itEle->getPhi());
-						 if(dR > 0.3)continue;
-             fakeLep_mcPID.push_back(itMC->getPID());
-             fakeLep_mcMomPID.push_back(itMC->getMomPID());
-             fakeLep_mcGMomPID.push_back(itMC->getGMomPID());
-             fakeLep_mcEta.push_back(itMC->getEta());
-             fakeLep_mcPhi.push_back(itMC->getPhi());
-             fakeLep_mcPt.push_back(itMC->getEt());
-           }
+           					for(std::vector<mcData>::iterator itMC = MCData.begin(); itMC!= MCData.end(); itMC++){
+             						if(itMC->getEt() < 1.0)continue;
+						 	double dR = DeltaR( itMC->getEta(), itMC->getPhi(), itEle->getEta(), itEle->getPhi());
+						 	if(dR > 0.3)continue;
+             						fakeLep_mcPID.push_back(itMC->getPID());
+             						fakeLep_mcMomPID.push_back(itMC->getMomPID());
+             						fakeLep_mcGMomPID.push_back(itMC->getGMomPID());
+             						fakeLep_mcEta.push_back(itMC->getEta());
+             						fakeLep_mcPhi.push_back(itMC->getPhi());
+             						fakeLep_mcPt.push_back(itMC->getEt());}
 					}
 					fakeLeptree->Fill();
 				}

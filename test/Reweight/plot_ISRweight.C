@@ -5,6 +5,9 @@
 #include<sstream>
 #include<algorithm>
 #include<ctime>
+#include<vector>
+#include<cstdlib>
+#include<iomanip>
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -27,7 +30,6 @@
 #include "TRandom3.h"
 #include "TGraphErrors.h"
 
-
 #include "../../include/analysis_rawData.h"
 #include "../../include/analysis_photon.h"
 #include "../../include/analysis_muon.h"
@@ -42,12 +44,88 @@
 // ../../include/analysis_scalefactor.h
 // change the file /uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/Background/BkgPredConfig.txt
 //bool doEB=false;
-bool ApplyISR = true;
 
-void plot_ISRweight(int RunYear, bool preVFP){
+namespace {
+struct ISRBinDef {
+	double low;
+	double high;
+};
 
+static std::vector<ISRBinDef> GetISRBinDefs(){
+	return { {0,50}, {50,100}, {100,150}, {150,200}, {200,250}, {250,300}, {300,1.0e9} };
+}
+
+static std::string GetEraTag(int RunYear, bool preVFP){
+	std::ostringstream os;
+	os << RunYear;
+	if(RunYear == 2016) os << (preVFP ? "preVFP" : "postVFP");
+	return os.str();
+}
+
+static std::string GetISRWeightFileName(int RunYear, bool preVFP){
+	std::ostringstream os;
+	os << "ISRweights_" << GetEraTag(RunYear, preVFP) << ".txt";
+	return os.str();
+}
+
+static bool WriteISRWeights(const std::string& path, const std::vector<double>& weights, double normalization){
+	std::ofstream out(path.c_str());
+	if(!out.is_open()) return false;
+	auto bins = GetISRBinDefs();
+	out << "# normalization " << normalization << "\n";
+	out << "# ptLow ptHigh weight\n";
+	for(size_t i=0; i<bins.size() && i<weights.size(); ++i){
+		out << bins[i].low << " " << bins[i].high << " " << std::setprecision(8) << weights[i] << "\n";
+	}
+	out.close();
+	return true;
+}
+
+static std::vector<double> ReadISRWeights(const std::string& path, double &normalization){
+	std::ifstream in(path.c_str());
+	std::vector<double> weights(GetISRBinDefs().size(),1.0);
+	normalization = 1.0;
+	if(!in.is_open()) return weights;
+	std::string line;
+	int ib(0);
+	while(std::getline(in,line)){
+		if(line.empty()) continue;
+		if(line.rfind("# normalization",0)==0){
+			std::istringstream hs(line);
+			std::string hash, key;
+			double nval(1.0);
+			if(hs >> hash >> key >> nval) normalization = nval;
+			continue;
+		}
+		if(line[0]=='#') continue;
+		std::istringstream ss(line);
+		double low(0), high(0), w(1.0);
+		if(!(ss>>low>>high>>w)) continue;
+		if(ib < (int)weights.size()) weights[ib] = w;
+		++ib;
+	}
+	in.close();
+	return weights;
+}
+
+static double ISRWeightFromPt(double pt, const std::vector<double>& weights, double normalization){
+	auto bins = GetISRBinDefs();
+	for(size_t i=0; i<bins.size() && i<weights.size(); ++i){
+		if(pt >= bins[i].low && pt < bins[i].high) return weights[i]*normalization;
+	}
+	return 1.0;
+}
+}
+
+static double SafeRatioISR(double num, double den){
+	return den>0 ? num/den : 1.0;
+}
+
+
+void plot_ISRweight(int RunYear=2016, bool preVFP=true, bool applyISR=false){//main
 
 	setTDRStyle();
+	TH1::AddDirectory(kFALSE);
 	gStyle->SetLegendBorderSize(0);
 	gStyle->SetLegendFillColor(0);
 	gStyle->SetErrorX(0.5);
@@ -61,6 +139,10 @@ void plot_ISRweight(int RunYear, bool preVFP){
 
 	gROOT->SetBatch(kTRUE);
 	esfScaleFactor  objectESF;
+	const std::string isrWgtFile = GetISRWeightFileName(RunYear, preVFP);
+	std::vector<double> loadedISRWeights;
+	double loadedNormalization(1.0);
+	if(applyISR) loadedISRWeights = ReadISRWeights(isrWgtFile, loadedNormalization);
 
 	Double_t plotEtBins[]={0,50,100,150,200,250,300,800};
 	TH1F *p_phoEt_data     = new TH1F("p_phoEt_data","",7,plotEtBins);
@@ -86,7 +168,7 @@ void plot_ISRweight(int RunYear, bool preVFP){
 	TH1F *p_llmass_rare_highEt  = new TH1F("p_llmass_rare_highEt","",100,30,130);
 
 	TProfile *p_scalefactor  = new TProfile("p_scalefactor","p_scalefactor",50,-2.5,2.5);
-	
+
 	//************ Signal Tree **********************//
 	TChain *tree = new TChain("ZTree");
 	// using analysis_ISR.C
@@ -249,52 +331,9 @@ void plot_ISRweight(int RunYear, bool preVFP){
 		if(ZG_JetPt > 799)ZG_JetPt = 799;
 		if(ZG_dRPhoLep < 0.8)continue;
 		if(ZG_dilepMass < 80 || ZG_dilepMass >100)continue;
-		if(RunYear==2016 && preVFP==1){
-			if(ZG_JetPt < 50)reweightF = 1.06013;
-                 	else if(ZG_JetPt >= 50 && ZG_JetPt < 100)reweightF  = 1.33663;
-                 	else if(ZG_JetPt >= 100 && ZG_JetPt < 150)reweightF = 1.11327;
-                 	else if(ZG_JetPt >= 150 && ZG_JetPt < 200)reweightF = 0.924185;
-                 	else if(ZG_JetPt >= 200 && ZG_JetPt < 250)reweightF = 1.02436;
-                 	else if(ZG_JetPt >= 250 && ZG_JetPt < 300)reweightF = 0.985401;
-                 	else if(ZG_JetPt >= 300)reweightF = 0.856943;
-                 	Normalization = 0.855896;    }
+		double isrW = applyISR ? ISRWeightFromPt(ZG_JetPt, loadedISRWeights, loadedNormalization) : 1.0;
+		double weight = ZG_MCweight*ZG_PUweight*scalefactor*isrW;
 
-		else if(RunYear==2016 && preVFP==0){
-			if(ZG_JetPt < 50)reweightF = 1.07271;
-                 	else if(ZG_JetPt >= 50 && ZG_JetPt < 100)reweightF  = 1.36455;
-                 	else if(ZG_JetPt >= 100 && ZG_JetPt < 150)reweightF = 1.03338;
-                 	else if(ZG_JetPt >= 150 && ZG_JetPt < 200)reweightF = 0.995769;
-                 	else if(ZG_JetPt >= 200 && ZG_JetPt < 250)reweightF = 0.903379;
-                 	else if(ZG_JetPt >= 250 && ZG_JetPt < 300)reweightF = 0.779008;
-                 	else if(ZG_JetPt >= 300)reweightF = 0.705609;
-                 	Normalization = 0.857841;    }
-
-		else if(RunYear==2017){
-			if(ZG_JetPt < 50)reweightF = 1.03426;
-                 	else if(ZG_JetPt >= 50 && ZG_JetPt < 100)reweightF  = 1.29097;
-                 	else if(ZG_JetPt >= 100 && ZG_JetPt < 150)reweightF = 1.04963;
-                 	else if(ZG_JetPt >= 150 && ZG_JetPt < 200)reweightF = 0.896268;
-                 	else if(ZG_JetPt >= 200 && ZG_JetPt < 250)reweightF = 0.98738;
-                 	else if(ZG_JetPt >= 250 && ZG_JetPt < 300)reweightF = 0.78903;
-                 	else if(ZG_JetPt >= 300)reweightF = 0.934105;
-                 	Normalization = 0.889374;    }
-
-		else if(RunYear==2018){
-			if(ZG_JetPt < 50)reweightF = 1.12976;
-                 	else if(ZG_JetPt >= 50 && ZG_JetPt < 100)reweightF  = 1.33412;
-                 	else if(ZG_JetPt >= 100 && ZG_JetPt < 150)reweightF = 0.965748;
-                 	else if(ZG_JetPt >= 150 && ZG_JetPt < 200)reweightF = 0.928858;
-                 	else if(ZG_JetPt >= 200 && ZG_JetPt < 250)reweightF = 0.814481;
-                 	else if(ZG_JetPt >= 250 && ZG_JetPt < 300)reweightF = 0.900957;
-                 	else if(ZG_JetPt >= 300)reweightF = 0.829659;
-                 	Normalization = 0.866053;    }
-
-		ISRWeight = reweightF*Normalization;
-		
-		double weight;
-		if (ApplyISR) weight =  ZG_MCweight*ZG_PUweight*scalefactor*ISRWeight;
-		else weight = ZG_MCweight*ZG_PUweight*scalefactor;
- 
 		bool   isTruePho(false);
 		double mindR(0.3);
 		unsigned phoIndex(0);
@@ -382,51 +421,8 @@ void plot_ISRweight(int RunYear, bool preVFP){
 		if(rare_JetPt > 799)rare_JetPt = 799;
 		if(rare_dRPhoLep < 0.8)continue;
 		if(rare_dilepMass < 80 || rare_dilepMass > 100)continue;
-                if(RunYear==2016 && preVFP==1){
-				if(rare_JetPt < 50)reweightF = 1.06013;
-                 		else if(rare_JetPt >= 50 && rare_JetPt < 100)reweightF  = 1.33663;
-                 		else if(rare_JetPt >= 100 && rare_JetPt < 150)reweightF = 1.11327;
-                 		else if(rare_JetPt >= 150 && rare_JetPt < 200)reweightF = 0.924185;
-                 		else if(rare_JetPt >= 200 && rare_JetPt < 250)reweightF = 1.02436;
-                 		else if(rare_JetPt >= 250 && rare_JetPt < 300)reweightF = 0.985401;
-                 		else if(rare_JetPt >= 300)reweightF = 0.856943;
-                 		Normalization = 0.855896;    }
-
-                else if(RunYear==2016 && preVFP==0){
-			if(rare_JetPt < 50)reweightF = 1.07271;
-                 	else if(rare_JetPt >= 50 && rare_JetPt < 100)reweightF  = 1.36455;
-                 	else if(rare_JetPt >= 100 && rare_JetPt < 150)reweightF = 1.03338;
-                 	else if(rare_JetPt >= 150 && rare_JetPt < 200)reweightF = 0.995769;
-                 	else if(rare_JetPt >= 200 && rare_JetPt < 250)reweightF = 0.903379;
-                 	else if(rare_JetPt >= 250 && rare_JetPt < 300)reweightF = 0.779008;
-                 	else if(rare_JetPt >= 300)reweightF = 0.705609;
-                 	Normalization = 0.857841;    }
-
-		else if(RunYear==2017){
-			if(rare_JetPt < 50)reweightF = 1.03426;
-                 	else if(rare_JetPt >= 50 && rare_JetPt < 100)reweightF  = 1.29097;
-                 	else if(rare_JetPt >= 100 && rare_JetPt < 150)reweightF = 1.04963;
-                 	else if(rare_JetPt >= 150 && rare_JetPt < 200)reweightF = 0.896268;
-                 	else if(rare_JetPt >= 200 && rare_JetPt < 250)reweightF = 0.98738;
-                 	else if(rare_JetPt >= 250 && rare_JetPt < 300)reweightF = 0.78903;
-                 	else if(rare_JetPt >= 300)reweightF = 0.934105;
-                 	Normalization = 0.889374;    }
-
-		else if(RunYear==2018){
-			if(rare_JetPt < 50)reweightF = 1.12976;
-                 	else if(rare_JetPt >= 50 && rare_JetPt < 100)reweightF  = 1.33412;
-                 	else if(rare_JetPt >= 100 && rare_JetPt < 150)reweightF = 0.965748;
-                 	else if(rare_JetPt >= 150 && rare_JetPt < 200)reweightF = 0.928858;
-                 	else if(rare_JetPt >= 200 && rare_JetPt < 250)reweightF = 0.814481;
-                 	else if(rare_JetPt >= 250 && rare_JetPt < 300)reweightF = 0.900957;
-                 	else if(rare_JetPt >= 300)reweightF = 0.829659;
-                 	Normalization = 0.866053;    }
-
-		ISRWeight = reweightF*Normalization;
-		
-		double weight;
-		if (ApplyISR) weight =  rare_MCweight*rare_PUweight*scalefactor*ISRWeight;
-		else weight = rare_MCweight*rare_PUweight*scalefactor;
+		double isrW = applyISR ? ISRWeightFromPt(rare_JetPt, loadedISRWeights, loadedNormalization) : 1.0;
+		double weight = rare_MCweight*rare_PUweight*scalefactor*isrW;
 
 		p_phoEt_rare->Fill(rare_phoEt, weight); 
 		p_JetPt_rare->Fill(rare_JetPt, weight);
@@ -500,21 +496,25 @@ void plot_ISRweight(int RunYear, bool preVFP){
 	flatratio_phoEt->Draw("same");
 //	can_phoEt->SaveAs(Form("/eos/uscms/store/user/tmishra/ISRweighting/PLOT_ISRweight_phoEt_%d%s.pdf",RunYear,whichVFP.c_str()));
 	
-	cout<<RunYear<<"  "<<whichVFP<<endl;
-	double ISRwgt_norm[11];
-	double ISRwgt_alter[11];
-	for(int i(1); i<=7; i++){
-		ISRwgt_norm[i-1] = p_JetPt_data->GetBinContent(i)/p_JetPt_ZG->GetBinContent(i);
-		std::cout << "norm ratio "<<i<<" "<< ISRwgt_norm[i-1] << " stat " << p_JetPt_data->GetBinError(i)/p_JetPt_ZG->GetBinContent(i)<<std::endl;
+	const int nbinsISR = p_JetPt_data->GetNbinsX();
+	std::vector<double> ISRwgt_norm(nbinsISR,1.0);
+	for(int i=1; i<=nbinsISR; i++){
+		double dataBin = p_JetPt_data->GetBinContent(i);
+		double mcBin   = p_JetPt_ZG->GetBinContent(i);
+		double ratio   = SafeRatioISR(dataBin, mcBin);
+		double stat    = (mcBin>0 ? p_JetPt_data->GetBinError(i)/mcBin : 0.0);
+		std::cout << "norm ratio " << i << " " << ratio << " stat " << stat << std::endl;
+		ISRwgt_norm[i-1] = ratio;
 	}
-	if(ApplyISR == false){
-        	cout<<"			if(ISRJetPt < 50)reweightF = "<<ISRwgt_norm[0]<<";"<<endl;
-        	cout<<"                 else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = "<<ISRwgt_norm[1]<<";"<<endl;
-        	cout<<"                 else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = "<<ISRwgt_norm[2]<<";"<<endl;
-        	cout<<"                 else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = "<<ISRwgt_norm[3]<<";"<<endl;
-        	cout<<"                 else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = "<<ISRwgt_norm[4]<<";"<<endl;
-        	cout<<"                 else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = "<<ISRwgt_norm[5]<<";"<<endl;
-        	cout<<"                 else if(ISRJetPt >= 300)reweightF = "<<ISRwgt_norm[6]<<";"<<endl;}
+
+	double normalization = SafeRatioISR(p_JetPt_ZG->Integral(), p_JetPt_data->Integral());
+
+	if(!applyISR){
+		if(WriteISRWeights(isrWgtFile, ISRwgt_norm, normalization))
+			std::cout << "[INFO] wrote ISR weights to " << isrWgtFile << std::endl;
+		else
+			std::cout << "[WARN] failed to write ISR weights to " << isrWgtFile << std::endl;
+	}
 
 	gStyle->SetOptStat(0);
 	can_JetPt->cd();
@@ -532,6 +532,7 @@ void plot_ISRweight(int RunYear, bool preVFP){
 	p_JetPt_data->SetMarkerColor(kBlack);
 	p_JetPt_data->Draw("P");
 	p_JetPt_ZG->Add(p_JetPt_rare);
+
 	p_JetPt_ZG->SetLineColor(6);
 	p_JetPt_ZG->SetFillStyle(1001);
 	p_JetPt_ZG->SetFillColor(6);
@@ -548,7 +549,7 @@ void plot_ISRweight(int RunYear, bool preVFP){
         else if(RunYear==2017)                  CMS_lumi( JetPt_pad1,3,1, 11 );
         else if(RunYear==2018)                  CMS_lumi( JetPt_pad1,4,1, 11 );
 	
-	if(ApplyISR == false)  cout<<"                 Normalization = "<<p_JetPt_ZG->Integral()/p_JetPt_data->Integral()<<";    }"<<endl;
+	if(applyISR == false)  cout<<"                 Normalization = "<<p_JetPt_ZG->Integral()/p_JetPt_data->Integral()<<";    }"<<endl;
 	
 	cout<<"ZG integral is "<<p_JetPt_ZG->Integral()<<endl;
 	cout<<"Data integral is "<<p_JetPt_data->Integral()<<endl;
@@ -571,10 +572,20 @@ void plot_ISRweight(int RunYear, bool preVFP){
 	ratio_JetPt->SetMarkerStyle(20);
 	ratio_JetPt->SetLineColor(kBlack);
 	ratio_JetPt->GetXaxis()->SetRangeUser(0,800);
-	if (ApplyISR)  ratio_JetPt->GetYaxis()->SetRangeUser(0.8,1.2);
+	if (applyISR)  ratio_JetPt->GetYaxis()->SetRangeUser(0.8,1.2);
 	else ratio_JetPt->GetYaxis()->SetRangeUser(0.5,1.35);
 	ratio_JetPt->GetYaxis()->SetLabelSize(12);
-	ratio_JetPt->Divide(p_JetPt_ZG);
+	
+	for(int i=1; i<=nbinsISR; ++i){
+		double mcBin = p_JetPt_ZG->GetBinContent(i);
+		if(mcBin<=0){
+			ratio_JetPt->SetBinContent(i,1.0);
+			ratio_JetPt->SetBinError(i,0.0);
+		}else{
+			ratio_JetPt->SetBinContent(i, p_JetPt_data->GetBinContent(i)/mcBin);
+			ratio_JetPt->SetBinError(i, p_JetPt_data->GetBinError(i)/mcBin);
+		}
+	}
 	ratio_JetPt->SetTitle("");
 	ratio_JetPt->GetYaxis()->SetTitle("Data/MC");
 	ratio_JetPt->Draw();
@@ -585,19 +596,28 @@ void plot_ISRweight(int RunYear, bool preVFP){
 	ratioValue_JetPt->SetLineColor(kRed);
 	ratioValue_JetPt->Draw("same");
 
-	TLatex *text = new TLatex();
-	text->SetTextSize(0.1);
-	text->DrawLatexNDC(0.7, 0.5, Form("Mean: %.2f", p_JetPt_data->Integral() / p_JetPt_ZG->Integral()));
-	delete text;
-	delete ratio_JetPt;
-	if (ApplyISR)	can_JetPt->SaveAs(Form("/eos/uscms/store/user/tmishra/ISRweighting/PLOT_ISRweight_%d%s-ISR-weighted.pdf",RunYear,whichVFP.c_str()));
-	else	can_JetPt->SaveAs(Form("/eos/uscms/store/user/tmishra/ISRweighting/PLOT_ISRweight_%d%s.pdf",RunYear,whichVFP.c_str()));
-	    gSystem->Sleep(500);  
-}
-int main(int argc, char** argv)
-{
-    bool preVFP = (atoi(argv[2]) == 1);
-    plot_ISRweight(atoi(argv[1]), preVFP);
-    return 0;
+	std::ostringstream outPdf;
+	outPdf << "/eos/uscms/store/user/tmishra/ISRweighting/PLOT_ISRweight_" << GetEraTag(RunYear, preVFP);
+	if(applyISR) outPdf << "_ISRweighted";
+	outPdf << ".pdf";
+	can_JetPt->SaveAs(outPdf.str().c_str());
 
+	delete ratio_JetPt;
+	delete flatratio_JetPt;
+	delete leg_JetPt;
+	delete JetPt_pad2;
+	delete JetPt_pad1;
+	delete can_JetPt;
+	delete can_JetPt_alter;
+	delete can_phoEt;
+	delete tree;
+	delete ZGtree;
+	delete raretree;
+}
+int main(int argc, char** argv){
+	int runYear = (argc > 1 ? atoi(argv[1]) : 2016);
+	bool preVFP = (argc > 2 ? atoi(argv[2]) == 1 : true);
+	bool applyISR = (argc > 3 ? atoi(argv[3]) == 1 : false);
+	plot_ISRweight(runYear, preVFP, applyISR);
+	return 0;
 }

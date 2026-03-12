@@ -41,17 +41,17 @@ void printBranchDataType(const char* fileName, const char* treeName, const char*
 void checkNJetBranch() {
     // List of files to check
     const char* files[] = {
-        "/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_DYJetsToLL_2018.root",
-        "/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_TTGJets_2018.root",
-        "/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_TTJets_2018.root",
-        "/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGJet130_2018.root",
-        "/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGJet40_2018.root",
-        "/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGToLNuG_2018.root",
-        "/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WWG_2018.root",
-        "/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WW_2018.root",
-        "/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WZG_2018.root",
-        "/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WZ_2018.root",
-        "/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_ZGToLLG_2018.root"
+        "/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_DYJetsToLL_2018.root",
+        "/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_TTGJets_2018.root",
+        "/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_TTJets_2018.root",
+        "/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WGJet130_2018.root",
+        "/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WGJet40_2018.root",
+        "/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WGToLNuG_2018.root",
+        "/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WWG_2018.root",
+        "/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WW_2018.root",
+        "/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WZG_2018.root",
+        "/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WZ_2018.root",
+        "/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_ZGToLLG_2018.root"
     };
 
     // Check 'nJet' branch in egTree and mgTree separately for all files

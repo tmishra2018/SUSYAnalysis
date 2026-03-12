@@ -375,8 +375,8 @@ void closure_jetfakelep(int ichannel, int RunYear, bool ISpreVFP){
 
 
 
-	if (channelType == 1) c_dphi->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_dPhi_eg_%d%s.pdf", RunYear, whichVFP.c_str()));
-	if (channelType == 2) c_dphi->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_dPhi_mg_%d%s.pdf", RunYear, whichVFP.c_str()));
+	if (channelType == 1) c_dphi->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_dPhi_eg_%d%s.png", RunYear, whichVFP.c_str()));
+	if (channelType == 2) c_dphi->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_dPhi_mg_%d%s.png", RunYear, whichVFP.c_str()));
 
 
 	// ******** MET ************************//
@@ -412,8 +412,8 @@ void closure_jetfakelep(int ichannel, int RunYear, bool ISpreVFP){
 	latex->DrawLatex(0.63, 0.91, Form("#chi^{2} p-value = %.3f", chi2_pval));
 	latex->DrawLatex(0.63, 0.88, Form("KS p-value = %.3f", ks_pval));
 
-	if (channelType == 1) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_MET_eg_%d%s.pdf", RunYear, whichVFP.c_str()));
-	if (channelType == 2) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_MET_mg_%d%s.pdf", RunYear, whichVFP.c_str()));
+	if (channelType == 1) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_MET_eg_%d%s.png", RunYear, whichVFP.c_str()));
+	if (channelType == 2) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_MET_mg_%d%s.png", RunYear, whichVFP.c_str()));
 
 	// ******** Mt ************************//
 	gStyle->SetOptStat(0);
@@ -443,8 +443,8 @@ void closure_jetfakelep(int ichannel, int RunYear, bool ISpreVFP){
 	latex->DrawLatex(0.63, 0.91, Form("#chi^{2} p-value = %.3f", chi2_pval));
 	latex->DrawLatex(0.63, 0.88, Form("KS p-value = %.3f", ks_pval));
 
-	if(channelType==1) c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_MT_eg_%d%s.pdf",RunYear,whichVFP.c_str()));
-	if(channelType==2) c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_MT_mg_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==1) c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_MT_eg_%d%s.png",RunYear,whichVFP.c_str()));
+	if(channelType==2) c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_MT_mg_%d%s.png",RunYear,whichVFP.c_str()));
 
 	// ******** HT ************************//
 	gStyle->SetOptStat(0);
@@ -472,8 +472,8 @@ void closure_jetfakelep(int ichannel, int RunYear, bool ISpreVFP){
 	latex->DrawLatex(0.63, 0.91, Form("#chi^{2} p-value = %.3f", chi2_pval));
 	latex->DrawLatex(0.63, 0.88, Form("KS p-value = %.3f", ks_pval));
 
-	if(channelType==1) c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_HT_eg_%d%s.pdf",RunYear,whichVFP.c_str()));
-	if(channelType==2) c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_HT_mg_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==1) c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_HT_eg_%d%s.png",RunYear,whichVFP.c_str()));
+	if(channelType==2) c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_HT_mg_%d%s.png",RunYear,whichVFP.c_str()));
 
 	// ******** LepPt ************************//
 	p_LepPt->Sumw2();
@@ -587,8 +587,8 @@ latexFile << "\\end{table}\n";
 latexFile.close();
 std::cout << "LaTeX table saved as ratio_LepPt_table.tex" << std::endl;
 
-	if(channelType==1) c_LepPt->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_LepPt_eg_%d%s.pdf",RunYear,whichVFP.c_str()));
-	if(channelType==2) c_LepPt->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_LepPt_mg_%d%s.pdf",RunYear,whichVFP.c_str()));
+	if(channelType==1) c_LepPt->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_LepPt_eg_%d%s.png",RunYear,whichVFP.c_str()));
+	if(channelType==2) c_LepPt->SaveAs(Form("/eos/uscms/store/user/tmishra/fakeLep/Closure/closure_jetfakelep_LepPt_mg_%d%s.png",RunYear,whichVFP.c_str()));
 	TFile *outputfile;
 	if(channelType==1)  outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/fakeLep/qcd_eg_scale_%d%s.root",RunYear,whichVFP.c_str()),"RECREATE");
 	if(channelType==2)  outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/fakeLep/qcd_mg_scale_%d%s.root",RunYear,whichVFP.c_str()),"RECREATE");

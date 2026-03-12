@@ -53,18 +53,18 @@
 //#include "../../../include/tdrstyle.C"
 //#include "../include/RooCBExGaussShape.h"
 #define NTOY 1000
-using namespace RooFit ;
+using namespace RooFit;
 
-int RunYear = 2018; bool ISpreVFP = false;
+int RunYear = 2016; bool ISpreVFP = true;
 bool doEB = true;
-//const char*processName ="DY";
-const char*processName ="Data";
+const char*processName ="DY";
+//const char*processName ="Data";
 
 enum BinType{
   byPt = 0,
   byEta = 1,
   byVtx = 2,
-  nonType = 3
+  byHT  = 3 
 };
 
 bool isElectron(int PID, int momID){
@@ -152,14 +152,18 @@ RooRealVar eta("probeEta", "Probe Eta", -3.0, 3.0);
 RooRealVar vtx("nVertex", "nVertex", 0, 100);
 RooRealVar veto("vetovalue", "Veto", 0, 2);
 RooRealVar fsr("FSRveto", "FSR Veto", 0, 2);
+RooRealVar ht("HT", "HT", 0, 3000);
 
 TChain *etree = new TChain("FakeRateTree");
 etree->Add(Form("root://cmseos.fnal.gov//store/user/tmishra/elefakepho/files/plot_elefakepho_%sTnP_dR05_%d%s.root",
                 processName, RunYear, whichVFP.c_str()));
 
-RooArgSet varset(mass, pt, eta, vtx, veto, fsr);
+RooArgSet varset(mass, pt, eta, vtx, ht, veto, fsr);
 
 std::ostringstream cut;
+//cut << "(HT >= 0 && HT < 100 &&";  // check diff HT ranges
+//cut << "(HT >= 100 && HT < 400 &&";  // check diff HT ranges
+//cut << "(HT >= 400 &&";  // check diff HT ranges
 cut << "(";
 
 if (doEB)
@@ -174,6 +178,8 @@ else if (bintype == byEta)
     cut << "fabs(probeEta)>=" << lowercut << " && fabs(probeEta)<" << uppercut;
 else if (bintype == byVtx)
     cut << "nVertex>=" << lowercut << " && nVertex<" << uppercut;
+else if (bintype == byHT)
+    cut << "HT>=" << lowercut << " && HT<" << uppercut;
 
 cut << " && ";
 if (inputfittype == 0)
@@ -198,13 +204,15 @@ RooRealVar eta_bg("probeEta", "probeEta", -3.0, 3.0);
 RooRealVar veto_bg("vetovalue", "vetovalue", 0, 2);
 RooRealVar fsr_bg("FSRveto", "FSRveto", 0, 2);
 RooRealVar nvtx_bg("nVertex", "nVertex", 0, 100);
+RooRealVar ht_bg("HT", "HT", 0, 3000);
 
-RooArgSet vars_bg(mass_bg, pt_bg, eta_bg, veto_bg, fsr_bg, nvtx_bg);
+RooArgSet vars_bg(mass_bg, pt_bg, eta_bg, veto_bg, fsr_bg, nvtx_bg, ht_bg);
 
 TChain* bgtree = new TChain("BGTree");
 bgtree->Add(Form("root://cmseos.fnal.gov//store/user/tmishra/elefakepho/files/plot_bgtemplate_FullEcal_%d%s.root", RunYear, whichVFP.c_str()));
 
 std::stringstream cut_bg;
+//cut_bg << "HT >= 0 && HT < 100 &&";  // check diff HT ranges
 
 if (doEB)
     cut_bg << "fabs(probeEta) <= 1.4442";
@@ -219,6 +227,8 @@ else if (bintype == byEta)
     cut_bg << Form("fabs(probeEta) >= %.2f && fabs(probeEta) < %.2f", lowercut, uppercut);
 else if (bintype == byVtx)
     cut_bg << Form("nVertex >= %.1f && nVertex < %.1f", lowercut, uppercut);
+else if (bintype == byHT)
+    cut_bg << Form("HT >= %.1f && HT < %.1f", lowercut, uppercut);
 
 cut_bg << " && ";
 
@@ -254,6 +264,7 @@ if (data_bg.numEntries() < 10) {
 		float DY_probePhi=0;
 		bool  DY_vetovalue=0;
 		int   DY_nVertex=0;
+		float DY_HT = 0;
 		std::vector<int>   *mcPID=0;
 		std::vector<float> *mcEta=0;
 		std::vector<float> *mcPhi=0;
@@ -275,6 +286,7 @@ if (data_bg.numEntries() < 10) {
 		DYtree->SetBranchAddress("mcPt",			&mcPt);
 		DYtree->SetBranchAddress("mcMomPID",	&mcMomPID);
 		DYtree->SetBranchAddress("mcGMomPID",	&mcGMomPID);
+		DYtree->SetBranchAddress("HT", &DY_HT);
 
 		for(unsigned iEvt(0); iEvt < DYtree->GetEntries(); iEvt++){
 			DYtree->GetEntry(iEvt);
@@ -319,7 +331,7 @@ if (data_bg.numEntries() < 10) {
   RooRealVar mass_axis("invmass", "M_{tag-probe}", fitrangelow, fitrangehigh);
   mass_axis.setBins(2048, "cache");
 
-  RooDataSet BkgDataSet("BkgDataSet", "BkgDataSet", bgtree, RooArgSet(mass_axis, pt_bg, eta_bg, veto_bg, fsr_bg, nvtx_bg), cut_bg.str().c_str()); 
+  RooDataSet BkgDataSet("BkgDataSet","BkgDataSet", bgtree, RooArgSet(mass_axis, pt_bg, eta_bg, veto_bg, fsr_bg, nvtx_bg, ht_bg), cut_bg.str().c_str());
   RooKeysPdf BkgKer("BkgKer","BkgKer",mass_axis,BkgDataSet,RooKeysPdf::MirrorBoth, 2);
 	RooDataSet *DYDataSet;
 	RooDataHist *datahist_DY;
@@ -412,6 +424,8 @@ if (data_bg.numEntries() < 10) {
   if(inputbintype == 0)histname << "pt <";
   else if(inputbintype == 1)histname << "eta <";
   else if(inputbintype == 2)histname << "nvtx <";
+  else if(inputbintype == 3) histname << "ht <";
+
   histname << uppername;
   RooPlot* mass_Frame = mass_axis.frame(RooFit::Title(histname.str().c_str()),RooFit::Bins(60));
   mass_Frame->SetStats(0);
@@ -465,6 +479,8 @@ if (data_bg.numEntries() < 10) {
   if(inputbintype == 0)histname << "pt_";
   else if(inputbintype == 1)histname << "eta_";
   else if(inputbintype == 2)histname << "vtx_";
+  else if(inputbintype == 3) histname << "ht_";
+
   if(inputfittype == 0) histname << "den_";
   else if(inputfittype == 1) histname << "num_";
 	histname << fitrangelow << "-" << fitrangehigh << "_"; 
@@ -548,6 +564,8 @@ for(int i(0); i<mcstudy->fitParDataSet().sumEntries(); i++){
   if(inputbintype == 0)histname << "pt_";
   else if(inputbintype == 1)histname << "eta_";
   else if(inputbintype == 2)histname << "vtx_";
+  else if(inputbintype == 3) histname << "ht_";
+
   if(inputfittype == 0) histname << "den_";
   else if(inputfittype == 1) histname << "num_";
   histname << lowername << "_" << uppername << ".png";
@@ -557,6 +575,8 @@ for(int i(0); i<mcstudy->fitParDataSet().sumEntries(); i++){
   if(inputbintype == 0)histname << "pt ";
   else if(inputbintype == 1)histname << "eta ";
   else if(inputbintype == 2)histname << "vtx ";
+  else if(inputbintype == 3) histname << "ht ";
+
   if(inputfittype == 0) histname << "den ";
   else if(inputfittype == 1) histname << "num ";
   histname << lowername << " " <<  norminalmean << " " << norminalrms << " " << fitmean << " " << fitrms << std::endl;
@@ -572,6 +592,7 @@ for(int i(0); i<mcstudy->fitParDataSet().sumEntries(); i++){
 	if(inputbintype == 0)textfilename << "pt";
 	else if(inputbintype == 1)textfilename << "eta";
 	else if(inputbintype == 2)textfilename << "vtx";
+	else if(inputbintype == 3) textfilename << "ht";
 
 	if(inputfittype == 0) textfilename << "-den";
 	else if(inputfittype == 1) textfilename << "-num";

@@ -20,14 +20,17 @@ out_dir = f"{Type}Result{Year}"
 os.makedirs(out_dir, exist_ok=True)
 
 patterns = [
-    "Bw-expo-pt", "Bw-ker-pt", "DY-ker-pt",
-    "Bw-expo-eta", "Bw-ker-eta", "DY-ker-eta",
-    "Bw-expo-vtx", "Bw-ker-vtx", "DY-ker-vtx"
+#    "Bw-expo-pt", "Bw-ker-pt", "DY-ker-pt",
+#    "Bw-expo-eta", "Bw-ker-eta", "DY-ker-eta",
+#    "Bw-expo-vtx", "Bw-ker-vtx", "DY-ker-vtx"
+     "Bw-expo-ht", 
+     "Bw-ker-ht"
+#    "Bw-ker-vtx"
 ]
 
 def extract_axis_bin_and_type(line):
     """Extracts ('den' or 'num'), bin value (float), and axis type ('pt', 'eta', 'vtx') from the line."""
-    match = re.search(r'(pt|eta|vtx) (den|num) (\d+(?:\.\d+)?)', line)
+    match = re.search(r'(pt|eta|vtx|ht) (den|num) (\d+(?:\.\d+)?)', line)
     if match:
         axis = match.group(1)
         which = match.group(2)

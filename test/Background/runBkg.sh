@@ -1,13 +1,10 @@
 #!/bin/bash
 set -e  # Exit immediately if any command fails
-
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
 ToDeriveScale=false
-makeCRPlots=true
-makeVRPlots=false
+makeCRPlots=false
+makeVRPlots=true
 makeSRPlots=false
-
 # ---------------- Region configuration ----------------
 if [ "$ToDeriveScale" = true ]; then
   anatype=0
@@ -44,12 +41,12 @@ fi
 
 iso=4
 
-# ---------------- Main loops ----------------
 for range in "${ranges[@]}"; do
   lpt=$(echo "$range" | cut -d' ' -f1)
   hpt=$(echo "$range" | cut -d' ' -f2)
 
   echo "==== Running for lpt=$lpt, hpt=$hpt ===="
+
 
   for RunYear in 2016 2017 2018; do
     for preVFP in 0 1; do
@@ -68,7 +65,6 @@ for range in "${ranges[@]}"; do
         VFP_string=""
       fi
 
-      # Decide log file once per RunYear/VFP
       if [ "$makeCRPlots" = true ]; then
         LOGFILE="logs/BKG_${RunYear}${VFP_string}.log"
       elif [ "$makeVRPlots" = true ]; then
@@ -77,7 +73,6 @@ for range in "${ranges[@]}"; do
         LOGFILE=""
       fi
 
-      # Clear log once per (RunYear, VFP)
       if [ -n "$LOGFILE" ]; then
         : > "$LOGFILE"
       fi
@@ -85,7 +80,6 @@ for range in "${ranges[@]}"; do
       for ch in 1 2; do
         echo "---- Processing RunYear=$RunYear, VFP=$VFP_string, ichannel=$ch ----"
 
-        # Create config file
         cat > BkgPredConfig.txt <<EOF
 ichannel $ch
 anatype $anatype
@@ -100,13 +94,15 @@ RunYear $RunYear
 preVFP $preVFP
 EOF
 
-        # Run background analyses
-        root -l -q analysis_VGBkg.C++
-        root -l -q analysis_eleBkg.C++
-        root -l -q analysis_jetBkg.C++
-        root -l -q analysis_qcdBkg.C++
-        root -l -q analysis_rareBkg.C++
-        root -l -q analysis_sig.C++
+        root -l -q analysis_VGBkg.C++ &
+        root -l -q analysis_eleBkg.C++ &
+        root -l -q analysis_jetBkg.C++ &
+        root -l -q analysis_qcdBkg.C++ &
+        root -l -q analysis_rareBkg.C++ &
+        root -l -q analysis_sig.C++ &
+
+	wait
+        echo "All 6 macros finished."
 
         # Plot + log (CR / VR only)
         if [ -n "$LOGFILE" ]; then

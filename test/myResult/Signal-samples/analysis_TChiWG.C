@@ -93,14 +93,6 @@ void analysis_TChiWG(){//main
 	TH2D *p_highPU_t5wg_pass = new TH2D("p_highPU_t5wg_pass","",nXbins, xBins, nYbins, yBins);
 	TH2D *p_highPU_t5wg_all  = new TH2D("p_highPU_t5wg_all","", nXbins, xBins, nYbins, yBins);
 	
-	double q = 0.5;
-	double nVtxCut = 0;
-	p_PU_data->GetQuantiles(1, &nVtxCut, &q);
-	std::cout << "nVertex split = " << nVtxCut << std::endl;
-
-	TH1D *h_nVtx_low  = new TH1D("h_nVtx_low","",100,0,100);
-	TH1D *h_nVtx_high = new TH1D("h_nVtx_high","",100,0,100);
-	
 	for(int ievt(0); ievt < tree_t5wg->GetEntries(); ievt++){
 		tree_t5wg->GetEntry(ievt);
     		if (ievt%1000000==0) std::cout << " -- Processing event " << ievt << std::endl;
@@ -110,18 +102,10 @@ void analysis_TChiWG(){//main
 		else if(Mneutralino_t5wg >0)NLSPMass = Mneutralino_t5wg;
     	
 		p_T5WGMASS->Fill(Mgluino_t5wg, NLSPMass);
-
-		if(nVertex < nVtxCut){
-			p_lowPU_t5wg_all->Fill(Mgluino_t5wg, NLSPMass, 1);
-			h_nVtx_low->Fill(nVertex);}
-		else{ 
-			p_highPU_t5wg_all->Fill(Mgluino_t5wg, NLSPMass, 1);
-			h_nVtx_high->Fill(nVertex);}
+		if(nVertex < 20)p_lowPU_t5wg_all->Fill(Mgluino_t5wg, NLSPMass, 1);
+                else p_highPU_t5wg_all->Fill(Mgluino_t5wg, NLSPMass, 1);
 	}
 	
-	double meanLow  = h_nVtx_low->GetMean();
-	double meanHigh = h_nVtx_high->GetMean();
-
 	TH2D *t5wg_h_chan_rate_nom[NBIN*2]; 
 	for(int i(0); i < NBIN*2; i++){
 		histname.str("");
@@ -297,7 +281,7 @@ void analysis_TChiWG(){//main
 			t5wg_h_chan_rate_xsUp[SigBinIndex]->Fill( gluinoMass_t5wg_mg, NLSPMass, scalefactor); 
 			t5wg_h_chan_rate_esfUp[SigBinIndex]->Fill( gluinoMass_t5wg_mg, NLSPMass,scalefactorup); 
 
-			if(nVertex_t5wg_mg < nVtxCut)p_lowPU_t5wg_pass->Fill( gluinoMass_t5wg_mg, NLSPMass, 1);
+			if(nVertex_t5wg_mg < 20)p_lowPU_t5wg_pass->Fill( gluinoMass_t5wg_mg, NLSPMass, 1);
 			else p_highPU_t5wg_pass->Fill( gluinoMass_t5wg_mg, NLSPMass, 1);
 			if( fabs(gluinoMass_t5wg_mg - 1700) < 10 && fabs(NLSPMass - 1000) < 5)
 				p_t5wg_1700_1000_nom->Fill(SigBinIndex, scalefactor);
@@ -411,7 +395,7 @@ void analysis_TChiWG(){//main
 			t5wg_h_chan_rate_xsUp[SigBinIndex]->Fill( gluinoMass_t5wg_eg, NLSPMass, scalefactor); 
 			t5wg_h_chan_rate_esfUp[SigBinIndex]->Fill( gluinoMass_t5wg_eg, NLSPMass,scalefactorup); 
 
-			if(nVertex_t5wg_eg < nVtxCut)p_lowPU_t5wg_pass->Fill( gluinoMass_t5wg_eg, NLSPMass, 1);
+			if(nVertex_t5wg_eg < 20)p_lowPU_t5wg_pass->Fill( gluinoMass_t5wg_eg, NLSPMass, 1);
 			else p_highPU_t5wg_pass->Fill( gluinoMass_t5wg_eg, NLSPMass, 1);
 			if( fabs(gluinoMass_t5wg_eg - 1700) < 10 && fabs(NLSPMass - 1000) < 5)
                              p_t5wg_1700_1000_nom->Fill(SigBinIndex, scalefactor);
@@ -519,7 +503,7 @@ void analysis_TChiWG(){//main
 					t5wg_h_chan_syserr_xs[ih]->SetBinContent(i,j, fabs( t5wg_h_chan_rate_xsUp[ih]->GetBinContent(i,j)-t5wg_h_chan_rate_nom[ih]->GetBinContent(i,j)) );
 					t5wg_h_chan_syserr_lumi[ih]->SetBinContent(i,j, 0.026*t5wg_h_chan_rate_nom[ih]->GetBinContent(i,j));   
 					t5wg_h_chan_syserr_isr[ih]->SetBinContent(i,j, -1);
-					if(ih==0)t5wg_h_syserr_PU->SetBinContent(i,j, analysis_PU(i,j, p_lowPU_t5wg_pass, p_lowPU_t5wg_all, p_highPU_t5wg_pass, p_highPU_t5wg_all, p_PU_data, meanLow, meanHigh));  
+					if(ih==0)t5wg_h_syserr_PU->SetBinContent(i,j, analysis_PU(i,j, p_lowPU_t5wg_pass, p_lowPU_t5wg_all, p_highPU_t5wg_pass, p_highPU_t5wg_all, p_PU_data));  
 				}
 			}
 		} 
@@ -584,7 +568,7 @@ void analysis_TChiWG(){//main
     if (ievt%1000000==0) std::cout << " -- Processing event " << ievt << std::endl;
 		if(Mchargino_tchiwg >=0){
 			p_TChiWGMASS->Fill(Mchargino_tchiwg);
-			if(nVertex_tchiwg < nVtxCut)p_lowPU_tchiwg_all->Fill(Mchargino_tchiwg, 1);
+			if(nVertex_tchiwg < 20)p_lowPU_tchiwg_all->Fill(Mchargino_tchiwg, 1);
 			else p_highPU_tchiwg_all->Fill(Mchargino_tchiwg, 1);
 		}
 	}
@@ -745,7 +729,7 @@ void analysis_TChiWG(){//main
 			tchiwg_h_chan_rate_xsUp[SigBinIndex]->Fill( charginoMass_tchiwg_mg, scalefactor); 
 			tchiwg_h_chan_rate_esfUp[SigBinIndex]->Fill( charginoMass_tchiwg_mg,scalefactorup); 
 
-			if(nVertex_tchiwg_mg < nVtxCut)p_lowPU_tchiwg_pass->Fill( charginoMass_tchiwg_mg, 1);
+			if(nVertex_tchiwg_mg < 20)p_lowPU_tchiwg_pass->Fill( charginoMass_tchiwg_mg, 1);
 			else p_highPU_tchiwg_pass->Fill(charginoMass_tchiwg_mg, 1);
 			
 			if(fabs(charginoMass_tchiwg_mg - 800 ) < 2)
@@ -855,7 +839,7 @@ void analysis_TChiWG(){//main
 			tchiwg_h_chan_rate_xsUp[SigBinIndex]->Fill( charginoMass_tchiwg_eg, scalefactor); 
 			tchiwg_h_chan_rate_esfUp[SigBinIndex]->Fill( charginoMass_tchiwg_eg,scalefactorup); 
 
-			if(nVertex_tchiwg_eg < nVtxCut)p_lowPU_tchiwg_pass->Fill( charginoMass_tchiwg_eg, 1);
+			if(nVertex_tchiwg_eg < 20)p_lowPU_tchiwg_pass->Fill( charginoMass_tchiwg_eg, 1);
 			else p_highPU_tchiwg_pass->Fill(charginoMass_tchiwg_eg, 1);
 			if(fabs(charginoMass_tchiwg_eg - 800 ) < 2)
                              p_tchiwg_800_nom->Fill(SigBinIndex, scalefactor);
@@ -932,7 +916,7 @@ void analysis_TChiWG(){//main
 				tchiwg_h_chan_syserr_xs[ih]->SetBinContent(i, fabs( tchiwg_h_chan_rate_xsUp[ih]->GetBinContent(i)-tchiwg_h_chan_rate_nom[ih]->GetBinContent(i)) );
 				tchiwg_h_chan_syserr_lumi[ih]->SetBinContent(i, 0.026*tchiwg_h_chan_rate_nom[ih]->GetBinContent(i));   
 				tchiwg_h_chan_syserr_isr[ih]->SetBinContent(i, -1); 
-				if(ih==0)tchiwg_h_syserr_PU->SetBinContent(i, analysis_PU(i, p_lowPU_tchiwg_pass, p_lowPU_tchiwg_all, p_highPU_tchiwg_pass, p_highPU_tchiwg_all, p_PU_data, meanLow, meanHigh));  
+				if(ih==0)tchiwg_h_syserr_PU->SetBinContent(i, analysis_PU(i, p_lowPU_tchiwg_pass, p_lowPU_tchiwg_all, p_highPU_tchiwg_pass, p_highPU_tchiwg_all, p_PU_data));  
 			}
 		} 
 	} 

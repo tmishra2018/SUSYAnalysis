@@ -51,7 +51,7 @@ void analysis_ISRMC(int RunYear, bool preVFP, const char *Sample){//main
   	
 	TChain* es = new TChain("ggNtuplizer/EventTree");
 	char* inputfile = new char[300];
-        if (strstr(Sample, "DYJetsToLL") != NULL or strstr(Sample, "TTJets") != NULL or strstr(Sample, "WJetsToLNu"))
+        if (strstr(Sample, "DYJetsToLL") != NULL or strstr(Sample, "TTJets") != NULL or strstr(Sample, "WJetsToLNu") or strstr(Sample, "ZGToLLG") != NULL )
              sprintf(inputfile,"/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());
         else
              sprintf(inputfile,"/eos/uscms/store/user/tmishra/InputFilesMC/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());

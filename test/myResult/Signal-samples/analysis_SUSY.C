@@ -573,7 +573,6 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 				for(std::vector<recoMuon>::iterator itMu = Muon.begin(); itMu != Muon.end(); itMu++){
 				if(hasMu)continue;
 					if(itMu->passSignalSelection()){
-								//if(itMu->passSignalSelection_Not_MiniIso()){ 		//if(itMu->passSignalSelection_dxy_0p02()){
 						hasMu=true; 
 						signalMu = itMu;
 					}

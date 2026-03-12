@@ -68,7 +68,7 @@ void analysis_mgMC(int RunYear, bool preVFP, const char *Sample){//main
 
   int nTotal(0),npassHLT(0), npassPho(0), npassLep(0), npassdR(0), npassZ(0), npassMETFilter(0);
 
-  TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_%s_%d%s.root",Sample,RunYear,whichVFP.c_str()),"RECREATE");
+  TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_%s_%d%s_.root",Sample,RunYear,whichVFP.c_str()),"RECREATE");
   outputfile->cd();
 
   int mcType;
@@ -218,12 +218,18 @@ void analysis_mgMC(int RunYear, bool preVFP, const char *Sample){//main
   float proxydRPhoLep(0);
   float proxyHT(0);
   int   proxynJet(0);
-	float proxytrailPt(0);
-	float proxytrailEta(0);
-	float proxytrailPhi(0);
+  float proxytrailPt(0);
+  float proxytrailEta(0);
+  float proxytrailPhi(0);
+  std::vector<int>   proxymcPID;
+  std::vector<float> proxymcEta;
+  std::vector<float> proxymcPhi;
+  std::vector<float> proxymcPt;
+  std::vector<int>   proxymcMomPID;
+  std::vector<int>   proxymcGMomPID;
   
-	proxytree->Branch("crosssection",&crosssection);
-	proxytree->Branch("ntotalevent", &ntotalevent);
+  proxytree->Branch("crosssection",&crosssection);
+  proxytree->Branch("ntotalevent", &ntotalevent);
   proxytree->Branch("phoEt",     &proxyphoEt);
   proxytree->Branch("phoEta",    &proxyphoEta);
   proxytree->Branch("phoPhi",    &proxyphoPhi);
@@ -239,9 +245,15 @@ void analysis_mgMC(int RunYear, bool preVFP, const char *Sample){//main
   proxytree->Branch("HT",        &proxyHT);
   proxytree->Branch("nJet",      &proxynJet);
   proxytree->Branch("nBJet",     &nBJet);
-	proxytree->Branch("trailPt",   &proxytrailPt);
-	proxytree->Branch("trailEta",  &proxytrailEta);
-	proxytree->Branch("trailPhi",  &proxytrailPhi);
+  proxytree->Branch("trailPt",   &proxytrailPt);
+  proxytree->Branch("trailEta",  &proxytrailEta);
+  proxytree->Branch("trailPhi",  &proxytrailPhi);
+  proxytree->Branch("mcPID",     &proxymcPID);
+  proxytree->Branch("mcEta",     &proxymcEta);
+  proxytree->Branch("mcPhi",     &proxymcPhi);
+  proxytree->Branch("mcPt",      &proxymcPt);
+  proxytree->Branch("mcMomPID",  &proxymcMomPID);
+  proxytree->Branch("mcGMomPID", &proxymcGMomPID);
 
 //************ Signal Tree **********************//
   TTree *jettree = new TTree("jetTree","jetTree");
@@ -259,12 +271,18 @@ void analysis_mgMC(int RunYear, bool preVFP, const char *Sample){//main
   float jetdRPhoLep(0);
   float jetHT(0);
   int   jetnJet(0);
-	float jettrailPt(0);
-	float jettrailEta(0);
-	float jettrailPhi(0);
+  float jettrailPt(0);
+  float jettrailEta(0);
+  float jettrailPhi(0);
+  std::vector<int>   jetmcPID;
+  std::vector<float> jetmcEta;
+  std::vector<float> jetmcPhi;
+  std::vector<float> jetmcPt;
+  std::vector<int>   jetmcMomPID;
+  std::vector<int>   jetmcGMomPID;
   
-	jettree->Branch("crosssection",&crosssection);
-	jettree->Branch("ntotalevent", &ntotalevent);
+  jettree->Branch("crosssection",&crosssection);
+  jettree->Branch("ntotalevent", &ntotalevent);
   jettree->Branch("phoEt",     &jetphoEt);
   jettree->Branch("phoEta",    &jetphoEta);
   jettree->Branch("phoPhi",    &jetphoPhi);
@@ -280,9 +298,17 @@ void analysis_mgMC(int RunYear, bool preVFP, const char *Sample){//main
   jettree->Branch("HT",        &jetHT);
   jettree->Branch("nJet",      &jetnJet);
   jettree->Branch("nBJet",     &nBJet);
-	jettree->Branch("trailPt",   &jettrailPt);
-	jettree->Branch("trailEta",  &jettrailEta);
-	jettree->Branch("trailPhi",  &jettrailPhi);
+  jettree->Branch("trailPt",   &jettrailPt);
+  jettree->Branch("trailEta",  &jettrailEta);
+  jettree->Branch("trailPhi",  &jettrailPhi);
+
+  jettree->Branch("mcPID",     &jetmcPID);
+  jettree->Branch("mcEta",     &jetmcEta);
+  jettree->Branch("mcPhi",     &jetmcPhi);
+  jettree->Branch("mcPt",      &jetmcPt);
+  jettree->Branch("mcMomPID",  &jetmcMomPID);
+  jettree->Branch("mcGMomPID", &jetmcGMomPID);
+
 //*********** fake lepton *********************//
   TTree *fakeLeptree = new TTree("fakeLepTree","fakeLepTree");
   float fakeLepphoEt(0);
@@ -291,8 +317,8 @@ void analysis_mgMC(int RunYear, bool preVFP, const char *Sample){//main
   float fakeLepPt(0);
   float fakeLepEta(0);
   float fakeLepPhi(0);
-	float fakeLepMiniIso(0);
-	int   fakeLepIsMedium(0);
+  float fakeLepMiniIso(0);
+  int   fakeLepIsMedium(0);
   float fakeLepsigMT(0);
   float fakeLepsigMET(0);
   float fakeLepsigMETPhi(0);
@@ -302,8 +328,8 @@ void analysis_mgMC(int RunYear, bool preVFP, const char *Sample){//main
   float fakeLepHT(0);
   int   fakeLepnJet(0);
   
-	fakeLeptree->Branch("crosssection",&crosssection);
-	fakeLeptree->Branch("ntotalevent", &ntotalevent);
+  fakeLeptree->Branch("crosssection",&crosssection);
+  fakeLeptree->Branch("ntotalevent", &ntotalevent);
   fakeLeptree->Branch("phoEt",     &fakeLepphoEt);
   fakeLeptree->Branch("phoEta",    &fakeLepphoEta);
   fakeLeptree->Branch("phoPhi",    &fakeLepphoPhi);
@@ -635,6 +661,27 @@ void analysis_mgMC(int RunYear, bool preVFP, const char *Sample){//main
 					proxynJet += 1;
 					proxyHT += itJet->getPt();
 				}
+				proxymcPID.clear();
+                                proxymcEta.clear();
+                                proxymcPhi.clear();
+                                proxymcPt.clear();
+                                proxymcMomPID.clear();
+                                proxymcGMomPID.clear();
+                                                                if(isMC){
+                                                                        for(std::vector<mcData>::iterator itMC = MCData.begin(); itMC!= MCData.end(); itMC++){
+                                                                        if(itMC->getEt() < 1.0)continue;
+                                                                        float mcdR = DeltaR(signalPho->getEta(), signalPho->getPhi(), itMC->getEta(), itMC->getPhi());
+                                                                        if(mcdR < 0.3){
+                                                                                proxymcPID.push_back(itMC->getPID());
+                                                                                proxymcMomPID.push_back(itMC->getMomPID());
+                                                                                proxymcGMomPID.push_back(itMC->getGMomPID());
+                                                                                proxymcEta.push_back(itMC->getEta());
+                                                                                proxymcPhi.push_back(itMC->getPhi());
+                                                                                proxymcPt.push_back(itMC->getEt());
+                                                                        }
+                                                                        }
+                                                                }
+
 
 				proxytree->Fill();
 
@@ -687,6 +734,27 @@ void analysis_mgMC(int RunYear, bool preVFP, const char *Sample){//main
 					jetnJet += 1;
 					jetHT += itJet->getPt();
 				}
+								jetmcPID.clear();
+                                                                jetmcEta.clear();
+                                                                jetmcPhi.clear();
+                                                                jetmcPt.clear();
+                                                                jetmcMomPID.clear();
+                                                                jetmcGMomPID.clear();
+                                                                if(isMC){
+                                                                        for(std::vector<mcData>::iterator itMC = MCData.begin(); itMC!= MCData.end(); itMC++){
+                                                                        if(itMC->getEt() < 1.0)continue;
+                                                                        float mcdR = DeltaR(signalPho->getEta(), signalPho->getPhi(), itMC->getEta(), itMC->getPhi());
+                                                                        if(mcdR < 0.3){
+                                                                                jetmcPID.push_back(itMC->getPID());
+                                                                                jetmcMomPID.push_back(itMC->getMomPID());
+                                                                                jetmcGMomPID.push_back(itMC->getGMomPID());
+                                                                                jetmcEta.push_back(itMC->getEta());
+                                                                                jetmcPhi.push_back(itMC->getPhi());
+                                                                                jetmcPt.push_back(itMC->getEt());
+                                                                        }
+                                                                        }
+                                                                }
+
 				jettree->Fill();
 
 			}//MET Filter

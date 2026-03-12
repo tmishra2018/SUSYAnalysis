@@ -6,10 +6,10 @@ g++ `root-config --cflags` analysis_bgtemplate.C -o analysis_bgtemplate.exe `roo
 ./analysis_bgtemplate.exe 2017 E
 ./analysis_bgtemplate.exe 2017 F
 
-./analysis_bgtemplate.exe 2018 A
-./analysis_bgtemplate.exe 2018 B
-./analysis_bgtemplate.exe 2018 C
-./analysis_bgtemplate.exe 2018 D
+#./analysis_bgtemplate.exe 2018 A
+#./analysis_bgtemplate.exe 2018 B
+#./analysis_bgtemplate.exe 2018 C
+#./analysis_bgtemplate.exe 2018 D
 
 #./analysis_bgtemplate.exe 2016 B-ver1
 #./analysis_bgtemplate.exe 2016 B-ver2

@@ -972,7 +972,7 @@ void plot_eventct(int NBIN){//main
 	error_ratio->Draw("E2 same");
 	flatratio->Draw("same");
 	can->Update();
-	can->SaveAs(Form("/uscms_data/d3/tmishra/Output/signalCount_%d%s.pdf",RunYear,whichVFP.c_str()));
+	can->SaveAs(Form("/uscms_data/d3/tmishra/Output/signalCount_VR_%d%s.pdf",RunYear,whichVFP.c_str()));
 
 	for(int ibin(1); ibin <= 2*NBIN; ibin++){
   }

@@ -7,9 +7,9 @@ export ARG5=$5
 export ARG6=$6
 export ARG7=$7
 
-export year=2018
-export preVFP=0
-export isData=1
+export year=2016
+export preVFP=1
+export isData=0
 
 cd ${_CONDOR_SCRATCH_DIR}
 echo "source /cvmfs/cms.cern.ch/cmsset_default.sh"

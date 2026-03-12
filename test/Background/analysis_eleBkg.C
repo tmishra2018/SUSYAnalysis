@@ -104,10 +104,28 @@ void analysis_eleBkg(){
 	TH1D *p_HT_TT = new TH1D("p_HT_TT","HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
 	TH1D *p_dPhiEleMET_TT = new TH1D("p_dPhiEleMET_TT","dPhiEleMET",32,0,3.2);
 
+	const int nHTSlices = 3;
+        double HTsliceMin[nHTSlices] = {0.,   100., 400.};
+        double HTsliceMax[nHTSlices] = {100., 400., 1e6};
+        TH2D *p_MET_vs_HTslice = new TH2D("p_MET_vs_HTslice", "MET in HT slices; MET (GeV); HT slice", nBkgMETBins, bkgMETBins, nHTSlices, 0, nHTSlices);
+        p_MET_vs_HTslice->GetYaxis()->SetBinLabel(1,"HT: 0-100");
+        p_MET_vs_HTslice->GetYaxis()->SetBinLabel(2,"HT: 100-400");
+        p_MET_vs_HTslice->GetYaxis()->SetBinLabel(3,"HT: >400");
+
+	const int nMETSlices = 3;
+        double METsliceMin[nMETSlices] = {120., 200., 400.};
+        double METsliceMax[nMETSlices] = {200., 400., 1e6};
+        TH2D *p_HT_vs_METslice = new TH2D("p_HT_vs_METslice", "HT in MET slices; H_{T} (GeV); MET slice", nBkgHTBins, bkgHTBins, nMETSlices, 0, nMETSlices);
+        p_HT_vs_METslice->GetYaxis()->SetBinLabel(1,"MET: 120-200");
+        p_HT_vs_METslice->GetYaxis()->SetBinLabel(2,"MET: 200-400");
+        p_HT_vs_METslice->GetYaxis()->SetBinLabel(3,"MET: >400");
+
 	TH1D *toy_PhoEt[NTOY];
 	TH1D *toy_LepPt[NTOY];
 	TH1D *toy_HT[NTOY];
 	TH1D *toy_MET[NTOY];
+	TH1D *toy_MET_HT[NTOY];
+	TH1D *toy_HT_MET[NTOY];
 	TH1D *toy_Mt[NTOY];
 	TH1D *toy_dPhiEleMET[NTOY];
 
@@ -126,6 +144,12 @@ void analysis_eleBkg(){
 		histname.str("");
 		histname << "toy_MET_ " << ih;
 		toy_MET[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),nBkgMETBins, bkgMETBins);
+		histname.str("");
+		histname << "toy_MET_HT_ " << ih;
+		toy_MET_HT[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(), 3*nBkgMETBins, 0, 3*nBkgMETBins);
+		histname.str("");
+		histname << "toy_HT_MET_ " << ih;
+		toy_HT_MET[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(), 3*nBkgHTBins, 0, 3*nBkgHTBins);
 		histname.str("");
 		histname << "toy_Mt_ " << ih;
 		toy_Mt[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),nBkgMtBins,bkgMtBins);
@@ -249,12 +273,88 @@ void analysis_eleBkg(){
 				toy_dPhiEleMET_TT[it]->Fill(fabs(dPhiLepMET), toy_ele);
 			}
 		}
+		if(anatype != 0){
+                        int htslice = -1;
+                        if(HT < 100)        htslice = 0;
+                        else if(HT < 400)   htslice = 1;
+                        else                htslice = 2;
+                        p_MET_vs_HTslice->Fill(sigMET, htslice + 0.5, w_ele);}
 
+		if (anatype != 0){
+                        int metslice = -1;
+                        if      (sigMET >= 120 && sigMET < 200) metslice = 0;
+                        else if (sigMET >= 200 && sigMET < 400) metslice = 1;
+                        else if (sigMET >= 400)                 metslice = 2;
+                        p_HT_vs_METslice->Fill(HT, metslice + 0.5, w_ele);}
 	}
+        
+	TH1D *h_MET_HT0 = p_MET_vs_HTslice->ProjectionX("h_MET_HT0",1,1);
+        TH1D *h_MET_HT1 = p_MET_vs_HTslice->ProjectionX("h_MET_HT1",2,2);
+        TH1D *h_MET_HT2 = p_MET_vs_HTslice->ProjectionX("h_MET_HT2",3,3);
+        int nTotBins = nHTSlices * nBkgMETBins;
+        TH1D *h_MET_HT_concat = new TH1D("h_MET_HT_concat", "MET in HT slices; MET / HT slice index;Events", nTotBins, 0, nTotBins);
+        TH1D *hists[3] = {h_MET_HT0, h_MET_HT1, h_MET_HT2};
+        for(int i=0;i<3;i++){
+                for(int b=1;b<=nBkgMETBins;b++){
+                        int newBin = i*nBkgMETBins + b;
+                        h_MET_HT_concat->SetBinContent(newBin, hists[i]->GetBinContent(b));
+                        h_MET_HT_concat->SetBinError  (newBin, hists[i]->GetBinError(b));
+                }
+        }
+        delete h_MET_HT0;
+        delete h_MET_HT1;
+        delete h_MET_HT2;
+        delete p_MET_vs_HTslice;
+
+	TH1D *h_HT_MET0 = p_HT_vs_METslice->ProjectionX("h_HT_MET0",1,1);
+        TH1D *h_HT_MET1 = p_HT_vs_METslice->ProjectionX("h_HT_MET1",2,2);
+        TH1D *h_HT_MET2 = p_HT_vs_METslice->ProjectionX("h_HT_MET2",3,3);
+        nTotBins = nMETSlices * nBkgHTBins;
+        TH1D *h_HT_MET_concat = new TH1D("h_HT_MET_concat","HT in MET slices; HT / MET slice index; Events",nTotBins, 0, nTotBins);
+        TH1D *p_HT_MET[3] = {h_HT_MET0, h_HT_MET1, h_HT_MET2};
+        for (int i = 0; i < 3; i++) {
+                for (int b = 1; b <= nBkgHTBins; b++) {
+                        int newBin = i*nBkgHTBins + b;
+                        h_HT_MET_concat->SetBinContent(newBin, p_HT_MET[i]->GetBinContent(b));
+                        h_HT_MET_concat->SetBinError  (newBin, p_HT_MET[i]->GetBinError(b));
+                }
+        }
+        delete h_HT_MET0;
+        delete h_HT_MET1;
+        delete h_HT_MET2;
+        delete p_HT_vs_METslice;
 
 
 	// Error is assigned with Gauss fit
 	std::vector<double> toyvec; 
+
+	 for(int i=0;i<3;i++){
+                for(int b=1;b<=nBkgMETBins;b++){
+                        int newBin = i*nBkgMETBins + b;
+                	toyvec.clear();
+                	toyvec.push_back(h_MET_HT_concat->GetBinContent(newBin));
+                	for(unsigned it(0); it < NTOY; it++)
+				toyvec.push_back(toy_MET_HT[it]->GetBinContent(newBin));
+                	double syserr = calcToyError( toyvec, useGaussFit, channelType);
+                	double totalerror = sqrt(syserr*syserr + h_MET_HT_concat->GetBinError(newBin)*h_MET_HT_concat->GetBinError(newBin));
+                	h_MET_HT_concat->SetBinError(newBin, totalerror);
+		}
+        }
+
+ 	for(int i=0;i<3;i++){
+    		for(int b=1;b<=nBkgHTBins;b++){
+        		int newBin = i*nBkgHTBins + b;
+        		toyvec.clear();
+        		toyvec.push_back(h_HT_MET_concat->GetBinContent(newBin));
+        		for(unsigned it(0); it < NTOY; it++)
+            			toyvec.push_back(toy_HT_MET[it]->GetBinContent(newBin));
+        		double syserr = calcToyError( toyvec, useGaussFit, channelType);
+        		double totalerror = sqrt(syserr*syserr +
+            		h_HT_MET_concat->GetBinError(newBin)*h_HT_MET_concat->GetBinError(newBin));
+        		h_HT_MET_concat->SetBinError(newBin, totalerror);
+    		}
+	}
+
 	for(int ibin(1); ibin < p_PhoEt->GetSize(); ibin++){
 		toyvec.clear();
 		toyvec.push_back(p_PhoEt->GetBinContent(ibin));
@@ -337,7 +437,7 @@ void analysis_eleBkg(){
 		p_dPhiEleMET_TT->SetBinError(ibin, totalerror);
 	}
 	std::ostringstream outputname;
-	outputname << "/eos/uscms/store/user/tmishra/Background/";
+	outputname << "/uscms_data/d3/tmishra/Background/";
 	switch(anatype){
 		case 0: outputname << "controlTree_";break;
 		case 1: outputname << "bkgTree_";break;	
@@ -356,6 +456,8 @@ void analysis_eleBkg(){
 	p_LepPt->Write();
 	p_LepEta->Write();
 	p_MET->Write();
+	h_MET_HT_concat->Write();
+	h_HT_MET_concat->Write();
 	p_Mt->Write();
 	p_HT->Write();
 	p_dPhiEleMET->Write();

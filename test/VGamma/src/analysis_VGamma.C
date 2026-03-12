@@ -181,7 +181,6 @@ void analysis_VGamma(int RunYear, bool preVFP, const char *Sample){//main
   float PUweight(1);
   float llmass(0);
   int   nBJet(0);
-  float ISRWeight(1);
   float pdfWeight(0);
   std::vector<float> pdfSystWeight;
   std::vector<float> ScaleSystWeight; 
@@ -232,7 +231,6 @@ void analysis_VGamma(int RunYear, bool preVFP, const char *Sample){//main
 
   egtree->Branch("crosssection",&crosssection);
   egtree->Branch("ntotalevent", &ntotalevent);
-  egtree->Branch("ISRWeight", &ISRWeight);
   egtree->Branch("pdfWeight", &pdfWeight);
   egtree->Branch("pdfSystWeight", &pdfSystWeight);
   egtree->Branch("ScaleSystWeight", &ScaleSystWeight);
@@ -331,7 +329,6 @@ void analysis_VGamma(int RunYear, bool preVFP, const char *Sample){//main
  
   mgtree->Branch("crosssection",&crosssection);
   mgtree->Branch("ntotalevent", &ntotalevent);
-  mgtree->Branch("ISRWeight", &ISRWeight);
   mgtree->Branch("pdfWeight", &pdfWeight);
   mgtree->Branch("pdfSystWeight", &pdfSystWeight);
   mgtree->Branch("ScaleSystWeight", &ScaleSystWeight);
@@ -394,10 +391,6 @@ void analysis_VGamma(int RunYear, bool preVFP, const char *Sample){//main
   std::vector<recoJet>   JetCollection;
   /*********************************************/
 
-  std::vector<recoEle>::iterator ZLep1_e = Ele.begin();
-  std::vector<recoEle>::iterator ZLep2_e = Ele.begin();
-  std::vector<recoMuon>::iterator ZLep1_mu = Muon.begin();
-  std::vector<recoMuon>::iterator ZLep2_mu = Muon.begin();
   float MET(0);
   float METPhi(0);
   float MET_T1JERUp(0);
@@ -611,68 +604,6 @@ void analysis_VGamma(int RunYear, bool preVFP, const char *Sample){//main
 		if(!nisrMatch(itJet->getEta(), itJet->getPhi(), MCData))JetVec = JetVec + itJet->getP4();
 	}
 	ISRJetPt = JetVec.Pt();
-	double reweightF(1);	
-				
-	if(RunYear==2016 && preVFP==1){
-	        if(ISRJetPt < 50)reweightF = 0.967889;
-             	else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.11724;
-                else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.979645;
-                else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.833069;
-                else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.881191;
-                else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.895074;
-                else if(ISRJetPt >= 300)reweightF = 0.816445;
-                Normalization = 0.988597;
-        }
-        else if(RunYear==2016 && preVFP==0){
-              	if(ISRJetPt < 50)reweightF = 1.0078;
-                else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.18628;
-                else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.940295;
-                else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.926074;
-                else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.856512;
-                else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.752113;
-                else if(ISRJetPt >= 300)reweightF = 0.671831;
-                 Normalization = 0.955131;
-        }
-
-       	ISRWeight = reweightF*Normalization;
-
-std::vector<std::pair<recoEle, recoEle>> ZeeCandidates;
-std::vector<std::pair<recoMuon, recoMuon>> ZmmCandidates;
-
-for (std::vector<recoEle>::iterator itEle1 = Ele.begin(); itEle1 != Ele.end(); ++itEle1) {
-    for (std::vector<recoEle>::iterator itEle2 = itEle1 + 1; itEle2 != Ele.end(); ++itEle2) { 
-        if (itEle1->passSignalSelection() && itEle2->passSignalSelection()) {
-            if ((itEle1->isPosi() && itEle2->isPosi()) || (!itEle1->isPosi() && !itEle2->isPosi())) continue;
-            float dimass = (itEle1->getP4() + itEle2->getP4()).M();
-            if (fabs(dimass - 91.1876) < 10) {
-                ZeeCandidates.emplace_back(*itEle1, *itEle2);
-		goto EndZSearch;
-            }
-        }
-    }
-}
-
-for (std::vector<recoMuon>::iterator itMu1 = Muon.begin(); itMu1 != Muon.end(); ++itMu1) {
-    for (std::vector<recoMuon>::iterator itMu2 = itMu1 + 1; itMu2 != Muon.end(); ++itMu2) { 
-        if (itMu1->passSignalSelection() && itMu2->passSignalSelection()) {
-            if ((itMu1->isPosi() && itMu2->isPosi()) || (!itMu1->isPosi() && !itMu2->isPosi())) continue;
-            float dimuonmass = (itMu1->getP4() + itMu2->getP4()).M();
-            if (fabs(dimuonmass - 91.1876) < 10) {
-                ZmmCandidates.emplace_back(*itMu1, *itMu2);
-		goto EndZSearch;
-            }
-        }
-    }
-}
-EndZSearch:
-
-bool hasZCandidate = (!ZeeCandidates.empty() || !ZmmCandidates.empty());
-int totalZCandidates = ZeeCandidates.size() + ZmmCandidates.size();
-
-if (totalZCandidates > 1) 
-    std::cout << "More than one Z candidate found in this event: " << totalZCandidates << std::endl;
-
-
 
 	///*************************   eg filters *****************************
 	if(hasegPho) npassPho+=1;
@@ -767,34 +698,7 @@ if (totalZCandidates > 1)
 						eg_mcStatus.push_back(itMC->getStatus());
 					}
 				}
-
-eg_hasZCandidate = false;
-eg_Z_mass = -1;
-eg_Z_lep1_pt = -1;
-eg_Z_lep2_pt = -1;
-if (hasZCandidate) {
-    for (auto& pair : ZeeCandidates) {
-        if (&pair.first != &(*signalEle) && &pair.second != &(*signalEle)) {
-            eg_hasZCandidate = true;
-            eg_Z_mass = (pair.first.getP4() + pair.second.getP4()).M();
-            eg_Z_lep1_pt = pair.first.getPt();
-            eg_Z_lep2_pt = pair.second.getPt();
-            break;
-        }
-    }
-    if (!eg_hasZCandidate) {
-        for (auto& pair : ZmmCandidates) {
-            eg_hasZCandidate = true;
-            eg_Z_mass = (pair.first.getP4() + pair.second.getP4()).M();
-            eg_Z_lep1_pt = pair.first.getPt();
-            eg_Z_lep2_pt = pair.second.getPt();
-            break;
-        }
-    }
-}
-
                 		egtree->Fill();
- 
               }//MET Filter
             }// Z mass Filter
           }//dR filter
@@ -890,31 +794,6 @@ if (hasZCandidate) {
 						 	}
 						  }
 						}
-mg_hasZCandidate = false;
-mg_Z_mass = -1;
-mg_Z_lep1_pt = -1;
-mg_Z_lep2_pt = -1;
-if (hasZCandidate) {
-    for (auto& pair : ZmmCandidates) {
-        if (&pair.first != &(*signalMu) && &pair.second != &(*signalMu)) {
-            mg_hasZCandidate = true;
-            mg_Z_mass = (pair.first.getP4() + pair.second.getP4()).M();
-            mg_Z_lep1_pt = pair.first.getPt();
-            mg_Z_lep2_pt = pair.second.getPt();
-            break;
-        }
-    }
-    if (!mg_hasZCandidate) {
-        for (auto& pair : ZeeCandidates) {
-            mg_hasZCandidate = true;
-            mg_Z_mass = (pair.first.getP4() + pair.second.getP4()).M();
-            mg_Z_lep1_pt = pair.first.getPt();
-            mg_Z_lep2_pt = pair.second.getPt();
-            break;
-        }
-    }
-}
-
 				 		mgtree->Fill();
            }//MET Filter
          }//dR Filter

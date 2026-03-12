@@ -28,7 +28,7 @@
 #include<fstream>
 #include<sstream>
 
-float analysis_PU(unsigned i, unsigned j, TH2D *p_lowPU_t5wg_pass, TH2D *p_lowPU_t5wg_all, TH2D *p_highPU_t5wg_pass, TH2D *p_highPU_t5wg_all, TH1D *p_PU_data, double meanLow, double meanHigh){ 
+float analysis_PU(unsigned i, unsigned j, TH2D *p_lowPU_t5wg_pass, TH2D *p_lowPU_t5wg_all, TH2D *p_highPU_t5wg_pass, TH2D *p_highPU_t5wg_all, TH1D *p_PU_data){ 
 	
 	std::ostringstream histname;
 	histname.str("");
@@ -66,14 +66,13 @@ float analysis_PU(unsigned i, unsigned j, TH2D *p_lowPU_t5wg_pass, TH2D *p_lowPU
   
   TGraphErrors *p_eff = new TGraphErrors(2);
 	//std::cout << eff_L << " " << unc_L << " " << eff_H << " " << unc_H << std::endl;
-  
-  p_eff->SetPoint(1, meanLow,  eff_L);
+  p_eff->SetPoint(1,10,eff_L);
   p_eff->SetPointError(1, 0, unc_L);
-  p_eff->SetPoint(2, meanHigh, eff_H);
-  p_eff->SetPointError(2, 0, unc_H);
+  p_eff->SetPoint(2,30,eff_H);
+  p_eff->SetPointError(2,0,unc_H);
   p_eff->SetMarkerStyle(20);
-  TF1 *func = new TF1("linear","pol1",0,100);
-  func->SetParameter(1, (eff_H - eff_L) / (meanHigh - meanLow));
+	TF1 *func = new TF1("linear","pol1",0,100);
+	func->SetParameter(1, (eff_H-eff_L)/20);
   TFitResultPtr rPU = p_eff->Fit("linear","S");
   TH1F *p_effband = new TH1F(histname.str().c_str(),"",100,0,100); 
   (TVirtualFitter::GetFitter())->GetConfidenceIntervals(p_effband);
@@ -122,14 +121,14 @@ float analysis_PU(unsigned i, unsigned j, TH2D *p_lowPU_t5wg_pass, TH2D *p_lowPU
 	histname.str("");
 	histname << "T5WG_" << int(p_lowPU_t5wg_all->GetXaxis()->GetBinCenter(i)) << "_" << int(p_lowPU_t5wg_all->GetYaxis()->GetBinCenter(j)) << ".pdf";
 	//can->SaveAs(histname.str().c_str());	
-	std::cout << i << " " << j  << " " << c_center << " " << c_up << " " << (c_up-c_center)/c_center <<  std::endl;
+	//std::cout << i << " " << j  << " " << c_center << " " << c_up << " " << (c_up-c_center)/c_center <<  std::endl;
   delete band_upper;
   delete band_lower;
 	return (c_up-c_center)/c_center;	
 }
 
 
-float analysis_PU(unsigned i, TH1D *p_lowPU_t5wg_pass, TH1D *p_lowPU_t5wg_all, TH1D *p_highPU_t5wg_pass, TH1D *p_highPU_t5wg_all, TH1D *p_PU_data, double meanLow, double meanHigh){ 
+float analysis_PU(unsigned i, TH1D *p_lowPU_t5wg_pass, TH1D *p_lowPU_t5wg_all, TH1D *p_highPU_t5wg_pass, TH1D *p_highPU_t5wg_all, TH1D *p_PU_data){ 
 	
 	std::ostringstream histname;
 	histname.str("");
@@ -166,13 +165,13 @@ float analysis_PU(unsigned i, TH1D *p_lowPU_t5wg_pass, TH1D *p_lowPU_t5wg_all, T
   double unc_H = sqrt( par_H_toPH*par_H_toPH*errpass_H*errpass_H + par_H_toFH*par_H_toFH*errfail_H*errfail_H + par_H_toPL*par_H_toPL*errpass_L*errpass_L + par_H_toFL*par_H_toFL*errfail_L*errfail_L);	
   
   TGraphErrors *p_eff = new TGraphErrors(2);
-  p_eff->SetPoint(1, meanLow,  eff_L);
+  p_eff->SetPoint(1,10,eff_L);
   p_eff->SetPointError(1, 0, unc_L);
-  p_eff->SetPoint(2, meanHigh, eff_H);
+  p_eff->SetPoint(2,30,eff_H);
   p_eff->SetPointError(2,0,unc_H);
   p_eff->SetMarkerStyle(20);
-  TF1 *func = new TF1("linear","pol1",0,100);
-  func->SetParameter(1, (eff_H - eff_L) / (meanHigh - meanLow));
+	TF1 *func = new TF1("linear","pol1",0,100);
+	func->SetParameter(1, (eff_H-eff_L)/20);
   TFitResultPtr rPU = p_eff->Fit("linear","S");
   TH1F *p_effband = new TH1F(histname.str().c_str(),"",100,0,100); 
   (TVirtualFitter::GetFitter())->GetConfidenceIntervals(p_effband);
@@ -219,8 +218,7 @@ float analysis_PU(unsigned i, TH1D *p_lowPU_t5wg_pass, TH1D *p_lowPU_t5wg_all, T
 	band_upper->Draw("L same");
 	band_lower->Draw("L same");
 	histname.str("");
-	histname << "TChiWG_" << int(p_lowPU_t5wg_all->GetXaxis()->GetBinCenter(i)) << ".pdf" ;
-	//can->SaveAs(histname.str().c_str());	
+	histname << "T5WG_" << int(p_lowPU_t5wg_all->GetXaxis()->GetBinCenter(i));
   delete band_upper;
   delete band_lower;
 	return (c_up-c_center)/c_center;	

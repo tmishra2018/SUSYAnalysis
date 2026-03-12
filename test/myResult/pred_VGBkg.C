@@ -205,12 +205,12 @@ void pred_VGBkg(){
 	else if(channelType == 2)chainname << "mgTree";
   	TChain *mctree = new TChain(chainname.str().c_str(), chainname.str().c_str());
 	
-	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGJet40_%d%s.root",RunYear,whichVFP.c_str()));
-	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGToLNuG_%d%s.root",RunYear,whichVFP.c_str()));
-  	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGJet130_%d%s.root",RunYear,whichVFP.c_str()));
+	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WGJet40_%d%s.root",RunYear,whichVFP.c_str()));
+	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WGToLNuG_%d%s.root",RunYear,whichVFP.c_str()));
+  	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WGJet130_%d%s.root",RunYear,whichVFP.c_str()));
   	
-	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_ZGToLLG_%d%s.root",RunYear,whichVFP.c_str()));
-  	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
+	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_ZGToLLG_%d%s.root",RunYear,whichVFP.c_str()));
+  	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
 	
 	float crosssection(0);
 	float ntotalevent(0);

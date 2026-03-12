@@ -17,7 +17,7 @@ void analysis_rareBkg(){
   int channelType = ichannel; // eg = 1; mg =2;
 	//*********** histo list **********************//
 	std::ostringstream outputname;
-	outputname << "/eos/uscms/store/user/tmishra/Background/";
+	outputname << "/uscms_data/d3/tmishra/Background/";
 	switch(anatype){
 		case 0: outputname << "controlTree_";break;
 		case 1: outputname << "bkgTree_";break;	
@@ -80,6 +80,32 @@ void analysis_rareBkg(){
 	TH1D *scaleup_HT = new TH1D("scaleup_HT","HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
 	TH1D *scaleup_dPhiEleMET = new TH1D("scaleup_dPhiEleMET","dPhiEleMET",32,0,3.2); 
 
+	const int nHTSlices = 3;
+	double HTsliceMin[nHTSlices] = {0.,   100., 400.};
+	double HTsliceMax[nHTSlices] = {100., 400., 1e6};
+	TH2D *p_MET_vs_HTslice = new TH2D("p_MET_vs_HTslice", "MET in HT slices; MET (GeV); HT slice", nBkgMETBins, bkgMETBins, nHTSlices, 0, nHTSlices);
+	p_MET_vs_HTslice->GetYaxis()->SetBinLabel(1,"HT: 0-100");
+	p_MET_vs_HTslice->GetYaxis()->SetBinLabel(2,"HT: 100-400");
+	p_MET_vs_HTslice->GetYaxis()->SetBinLabel(3,"HT: >400");
+	        
+	TH2D *scaleup_MET_HT = new TH2D("scaleup_MET_HT", "MET in HT slices; MET (GeV); HT slice", nBkgMETBins, bkgMETBins, nHTSlices, 0, nHTSlices);
+        TH2D *jesup_MET_HT = new TH2D("jesup_MET_HT", "MET in HT slices; MET (GeV); HT slice", nBkgMETBins, bkgMETBins, nHTSlices, 0, nHTSlices);
+        TH2D *jerup_MET_HT = new TH2D("jerup_MET_HT", "MET in HT slices; MET (GeV); HT slice", nBkgMETBins, bkgMETBins, nHTSlices, 0, nHTSlices);
+        TH2D *jesdo_MET_HT = new TH2D("jesdo_MET_HT", "MET in HT slices; MET (GeV); HT slice", nBkgMETBins, bkgMETBins, nHTSlices, 0, nHTSlices);
+        TH2D *jerdo_MET_HT = new TH2D("jerdo_MET_HT", "MET in HT slices; MET (GeV); HT slice", nBkgMETBins, bkgMETBins, nHTSlices, 0, nHTSlices);
+
+	const int nMETSlices = 3;
+        double METsliceMin[nMETSlices] = {120., 200., 400.};
+        double METsliceMax[nMETSlices] = {200., 400., 1e6};
+        TH2D *p_HT_vs_METslice = new TH2D("p_HT_vs_METslice", "HT in MET slices; H_{T} (GeV); MET slice", nBkgHTBins, bkgHTBins, nMETSlices, 0, nMETSlices);
+        p_HT_vs_METslice->GetYaxis()->SetBinLabel(1,"MET: 120-200");
+        p_HT_vs_METslice->GetYaxis()->SetBinLabel(2,"MET: 200-400");
+        p_HT_vs_METslice->GetYaxis()->SetBinLabel(3,"MET: >400");
+        TH2D *scaleup_HT_MET = (TH2D*)p_HT_vs_METslice->Clone("scaleup_HT_MET");
+        TH2D *normup_HT_MET  = (TH2D*)p_HT_vs_METslice->Clone("normup_HT_MET");
+        TH2D *jesup_HT_MET   = (TH2D*)p_HT_vs_METslice->Clone("jesup_HT_MET");
+        TH2D *jesdo_HT_MET   = (TH2D*)p_HT_vs_METslice->Clone("jesdo_HT_MET");
+
 // ********  MC *************************//
 	std::ostringstream chainname;
 	chainname.str("");
@@ -88,13 +114,13 @@ void analysis_rareBkg(){
 	// background from directly simulations, mctree
   	TChain *mctree = new TChain(chainname.str().c_str(), chainname.str().c_str());
 
-		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_TTGJets_%d%s.root",RunYear,whichVFP.c_str()));
-  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WWG_%d%s.root",RunYear,whichVFP.c_str()));
-  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WZG_%d%s.root",RunYear,whichVFP.c_str()));
-  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WW_%d%s.root",RunYear,whichVFP.c_str()));
-  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WZ_%d%s.root",RunYear,whichVFP.c_str()));
-  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_ZZ_%d%s.root",RunYear,whichVFP.c_str()));
-  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_TTJets_%d%s.root",RunYear,whichVFP.c_str()));
+		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_TTGJets_%d%s.root",RunYear,whichVFP.c_str()));
+  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WWG_%d%s.root",RunYear,whichVFP.c_str()));
+  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WZG_%d%s.root",RunYear,whichVFP.c_str()));
+  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WW_%d%s.root",RunYear,whichVFP.c_str()));
+  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WZ_%d%s.root",RunYear,whichVFP.c_str()));
+  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_ZZ_%d%s.root",RunYear,whichVFP.c_str()));
+  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_TTJets_%d%s.root",RunYear,whichVFP.c_str()));
 	float crosssection(0);
 	float ntotalevent(0);
 	float PUweight(1);
@@ -284,9 +310,8 @@ void analysis_rareBkg(){
 			p_LepPt_TT->Fill(lepPt,  weight);
                         p_nJet_TT->Fill(nJet,  weight);
                         p_nBJet_TT->Fill(nBJet, weight);
-			p_dPhiEleMET_TT->Fill(fabs(dPhiLepMET), weight);
-		}
-
+			p_dPhiEleMET_TT->Fill(fabs(dPhiLepMET), weight);}
+		
 		jesup_MET->Fill(sigMETJESup, weight);
 		jesup_Mt->Fill(sigMTJESup, weight);
 		jesup_HT->Fill(HTJESup, weight);
@@ -313,8 +338,128 @@ void analysis_rareBkg(){
 		scaleup_Mt->Fill(sigMT, weight_scaleup);
 		scaleup_HT->Fill(HT, weight_scaleup);
 		scaleup_dPhiEleMET->Fill(fabs(dPhiLepMET), weight_scaleup);
+		if(anatype != 0){
+			int htslice = -1;
+  			if(HT < 100)        htslice = 0;
+  			else if(HT < 400)   htslice = 1;
+  			else                htslice = 2;
+			p_MET_vs_HTslice->Fill(sigMET, htslice + 0.5, weight);
+			scaleup_MET_HT->Fill(sigMET, htslice + 0.5, weight_scaleup);
+                        jesup_MET_HT->Fill(sigMETJESup, htslice + 0.5, weight);
+                        jesdo_MET_HT->Fill(sigMETJESdo, htslice + 0.5, weight);
+                        jerup_MET_HT->Fill(sigMETJERup, htslice + 0.5, weight);
+                        jerdo_MET_HT->Fill(sigMETJERdo, htslice + 0.5, weight);}
+
+                if (anatype != 0) {
+                        int metslice = -1;
+                        if      (sigMET >= 120 && sigMET < 200) metslice = 0;
+                        else if (sigMET >= 200 && sigMET < 400) metslice = 1;
+                        else if (sigMET >= 400)                 metslice = 2;
+                        p_HT_vs_METslice->Fill(HT, metslice + 0.5, weight);
+                        scaleup_HT_MET->Fill(HT, metslice + 0.5, weight_scaleup);
+                        jesup_HT_MET->Fill(HTJESup, metslice + 0.5, weight);
+                        jesdo_HT_MET->Fill(HTJESdo, metslice + 0.5, weight);}
 
 	}
+	
+	TH1D *h_MET_HT0 = p_MET_vs_HTslice->ProjectionX("h_MET_HT0",1,1);
+	TH1D *h_MET_HT1 = p_MET_vs_HTslice->ProjectionX("h_MET_HT1",2,2);
+	TH1D *h_MET_HT2 = p_MET_vs_HTslice->ProjectionX("h_MET_HT2",3,3);
+
+        TH1D *scaleup_MET_HT_proj[3];
+        scaleup_MET_HT_proj[0] = scaleup_MET_HT->ProjectionX("scaleup_HT0",1,1);
+        scaleup_MET_HT_proj[1] = scaleup_MET_HT->ProjectionX("scaleup_HT1",2,2);
+        scaleup_MET_HT_proj[2] = scaleup_MET_HT->ProjectionX("scaleup_HT2",3,3);
+
+        TH1D *jesup_MET_HT_proj[3];
+        jesup_MET_HT_proj[0] = jesup_MET_HT->ProjectionX("jesup_HT0",1,1);
+        jesup_MET_HT_proj[1] = jesup_MET_HT->ProjectionX("jesup_HT1",2,2);
+        jesup_MET_HT_proj[2] = jesup_MET_HT->ProjectionX("jesup_HT2",3,3);
+
+        TH1D *jerup_MET_HT_proj[3];
+        jerup_MET_HT_proj[0] = jerup_MET_HT->ProjectionX("jerup_HT0",1,1);
+        jerup_MET_HT_proj[1] = jerup_MET_HT->ProjectionX("jerup_HT1",2,2);
+        jerup_MET_HT_proj[2] = jerup_MET_HT->ProjectionX("jerup_HT2",3,3);
+
+        TH1D *jesdo_MET_HT_proj[3];
+        jesdo_MET_HT_proj[0] = jesdo_MET_HT->ProjectionX("jesdo_HT0",1,1);
+        jesdo_MET_HT_proj[1] = jesdo_MET_HT->ProjectionX("jesdo_HT1",2,2);
+        jesdo_MET_HT_proj[2] = jesdo_MET_HT->ProjectionX("jesdo_HT2",3,3);
+
+        TH1D *jerdo_MET_HT_proj[3];
+        jerdo_MET_HT_proj[0] = jerdo_MET_HT->ProjectionX("jerdo_HT0",1,1);
+        jerdo_MET_HT_proj[1] = jerdo_MET_HT->ProjectionX("jerdo_HT1",2,2);
+        jerdo_MET_HT_proj[2] = jerdo_MET_HT->ProjectionX("jerdo_HT2",3,3);
+
+	int nTotBins = nHTSlices * nBkgMETBins;
+	TH1D *h_MET_HT_concat = new TH1D("h_MET_HT_concat", "MET in HT slices; MET / HT slice index;Events", nTotBins, 0, nTotBins);
+	TH1D *hists[3] = {h_MET_HT0, h_MET_HT1, h_MET_HT2};
+	for(int i=0;i<3;i++){
+  		for(int b=1;b<=nBkgMETBins;b++){
+    			int newBin = i*nBkgMETBins + b;
+    			h_MET_HT_concat->SetBinContent(newBin, hists[i]->GetBinContent(b));
+    			h_MET_HT_concat->SetBinError  (newBin, hists[i]->GetBinError(b));
+  		}
+	}
+
+	TH1D *p_MET_HT[3] = {h_MET_HT0, h_MET_HT1, h_MET_HT2};
+        for (int htSlice = 0; htSlice < 3; htSlice++) {
+                for (int ibin = 1; ibin <= nBkgMETBins; ibin++) {
+                        int concatBin = htSlice * nBkgMETBins + ibin;
+                        double nominal = p_MET_HT[htSlice]->GetBinContent(ibin);
+                        double jeserr = std::max(fabs(jesup_MET_HT_proj[htSlice]->GetBinContent(ibin) - nominal), fabs(jesdo_MET_HT_proj[htSlice]->GetBinContent(ibin) - nominal));
+                        double jererr = std::max(fabs(jerup_MET_HT_proj[htSlice]->GetBinContent(ibin) - nominal), fabs(jerdo_MET_HT_proj[htSlice]->GetBinContent(ibin) - nominal));
+                        double syserror2 = 0.0;
+                        syserror2 += pow(scaleup_MET_HT_proj[htSlice]->GetBinContent(ibin) - nominal, 2);
+                        syserror2 += jeserr * jeserr;
+                        syserror2 += jererr * jererr;
+			syserror2 += pow((p_MET_HT[htSlice]->GetBinContent(ibin)*0.5), 2);
+                        h_MET_HT_concat->SetBinError(concatBin, std::sqrt(syserror2));
+                }
+        }
+
+	delete h_MET_HT0;
+	delete h_MET_HT1;
+	delete h_MET_HT2;
+	delete p_MET_vs_HTslice;
+
+
+	TH1D *h_HT_MET0 = p_HT_vs_METslice->ProjectionX("h_HT_MET0",1,1);
+        TH1D *h_HT_MET1 = p_HT_vs_METslice->ProjectionX("h_HT_MET1",2,2);
+        TH1D *h_HT_MET2 = p_HT_vs_METslice->ProjectionX("h_HT_MET2",3,3);
+	
+	TH1D *scaleup_HT_MET_proj[3] = {scaleup_HT_MET->ProjectionX("scaleup_MET0",1,1), scaleup_HT_MET->ProjectionX("scaleup_MET1",2,2), scaleup_HT_MET->ProjectionX("scaleup_MET2",3,3)};
+        TH1D *normup_HT_MET_proj[3] = {normup_HT_MET->ProjectionX("normup_MET0",1,1), normup_HT_MET->ProjectionX("normup_MET1",2,2), normup_HT_MET->ProjectionX("normup_MET2",3,3)};
+        TH1D *jesup_HT_MET_proj[3] = {jesup_HT_MET->ProjectionX("jesup_MET0",1,1), jesup_HT_MET->ProjectionX("jesup_MET1",2,2), jesup_HT_MET->ProjectionX("jesup_MET2",3,3)};
+        TH1D *jesdo_HT_MET_proj[3] = {jesdo_HT_MET->ProjectionX("jesdo_MET0",1,1), jesdo_HT_MET->ProjectionX("jesdo_MET1",2,2), jesdo_HT_MET->ProjectionX("jesdo_MET2",3,3)};
+
+	nTotBins = nMETSlices * nBkgHTBins;
+        TH1D *h_HT_MET_concat = new TH1D("h_HT_MET_concat","HT in MET slices; HT / MET slice index; Events",nTotBins, 0, nTotBins);
+        TH1D *p_HT_MET[3] = {h_HT_MET0, h_HT_MET1, h_HT_MET2};
+        for (int i = 0; i < 3; i++) {
+                for (int b = 1; b <= nBkgHTBins; b++) {
+                        int newBin = i*nBkgHTBins + b;
+                        h_HT_MET_concat->SetBinContent(newBin, p_HT_MET[i]->GetBinContent(b));
+                        h_HT_MET_concat->SetBinError  (newBin, p_HT_MET[i]->GetBinError(b));
+                }
+        }
+
+        for (int metSlice = 0; metSlice < 3; metSlice++) {
+                for (int ibin = 1; ibin <= nBkgHTBins; ibin++) {
+                        int concatBin = metSlice * nBkgHTBins + ibin;
+                        double nominal = p_HT_MET[metSlice]->GetBinContent(ibin);
+                        double jeserr = std::max(fabs(jesup_HT_MET_proj[metSlice]->GetBinContent(ibin) - nominal), fabs(jesdo_HT_MET_proj[metSlice]->GetBinContent(ibin) - nominal));
+                        double err2 = pow((p_HT_MET[metSlice]->GetBinContent(ibin)*0.5), 2);
+                        err2 += pow(scaleup_HT_MET_proj[metSlice]->GetBinContent(ibin) - nominal, 2);
+                        err2 += jeserr * jeserr;
+                        h_HT_MET_concat->SetBinError(concatBin, std::sqrt(err2));
+                }
+        }
+        delete h_HT_MET0;
+        delete h_HT_MET1;
+        delete h_HT_MET2;
+        delete p_HT_vs_METslice;
+
 	for(int ibin(1); ibin < p_PhoEt->GetSize(); ibin++){
 		double syserror(0);
 		syserror += pow((scaleup_PhoEt->GetBinContent(ibin)-p_PhoEt->GetBinContent(ibin)),2);

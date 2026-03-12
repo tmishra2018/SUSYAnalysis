@@ -25,13 +25,14 @@
 #include "../../../include/analysis_rawData.h"
 #include "../../../include/analysis_photon.h"
 #include "../../../include/analysis_muon.h"
-#include "../../../include/analysis_ele.h"
 #include "../../../include/analysis_jet.h"
-#include "../../../include/analysis_tools.h"
+#include "../../../include/analysis_ele.h"
 #include "../../../include/analysis_mcData.h"
-#include "../../../src/analysis_rawData.cc"
+#include "../../../include/analysis_tools.h"
+#include "../../../include/analysis_cuts.h"
 #include "../../../src/analysis_ele.cc"
 #include "../../../src/analysis_photon.cc"
+
 bool apply_HEMveto=false;
 bool apply_L1=false;
 
@@ -61,7 +62,7 @@ void Data_analysis_elefakepho(int RunYear, const char *Era){//main
 
   TTree *es =(TTree*)f->Get("ggNtuplizer/EventTree");
 
-  TFile *output = TFile::Open(Form("/eos/uscms/store/user/tmishra/elefakepho/files/plot_elefakepho_DataTnP_dR05_%d%s.root",RunYear,Era),"RECREATE");
+  TFile *output = TFile::Open(Form("/eos/uscms/store/user/tmishra/elefakepho/files/plot_elefakepho_DataTnP_dR05_%d%s_HT-added.root",RunYear,Era),"RECREATE");
   output->cd();
 
   int   tracks(0);
@@ -111,6 +112,8 @@ void Data_analysis_elefakepho(int RunYear, const char *Era){//main
   etree->Branch("mcMomPID",			   &mcMomPID_bothcount);
   etree->Branch("mcGMomPID",		   &mcGMomPID_bothcount);
   etree->Branch("mcType",			   &mcType);
+  float HT(0);  
+  etree->Branch("HT",        &HT);
 
   TTree *rantree = new TTree("FakeRateRandomTree","FakeRateRandomTree");
   float tagEta_random;
@@ -178,9 +181,7 @@ void Data_analysis_elefakepho(int RunYear, const char *Era){//main
 
     std::cout << "total: " << nEvts << std::endl;
     for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
-  
         if (ievt%1000000==0) std::cout << " -- Processing event " << ievt << std::endl;
-
         raw.GetData(es, ievt);
         MCData.clear();
         Photon.clear();
@@ -212,9 +213,10 @@ void Data_analysis_elefakepho(int RunYear, const char *Era){//main
 	if(RunYear==2016 && ((raw.HLTEleMuX >> 4) &1) ==0)continue;  //HLT_Ele27_WPTight_Gsf_v
 	if(RunYear==2017 && ((raw.HLTEleMuX >> 3) &1) ==0)continue;  //HLT_Ele35_WPTight_Gsf_v
 	if(RunYear==2018 && ((raw.HLTEleMuX >> 55) &1) ==0)continue; //HLT_Ele32_WPTight_Gsf_v
-        std::vector<std::vector<recoEle>::iterator> ElectronCollection;
+        
+	std::vector<std::vector<recoEle>::iterator> ElectronCollection;
         ElectronCollection.clear();
-        for(std::vector<recoEle>::iterator itEle = Ele.begin(); itEle != Ele.end(); itEle++){
+	for(std::vector<recoEle>::iterator itEle = Ele.begin(); itEle != Ele.end(); itEle++){
 		   if(itEle->getCalibEt() < pTcut || fabs(itEle->getEta())>2.1)continue;                              // Tag electron selection
 		   //if(!itEle->passHLTSelection())continue;  Explicitly for each year as mentioned below. 
 		   if(RunYear==2016 && !itEle->fireTrgs(12))continue;  //HLT_Ele27_WPTight_Gsf_v
@@ -222,17 +224,63 @@ void Data_analysis_elefakepho(int RunYear, const char *Era){//main
 		   if(RunYear==2018 && !itEle->fireTrgs(13))continue;  //HLT_Ele32_WPTight_Gsf_v
 		   if(itEle->passSignalSelection())ElectronCollection.push_back(itEle); // Tag electron selection
 			// pt > 30 GeV, medium ID, eta < 2.1 electron
-		}
-		
-		std::vector<std::vector<recoPhoton>::iterator> signalPho;
-		std::vector<bool> PhoPixelVeto;
-		std::vector<bool> PhoEleVeto;
-		std::vector<bool> PhoFSRVeto;
-		signalPho.clear(); 
-		PhoPixelVeto.clear();
-		PhoEleVeto.clear();
-		PhoFSRVeto.clear();
-		if(ElectronCollection.size() > 0){
+	}
+
+	bool hasEle(false);
+	std::vector<recoEle>::iterator signalEle = Ele.begin();
+	for(std::vector<recoEle>::iterator itEle = Ele.begin(); itEle != Ele.end(); itEle++){
+                   if(itEle->getCalibPt() < 25)continue;
+                   if((itEle->isEB() && itEle->getR9() < R9EBCut) || (itEle->isEE() && itEle->getR9() < R9EECut))continue;
+                   if(itEle->passSignalSelection()){
+                         if(!hasEle){
+                                hasEle=true;
+                                signalEle = itEle;
+                          }
+                   }
+	}
+
+	std::vector<recoPhoton>::iterator LeadingsignalPho = Photon.begin();
+	bool hasLeadingSigPho(false);
+	for(std::vector<recoPhoton>::iterator itpho = Photon.begin() ; itpho != Photon.end(); ++itpho){
+                                if(itpho->getR9() < 0.5)continue;
+                                if(!itpho->passBasicSelection())continue;
+                                bool passSigma = itpho->passSigma(1);
+                                bool passChIso = itpho->passChIso(1);
+                                bool PixelVeto = itpho->PixelSeed()==0? true: false;
+                                bool GSFveto(true);
+                                bool FSRVeto(true);
+                                for(std::vector<recoEle>::iterator ie = Ele.begin(); ie != Ele.end(); ie++){
+                                        if(DeltaR(itpho->getEta(), itpho->getPhi(), ie->getEta(), ie->getPhi()) <= 0.02)GSFveto = false;
+                                        if(DeltaR(itpho->getEta(), itpho->getPhi(), ie->getEta(), ie->getPhi()) < 0.3)FSRVeto=false;
+                                }
+                                for(std::vector<recoMuon>::iterator im = Muon.begin(); im != Muon.end(); im++)
+                                        if(DeltaR(itpho->getEta(), itpho->getPhi(), im->getEta(), im->getPhi()) < 0.3 && im->getEt()>2.0)FSRVeto=false;
+                                if(!itpho->passSignalSelection())continue;
+                                if(GSFveto && PixelVeto && FSRVeto){
+                                        if(!hasLeadingSigPho){
+                                                hasLeadingSigPho=true;
+                                                LeadingsignalPho = itpho;
+                                        }
+                                }
+         }
+	 
+	 HT = 0;
+	 for(std::vector<recoJet>::iterator itJet = JetCollection.begin() ; itJet != JetCollection.end(); ++itJet){
+                     if(!itJet->passSignalSelection())continue;
+                     if(DeltaR(itJet->getEta(), itJet->getPhi(), signalEle->getEta(), signalEle->getPhi()) <= 0.4)continue;
+                     if(DeltaR(itJet->getEta(), itJet->getPhi(), LeadingsignalPho->getEta(), LeadingsignalPho->getPhi()) <= 0.4)continue;
+                     HT += itJet->getPt();
+         }
+
+	std::vector<std::vector<recoPhoton>::iterator> signalPho;
+	std::vector<bool> PhoPixelVeto;
+	std::vector<bool> PhoEleVeto;
+	std::vector<bool> PhoFSRVeto;
+	signalPho.clear(); 
+	PhoPixelVeto.clear();
+	PhoEleVeto.clear();
+	PhoFSRVeto.clear();
+	if(ElectronCollection.size() > 0){
 		    for(std::vector<recoPhoton>::iterator itpho = Photon.begin() ; itpho != Photon.end(); ++itpho){
 			if(itpho->getCalibEt() < 30)continue;                            // Photon pt and loose selection
 	        	if(itpho->isLoose()){
@@ -257,16 +305,15 @@ void Data_analysis_elefakepho(int RunYear, const char *Era){//main
         }
         
         int nTagEle = ElectronCollection.size();
-	    int randomTag(0);
-	    if(nTagEle>1)randomTag = ran.Integer(nTagEle);
-	    for(int iTag(0); iTag < nTagEle; iTag++){                             // for # of tags (electrons)
+	int randomTag(0);
+	if(nTagEle>1)randomTag = ran.Integer(nTagEle);
+	for(int iTag(0); iTag < nTagEle; iTag++){                             // for # of tags (electrons)
 	      for(unsigned iProbe(0); iProbe < signalPho.size(); iProbe++){       // for # of probes (signal photons)
 	        double dRTagProbe = DeltaR(ElectronCollection[iTag]->getEta(), ElectronCollection[iTag]->getPhi(), signalPho[iProbe]->getEta(), signalPho[iProbe]->getPhi());
 	        double dETagProbe = fabs(ElectronCollection[iTag]->getCalibEt() - signalPho[iProbe]->getCalibEt())/signalPho[iProbe]->getCalibEt();
 	        double InvMass = (ElectronCollection[iTag]->getCalibP4() + signalPho[iProbe]->getCalibP4()).M();
 	        if(dRTagProbe < 0.05 && dETagProbe < 0.1)continue;
 	        if(InvMass < 20 || InvMass > 160)continue;
-              
 	        if(iTag == randomTag){
 			  tagEta_random = ElectronCollection[iTag]->getEta();
 			  tagPhi_random = ElectronCollection[iTag]->getPhi();
@@ -279,8 +326,8 @@ void Data_analysis_elefakepho(int RunYear, const char *Era){//main
 			  invmass_random = InvMass;
 			  invmassUncalib_random = (ElectronCollection[iTag]->getP4() + signalPho[iProbe]->getP4()).M();
 			  vetovalue_random = (PhoPixelVeto[iProbe] && PhoEleVeto[iProbe]);
-				FSRveto_random = PhoFSRVeto[iProbe];
-              if(datatype == MC){
+			  FSRveto_random = PhoFSRVeto[iProbe];
+              	if(datatype == MC){
 				mcPID_random.clear();
 				mcEta_random.clear();
 				mcPhi_random.clear();
@@ -326,7 +373,7 @@ void Data_analysis_elefakepho(int RunYear, const char *Era){//main
               }
             }
 
-			if(datatype == MC){
+	 if(datatype == MC){
 			  mcPID_bothcount.clear();
 			  mcEta_bothcount.clear();
 			  mcPhi_bothcount.clear();
@@ -346,11 +393,11 @@ void Data_analysis_elefakepho(int RunYear, const char *Era){//main
 				  mcPhi_bothcount.push_back(itMC->getPhi());
 				  mcPt_bothcount.push_back(itMC->getEt());
 				}
-		  }
-			}
-            etree->Fill();
-	   }
-	 }
+		  	}
+	}
+        etree->Fill();
+}
+}
            
 
    }//loop on  events

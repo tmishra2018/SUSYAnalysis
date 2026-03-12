@@ -8,17 +8,17 @@
 void findMinLepPt() {
     // List of ROOT files
     std::vector<std::string> files = {
-	"/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGJet130_2016postVFP.root",
-	"/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGJet40_2016postVFP.root",
-	"/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_DYJetsToLL_2016postVFP.root",
-	"/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_TTGJets_2016postVFP.root",
-	"/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_TTJets_2016postVFP.root",
-	"/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGToLNuG_2016postVFP.root",
-	"/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WWG_2016postVFP.root",
-	"/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WW_2016postVFP.root",
-	"/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WZG_2016postVFP.root",
-	"/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WZ_2016postVFP.root",
-	"/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_ZGToLLG_2016postVFP.root"
+	"/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WGJet130_2016postVFP.root",
+	"/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WGJet40_2016postVFP.root",
+	"/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_DYJetsToLL_2016postVFP.root",
+	"/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_TTGJets_2016postVFP.root",
+	"/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_TTJets_2016postVFP.root",
+	"/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WGToLNuG_2016postVFP.root",
+	"/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WWG_2016postVFP.root",
+	"/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WW_2016postVFP.root",
+	"/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WZG_2016postVFP.root",
+	"/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WZ_2016postVFP.root",
+	"/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_ZGToLLG_2016postVFP.root"
 
     };
 
