@@ -239,6 +239,66 @@ void analysis_eg(){//main
 	fakeLeptree->Branch("trailEta",  &fakeLeptrailEta);
 	fakeLeptree->Branch("trailPhi",  &fakeLeptrailPhi);
 
+//*********** double fake (fake photon + fake lepton) ***********//
+  TTree *doubleFaketree = new TTree("doubleFakeTree","doubleFakeTree");
+  float doubleFakephoEt(0);
+  float doubleFakephoEta(0);
+  float doubleFakephoPhi(0);
+  float doubleFakephoChIso(0);
+  float doubleFakephoSigma(0);
+  int   doubleFakephoType(0); // 0: e->gamma proxy, 1: jet->gamma proxy
+  int   doubleFakephoFSRVeto(0);
+  float doubleFakelepPt(0);
+  float doubleFakelepEta(0);
+  float doubleFakelepPhi(0);
+  float doubleFakelepMiniIso(0);
+  int   doubleFakelepIsStandardProxy(0);
+  float doubleFakelepSigma(0);
+  float doubleFakelepdEta(0);
+  float doubleFakelepdPhi(0);
+  float doubleFakesigMT(0);
+  float doubleFakesigMET(0);
+  float doubleFakesigMETPhi(0);
+  float doubleFakedPhiLepMET(0);
+  int   doubleFakenVertex(0);
+  float doubleFakedRPhoLep(0);
+  float doubleFakeHT(0);
+  float doubleFakenJet(0);
+  float doubleFaketrailPt(0);
+  float doubleFaketrailEta(0);
+  float doubleFaketrailPhi(0);
+
+  doubleFaketree->Branch("run",       &run);
+  doubleFaketree->Branch("event",     &event);
+  doubleFaketree->Branch("lumis",     &lumis);
+  doubleFaketree->Branch("phoEt",     &doubleFakephoEt);
+  doubleFaketree->Branch("phoEta",    &doubleFakephoEta);
+  doubleFaketree->Branch("phoPhi",    &doubleFakephoPhi);
+  doubleFaketree->Branch("phoChIso",  &doubleFakephoChIso);
+  doubleFaketree->Branch("phoSigma",  &doubleFakephoSigma);
+  doubleFaketree->Branch("phoType",   &doubleFakephoType);
+  doubleFaketree->Branch("phoFSRVeto",&doubleFakephoFSRVeto);
+  doubleFaketree->Branch("lepPt",     &doubleFakelepPt);
+  doubleFaketree->Branch("lepEta",    &doubleFakelepEta);
+  doubleFaketree->Branch("lepPhi",    &doubleFakelepPhi);
+  doubleFaketree->Branch("lepMiniIso",&doubleFakelepMiniIso);
+  doubleFaketree->Branch("lepIsStandardProxy", &doubleFakelepIsStandardProxy);
+  doubleFaketree->Branch("lepSigma",  &doubleFakelepSigma);
+  doubleFaketree->Branch("lepdEta",   &doubleFakelepdEta);
+  doubleFaketree->Branch("lepdPhi",   &doubleFakelepdPhi);
+  doubleFaketree->Branch("sigMT",     &doubleFakesigMT);
+  doubleFaketree->Branch("sigMET",    &doubleFakesigMET);
+  doubleFaketree->Branch("sigMETPhi", &doubleFakesigMETPhi);
+  doubleFaketree->Branch("dPhiLepMET",&doubleFakedPhiLepMET);
+  doubleFaketree->Branch("nVertex",   &doubleFakenVertex);
+  doubleFaketree->Branch("dRPhoLep",  &doubleFakedRPhoLep);
+  doubleFaketree->Branch("HT",        &doubleFakeHT);
+  doubleFaketree->Branch("nJet",      &doubleFakenJet);
+  doubleFaketree->Branch("nBJet",     &nBJet);
+  doubleFaketree->Branch("trailPt",   &doubleFaketrailPt);
+  doubleFaketree->Branch("trailEta",  &doubleFaketrailEta);
+  doubleFaketree->Branch("trailPhi",  &doubleFaketrailPhi);
+
 //*************** for jet-photon fake rate ***********************//
 	TTree *hadrontree = new TTree("hadronTree","hadronTree");
 	float hadron_phoEt(0);
@@ -720,6 +780,126 @@ void analysis_eg(){//main
 				} // loop on pho collection
 			}
 
+			if(!hasPho && !hasLep){
+				for(unsigned il(0); il < fakeLepCollection.size(); il++){
+					std::vector<recoEle>::iterator fakeLep = fakeLepCollection[il];
+
+					for(unsigned ip(0); ip < proxyPhoCollection.size(); ip++){
+						std::vector<recoPhoton>::iterator doubleFakePho = proxyPhoCollection[ip];
+						double dRlepphoton = DeltaR(doubleFakePho->getEta(), doubleFakePho->getPhi(), fakeLep->getEta(), fakeLep->getPhi());
+						if(dRlepphoton <= 0.8)continue;
+						if(fabs((doubleFakePho->getCalibP4()+fakeLep->getCalibP4()).M() - 91.188) <= 10.0)continue;
+						if(!raw.passMETFilter(METFilter))continue;
+
+						float doubleFake_deltaPhi = DeltaPhi(fakeLep->getPhi(), METPhi);
+						float doubleFake_MT = sqrt(2*MET*fakeLep->getCalibPt()*(1-std::cos(doubleFake_deltaPhi)));
+
+						doubleFakephoEt = doubleFakePho->getCalibEt();
+						doubleFakephoEta= doubleFakePho->getEta();
+						doubleFakephoPhi= doubleFakePho->getPhi();
+						doubleFakephoChIso = doubleFakePho->getChIso();
+						doubleFakephoSigma = doubleFakePho->getSigma();
+						doubleFakephoType = 0;
+						doubleFakephoFSRVeto = proxyPhoFSRVeto[ip];
+
+						doubleFakelepPt = fakeLep->getCalibPt();
+						doubleFakelepEta = fakeLep->getEta();
+						doubleFakelepPhi = fakeLep->getPhi();
+						doubleFakelepMiniIso = fakeLep->getMiniIso();
+						doubleFakelepIsStandardProxy = fakeLep->isFakeProxy()? 1:0;
+						doubleFakelepSigma = fakeLep->getSigma();
+						doubleFakelepdEta  = fabs(fakeLep->getdEtaIn());
+						doubleFakelepdPhi  = fabs(fakeLep->getdPhiIn());
+
+						doubleFakesigMT = doubleFake_MT;
+						doubleFakesigMET = MET;
+						doubleFakesigMETPhi = METPhi;
+						doubleFakedPhiLepMET = doubleFake_deltaPhi;
+						doubleFakenVertex = nVtx;
+						doubleFakedRPhoLep = dRlepphoton;
+
+						if(hasTrail){
+							doubleFaketrailPt = trailLep->getPt();
+							doubleFaketrailEta = trailLep->getEta();
+							doubleFaketrailPhi = trailLep->getPhi();
+						}
+						else{
+							doubleFaketrailPt = 0;
+							doubleFaketrailEta = 0;
+							doubleFaketrailPhi = 0;
+						}
+
+						doubleFakenJet = 0;
+						doubleFakeHT = 0;
+						for(std::vector<recoJet>::iterator itJet = JetCollection.begin() ; itJet != JetCollection.end(); ++itJet){
+							if(!itJet->passSignalSelection())continue;
+							if(DeltaR(itJet->getEta(), itJet->getPhi(), doubleFakePho->getEta(),doubleFakePho->getPhi()) <= 0.4)continue;	
+							if(DeltaR(itJet->getEta(), itJet->getPhi(), fakeLep->getEta(),fakeLep->getPhi()) <= 0.4)continue;
+							doubleFakenJet += 1;
+							doubleFakeHT += itJet->getPt();
+						}
+						doubleFaketree->Fill();
+					}
+
+					for(unsigned ip(0); ip < jetPhoCollection.size(); ip++){
+						std::vector<recoPhoton>::iterator doubleFakePho = jetPhoCollection[ip];
+						double dRlepphoton = DeltaR(doubleFakePho->getEta(), doubleFakePho->getPhi(), fakeLep->getEta(), fakeLep->getPhi());
+						if(dRlepphoton <= 0.8)continue;
+						if(fabs((doubleFakePho->getCalibP4()+fakeLep->getCalibP4()).M() - 91.188) <= 10.0)continue;
+						if(!raw.passMETFilter(METFilter))continue;
+
+						float doubleFake_deltaPhi = DeltaPhi(fakeLep->getPhi(), METPhi);
+						float doubleFake_MT = sqrt(2*MET*fakeLep->getCalibPt()*(1-std::cos(doubleFake_deltaPhi)));
+
+						doubleFakephoEt = doubleFakePho->getCalibEt();
+						doubleFakephoEta= doubleFakePho->getEta();
+						doubleFakephoPhi= doubleFakePho->getPhi();
+						doubleFakephoChIso = doubleFakePho->getChIso();
+						doubleFakephoSigma = doubleFakePho->getSigma();
+						doubleFakephoType = 1;
+						doubleFakephoFSRVeto = 1;
+
+						doubleFakelepPt = fakeLep->getCalibPt();
+						doubleFakelepEta = fakeLep->getEta();
+						doubleFakelepPhi = fakeLep->getPhi();
+						doubleFakelepMiniIso = fakeLep->getMiniIso();
+						doubleFakelepIsStandardProxy = fakeLep->isFakeProxy()? 1:0;
+						doubleFakelepSigma = fakeLep->getSigma();
+						doubleFakelepdEta  = fabs(fakeLep->getdEtaIn());
+						doubleFakelepdPhi  = fabs(fakeLep->getdPhiIn());
+
+						doubleFakesigMT = doubleFake_MT;
+						doubleFakesigMET = MET;
+						doubleFakesigMETPhi = METPhi;
+						doubleFakedPhiLepMET = doubleFake_deltaPhi;
+						doubleFakenVertex = nVtx;
+						doubleFakedRPhoLep = dRlepphoton;
+
+						if(hasTrail){
+							doubleFaketrailPt = trailLep->getPt();
+							doubleFaketrailEta = trailLep->getEta();
+							doubleFaketrailPhi = trailLep->getPhi();
+						}
+						else{
+							doubleFaketrailPt = 0;
+							doubleFaketrailEta = 0;
+							doubleFaketrailPhi = 0;
+						}
+
+						doubleFakenJet = 0;
+						doubleFakeHT = 0;
+						for(std::vector<recoJet>::iterator itJet = JetCollection.begin() ; itJet != JetCollection.end(); ++itJet){
+							if(!itJet->passSignalSelection())continue;
+							if(DeltaR(itJet->getEta(), itJet->getPhi(), doubleFakePho->getEta(),doubleFakePho->getPhi()) <= 0.4)continue;	
+							if(DeltaR(itJet->getEta(), itJet->getPhi(), fakeLep->getEta(),fakeLep->getPhi()) <= 0.4)continue;
+							doubleFakenJet += 1;
+							doubleFakeHT += itJet->getPt();
+						}
+						doubleFaketree->Fill();
+					}
+				}
+			}
+
 
 		if(hasHadronPho || hadeleproxyPhoCollection.size() > 0){
 			hadron_phoEt = 0;
@@ -821,5 +1001,4 @@ void analysis_eg(){//main
 	skimfile->Close();
 	logfile.close();
 }
-
 
