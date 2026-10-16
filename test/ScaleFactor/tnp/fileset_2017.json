@@ -1,0 +1,24 @@
+{
+  "data_2017": {
+    "files": {
+      "/eos/uscms/store/user/tmishra/TnP_ggNtuple/2017/tnp_SingleElectron_2017B.root": "tnpEleIDs/fitter_tree",
+      "/eos/uscms/store/user/tmishra/TnP_ggNtuple/2017/tnp_SingleElectron_2017C.root": "tnpEleIDs/fitter_tree",
+      "/eos/uscms/store/user/tmishra/TnP_ggNtuple/2017/tnp_SingleElectron_2017D.root": "tnpEleIDs/fitter_tree",
+      "/eos/uscms/store/user/tmishra/TnP_ggNtuple/2017/tnp_SingleElectron_2017E.root": "tnpEleIDs/fitter_tree",
+      "/eos/uscms/store/user/tmishra/TnP_ggNtuple/2017/tnp_SingleElectron_2017F.root": "tnpEleIDs/fitter_tree"
+    },
+    "metadata": {
+      "isMC": false,
+      "goldenJSON": "/cvmfs/cms-griddata.cern.ch/cat/metadata/DC/Collisions17/latest/13TeV/Legacy_2017/Cert_294927-306462_13TeV_UL2017_Collisions17_GoldenJSON.txt"
+    }
+  },
+  "DY_2017": {
+    "files": {
+      "/eos/uscms/store/user/tmishra/TnP_ggNtuple/2017/tnp_DY_2017.root": "tnpEleIDs/fitter_tree"
+    },
+    "metadata": {
+      "isMC": true,
+      "pileupJSON": "/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/ScaleFactor/tnp/pileup_2017.json"
+    }
+  }
+}

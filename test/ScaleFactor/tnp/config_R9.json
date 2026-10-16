@@ -1,0 +1,12 @@
+{
+  "workflow": "ElectronTagNProbeFromMiniNTuples",
+  "workflow_args": {
+    "filters": {"passingR9": "passingR9"}
+  },
+  "methods": [
+    {
+      "name": "get_nd_tnp_histograms",
+      "args": {"filter": "passingR9", "cut_and_count": false, "vars": ["el_eta", "el_pt"]}
+    }
+  ]
+}

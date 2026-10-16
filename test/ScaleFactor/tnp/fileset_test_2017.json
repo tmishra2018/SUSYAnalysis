@@ -1,0 +1,4 @@
+{
+  "data_2017C": {"files": {"/tmp/claude-53863/-uscms-homes-t-tmishra-work-CMSSW-14-1-0-pre4-src-HiggsAnalysis-CombinedLimit-tools/62e255e7-08c0-4541-844f-996068244579/scratchpad/tnptest/tnp_data_2017C.root": "tnpEleIDs/fitter_tree"}},
+  "DY_2017": {"files": {"/tmp/claude-53863/-uscms-homes-t-tmishra-work-CMSSW-14-1-0-pre4-src-HiggsAnalysis-CombinedLimit-tools/62e255e7-08c0-4541-844f-996068244579/scratchpad/tnptest/tnp_DY_2017.root": "tnpEleIDs/fitter_tree"}, "metadata": {"isMC": true}}
+}

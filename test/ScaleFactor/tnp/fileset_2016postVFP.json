@@ -1,0 +1,22 @@
+{
+  "data_2016postVFP": {
+    "files": {
+      "/eos/uscms/store/user/tmishra/TnP_ggNtuple/2016postVFP/tnp_SingleElectron_2016F_postVFP.root": "tnpEleIDs/fitter_tree",
+      "/eos/uscms/store/user/tmishra/TnP_ggNtuple/2016postVFP/tnp_SingleElectron_2016G.root": "tnpEleIDs/fitter_tree",
+      "/eos/uscms/store/user/tmishra/TnP_ggNtuple/2016postVFP/tnp_SingleElectron_2016H.root": "tnpEleIDs/fitter_tree"
+    },
+    "metadata": {
+      "isMC": false,
+      "goldenJSON": "/cvmfs/cms-griddata.cern.ch/cat/metadata/DC/Collisions16/latest/13TeV/Legacy_2016/Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt"
+    }
+  },
+  "DY_2016postVFP": {
+    "files": {
+      "/eos/uscms/store/user/tmishra/TnP_ggNtuple/2016postVFP/tnp_DY_2016postVFP.root": "tnpEleIDs/fitter_tree"
+    },
+    "metadata": {
+      "isMC": true,
+      "pileupJSON": "/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/ScaleFactor/tnp/pileup_2016postVFP.json"
+    }
+  }
+}

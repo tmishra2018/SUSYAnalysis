@@ -22,8 +22,8 @@ enum MCType{
 	WZ = 13,
   W  = 14,
 	QCDEM30 = 15, // not used
-	QCDEM40 = 16, // not used 
-	QCDMU = 17, // not used 
+	QCDEM40 = 16,
+	QCDMU20 = 17,
 	GJet = 18,  
 
 	T5WgmG1800mLSP800 = 19,
@@ -32,14 +32,25 @@ enum MCType{
 	T5WgmG1500mLSP1 = 22,
   generalMC = 23,
   ZZ = 24,
-  nMCType = 25
+  QCDHT50to100 = 25,
+  QCDHT100to200 = 26,
+  QCDHT200to300 = 27,
+  QCDHT300to500 = 28,
+  QCDHT500to700 = 29,
+  QCDHT700to1000 = 30,
+  QCDHT1000to1500 = 31,
+  QCDHT1500to2000 = 32,
+  QCDHT2000toInf = 33,
+  nMCType = 34
 };
 
 // XSec for T5Wg_mG-1800_mLSP-800  = .001027
 // XSec for TChiWg_mChi-1000_mLSP-1 = .001019
 // multiplied a k-factor of 1.34 on WGToLNuG, WGJet samples
 
-double MC_XS[25] = {1, 551.008 /*WGToLNuG*/, 26.5454/*WGJet40*/, 1.083658/*WGJet130*/, 51.53 /*ZGInclusive*/, 6424.0/*DY*/, 3.774/*TTG*/, 0.3369/*WWG*/, 0.07876/*WZG*/, 18610, 0.143, 734.6/*TTBar*/, 75.95/*WW*/, 27.55/*WZ*/, 61526.7/*W*/, 108000000/*QCDEM30*/, 113100.0 /*QCDEM40*/, 1/*MU*/, 874.2/*GJet*/, 0.001027 /*T5Wg_mG-1800_mLSP-800*/, 0.001019 /*TChiWg_mChi-1000_mLSP-1*/, 0.001057/*T5Wg_mG-1800_mLSP-1600*/,   0.005763 /*T5Wg_mG-1500_mLSP-1*/, 1, 12.23/*ZZ*/};
+double MC_XS[34] = {1, 411.2 /*WGToLNuG*/, 19.81/*WGJet40*/, 0.8087/*WGJet130*/, 51.53 /*ZGInclusive*/, 6424.0/*DY*/, 3.774/*TTG*/, 0.3369/*WWG*/, 0.07876/*WZG*/, 18610, 0.143, 734.6/*TTBar*/, 75.95/*WW*/, 27.55/*WZ*/, 61526.7/*W*/, 108000000/*QCDEM30*/, 116400.0 /*QCDEM40*/, 240100.0/*QCDMU20*/, 874.2/*GJet*/, 0.001027 /*T5Wg_mG-1800_mLSP-800*/, 0.001019 /*TChiWg_mChi-1000_mLSP-1*/, 0.001057/*T5Wg_mG-1800_mLSP-1600*/,   0.005763 /*T5Wg_mG-1500_mLSP-1*/, 1, 12.23/*ZZ*/,
+187700000.0 /*QCDHT50to100*/, 23500000.0 /*QCD_HT100to200*/, 1552000.0 /*QCD_HT200to300*/,
+	321100.0/*QCDHT300to500*/, 30250.0/*QCDHT500to700*/, 6398.0/*QCDHT700to1000*/, 1122.0/*QCDHT1000to1500*/, 109.4/*QCDHT1500to2000*/, 21.74 /*QCDHT2000toInf*/};
 
 
 /* 117400.0 QCDEM40 for 2017*/
@@ -205,20 +216,41 @@ float PrefireWeight(int mcType, rawData raw){
 	else return raw.L1ECALPrefire;
 }
 
+
 int StartHEM = 319077;
-double passHEMVeto(int mcType, rawData raw){
-    if(mcType==0 && raw.run < StartHEM) return true;
-    for(int iJet(0); iJet < raw.nJet; iJet++){
-        if(recoJet(raw, iJet).getPt() > 30 && recoJet(raw, iJet).getEta() > -3.2 && recoJet(raw, iJet).getEta() < -1.2 && recoJet(raw, iJet).getPhi() > -1.77 && recoJet(raw, iJet).getPhi() < -0.67 && DeltaPhi(recoJet(raw, iJet).getPhi(),raw.pfMETPhi)<0.5) 
-	return false;
+// fracHEM = luminosity after run 319077 / total 2018 luminosity, measured
+// per channel directly from DoubleEG/MuonEG data event counts
+double fracHEM_eg = 0.646224;
+double fracHEM_mg = 0.640808;
+
+double passHEMVeto(int mcType, rawData raw, double fracHEM){
+
+    bool applyVeto = false;
+
+    if(mcType == 0){
+        applyVeto = (raw.run >= StartHEM);
+    } else {
+        applyVeto = ((raw.event % 1000) < static_cast<Long64_t>(fracHEM * 1000 + 0.5));
     }
 
-    for(int iEle(0); iEle < raw.nEle; iEle++){
-	if(recoEle(raw, iEle).getCalibEt() > 30 && recoEle(raw, iEle).getEta() > -3.0 && recoEle(raw, iEle).getEta() < -1.4 && recoEle(raw, iEle).getPhi() > -1.57 && recoEle(raw, iEle).getPhi() < -0.87) 
-	return false;
+    if(!applyVeto) return true;
+
+    for(int iJet(0); iJet < raw.nJet; iJet++){
+        if(recoJet(raw, iJet).getPt() > 30 &&
+           recoJet(raw, iJet).getEta() > -3.2 && recoJet(raw, iJet).getEta() < -1.2 &&
+           recoJet(raw, iJet).getPhi() > -1.77 && recoJet(raw, iJet).getPhi() < -0.67 &&
+           DeltaPhi(recoJet(raw, iJet).getPhi(), raw.pfMETPhi) < 0.5)
+            return false;
     }
-        return true;   
+    for(int iEle(0); iEle < raw.nEle; iEle++){
+        if(recoEle(raw, iEle).getCalibEt() > 30 &&
+           recoEle(raw, iEle).getEta() > -3.0 && recoEle(raw, iEle).getEta() < -1.4 &&
+           recoEle(raw, iEle).getPhi() > -1.57 && recoEle(raw, iEle).getPhi() < -0.87)
+            return false;
+    }
+    return true;
 }
+
 
 double passPixelIssue17(rawData raw){
     for(int iEle(0); iEle < raw.nEle; iEle++){
@@ -729,7 +761,50 @@ Double_t sigPtBins[]={25,50,100,150,200,300,500,800};
 int nSigPtBins= sizeof(sigPtBins)/sizeof(sigPtBins[0])-1;
 Double_t sigMETBins[]={0,20,40,60,80,100,120,150,200,250,300,350,400,600};
 int nSigMETBins= sizeof(sigMETBins)/sizeof(sigMETBins[0]) -1;
-Double_t sigMtBins[]={100,200,300,400,600,1000};
+
+Double_t sigMtBins[]={0,20,40,60,80,100,120,140,160,180,200,300,400,500,600,800,1000};
+//Double_t sigMtBins[]={100,200,300,400,600,1000};
 int nSigMtBins= sizeof(sigMtBins)/sizeof(sigMtBins[0]) -1;
 Double_t sigHTBins[]={0,100,200,300,400,800,1500,2000};
 int nSigHTBins= sizeof(sigHTBins)/sizeof(sigHTBins[0]) -1;
+
+//************ Golden JSON lumi mask (data only) **********************//
+// Usage: loadGolden(RunYear) once before the event loop, then
+//        if(!isMC && !passGolden(raw.run, raw.lumis)) continue;
+#include <map>
+#include <vector>
+#include <utility>
+#include <fstream>
+#include <sstream>
+#include <cctype>
+inline std::map<int, std::vector<std::pair<int,int> > >& goldenMask(){
+  static std::map<int, std::vector<std::pair<int,int> > > mask;
+  return mask;
+}
+inline bool loadGolden(int year){
+  const char* path = Form("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/golden/golden_%d.json", year);
+  std::ifstream in(path);
+  if(!in.is_open()){ std::cerr << "Error: cannot open golden JSON " << path << std::endl; return false; }
+  std::stringstream ss; ss << in.rdbuf(); const std::string s = ss.str();
+  std::map<int, std::vector<std::pair<int,int> > >& mask = goldenMask();
+  mask.clear();
+  int run(-1), first(-1);
+  for(size_t i(0); i < s.size(); ++i){
+    if(s[i] == '"'){ size_t j = s.find('"', i+1); run = std::stoi(s.substr(i+1, j-i-1)); first = -1; i = j; }
+    else if(isdigit(s[i])){
+      size_t j = i; while(j < s.size() && isdigit(s[j])) ++j;
+      int val = std::stoi(s.substr(i, j-i));
+      if(first < 0) first = val; else { mask[run].push_back(std::make_pair(first, val)); first = -1; }
+      i = j-1;
+    }
+  }
+  std::cout << "Loaded golden JSON " << path << " : " << mask.size() << " runs" << std::endl;
+  return !mask.empty();
+}
+inline bool passGolden(int run, int lumi){
+  const std::map<int, std::vector<std::pair<int,int> > >& mask = goldenMask();
+  std::map<int, std::vector<std::pair<int,int> > >::const_iterator it = mask.find(run);
+  if(it == mask.end()) return false;
+  for(const auto& r : it->second) if(lumi >= r.first && lumi <= r.second) return true;
+  return false;
+}

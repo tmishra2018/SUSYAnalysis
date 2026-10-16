@@ -22,6 +22,7 @@ void analysis_eg(int RunYear, const char *Era){//main
   TChain* es = new TChain("ggNtuplizer/EventTree");
   es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/DoubleEG/DoubleEG_%d%s.root",RunYear,Era));
   if(RunYear==2018) apply_HEMveto=true; 
+  if(!isMC && !loadGolden(RunYear)) return;
   
   const unsigned nEvts = es->GetEntries();
   logfile << "Total event: " << nEvts << std::endl;
@@ -30,14 +31,16 @@ void analysis_eg(int RunYear, const char *Era){//main
 
   int nTotal(0),npassHLT(0), npassPho(0), npassLep(0), npassLepPho(0), npassdR(0), npassZ(0), npassMETFilter(0);
 
-  TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,Era),"RECREATE");
+  TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s_noHLT.root",RunYear,Era),"RECREATE");
   outputfile->cd();
   TH1D *p_METFilter = new TH1D("p_METFilter","",12,-2,10);	
   TH1D *p_invmass = new TH1D("p_invmass","",200,0,200);	
 
   int nBJet(0);
+  bool passHEMVeto_val(true); // true = passes HEM veto (or not applicable for this year), false = fails
   //************ Signal Tree **********************//
   TTree *sigtree = new TTree("signalTree","signalTree");
+  float eg_invmass(0);
   int   run(0);
   Long64_t  event(0);
   int   lumis(0);
@@ -86,6 +89,8 @@ void analysis_eg(int RunYear, const char *Era){//main
   sigtree->Branch("trailPt",   &trailPt);
   sigtree->Branch("trailEta",  &trailEta);
   sigtree->Branch("trailPhi",  &trailPhi);
+  sigtree->Branch("passHEMVeto", &passHEMVeto_val);
+  sigtree->Branch("eg_invmass", &eg_invmass);
   if(isMC){
   	sigtree->Branch("mcPID",     &mcPID);
   	sigtree->Branch("mcEta",     &mcEta);
@@ -97,6 +102,7 @@ void analysis_eg(int RunYear, const char *Era){//main
 
 //************ Signal Tree **********************//
   TTree *proxytree = new TTree("proxyTree","proxyTree");
+  float proxyeg_invmass(0);
   float proxyphoEt(0);
   float proxyphoEta(0);
   float proxyphoPhi(0);
@@ -140,9 +146,12 @@ void analysis_eg(int RunYear, const char *Era){//main
   proxytree->Branch("trailPt",   &proxytrailPt);
   proxytree->Branch("trailEta",  &proxytrailEta);
   proxytree->Branch("trailPhi",  &proxytrailPhi);
+  proxytree->Branch("passHEMVeto", &passHEMVeto_val);
+  proxytree->Branch("eg_invmass", &proxyeg_invmass);
 
 //************ Signal Tree **********************//
   TTree *jettree = new TTree("jetTree","jetTree");
+  float jeteg_invmass(0);
   float jetphoEt(0);
   float jetphoEta(0);
   float jetphoPhi(0);	
@@ -186,9 +195,12 @@ void analysis_eg(int RunYear, const char *Era){//main
   jettree->Branch("trailPt",   &jettrailPt);
   jettree->Branch("trailEta",  &jettrailEta);
   jettree->Branch("trailPhi",  &jettrailPhi);
+  jettree->Branch("passHEMVeto", &passHEMVeto_val);
+  jettree->Branch("eg_invmass", &jeteg_invmass);
   
 //*********** fake lepton *********************//
   TTree *fakeLeptree = new TTree("fakeLepTree","fakeLepTree");
+  float fakeLepeg_invmass(0);
   float fakeLepphoEt(0);
   float fakeLepphoEta(0);
   float fakeLepphoPhi(0);
@@ -241,9 +253,13 @@ void analysis_eg(int RunYear, const char *Era){//main
   fakeLeptree->Branch("trailPt",   &fakeLeptrailPt);
   fakeLeptree->Branch("trailEta",  &fakeLeptrailEta);
   fakeLeptree->Branch("trailPhi",  &fakeLeptrailPhi);
+  fakeLeptree->Branch("passHEMVeto", &passHEMVeto_val);
+  fakeLeptree->Branch("eg_invmass", &fakeLepeg_invmass);
 
 //*************** for jet-photon fake rate ***********************//
 	TTree *hadrontree = new TTree("hadronTree","hadronTree");
+	float hadron_eg_invmass(0);
+	std::vector<float> hadron_eleproxy_eg_invmass;
 	float hadron_phoEt(0);
 	float hadron_phoEta(0);
 	float hadron_phoPhi(0);
@@ -286,6 +302,9 @@ void analysis_eg(int RunYear, const char *Era){//main
 	hadrontree->Branch("nVertex",   &hadron_nVertex);
 	hadrontree->Branch("HT",        &hadron_HT);
 	hadrontree->Branch("nJet",      &hadron_nJet);
+	hadrontree->Branch("passHEMVeto", &passHEMVeto_val);
+	hadrontree->Branch("eg_invmass", &hadron_eg_invmass);
+	hadrontree->Branch("eleproxy_eg_invmass", &hadron_eleproxy_eg_invmass);
 	if(isMC){
 		hadrontree->Branch("mcPID",     &hadron_mcPID);
 		hadrontree->Branch("mcEta",     &hadron_mcEta);
@@ -321,6 +340,7 @@ void analysis_eg(int RunYear, const char *Era){//main
 		if (ievt%1000000==0) logfile  << " -- Processing event " << ievt << std::endl;
 
 			raw.GetData(es, ievt);
+			if(!isMC && !passGolden(raw.run, raw.lumis)) continue;
 			MCData.clear();
 			Photon.clear();
 			Muon.clear();
@@ -340,10 +360,13 @@ void analysis_eg(int RunYear, const char *Era){//main
 			lumis=raw.lumis;
 
 			nTotal+=1;
-			if(RunYear==2018 && !passHEMVeto(0,raw)) continue;
-        		passHEM++;
+			passHEMVeto_val = true;
+			if(RunYear==2018){
+				passHEMVeto_val = passHEMVeto(0,raw,0.0);
+				if(passHEMVeto_val) passHEM++;
+			}
 
-			if(!raw.passHLT())continue;
+			//if(!raw.passHLT())continue;
 			if(raw.nGoodVtx < 1)continue;
 			npassHLT+=1;
 			// eg combination
@@ -485,8 +508,7 @@ void analysis_eg(int RunYear, const char *Era){//main
 					float tempdeltaPhi = DeltaPhi(signalLep->getPhi(), METPhi);
 					float tempMT = sqrt(2*MET*signalLep->getCalibPt()*(1-std::cos(tempdeltaPhi)));
 					if(fabs(signalPho->getEta()) < 1.4442 && tempMT > 100 && MET > 100)p_invmass->Fill((signalPho->getCalibP4()+signalLep->getCalibP4()).M());
-					if(((signalPho->getCalibP4()+signalLep->getCalibP4()).M() - 91.188) > 10.0){
-
+					if (fabs((signalPho->getCalibP4() + signalLep->getCalibP4()).M() - 91.188) > 10.0) {
 						npassZ+=1;
 						p_METFilter->Fill(-2);
 						p_METFilter->Fill(raw.failFilterStep(RunYear, METFilter));
@@ -549,6 +571,7 @@ void analysis_eg(int RunYear, const char *Era){//main
           	 	 					}
 							}
 
+							eg_invmass = (signalPho->getCalibP4()+signalLep->getCalibP4()).M();
 							sigtree->Fill();
 						}//MET Filter
 					}// Z mass Filter
@@ -563,7 +586,7 @@ void analysis_eg(int RunYear, const char *Era){//main
 					std::vector<recoEle>::iterator proxyEle = proxyLepCollection[ie];
 					double dRlepphoton = DeltaR(proxyPho->getEta(), proxyPho->getPhi(), proxyEle->getEta(), proxyEle->getPhi());
 					if(dRlepphoton>0.8){
-						if(((proxyPho->getCalibP4()+proxyEle->getCalibP4()).M() - 91.188) > 10.0){
+						if (fabs((proxyPho->getCalibP4() + proxyEle->getCalibP4()).M() - 91.188) > 10.0) {
 							if(raw.passMETFilter(RunYear, METFilter)){
 
 								float proxy_deltaPhi = DeltaPhi(proxyEle->getPhi(), METPhi);
@@ -601,6 +624,7 @@ void analysis_eg(int RunYear, const char *Era){//main
 									proxynJet += 1;
 									proxyHT += itJet->getPt();
 								}
+								proxyeg_invmass = (proxyPho->getCalibP4()+proxyEle->getCalibP4()).M();
 								proxytree->Fill();
 
 
@@ -619,7 +643,7 @@ void analysis_eg(int RunYear, const char *Era){//main
 						std::vector<recoPhoton>::iterator jetPho = jetPhoCollection[ip];
 						double dRlepphoton = DeltaR(jetPho->getEta(), jetPho->getPhi(), jetEle->getEta(), jetEle->getPhi());
 						if(dRlepphoton>0.8){
-							if(((jetPho->getCalibP4()+jetEle->getCalibP4()).M() - 91.188) > 10.0){
+							if (fabs((jetPho->getCalibP4() + jetEle->getCalibP4()).M() - 91.188) > 10.0) {
 								if(raw.passMETFilter(RunYear, METFilter)){
 									float jet_deltaPhi = DeltaPhi(jetEle->getPhi(), METPhi);
 									float jet_MT = sqrt(2*MET*jetEle->getCalibPt()*(1-std::cos(jet_deltaPhi)));
@@ -656,6 +680,7 @@ void analysis_eg(int RunYear, const char *Era){//main
 										jetnJet += 1;
 										jetHT += itJet->getPt();	
 									}
+									jeteg_invmass = (jetPho->getCalibP4()+jetEle->getCalibP4()).M();
 									jettree->Fill();
 							}//MET Filter
 						}// Z mass Filter
@@ -670,7 +695,7 @@ void analysis_eg(int RunYear, const char *Era){//main
 					std::vector<recoEle>::iterator fakeLep = fakeLepCollection[ip];
 					double dRlepphoton = DeltaR(fakeLepPho->getEta(), fakeLepPho->getPhi(), fakeLep->getEta(), fakeLep->getPhi());
 					if(dRlepphoton>0.8){
-						if(((fakeLepPho->getCalibP4()+fakeLep->getCalibP4()).M() - 91.188) > 10.0){
+						if (fabs((fakeLepPho->getCalibP4() + fakeLep->getCalibP4()).M() - 91.188) > 10.0) {
 							if(raw.passMETFilter(RunYear, METFilter)){
 
 								fakeLepdRPhoLep = 3;
@@ -721,6 +746,7 @@ void analysis_eg(int RunYear, const char *Era){//main
 									fakeLepHT += itJet->getPt();
 								}	
 
+								fakeLepeg_invmass = (fakeLepPho->getCalibP4()+fakeLep->getCalibP4()).M();
 								fakeLeptree->Fill();
 							}//MET Filter
 						}// Z mass Filter
@@ -742,11 +768,12 @@ void analysis_eg(int RunYear, const char *Era){//main
 			hadron_nVertex = 0;
 			hadron_HT = 0;
 			hadron_nJet = 0;
+			hadron_eg_invmass = 0;
 
 			if(hasHadronPho && hasLep){
 				double DeltaPhoLep = DeltaR(hadronPho->getEta(), hadronPho->getPhi(), signalLep->getEta(), signalLep->getPhi());
 				double DoubleMass  = (hadronPho->getP4()+signalLep->getP4()).M();
-				if(DeltaPhoLep > 0.8 && DoubleMass > 90 && (DoubleMass - 91.188) > 10.0){
+				if (DeltaPhoLep > 0.8 && DoubleMass > 90 && fabs(DoubleMass - 91.188) > 10.0) {
 				if(raw.passMETFilter(RunYear, METFilter)){
 					float deltaPhi = DeltaPhi(signalLep->getPhi(), METPhi);
 					float MT = sqrt(2*MET*signalLep->getPt()*(1-std::cos(deltaPhi)));
@@ -762,6 +789,7 @@ void analysis_eg(int RunYear, const char *Era){//main
 					hadron_nVertex = nVtx;
 					hadron_HT = 0;
 					hadron_nJet = jetNumber;
+					hadron_eg_invmass = (hadronPho->getCalibP4()+signalLep->getCalibP4()).M();
 				}}
 			}
   			
@@ -771,19 +799,21 @@ void analysis_eg(int RunYear, const char *Era){//main
 			hadron_eleproxySigma.clear();
 			hadron_eleproxyChIso.clear();
 			hadron_eleproxynVertex.clear();
+			hadron_eleproxy_eg_invmass.clear();
 
 			for(unsigned ip(0); ip < hadeleproxyPhoCollection.size(); ip++){
 				for(unsigned ie(0); ie < proxyLepCollection.size(); ie++){
 					std::vector<recoPhoton>::iterator proxyPho = hadeleproxyPhoCollection[ip];
 					std::vector<recoEle>::iterator proxyEle = proxyLepCollection[ie];
 					double dRlepphoton = DeltaR(proxyPho->getEta(), proxyPho->getPhi(), proxyEle->getEta(), proxyEle->getPhi());
-					if(dRlepphoton>0.8 && ((proxyPho->getCalibP4()+proxyEle->getCalibP4()).M() - 91.188) > 10.0 && raw.passMETFilter(RunYear, METFilter)){
+					if (dRlepphoton > 0.8 && fabs((proxyPho->getCalibP4() + proxyEle->getCalibP4()).M() - 91.188) > 10.0 && raw.passMETFilter(RunYear, METFilter)) {
 						hadron_eleproxyEt.push_back(proxyPho->getCalibEt());
 						hadron_eleproxyEta.push_back(proxyPho->getEta());
 						hadron_eleproxyPhi.push_back(proxyPho->getPhi());
 						hadron_eleproxySigma.push_back(proxyPho->getSigma());
 						hadron_eleproxyChIso.push_back(proxyPho->getChIso());
 						hadron_eleproxynVertex.push_back(nVtx); 
+						hadron_eleproxy_eg_invmass.push_back((proxyPho->getCalibP4()+proxyEle->getCalibP4()).M());
 					}//dR filter
 				}// loop on ele collection
 			} // loop on pho collection

@@ -1,0 +1,23 @@
+{
+  "data_2018": {
+    "files": {
+      "/eos/uscms/store/user/tmishra/TnP_ggNtuple/2018/tnp_DoubleEG_2018A.root": "tnpEleIDs/fitter_tree",
+      "/eos/uscms/store/user/tmishra/TnP_ggNtuple/2018/tnp_DoubleEG_2018B.root": "tnpEleIDs/fitter_tree",
+      "/eos/uscms/store/user/tmishra/TnP_ggNtuple/2018/tnp_DoubleEG_2018C.root": "tnpEleIDs/fitter_tree",
+      "/eos/uscms/store/user/tmishra/TnP_ggNtuple/2018/tnp_DoubleEG_2018D.root": "tnpEleIDs/fitter_tree"
+    },
+    "metadata": {
+      "isMC": false,
+      "goldenJSON": "/cvmfs/cms-griddata.cern.ch/cat/metadata/DC/Collisions18/latest/13TeV/Legacy_2018/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt"
+    }
+  },
+  "DY_2018": {
+    "files": {
+      "/eos/uscms/store/user/tmishra/TnP_ggNtuple/2018/tnp_DY_2018.root": "tnpEleIDs/fitter_tree"
+    },
+    "metadata": {
+      "isMC": true,
+      "pileupJSON": "/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/ScaleFactor/tnp/pileup_2018.json"
+    }
+  }
+}

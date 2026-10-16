@@ -49,6 +49,7 @@ void analysis_mg(int RunYear, const char *Era){//main
 	es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/MuonEG/MuonEG_%d%s.root",RunYear,Era));
 
   if(RunYear==2018) apply_HEMveto=true;
+  if(!isMC && !loadGolden(RunYear)) return;
   const unsigned nEvts = es->GetEntries(); 
   logfile << "Total event: " << nEvts << std::endl;
   std::cout << "Total event: " << nEvts << std::endl;
@@ -62,6 +63,7 @@ void analysis_mg(int RunYear, const char *Era){//main
 	TH1D *p_METFilter = new TH1D("p_METFilter","",12,-2,10);	
 
 	int nBJet(0);
+	bool passHEMVeto_val(true); // true = passes HEM veto (or not applicable for this year), false = fails
 //************ Signal Tree **********************//
   TTree *sigtree = new TTree("signalTree","signalTree");
   int   run(0);
@@ -113,7 +115,8 @@ void analysis_mg(int RunYear, const char *Era){//main
   sigtree->Branch("nBJet",     &nBJet);
 	sigtree->Branch("trailPt",   &trailPt);
 	sigtree->Branch("trailEta",  &trailEta);
-	sigtree->Branch("trailPhi",  &trailPhi);
+  sigtree->Branch("trailPhi",  &trailPhi);
+  sigtree->Branch("passHEMVeto", &passHEMVeto_val);
 	if(isMC){
   	sigtree->Branch("mcPID",     &mcPID);
   	sigtree->Branch("mcEta",     &mcEta);
@@ -166,6 +169,7 @@ void analysis_mg(int RunYear, const char *Era){//main
 	proxytree->Branch("trailPt",   &proxytrailPt);
 	proxytree->Branch("trailEta",  &proxytrailEta);
 	proxytree->Branch("trailPhi",  &proxytrailPhi);
+  proxytree->Branch("passHEMVeto", &passHEMVeto_val);
 
 //************ Signal Tree **********************//
   TTree *jettree = new TTree("jetTree","jetTree");
@@ -212,6 +216,7 @@ void analysis_mg(int RunYear, const char *Era){//main
 	jettree->Branch("trailPt",   &jettrailPt);
 	jettree->Branch("trailEta",  &jettrailEta);
 	jettree->Branch("trailPhi",  &jettrailPhi);
+  jettree->Branch("passHEMVeto", &passHEMVeto_val);
 
 //*********** fake lepton *********************//
   TTree *fakeLeptree = new TTree("fakeLepTree","fakeLepTree");
@@ -254,6 +259,7 @@ void analysis_mg(int RunYear, const char *Era){//main
   fakeLeptree->Branch("HT",        &fakeLepHT);
   fakeLeptree->Branch("nJet",      &fakeLepnJet);
   fakeLeptree->Branch("nBJet",     &nBJet);
+  fakeLeptree->Branch("passHEMVeto", &passHEMVeto_val);
 
 //*************** for jet-photon fake rate ***********************//
 	TTree *hadrontree = new TTree("hadronTree","hadronTree");
@@ -300,6 +306,7 @@ void analysis_mg(int RunYear, const char *Era){//main
 	hadrontree->Branch("nVertex",   &hadron_nVertex);
 	hadrontree->Branch("HT",        &hadron_HT);
 	hadrontree->Branch("nJet",      &hadron_nJet);
+	hadrontree->Branch("passHEMVeto", &passHEMVeto_val);
 	if(isMC){
 		hadrontree->Branch("mcPID",     &hadron_mcPID);
 		hadrontree->Branch("mcEta",     &hadron_mcEta);
@@ -337,6 +344,7 @@ void analysis_mg(int RunYear, const char *Era){//main
 		if (ievt%1000000==0) cout  << " -- Processing event " << ievt << std::endl;
 
 			raw.GetData(es, ievt);
+			if(!isMC && !passGolden(raw.run, raw.lumis)) continue;
 			MCData.clear();
 			Photon.clear();
 			Muon.clear();
@@ -356,8 +364,11 @@ void analysis_mg(int RunYear, const char *Era){//main
 			lumis=raw.lumis;
 			nTotal+=1;
 
-			if(RunYear==2018 && !passHEMVeto(0,raw)) continue;
-                        passHEM++;
+			passHEMVeto_val = true;
+			if(RunYear==2018){
+				passHEMVeto_val = passHEMVeto(0,raw,0.0);
+				if(passHEMVeto_val) passHEM++;
+			}
 
 			if(!raw.passHLT())continue;
 			if(raw.nGoodVtx < 1)continue;

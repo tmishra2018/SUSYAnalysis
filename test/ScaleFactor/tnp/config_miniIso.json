@@ -1,0 +1,12 @@
+{
+  "workflow": "ElectronTagNProbeFromMiniNTuples",
+  "workflow_args": {
+    "filters": {"passingMiniIso": "passingMiniIso"}
+  },
+  "methods": [
+    {
+      "name": "get_nd_tnp_histograms",
+      "args": {"filter": "passingMiniIso", "cut_and_count": false, "vars": ["el_eta", "el_pt"]}
+    }
+  ]
+}
