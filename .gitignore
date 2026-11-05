@@ -111,3 +111,13 @@ test/jetFakePho/src/analysis_egHadron.C
 test/jetFakePho/src/Run.sh
 limits/combine/Interactive_RunLimit.sh
 limits/combine/parallel_run.sh
+limits/fits/runImpacts.sh
+limits/fits/runImpacts_Run2_t6wg.sh
+test/eleFakePho/fit/run.sh
+test/eleFakePho/fit/fitFake_HT_pT_nVtx.C
+test/eleFakePho/fit/fitFakeFunc_merged.C
+test/jetFakePho/fit/run_FitJetFake.sh
+test/jetFakePho/fit/FitJetFake.C
+test/jetFakePho/fit/fitJetFunc.C
+test/jetFakePho/fit/plotJetFake.C
+test/jetFakePho/fit/newFit.C

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Phase 2 (2026-10-31): impacts on the new cards, run one after the other from SUSYAnalysis/limits/fits; GOF held back.
-cd /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/limits/fits; source /cvmfs/cms.cern.ch/cmsset_default.sh; cd /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src && eval `scramv1 runtime -sh` 2>/dev/null; cd /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/limits
+cd /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/limits/fits; source /cvmfs/cms.cern.ch/cmsset_default.sh; cd /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src && eval `scramv1 runtime -sh` 2>/dev/null; cd /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/limits/fits
 stamp(){ date '+%F %T'; }
 echo "[$(stamp)] T5WG 1700/1100 bonly + splusb, 4 eras + Run 2";  bash runImpacts_Run2.sh > /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/limits/fits/phase2_2026-10-31/log_t5wg_bonly_splusb.txt 2>&1
 echo "[$(stamp)] T6WG 1700/1100 bonly + splusb, Run 2";          bash /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/limits/fits/phase2_2026-10-31/impacts_t6wg_bonly_splusb.sh > /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/limits/fits/phase2_2026-10-31/log_t6wg_bonly_splusb.txt 2>&1
