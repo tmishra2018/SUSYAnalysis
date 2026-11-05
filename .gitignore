@@ -60,3 +60,30 @@ CLAUDE.md
 **/CLAUDE.md
 test/ScaleFactor/tnp/TnP_agent_conversation.txt
 **/.mpl/
+
+# leftovers, duplicates and generated outputs removed from the repo on 2026-11-05 (kept on disk;
+# backed up in commit 6701b5d and in EOS SUSYAnalysis_out/CMSSW_14_0_7_SUSYAnalysis_2026-11-05.tgz)
+**/trash/
+*.bak_*
+include/bk_tdrstyle.C
+test/myResult/Additional/
+test/myResult/writeT5WGcard_new.py
+test/myResult/runLimit_invmass.sh
+test/studies/EndCap/bkplot_bkg.C
+test/Background/temp.sh
+test/Background/findMinLepPt*.C
+test/Background/printPhoEtMinMax.C
+test/Background/checkNJetBranch.C
+test/Background/compareEventContent.C
+test/studies/pileup_official/PUfiles/dataPU_*.root
+test/studies/pileup_official/makeDataPUDistributions.sh
+limits/legacy/CrossSectionT5WG.txt
+limits/plots/CrossSectionT6WG.txt
+test/eleFakePho/fit/files.tar.gz
+test/ScaleFactor/tnp/results/*/SF_*.root
+!test/ScaleFactor/tnp/results/*/SF_*_hybrid.root
+test/Closure/ratio_LepPt_table_*.tex
+test/golden/golden_filter_effect.txt
+test/studies/MCStudy/plot_T5WG.root
+test/studies/Supplementary/*.root
+test/cross/xs_thesis.pdf
