@@ -92,3 +92,9 @@ limits/datacards/.gitattributes
 limits/datacards/.gitmodules
 **/.gitlab-ci.yml
 limits/datacards/systematics/tests/
+test/ScaleFactor/tnp/fileset_test_*.json
+test/ScaleFactor/tnp/*.patch
+test/notes/CopyingToAN/20*_.txt
+test/ScaleFactor/*.pdf
+test/ScaleFactor/eff_*_17012.root
+test/legacy/Result/test_T6WG.root
