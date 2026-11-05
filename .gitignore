@@ -87,3 +87,8 @@ test/golden/golden_filter_effect.txt
 test/studies/MCStudy/plot_T5WG.root
 test/studies/Supplementary/*.root
 test/cross/xs_thesis.pdf
+test/myResult/SRplots/
+limits/datacards/.gitattributes
+limits/datacards/.gitmodules
+**/.gitlab-ci.yml
+limits/datacards/systematics/tests/

@@ -61,7 +61,7 @@ Condor steps (e→γ fits, Vγ skims, limits) need a grid proxy: `voms-proxy-ini
   `SetRunConfig()` and `SetSignalConfig()` in `include/analysis_commoncode.h` always read
   `test/Background/BkgPredConfig.txt`, `test/myResult/SigConfig.txt` and `test/myResult/binConfig.txt` of the area
   that contains the working directory (`anaBaseDir()` walks up to the folder holding `include/analysis_commoncode.h`),
-  so macros in `test/studies/...`, `test/myResult/SRplots` or `limits/plots/postfit` also see those configs.
+  so macros in `test/studies/...` or `limits/plots/postfit` also see those configs.
   So the config files of a copy (for example on lxplus) are its own. Some other files still contain absolute paths
   to this area (`include/analysis_tools.h`, `include/analysis_fakes.h`, `test/ISRReweight/plot_ISRweight.C`, TnP
   filesets, `limits/fits/phase2_2026-10-31/*.sh`): `git grep -l "$PWD"` from the top folder lists them.
