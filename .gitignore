@@ -100,3 +100,14 @@ test/ScaleFactor/eff_*_17012.root
 test/legacy/Result/test_T6WG.root
 test/dataSkim/Run_eg.sh
 test/dataSkim/Run_mg.sh
+test/Trigger/Run-egTrig.sh
+test/Trigger/Run-mgTrig.sh
+test/VGamma/src/analysis_VGamma.C
+test/VGamma/src/Run_VGamma.sh
+test/VGamma/src/analysis_VGamma_Year17_18.C
+test/VGamma/src/Run_VGamma_17.sh
+test/VGamma/src/Run_VGamma_18.sh
+test/jetFakePho/src/analysis_egHadron.C
+test/jetFakePho/src/Run.sh
+limits/combine/Interactive_RunLimit.sh
+limits/combine/parallel_run.sh
