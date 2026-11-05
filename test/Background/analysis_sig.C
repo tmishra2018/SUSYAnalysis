@@ -73,6 +73,7 @@ void analysis_sig(){
 	float nJetFloat(0);
   	int nJetInt(0);
 	int   nBJet(0);	
+	bool  passHEMVeto_val(true);
 	sigtree->SetBranchAddress("phoEt",     &phoEt);
 	sigtree->SetBranchAddress("phoEta",    &phoEta);
 	sigtree->SetBranchAddress("phoPhi",    &phoPhi);
@@ -87,11 +88,13 @@ void analysis_sig(){
 	sigtree->SetBranchAddress("nVertex",   &nVertex);
 	sigtree->SetBranchAddress("dRPhoLep",  &dRPhoLep);
 	sigtree->SetBranchAddress("nBJet",     &nBJet);
+	sigtree->SetBranchAddress("passHEMVeto",&passHEMVeto_val);
 	if (channelType == 1) sigtree->SetBranchAddress("nJet", &nJetFloat);
   	else sigtree->SetBranchAddress("nJet", &nJetInt);
 
 	for (unsigned ievt(0); ievt<sigtree->GetEntries(); ++ievt){//loop on entries
 		sigtree->GetEntry(ievt);
+		if(!passHEMVeto_val)continue; // HEM15/16 veto
 		p_PU->Fill(nVertex);
 		/** cut flow *****/
 		if(phoEt < 35 || fabs(phoEta) > 1.4442)continue;
@@ -101,6 +104,10 @@ void analysis_sig(){
 		if(highMt > 0 && sigMT > highMt)continue;
 		if(lepPt < lowPt)continue;
 		if(highPt > 0 && lepPt > highPt)continue;
+		if(HT < lowHT)continue;
+                if(highHT > 0 && HT > highHT)continue;
+                if(phoEt < lowPhoEt)continue;
+                if(highPhoEt > 0 && phoEt > highPhoEt)continue;
 		// different MET, MT, lepton pT ranges
 		p_PhoEt->Fill(phoEt);
 		p_PhoEta->Fill(phoEta);
@@ -191,6 +198,9 @@ void analysis_sig(){
 	if(channelType==1)outputname << "egamma_signal";
 	else if(channelType==2)outputname << "mg_signal";
 	if(anatype==0 or anatype==1)	outputname << "_met" << lowMET <<"_" << highMET << "_pt" << lowPt << "_" << highPt;
+	bool htRestricted = !(lowHT <= 0 && highHT < 0);
+        if((anatype ==0 or anatype ==1) and htRestricted) outputname << "_HT" << lowHT << "_" << highHT;
+        if((anatype ==0 or anatype ==1) and !(lowPhoEt <= 0 && highPhoEt < 0)) outputname << "_pho" << lowPhoEt << "_" << highPhoEt;  // photon-pT split (SF binning study)
 	outputname <<"_" << RunYear<<whichVFP <<".root";	
 
 	TFile *outputfile = TFile::Open(outputname.str().c_str(),"RECREATE");
@@ -219,5 +229,3 @@ void analysis_sig(){
 	outputfile->Write();
 	outputfile->Close();
 }
-
-

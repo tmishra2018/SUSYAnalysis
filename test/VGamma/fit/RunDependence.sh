@@ -11,6 +11,7 @@
 #./plotFit.exe 2017 1  1
 #./plotFit.exe 2018 1  1
 
+rm plotVGammaScales.exe
 g++ `root-config --cflags` plotVGammaScales.C -o plotVGammaScales.exe `root-config --libs`
 ./plotVGammaScales.exe 2016 1  2
 ./plotVGammaScales.exe 2016 0  2

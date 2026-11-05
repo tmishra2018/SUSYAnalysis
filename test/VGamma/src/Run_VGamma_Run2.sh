@@ -18,24 +18,27 @@ fi
 g++ `root-config --cflags` ../../../lib/libAnaClasses.so analysis_VGamma_Run2.C -o analysis_VGamma_Run2.exe `root-config --libs`
 
 SAMPLES=(
+  WGToLNuG
+  WGJet40
+  WGJet130
   TTJets
+  DYJetsToLL
   TTGJets
   WWG
   WZG
   WW
   WZ
   ZZ
-  DYJetsToLL
   ZGToLLG
-  WGToLNuG
-  WGJet40
-  WGJet130
+#  WJetsToLNu
+#  QCD_DoubleEM
+#  QCDMuEnriched
 )
 
 RUN_PERIODS=(
-#  "2016 0"
-#  "2016 1"
-#  "2017 0"
+  "2016 0"
+  "2016 1"
+  "2017 0"
   "2018 0"
 )
 

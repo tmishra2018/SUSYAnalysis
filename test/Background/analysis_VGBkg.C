@@ -1,8 +1,26 @@
 #include<string>
 #include "../../include/analysis_commoncode.h"
+#include <set>
 
-bool useVarSF = false;
-bool applyISRwt = false;
+bool useVarSF = true;
+// HT-binned V+gamma factor (VGamma_ht) is replaced by the fixed (!useVarSF) factors if it is negative,
+// or if its relative error (binError/binContent) exceeds this value (same as myResult/pred_VGBkg.C)
+const double maxRelErrVarSF = 0.5;
+bool applyISRwt = true;
+// LO -> NLO W+gamma ISR pT shape factors (NLO/LO in ISRJetPtReco, unit area, Run 2 preselection; AN App. H.2,
+// ISRReweight/compare_WG_LOvsNLO.C, /eos/.../ISRweighting/WGLOvsNLO_factors_<ch>.txt).
+// Applied to W+gamma only (mcType 1-3), on top of the data/NLO-Z+gamma ISR weights (all V+gamma); they keep the
+// LO preselection yield unchanged, so no normalization is needed.
+// (set NO_LOTONLO=1 in the environment to switch it off, e.g. for the validation without it)
+bool applyLOtoNLO = (getenv("NO_LOTONLO") == nullptr);
+double LOtoNLOFactor(int channelType, float isrPt){
+	static const double edges[7] = {0, 50, 100, 150, 200, 250, 300};
+	static const double eg[7] = {1.06025, 0.94482, 0.89026, 0.89977, 0.89691, 0.89908, 0.87877};
+	static const double mg[7] = {1.06165, 0.93595, 0.89678, 0.87963, 0.85610, 0.86764, 0.85067};
+	int i = 6;
+	while(i > 0 && isrPt < edges[i]) i--;
+	return channelType == 1 ? eg[i] : mg[i];
+}
 
 void analysis_VGBkg(){
 	
@@ -23,6 +41,8 @@ void analysis_VGBkg(){
         int channelType = ichannel; // eg = 1; mg =2;
 	double factorMC(1);
 	double factorMCUP(1);
+	double factorMC_fixed(1);   // fixed factors (fallback for HT bins with negative/uncertain factor)
+	double factorMCUP_fixed(1);
 
         TFile *NormFile= nullptr;
         TH1D *hVGamma= nullptr;
@@ -32,8 +52,10 @@ void analysis_VGBkg(){
 		if(useVarSF){
                 	if(channelType == 1)NormFile = TFile::Open(Form("/eos/uscms/store/user/tmishra/VGamma/%d%s/VGammaScaleHist_eg_%d%s.root",RunYear,whichVFP.c_str(),RunYear,whichVFP.c_str() ));
                 	else if(channelType == 2)NormFile = TFile::Open(Form("/eos/uscms/store/user/tmishra/VGamma/%d%s/VGammaScaleHist_mg_%d%s.root",RunYear,whichVFP.c_str(),RunYear,whichVFP.c_str()));
-                	hVGamma = (TH1D*)NormFile->Get("VGamma_pt");}
-		else{
+                	hVGamma = (TH1D*)NormFile->Get("VGamma_ht");}
+		// fixed (non-HT-binned) factors: always filled; used directly when !useVarSF,
+		// and as the fallback for HT bins with negative or uncertain factor when useVarSF
+		{
 			if(channelType == 1){
 				if(RunYear==2016 and preVFP == 1){
 					factorMC = factor_egVGamma_2016preVFP;
@@ -63,6 +85,8 @@ void analysis_VGBkg(){
 					factorMCUP = factor_mgVGamma_2018+factorerror_mgVGamma_2018;}
 			}
 		}
+		factorMC_fixed   = factorMC;
+		factorMCUP_fixed = factorMCUP;
 	}	
 
 	//*********** histo list ********************* 
@@ -78,6 +102,9 @@ void analysis_VGBkg(){
 	else if(channelType==2)outputname << "mg_VGBkg";
 	// MET and lepton pT range
 	if(anatype ==0 or anatype ==1)	outputname << "_met" << lowMET <<"_" << highMET << "_pt" << lowPt << "_" << highPt;
+	bool htRestricted = !(lowHT <= 0 && highHT < 0);
+        if((anatype ==0 or anatype ==1) and htRestricted) outputname << "_HT" << lowHT << "_" << highHT;
+        if((anatype ==0 or anatype ==1) and !(lowPhoEt <= 0 && highPhoEt < 0)) outputname << "_pho" << lowPhoEt << "_" << highPhoEt;  // photon-pT split (SF binning study)
 	outputname <<"_" << RunYear<<whichVFP<<".root";
 
 	TFile *outputfile = TFile::Open(outputname.str().c_str(),"RECREATE");
@@ -242,11 +269,11 @@ void analysis_VGBkg(){
 	// ZG bkg is directly from simulation, mctree
   	TChain *mctree = new TChain(chainname.str().c_str(), chainname.str().c_str());
  	
-	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WGJet40_%d%s.root",RunYear,whichVFP.c_str()));
-        mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WGJet130_%d%s.root",RunYear,whichVFP.c_str()));
-        mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WGToLNuG_%d%s.root",RunYear,whichVFP.c_str()));
-        mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_ZGToLLG_%d%s.root",RunYear,whichVFP.c_str()));
-        mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
+	mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGJet40_%d%s.root",RunYear,whichVFP.c_str()));
+        mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGJet130_%d%s.root",RunYear,whichVFP.c_str()));
+        mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WGToLNuG_%d%s.root",RunYear,whichVFP.c_str()));
+        mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_ZGToLLG_%d%s.root",RunYear,whichVFP.c_str()));
+        mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
 
 	float crosssection(0);
 	float ntotalevent(0);
@@ -293,6 +320,7 @@ void analysis_VGBkg(){
   	std::vector<float> *mcPt=0;
   	std::vector<int> *mcMomPID=0;
 	//  std::vector<int> *mcGMomPID=0;
+	bool passHEMVeto_val(true);
 	
 	mctree->SetBranchAddress("crosssection",&crosssection);
 	mctree->SetBranchAddress("ntotalevent", &ntotalevent);
@@ -338,10 +366,12 @@ void analysis_VGBkg(){
   	mctree->SetBranchAddress("mcPhi",     &mcPhi);
   	mctree->SetBranchAddress("mcPt",      &mcPt);
   	mctree->SetBranchAddress("mcMomPID",  &mcMomPID);
+	mctree->SetBranchAddress("passHEMVeto",&passHEMVeto_val);
 
 	//   start filling ///
 	for(unsigned ievt(0); ievt < mctree->GetEntries(); ievt++){
 		mctree->GetEntry(ievt);
+		if(!passHEMVeto_val)continue; // HEM15/16 veto
 		p_PU->Fill(nVertex,PUweight);
 		double scalefactor(1);
 		double scalefactorup(1);
@@ -364,7 +394,7 @@ void analysis_VGBkg(){
 			scalefactorup = scalefactor + s_error; 
 		}
 		// ZG sample has llmass > 30, we use DY for llmass < 30
-		if(mcType == 4 && llmass < 30)continue;
+		if(mcType == 4 && llmass <= 30)continue;
 		if(mcType == 5 && llmass > 30)continue;
 
 		float XS_weight = 1;
@@ -384,47 +414,97 @@ void analysis_VGBkg(){
 		double reweightF(1);
 		double Normalization=1;
 
-		if(RunYear==2016 && preVFP==1){
-			if(ISRJetPt < 50)reweightF = 1.13835;
-			else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.41521;
-			else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF  = 1.15993;
-			else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF  = 0.970083;
-			else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF  = 1.06389;
-			else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF  = 1.02677;
-			else if(ISRJetPt >= 300)reweightF = 0.909366;
-			Normalization = 0.794237;    }
+if(channelType == 1){
+	if(RunYear==2016 && preVFP==1){
+		if(ISRJetPt < 50)reweightF = 1.02164;
+		else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF = 0.964486;
+		else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 1.10058;
+		else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.809766;
+		else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.795802;
+		else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.681508;
+		else if(ISRJetPt >= 300)reweightF = 1.12425;
+		Normalization = 0.989201;
+	}
+	else if(RunYear==2016 && preVFP==0){
+		if(ISRJetPt < 50)reweightF = 0.92813;
+		else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF = 1.01507;
+		else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 1.03074;
+		else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.812674;
+		else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.905019;
+		else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.937368;
+		else if(ISRJetPt >= 300)reweightF = 0.885853;
+		Normalization = 1.06105;
+	}
+	else if(RunYear==2017){
+		if(ISRJetPt < 50)reweightF = 0.80824;
+		else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF = 0.77143;
+		else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.891771;
+		else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.898236;
+		else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 1.12492;
+		else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.943156;
+		else if(ISRJetPt >= 300)reweightF = 0.552922;
+		Normalization = 1.23312;
+	}
+	else if(RunYear==2018){
+		if(ISRJetPt < 50)reweightF = 0.883194;
+		else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF = 0.931125;
+		else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.949823;
+		else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.818615;
+		else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.854429;
+		else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 1.24516;
+		else if(ISRJetPt >= 300)reweightF = 0.850772;
+		Normalization = 1.12;
+	}
+}
 
-		else if(RunYear==2016 && preVFP==0){
-			if(ISRJetPt < 50)reweightF = 1.11264;
-			else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.39396;
-			else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF  = 1.0559;
-			else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF  = 0.99874;
-			else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF  = 0.925449;
-			else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF  = 0.782346;
-			else if(ISRJetPt >= 300)reweightF = 0.70625;
-			Normalization = 0.822305;    }
+else if(channelType == 2){
+	if(RunYear==2016 && preVFP==1){
+		if(ISRJetPt < 50)reweightF = 0.995888;
+		else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF = 1.08304;
+		else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 1.09747;
+		else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 1.08664;
+		else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 1.17574;
+		else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.806937;
+		else if(ISRJetPt >= 300)reweightF = 1.12874;
+		Normalization = 0.984708;
+	}
+	else if(RunYear==2016 && preVFP==0){
+		if(ISRJetPt < 50)reweightF = 0.931823;
+		else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF = 1.01419;
+		else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 1.06259;
+		else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.847699;
+		else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.958803;
+		else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 1.24982;
+		else if(ISRJetPt >= 300)reweightF = 0.900651;
+		Normalization = 1.05421;
+	}
+	else if(RunYear==2017){
+		if(ISRJetPt < 50)reweightF = 0.868712;
+		else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF = 0.874605;
+		else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.924282;
+		else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.976312;
+		else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 1.06787;
+		else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 1.22388;
+		else if(ISRJetPt >= 300)reweightF = 0.676038;
+		Normalization = 1.1413;
+	}
+	else if(RunYear==2018){
+		if(ISRJetPt < 50)reweightF = 0.943713;
+		else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF = 0.958948;
+		else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.966778;
+		else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.938759;
+		else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.96244;
+		else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 1.0375;
+		else if(ISRJetPt >= 300)reweightF = 0.800688;
+		Normalization = 1.05642;
+	}
+}
 
-		else if (RunYear==2017){
-			if(ISRJetPt < 50)reweightF = 1.1143;
-			else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.32324;
-			else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF  = 1.07083;
-			else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF  = 0.910973;
-			else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF  = 1.02096;
-			else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF  = 0.79391;
-			else if(ISRJetPt >= 300)reweightF = 0.948013;
-			Normalization = 0.842734;    }
-
-		else if (RunYear==2018){
-			if(ISRJetPt < 50)reweightF = 1.20741;
-			else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF  = 1.35606;
-			else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF  = 0.974222;
-			else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF  = 0.937533;
-			else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF  = 0.818045;
-			else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF  = 0.906398;
-			else if(ISRJetPt >= 300)reweightF = 0.836013;
-			Normalization = 0.82721;    }
 
 		ISRWeight = reweightF*Normalization;
+		// as in the 2016 analysis: the data/Z+gamma ISR weights go to all V+gamma MC (W+gamma, Z+gamma, DY);
+		// the LO -> NLO factor below is W+gamma only (mcType 1-3)
+		const double nloFactor = (applyLOtoNLO && mcType >= 1 && mcType <= 3) ? LOtoNLOFactor(channelType, ISRJetPt) : 1.0;
 		
 		float weight = 1.0;
 		float weight_scaleup = 1.0;
@@ -432,8 +512,31 @@ void analysis_VGBkg(){
 		float weight_noisr = 1.0;
 
 		if(!toDeriveScale and useVarSF){
-                	factorMC  = hVGamma->GetBinContent(hVGamma->FindBin(lepPt));
-               		factorMCUP = factorMC + hVGamma->GetBinError(hVGamma->FindBin(lepPt));}
+			int htBin = hVGamma->FindBin(HT);
+			factorMC   = hVGamma->GetBinContent(htBin);
+			double factorErr = hVGamma->GetBinError(htBin);
+			factorMCUP = factorMC + factorErr;
+			// fall back to the fixed (!useVarSF) factors for an HT bin with a negative factor,
+			// or with a relative error above maxRelErrVarSF (too few events to trust the bin)
+			bool negFactor  = (factorMC < 0);
+			bool largeError = (factorMC > 0 && factorErr/factorMC > maxRelErrVarSF);
+			if(negFactor || largeError){
+				static std::set<int> warnedHTbins;
+				if(warnedHTbins.insert(htBin).second)
+					cout << "WARNING: HT bin " << htBin << " factor = " << factorMC << " +- " << factorErr
+					     << (negFactor ? " (negative)" : " (relative error > maxRelErrVarSF)")
+					     << " -> using fixed factor " << factorMC_fixed << endl;
+				factorMC   = factorMC_fixed;
+				factorMCUP = factorMCUP_fixed;}}
+		// photon-pT binned V+gamma factor (default; SF_BINNING=HT keeps the HT-binned factor above);
+		// fixed factor for a photon-pT bin with a negative factor or a relative error above maxRelErrVarSF
+		if(!toDeriveScale and usePhoPtSF){
+			static TH1D *hVGpho = nullptr;
+			if(!hVGpho){ TFile *fpho = TFile::Open(Form("/eos/uscms/store/user/tmishra/VGamma/%d%s/VGammaScaleHist_%s_%d%s.root",RunYear,whichVFP.c_str(),(channelType == 1 ? "eg" : "mg"),RunYear,whichVFP.c_str())); hVGpho = (TH1D*)fpho->Get("VGamma_pho"); }
+			int phoBin = hVGpho->FindBin(std::min<double>(phoEt, hVGpho->GetXaxis()->GetXmax() - 1e-3));
+			double sfv = hVGpho->GetBinContent(phoBin), sfe = hVGpho->GetBinError(phoBin);
+			if(sfv > 0 && sfe/sfv <= maxRelErrVarSF){ factorMC = sfv; factorMCUP = sfv + sfe; }
+			else { factorMC = factorMC_fixed; factorMCUP = factorMCUP_fixed; }}
 
                 weight = PUweight*XS_weight*factorMC*scalefactor;
                 weight_scaleup = PUweight*XS_weight*factorMC*scalefactorup;
@@ -441,9 +544,11 @@ void analysis_VGBkg(){
                 weight_noisr = PUweight*XS_weight*factorMC*scalefactor;
 	
 	        if(applyISRwt){
-			weight = weight*ISRWeight;
-			weight_scaleup = weight_scaleup*ISRWeight;
-			weight_normup = weight_normup*ISRWeight;
+			// the ISR variation (weight_noisr) keeps the LO -> NLO factor and drops only the ISR weight
+			weight = weight*ISRWeight*nloFactor;
+			weight_scaleup = weight_scaleup*ISRWeight*nloFactor;
+			weight_normup = weight_normup*ISRWeight*nloFactor;
+			weight_noisr = weight_noisr*nloFactor;
 		}
 
 		double weight_toy[500];
@@ -460,6 +565,10 @@ void analysis_VGBkg(){
 		if(highMt > 0 && sigMT > highMt)continue;
 		if(lepPt < lowPt)continue;
 		if(highPt > 0 && lepPt > highPt)continue;
+		if(HT < lowHT)continue;
+                if(highHT > 0 && HT > highHT)continue;
+                if(phoEt < lowPhoEt)continue;
+                if(highPhoEt > 0 && phoEt > highPhoEt)continue;
 		// MET, MT and lepton pT range
 		bool istruepho(false);
 		double  mindRpho(0.3);

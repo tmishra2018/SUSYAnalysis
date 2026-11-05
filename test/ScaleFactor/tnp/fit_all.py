@@ -1,6 +1,6 @@
 # Fit every (eta, pt) bin of the prepared fitter inputs with egamma-tnp's run_fitter and collect data/MC SFs.
 # Run inside the egamma-tnp container with PYTHONPATH pointing at the mamaxout fork (needs numba_stats).
-# python3 fit_all.py --data data.root --mc mc.root --binning binning.pkl --outdir <dir> [--workers 4]
+# python3 fit_all.py --data data.root --mc mc.root --binning binning.pkl --outdir <dir> [--workers 4] [--axes ph_eta ph_et]
 import argparse
 import json
 import math
@@ -91,6 +91,7 @@ def main():
     ap.add_argument("--binning", required=True)
     ap.add_argument("--outdir", required=True)
     ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--axes", nargs=2, default=["el_eta", "el_pt"], help="eta and pt variable names of the binning")
     args = ap.parse_args()
 
     outdir = Path(args.outdir).resolve()
@@ -106,8 +107,8 @@ def main():
         name = b["name"]
         row = {
             "bin": name,
-            "eta": [float(b["vars"]["el_eta"]["min"]), float(b["vars"]["el_eta"]["max"])],
-            "pt": [float(b["vars"]["el_pt"]["min"]), float(b["vars"]["el_pt"]["max"])],
+            "eta": [float(b["vars"][args.axes[0]]["min"]), float(b["vars"][args.axes[0]]["max"])],
+            "pt": [float(b["vars"][args.axes[1]]["min"]), float(b["vars"][args.axes[1]]["max"])],
         }
         for ft in FIT_TYPES:
             eff = read_eff(outdir / "results" / ft / f"{name}.json")

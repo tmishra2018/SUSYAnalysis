@@ -1,6 +1,6 @@
 #!/bin/bash
 
-OUTDIR=/eos/uscms/store/user/tmishra/Background
+OUTDIR=/uscms_data/d3/tmishra/Background
 
 years=("2016preVFP" "2016postVFP" "2017" "2018")
 channels=("egamma" "mg")
@@ -16,7 +16,6 @@ for ch in "${channels[@]}"; do
 
     outfile=${OUTDIR}/controlTree_${ch}_${samp}_met40_70_pt0_1000_678.root
 
-    echo "Merging → ${outfile}"
     echo "  Inputs:${inputs}"
 
     hadd -f ${outfile} ${inputs}

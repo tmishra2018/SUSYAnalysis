@@ -28,9 +28,51 @@
 #include "../../../include/analysis_jet.h"
 #include "../../../include/analysis_tools.h"
 
+// PU helper: get nTrueInt for BX==0
+float getNTrueInt(std::vector<float>* puTrue, std::vector<int>* puBX) {
+    if (!puTrue || !puBX) return -1.f;
+    for (size_t i = 0; i < puBX->size(); ++i)
+        if ((*puBX)[i] == 0) return (*puTrue)[i];
+    return -1.f;
+}
+ 
+// Safe lookup from ratio histogram
+float getPUweight(TH1D* h, float nTrueInt) {
+    if (!h || nTrueInt < 0) return 1.f;
+    int bin = h->FindBin(nTrueInt);
+    bin = std::max(1, std::min(bin, h->GetNbinsX()));
+    float w = h->GetBinContent(bin);
+    return (w > 0) ? w : 1.f;
+}
+
+
 bool isSquark(int mcID){
 	if( abs(mcID) == 1000001 ||  abs(mcID) == 1000002 ||  abs(mcID) == 1000003 ||  abs(mcID) == 1000004 || abs(mcID) == 2000001 ||  abs(mcID) == 2000002 ||  abs(mcID) == 2000003 ||  abs(mcID) == 2000004)return true;
 	else return false;
+}
+
+// Generator-level ISR recoil: pT of the produced sparticle pair (gluinos for T5WG, squarks for T6WG,
+// chargino + neutralino2 for TChiWG), built from the mothers of the stored generator particles.
+// If one sparticle appears in two copies (before/after radiation), the pair with the largest DeltaR is used.
+float sparticlePairPt(std::vector<mcData> &MCData, int SUSYtype){
+	std::vector<TLorentzVector> sp;
+	for(auto &mc : MCData){
+		int m = abs(mc.getMomPID());
+		bool primary = (SUSYtype == 5 && m == 1000021) || (SUSYtype == 6 && isSquark(m)) || (SUSYtype == 1 && (m == 1000024 || m == 1000023));
+		if(!primary) continue;
+		TLorentzVector v = mc.getmomP4();
+		bool known = false;
+		for(auto &u : sp) if(fabs(u.Pt()-v.Pt()) < 0.01 && fabs(u.Eta()-v.Eta()) < 0.01 && fabs(TVector2::Phi_mpi_pi(u.Phi()-v.Phi())) < 0.01) known = true;
+		if(!known) sp.push_back(v);
+	}
+	if(sp.size() < 2) return -1;
+	float best = -1, pairPt = -1;
+	for(size_t a = 0; a < sp.size(); a++)
+		for(size_t b = a+1; b < sp.size(); b++){
+			float dr = sp[a].DeltaR(sp[b]);
+			if(dr > best){ best = dr; pairPt = (sp[a]+sp[b]).Pt(); }
+		}
+	return pairPt;
 }
 
 void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
@@ -44,8 +86,49 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 	char* inputfile = new char[300];
 
         TChain* es = new TChain("ggNtuplizer/EventTree");
-        sprintf(inputfile,"/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/%s/%s_%d%s.root",Sample,Sample,Year,whichVFP.c_str());
+        sprintf(inputfile,"/eos/uscms/store/user/tmishra/InputFilesMC/%s/%s_%d%s.root",Sample,Sample,Year,whichVFP.c_str());
   	es->Add(inputfile);
+	//const unsigned nEvts = 10000;
+	const unsigned nEvts = es->GetEntries();
+	
+    TH1D *h_mc_pu = new TH1D("h_mc_pu","MC nTrueInt",200,0,200);
+    h_mc_pu->Sumw2();
+    {
+        std::vector<float> *pt_prescan = nullptr;
+        std::vector<int>   *bx_prescan = nullptr;
+        es->SetBranchStatus("*", 0);         // disable all for speed
+        es->SetBranchStatus("puTrue", 1);
+        es->SetBranchStatus("puBX",   1);
+        es->SetBranchAddress("puTrue", &pt_prescan);
+        es->SetBranchAddress("puBX",   &bx_prescan);
+        std::cout << "Pre-scan: building MC PU histogram..." << std::endl;
+        for(unsigned iev=0; iev<nEvts; ++iev){
+            es->GetEntry(iev);
+            float nti = getNTrueInt(pt_prescan, bx_prescan);
+            if(nti>=0) h_mc_pu->Fill(nti);
+        }
+        es->SetBranchStatus("*", 1);  // re-enable all branches
+        std::cout << "MC PU histogram built (" << h_mc_pu->GetEntries() << " entries)." << std::endl;
+    }
+    h_mc_pu->Scale(1.0/h_mc_pu->Integral());
+
+    TFile *f_puNom  = TFile::Open(Form("../../PUfiles/dataPU_%d%s.root",Year,whichVFP.c_str()));
+    TFile *f_puUp   = TFile::Open(Form("../../PUfiles/dataPU_%d%s_PUUp.root",Year,whichVFP.c_str()));
+    TFile *f_puDown = TFile::Open(Form("../../PUfiles/dataPU_%d%s_PUDown.root",Year,whichVFP.c_str()));
+
+    TH1D *h_data_nom  = (TH1D*)((TH1D*)f_puNom ->Get("pileup"))->Clone("dn");
+    TH1D *h_data_up   = (TH1D*)((TH1D*)f_puUp  ->Get("pileup"))->Clone("du");
+    TH1D *h_data_down = (TH1D*)((TH1D*)f_puDown->Get("pileup"))->Clone("dd");
+    h_data_nom ->Scale(1.0/h_data_nom ->Integral());
+    h_data_up  ->Scale(1.0/h_data_up  ->Integral());
+    h_data_down->Scale(1.0/h_data_down->Integral());
+
+    TH1D *h_puRatio_nom  = (TH1D*)h_data_nom ->Clone("h_puRatio_nom");
+    TH1D *h_puRatio_up   = (TH1D*)h_data_up  ->Clone("h_puRatio_up");
+    TH1D *h_puRatio_down = (TH1D*)h_data_down->Clone("h_puRatio_down");
+    h_puRatio_nom ->Divide(h_mc_pu);
+    h_puRatio_up  ->Divide(h_mc_pu);
+    h_puRatio_down->Divide(h_mc_pu);
 
         RunType datatype(MC);
         std::ostringstream outputname;
@@ -69,11 +152,17 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 		abort();
 	}
 
+   float PUweight(1);
+   float PUweightUp(1);
+   float PUweightDown(1);
 
+   std::vector<float> ScaleSystWeight;
+   std::vector<float> PDFSystWeight;
   TFile *outputfile = TFile::Open(outputname.str().c_str(),"RECREATE");
   outputfile->cd();
   TTree *tree = new TTree("SUSYtree","SUSYtree");
 	float MsGsQ(0);
+	float ISRPt(-1);   // generator-level sparticle-pair pT (ISR recoil), for the signal ISR uncertainty
   float Mchargino(0);
   float Mneutralino(0);
   float mcPhotonEt(0);
@@ -101,7 +190,6 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
   float EleChIso(0);
   float EleNeuIso(0);
   float ElePhoIso(0);
-  float EleMiniIso(0);
   float EledEtaIn(0);
   float EledPhiIn(0);
   float EleD0(0);
@@ -120,6 +208,7 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
   tree->Branch("Mchargino",      &Mchargino);
   tree->Branch("Mneutralino",    &Mneutralino);
 	tree->Branch("nVertex",        &nVertex);
+	tree->Branch("ISRPt",          &ISRPt);
   tree->Branch("MT",&MT_);
   tree->Branch("ThreeBodyMass",&ThreeBodyMass_);
   tree->Branch("mcPhotonEt"     ,&mcPhotonEt); 
@@ -147,7 +236,6 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
   tree->Branch("EleChIso"       ,&EleChIso);
   tree->Branch("EleNeuIso"      ,&EleNeuIso);
   tree->Branch("ElePhoIso"      ,&ElePhoIso);
-  tree->Branch("EleMiniIso"     ,&EleMiniIso);
   tree->Branch("EledEtaIn"      ,&EledEtaIn);
   tree->Branch("EledPhiIn"      ,&EledPhiIn);
   tree->Branch("EleD0"          ,&EleD0);
@@ -158,9 +246,12 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
   tree->Branch("Invmass"        ,&Invmass);    
   tree->Branch("nJet"           ,&nJet);
   tree->Branch("HT"             ,&HT);
-	tree->Branch("sigMET",         &sigMET);
+  tree->Branch("sigMET",         &sigMET);
+  tree->Branch("ScaleSystWeight",&ScaleSystWeight);
+  tree->Branch("PDFSystWeight",  &PDFSystWeight);
 
 //************ Signal Tree **********************//
+  
   TTree *egtree = new TTree("egTree","egTree");
   float eg_phoEt(0);
   float eg_phoEta(0);
@@ -168,6 +259,7 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
   float eg_lepPt(0);
   float eg_lepEta(0);
   float eg_lepPhi(0);
+  float eg_MiniIso(0);
   float eg_sigMT(0);
   float eg_sigMET(0);
   float eg_sigMETPhi(0);
@@ -208,6 +300,7 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
   egtree->Branch("sigMETPhi", &eg_sigMETPhi);
   egtree->Branch("dPhiLepMET",&eg_dPhiLepMET);
   egtree->Branch("nVertex",   &eg_nVertex);
+  egtree->Branch("ISRPt",     &ISRPt);
   egtree->Branch("dRPhoLep",  &eg_dRPhoLep);
   egtree->Branch("HT",        &eg_HT);
   egtree->Branch("nJet",      &eg_nJet);
@@ -227,7 +320,12 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 	egtree->Branch("HTJESup",     &eg_HTJESup);
 	egtree->Branch("HTJESdo",     &eg_HTJESdo);
 	egtree->Branch("L1ECALPrefire",     &eg_L1ECALPrefire);
-
+	egtree->Branch("PUweight",  &PUweight);
+        egtree->Branch("PUweightUp",   &PUweightUp);
+        egtree->Branch("PUweightDown", &PUweightDown);
+	egtree->Branch("ScaleSystWeight",&ScaleSystWeight);
+	egtree->Branch("PDFSystWeight",  &PDFSystWeight);
+	egtree->Branch("EleMiniIso",  &eg_MiniIso);
 
   TTree *mgtree = new TTree("mgTree","mgTree");
   float mg_phoEt(0);
@@ -236,6 +334,7 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
   float mg_lepPt(0);
   float mg_lepEta(0);
   float mg_lepPhi(0);
+  float mg_MiniIso(0);
   float mg_sigMT(0);
   float mg_sigMET(0);
   float mg_sigMETPhi(0);
@@ -276,6 +375,7 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
   mgtree->Branch("dPhiLepMET",&mg_dPhiLepMET);
 	mgtree->Branch("threeMass", &mg_threeMass);
   mgtree->Branch("nVertex",   &mg_nVertex);
+  mgtree->Branch("ISRPt",     &ISRPt);
   mgtree->Branch("dRPhoLep",  &mg_dRPhoLep);
   mgtree->Branch("HT",        &mg_HT);
   mgtree->Branch("nJet",      &mg_nJet);
@@ -294,7 +394,12 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 	mgtree->Branch("HTJESup",     &mg_HTJESup);
 	mgtree->Branch("HTJESdo",     &mg_HTJESdo);
 	mgtree->Branch("L1ECALPrefire",     &mg_L1ECALPrefire);
-
+	mgtree->Branch("PUweight",  &PUweight);
+        mgtree->Branch("PUweightUp",   &PUweightUp);
+        mgtree->Branch("PUweightDown", &PUweightDown);
+	mgtree->Branch("ScaleSystWeight",&ScaleSystWeight);
+	mgtree->Branch("PDFSystWeight",  &PDFSystWeight);
+	mgtree->Branch("MuMiniIso", &mg_MiniIso);
 
   	rawData raw(es, datatype);
   	std::vector<mcData>  MCData;
@@ -315,7 +420,6 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
   	int nVtx(0);
   	int jetNumber(0);
 
-    const unsigned nEvts = es->GetEntries(); 
     std::cout << "total event : " << nEvts << std::endl;
 
     for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
@@ -350,7 +454,6 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 			EleChIso=0;
 			EleNeuIso=0;
 			ElePhoIso=0;
-			EleMiniIso=0;
 			EledEtaIn=0;
 			EledPhiIn=0;
 			EleD0=0;
@@ -386,7 +489,24 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 			METPhi_T1UESUp = raw.pfMETPhi_T1UESUp;
 			METPhi_T1UESDo = raw.pfMETPhi_T1UESDo;
       			nVtx = raw.nVtx;
+			// PU weights from nTrueInt
+        		// raw.puTrue and raw.puBX must be available in analysis_rawData.h
+        		float nTrueInt   = getNTrueInt(raw.puTrue, raw.puBX);
+        		PUweight         = getPUweight(h_puRatio_nom,  nTrueInt);
+        		PUweightUp       = getPUweight(h_puRatio_up,   nTrueInt);   // NEW
+        		PUweightDown     = getPUweight(h_puRatio_down, nTrueInt);   // NEW
+
 			nVertex = nVtx;
+			
+			ScaleSystWeight.clear();
+                	for(unsigned i(0); i < raw.genScaleSystWeights->size(); i++){
+                        	ScaleSystWeight.push_back( (*raw.genScaleSystWeights)[i]);
+                	}
+			PDFSystWeight.clear();
+			for(unsigned i(0); i < raw.pdfSystWeight->size(); i++){
+				PDFSystWeight.push_back( (*raw.pdfSystWeight)[i]);
+			}
+
       			bool hasGenPho(false), hasGenEle(false),hasGenNeu(false);
       			bool matchRecoPho(false), matchRecoEle(false);
       			float charginoMass(-1), neutralinoMass(-1), sGsQMass(-1);
@@ -461,6 +581,7 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
            }//endif:: found signal ELectron
            //)))))))))))))))))))))))
       }//loop on MC particles
+      ISRPt = sparticlePairPt(MCData, SUSYtype);
 
       sigMET = MET;     
       nJet = 0;
@@ -511,7 +632,6 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 		EleChIso=recoele->getChIso();
 		EleNeuIso=recoele->getNeuIso();
 		ElePhoIso=recoele->getPhoIso();
-		EleMiniIso=recoele->getMiniIso();
 		EledEtaIn=recoele->getdEtaIn();
 		EledPhiIn=recoele->getdPhiIn();
 		EleD0=recoele->getD0();
@@ -593,6 +713,8 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 							eg_lepPt = egsignalEle->getCalibPt();
 							eg_lepEta= egsignalEle->getEta();
 							eg_lepPhi= egsignalEle->getPhi();
+							eg_MiniIso= egsignalEle->getMiniIso();
+
 							eg_sigMT = MT;
 							eg_sigMET= MET;
 							eg_sigMETPhi = METPhi;
@@ -647,6 +769,7 @@ void analysis_SUSY(int Year, bool ISpreVFP, const char *Sample){
 					mg_lepPt = signalMu->getPt();
 					mg_lepEta= signalMu->getEta();
 					mg_lepPhi= signalMu->getPhi();
+					mg_MiniIso= signalMu->getMiniIso();
 					mg_sigMT = MT;
 					mg_sigMET= MET;
 					mg_sigMETPhi = METPhi;

@@ -54,7 +54,7 @@ void analysis_mgTrigger_MET(int RunYear, bool preVFP){
         TChain* es = new TChain("ggNtuplizer/EventTree");
         es->Add(Form("/eos/uscms/store/user/lpcsusyphotons/SoftPhoton/Tribeni/MET/MET_%d%s.root",RunYear,whichVFP.c_str()));
 
-        TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/Trigger/plot_MuonTrigger_MET_%d%s.root",RunYear,whichVFP.c_str()),"RECREATE");
+        TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/Trigger/files/plot_MuonTrigger_MET_%d%s.root",RunYear,whichVFP.c_str()),"RECREATE");
         outputfile->cd();
 
 	TTree *mgtree = new TTree("mgTree","mgTree");
@@ -97,11 +97,27 @@ void analysis_mgTrigger_MET(int RunYear, bool preVFP){
 	std::vector<recoEle>   Ele;
 	float MET(0);
 
+	const bool applyGolden = (true);  // golden JSON lumi mask for data
+	if(applyGolden && !loadGolden(RunYear)) return;
 	for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
   
 		if(ievt%100000==0) std::cout << " -- Processing event " << ievt << std::endl;
-
-			raw.GetData(es, ievt);
+			// MET_2017.root: the elePt basket covering entries 323907294-323955000 (47,707 events) is corrupted. Its first 64 entries
+			// throw in GetData, the others make GetData allocate ~8 GB (job OOM-killed on 11 GB nodes). Skip the whole basket.
+			if(RunYear==2017 && ievt>=323907294 && ievt<=323955000) continue;
+			try {
+        			raw.GetData(es, ievt);
+    			} catch (const std::exception& e) {
+        				std::cerr << "!! Exception at event " << ievt
+                   			<< " (local tree entry " << es->GetTree()->GetReadEntry() << "): "
+                   			<< e.what() << " -- skipping event." << std::endl;
+        				logfile << "!! Exception at event " << ievt << ": " << e.what() << std::endl;
+        				continue;
+    			}
+			//raw.GetData(es, ievt);
+			if(applyGolden && !passGolden(raw.run, raw.lumis)) continue;
+			// mu-gamma analysis uses 2017D-F only: HLT_Mu17_Photon30 fires in 150 of 167.5M MET events of 2017B-C (runs < 302030)
+			if(RunYear==2017 && raw.run < 302030) continue;
 			Photon.clear();
 			Muon.clear();
 			Ele.clear();

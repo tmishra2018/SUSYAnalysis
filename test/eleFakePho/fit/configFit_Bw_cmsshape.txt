@@ -1,5 +1,0 @@
-useCMSShape 1
-useExpo 0
-useKer 0
-useDY 0
-SaveOutput 1

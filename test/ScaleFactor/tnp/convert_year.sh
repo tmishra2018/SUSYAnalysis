@@ -1,7 +1,10 @@
 #!/bin/bash
 # Convert the ggNtuples of one year into TnP trees with makeTnPTree.exe (4 jobs in parallel).
-# usage: ./convert_year.sh <tag>    tag = 2016preVFP | 2016postVFP | 2017 | 2018
+# usage: ./convert_year.sh <tag> [pho]    tag = 2016preVFP | 2016postVFP | 2017 | 2018
+#        pho: photon-probe trees (makeTnPPhoTree.exe, tnpPho_*.root) for the photon R9 SF
 TAG=$1
+EXE=makeTnPTree.exe; PRE=tnp
+if [ "$2" = pho ]; then EXE=makeTnPPhoTree.exe; PRE=tnpPho; fi
 HERE=$(cd $(dirname $0) && pwd)
 E=/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni
 O=/eos/uscms/store/user/tmishra/TnP_ggNtuple/$TAG
@@ -18,6 +21,6 @@ esac
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 cd $HERE/../../.. && eval `scramv1 runtime -sh` 2>/dev/null
 cd $HERE/..
-{ for d in $DATA; do echo "$E/$d.root $O/tnp_$(basename $d).root 0"; done
-  echo "$E/DYJetsToLL/$DY.root $O/tnp_DY_${DY#DYJetsToLL_}.root 1"; } |
-  xargs -P 4 -L 1 sh -c "./makeTnPTree.exe \$0 \$1 $YEAR \$2 > \$1.log 2>&1; echo \$(basename \$1): \$(tail -1 \$1.log)"
+{ for d in $DATA; do echo "$E/$d.root $O/${PRE}_$(basename $d).root 0"; done
+  echo "$E/DYJetsToLL/$DY.root $O/${PRE}_DY_${DY#DYJetsToLL_}.root 1"; } |
+  xargs -P 4 -L 1 sh -c "./$EXE \$0 \$1 $YEAR \$2 > \$1.log 2>&1; echo \$(basename \$1): \$(tail -1 \$1.log)"

@@ -82,7 +82,8 @@
 	eleFiredSingleTrgs_ = (*raw.eleFiredSingleTrgs)[iele];
 	eleFiredDoubleTrgs_ = (*raw.eleFiredDoubleTrgs)[iele];
 	eleFiredL1Trgs_ = (*raw.eleFiredL1Trgs)[iele];
-    eleIDbit_ = (*raw.eleIDbit)[iele];
+    	eleIDbit_ = (*raw.eleIDbit)[iele];
+        eleRho_ = raw.rho;
  }
 
   ~recoEle(){
@@ -127,6 +128,7 @@ inline int  getConvVeto() {return eleConvVeto_;}
 inline int  getMissHits() {return eleMissHits_;}
 inline float getdEtaIn() {return eledEtaAtVtx_;}
 inline float getdPhiIn() {return eledPhiAtVtx_;}
+inline float getRho() {return eleRho_;}
 
 inline bool isLoose() {
    if((( eleIDbit_ >> 1)&1)==1)return true;
@@ -202,6 +204,7 @@ private:
     Int_t  eleFiredL1Trgs_;
     float  HoverEcut_;
     UShort_t eleIDbit_;
+    float  eleRho_;
 };
   
 

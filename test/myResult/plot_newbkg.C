@@ -3,6 +3,7 @@
 #include<fstream>
 #include<sstream>
 #include<algorithm>
+#include<vector>
 
 #include "TFile.h"
 #include "TTree.h"
@@ -26,6 +27,89 @@
 #include "../../include/analysis_commoncode.h"
 
 bool total16 = false; // ON and OFF
+
+struct StackComponent {
+        TH1F *hist;
+        TString label;
+};
+
+struct StackResult {
+    std::vector<StackComponent> stack;
+    TH1F* total;
+    double dataMax;
+    double dataMin;
+};
+
+StackResult BuildIntegralOrderedStack(
+    const std::vector<StackComponent>& components,
+    const TString& prefix,
+    TH1F* dataHist = nullptr)   // pass data histogram for range calculation
+{
+    std::vector<StackComponent> sorted(components);
+    std::sort(sorted.begin(), sorted.end(), [](const StackComponent& a, const StackComponent& b){
+        return a.hist->Integral() < b.hist->Integral();
+    });
+
+    std::vector<StackComponent> cumulative;
+    TH1F *running = nullptr;
+    for(size_t i = 0; i < sorted.size(); ++i){
+        TH1F *histClone = (TH1F*)sorted[i].hist->Clone(
+            Form("%s_%zu", prefix.Data(), i));
+        histClone->SetDirectory(0);
+        if(running) histClone->Add(running);
+        running = histClone;
+        cumulative.push_back({histClone, sorted[i].label});
+    }
+
+    TH1F* total = cumulative.back().hist;
+
+    double dataMin = 0.1;
+    for(int ibin = 1; ibin < sorted[0].hist->GetSize()-1; ibin++){
+        double v = sorted[0].hist->GetBinContent(ibin);
+        if(v > 0){ dataMin = v * 0.5; break; }
+    }
+
+    double dataMax = total->GetBinContent(total->GetMaximumBin());
+    if(dataHist){
+        double dmax = dataHist->GetBinContent(dataHist->GetMaximumBin())
+                    + dataHist->GetBinError(dataHist->GetMaximumBin());
+        dataMax = std::max(dataMax, dmax);
+    }
+
+    double ymax = dataMax * 5000.0;
+    double ymin = std::max(dataMin, 0.05);
+
+    total->SetMinimum(ymin);
+    total->SetMaximum(ymax);
+
+    return {cumulative, total, dataMax, dataMin};
+}
+
+// Log-scale y maximum that puts the tallest bin (content + error, within the visible
+// x range of hists[0]) at `frac` of the frame height, keeping the legends above it clear.
+double LogYMaxBelowLegend(const std::vector<TH1*>& hists, double ymin, double frac = 0.5)
+{
+    int first = hists[0]->GetXaxis()->GetFirst();
+    int last  = hists[0]->GetXaxis()->GetLast();
+    double top = ymin;
+    for(TH1* h : hists)
+        for(int ibin = first; ibin <= last; ibin++)
+            top = std::max(top, h->GetBinContent(ibin) + h->GetBinError(ibin));
+    return ymin * std::pow(top/ymin, 1.0/frac);
+}
+
+// Single-column legend with a fixed pixel text size, so labels never spill into a
+// neighbouring column or over the frame edge.
+TLegend* MakeLegend(double x1, double y1, double x2, double y2)
+{
+    TLegend *leg = new TLegend(x1, y1, x2, y2);
+    leg->SetFillStyle(0);
+    leg->SetBorderSize(0);
+    leg->SetTextFont(43);
+    leg->SetTextSize(16);
+    leg->SetMargin(0.22);
+    return leg;
+}
 
 void plot_newbkg(){
 
@@ -79,15 +163,17 @@ void plot_newbkg(){
 	TFile *file_t5 = TFile::Open(Form("/uscms/home/tmishra/nobackup/signal_trees/signalTree_T5WG_%d%s.root",RunYear, whichVFP.c_str()));
 	TFile *file_tchi = TFile::Open(Form("/uscms/home/tmishra/nobackup/signal_trees/signalTree_TChiWG_%d%s.root",RunYear, whichVFP.c_str()));
 	
-//	TFile *file_t5 = TFile::Open("/uscms/homes/m/mengleis/work/SUSY2016/SUSYAnalysis/test/Result/signalTree_T5WG.root");
-//	TFile *file_tchi=TFile::Open("/uscms/homes/m/mengleis/work/SUSY2016/SUSYAnalysis/test/Result/signalTree_TChiWG.root");
-	
 	TH1D *p_t5wg_MET_signal_1700_1000= (TH1D*)file_t5->Get("p_t5wg_MET_signal_1700_1000_mg");
 	TH1D *p_tchiwg_MET_signal_800  = (TH1D*)file_tchi->Get("p_tchiwg_MET_signal_mg");
 	TH1D *p_t5wg_HT_signal_1700_1000= (TH1D*)file_t5->Get("p_t5wg_HT_signal_1700_1000_mg");
 	TH1D *p_tchiwg_HT_signal_800  = (TH1D*)file_tchi->Get("p_tchiwg_HT_signal_mg");
 	TH1D *p_t5wg_PhoEt_signal_1700_1000= (TH1D*)file_t5->Get("p_t5wg_PhoEt_signal_1700_1000_mg");
 	TH1D *p_tchiwg_PhoEt_signal_800  = (TH1D*)file_tchi->Get("p_tchiwg_PhoEt_signal_mg");
+
+	// additional T5Wg mass point (1900, 100)
+	TH1D *p_t5wg_MET_signal_1900_100   = (TH1D*)file_t5->Get("p_t5wg_MET_signal_1900_100_mg");
+	TH1D *p_t5wg_HT_signal_1900_100    = (TH1D*)file_t5->Get("p_t5wg_HT_signal_1900_100_mg");
+	TH1D *p_t5wg_PhoEt_signal_1900_100 = (TH1D*)file_t5->Get("p_t5wg_PhoEt_signal_1900_100_mg");
 
 
 	Double_t bkgEtBins[]={35,40,45,50,55,60,65,70,75,80, 85,90,95,100,105,110,115,120,125,130, 135,140,146,152,158,164,170,177,184,192, 200,208,216,224,232,240,250,260,275,290, 305,325,345,370,400,500,800};
@@ -130,6 +216,13 @@ const int nSigHTBins= sizeof(sigHTBins)/sizeof(sigHTBins[0]) -1;
 	TH1F *p_allHT  = (TH1F*)file_sig->Get("p_HT");
 	TH1F *p_allPU    = (TH1F*)file_sig->Get("p_PU");
 
+	p_allPhoEt->GetYaxis()->SetTitle("Events / bin");
+	p_allLepPt->GetYaxis()->SetTitle("Events / bin");
+	p_allMET->GetYaxis()->SetTitle("Events / bin");
+	p_allMt->GetYaxis()->SetTitle("Events / bin");
+	p_allHT->GetYaxis()->SetTitle("Events / bin");
+	p_allPU->GetYaxis()->SetTitle("Events / bin");
+	
 	p_allPhoEt->SetMarkerColor(1);
 	p_allLepPt->SetMarkerColor(1);
 	p_allMET->SetMarkerColor(1);
@@ -142,12 +235,7 @@ const int nSigHTBins= sizeof(sigHTBins)/sizeof(sigHTBins[0]) -1;
 	p_allMt->SetTitle("");
 	p_allHT->SetTitle("");
 	p_allPU->SetTitle("");
-	p_allPhoEt->GetYaxis()->SetTitle("Events / bin");
-	p_allLepPt->GetYaxis()->SetTitle("Events / bin");
-	p_allMET->GetYaxis()->SetTitle("Events / bin");
-	p_allMt->GetYaxis()->SetTitle("Events / bin");
-	p_allHT->GetYaxis()->SetTitle("Events / bin");
-	p_allPU->GetYaxis()->SetTitle("Events / bin");
+
 	
 	TH1F *p_elePhoEt = (TH1F*)file_ele->Get("p_PhoEt");
 	TH1F *p_eleLepPt = (TH1F*)file_ele->Get("p_LepPt");
@@ -184,6 +272,34 @@ const int nSigHTBins= sizeof(sigHTBins)/sizeof(sigHTBins[0]) -1;
 	TH1F *p_rareHT  = (TH1F*)file_rare->Get("p_HT");
 	TH1F *p_rarePU    = (TH1F*)file_rare->Get("p_PU");
 
+/*	p_VGPhoEt->GetYaxis()->SetTitleOffset(1.4);
+	p_VGLepPt->GetYaxis()->SetTitleOffset(1.4);
+	p_VGMET->GetYaxis()->SetTitleOffset(1.4);
+	p_VGMt->GetYaxis()->SetTitleOffset(1.4);
+	p_VGHT->GetYaxis()->SetTitleOffset(1.4);
+	p_VGPU->GetYaxis()->SetTitleOffset(1.4);
+*/
+	p_qcdPhoEt->GetYaxis()->SetTitle("Events / bin");
+	p_qcdLepPt->GetYaxis()->SetTitle("Events / bin");
+	p_qcdMET->GetYaxis()->SetTitle("Events / bin");
+	p_qcdMt->GetYaxis()->SetTitle("Events / bin");
+	p_qcdHT->GetYaxis()->SetTitle("Events / bin");
+	p_qcdPU->GetYaxis()->SetTitle("Events / bin");
+
+	p_VGPhoEt->GetYaxis()->SetTitle("Events / bin");
+	p_VGLepPt->GetYaxis()->SetTitle("Events / bin");
+	p_VGMET->GetYaxis()->SetTitle("Events / bin");
+	p_VGMt->GetYaxis()->SetTitle("Events / bin");
+	p_VGHT->GetYaxis()->SetTitle("Events / bin");
+	p_VGPU->GetYaxis()->SetTitle("Events / bin");
+	
+	p_VGPhoEt->GetXaxis()->SetTitleOffset(1.4);
+	p_VGLepPt->GetXaxis()->SetTitleOffset(1.4);
+	p_VGMET->GetXaxis()->SetTitleOffset(1.4);
+	p_VGMt->GetXaxis()->SetTitleOffset(1.4);
+	p_VGHT->GetXaxis()->SetTitleOffset(1.4);
+	p_VGPU->GetXaxis()->SetTitleOffset(1.4);
+	
 	int binnumber;
  binnumber = p_allPhoEt->GetSize()-2;  p_allPhoEt->SetBinContent(binnumber,  p_allPhoEt->GetBinContent(binnumber) +   p_allPhoEt->GetBinContent(binnumber+1) );   
  binnumber = p_allLepPt->GetSize()-2;  p_allLepPt->SetBinContent(binnumber,  p_allLepPt->GetBinContent(binnumber) +   p_allLepPt->GetBinContent(binnumber+1) ); 
@@ -262,6 +378,8 @@ const int nSigHTBins= sizeof(sigHTBins)/sizeof(sigHTBins[0]) -1;
 	binnumber = p_tchiwg_MET_signal_800->GetSize()-2; p_tchiwg_MET_signal_800->SetBinContent(binnumber, p_tchiwg_MET_signal_800->GetBinContent(binnumber) + p_tchiwg_MET_signal_800->GetBinContent(binnumber+1) );
 	binnumber = p_t5wg_HT_signal_1700_1000->GetSize()-2; p_t5wg_HT_signal_1700_1000->SetBinContent(binnumber, p_t5wg_HT_signal_1700_1000->GetBinContent(binnumber) + p_t5wg_HT_signal_1700_1000->GetBinContent(binnumber+1) );
 	binnumber = p_tchiwg_HT_signal_800->GetSize()-2; p_tchiwg_HT_signal_800->SetBinContent(binnumber, p_tchiwg_HT_signal_800->GetBinContent(binnumber) + p_tchiwg_HT_signal_800->GetBinContent(binnumber+1) );
+	binnumber = p_t5wg_MET_signal_1900_100->GetSize()-2; p_t5wg_MET_signal_1900_100->SetBinContent(binnumber, p_t5wg_MET_signal_1900_100->GetBinContent(binnumber) + p_t5wg_MET_signal_1900_100->GetBinContent(binnumber+1) );
+	binnumber = p_t5wg_HT_signal_1900_100->GetSize()-2; p_t5wg_HT_signal_1900_100->SetBinContent(binnumber, p_t5wg_HT_signal_1900_100->GetBinContent(binnumber) + p_t5wg_HT_signal_1900_100->GetBinContent(binnumber+1) );
 
 	std::ostringstream etplot;  etplot.str("");
 	std::ostringstream ptplot;  ptplot.str("");
@@ -270,19 +388,29 @@ const int nSigHTBins= sizeof(sigHTBins)/sizeof(sigHTBins[0]) -1;
 	std::ostringstream htplot;  htplot.str("");
 
 	if(ichannel == 1){
-                        etplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"SIGNAL_egamma_pt_" << RunYear<<whichVFP <<".png";
-                        ptplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"SIGNAL_egamma_leppt_" << RunYear<<whichVFP <<".png";
-                        metplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"SIGNAL_egamma_met_" << RunYear<<whichVFP <<".png";
-                        mtplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"SIGNAL_egamma_mt_" << RunYear<<whichVFP <<".png";
-                        htplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"SIGNAL_egamma_ht_" << RunYear<<whichVFP <<".png";
+                        etplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"SIGNAL_egamma_pt_" << RunYear<<whichVFP <<".pdf";
+                        ptplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"SIGNAL_egamma_leppt_" << RunYear<<whichVFP <<".pdf";
+                        metplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"SIGNAL_egamma_met_" << RunYear<<whichVFP <<".pdf";
+                        mtplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"SIGNAL_egamma_mt_" << RunYear<<whichVFP <<".pdf";
+                        htplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"SIGNAL_egamma_ht_" << RunYear<<whichVFP <<".pdf";
         }
         else if(ichannel == 2){
-                        etplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"SIGNAL_mg_pt_" << RunYear<<whichVFP <<".png";
-                        ptplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"SIGNAL_mg_leppt_" << RunYear<<whichVFP <<".png";
-                        metplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"SIGNAL_mg_met_" << RunYear<<whichVFP <<".png";
-                        mtplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"SIGNAL_mg_mt_" << RunYear<<whichVFP <<".png";
-                        htplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"SIGNAL_mg_ht_" << RunYear<<whichVFP <<".png";
+                        etplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"SIGNAL_mg_pt_" << RunYear<<whichVFP <<".pdf";
+                        ptplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"SIGNAL_mg_leppt_" << RunYear<<whichVFP <<".pdf";
+                        metplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"SIGNAL_mg_met_" << RunYear<<whichVFP <<".pdf";
+                        mtplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"SIGNAL_mg_mt_" << RunYear<<whichVFP <<".pdf";
+                        htplot << "/eos/uscms/store/user/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"SIGNAL_mg_ht_" << RunYear<<whichVFP <<".pdf";
         }
+	
+	const int col_ewk = TColor::GetColor("#b9ac70");
+    	const int col_jetfake = TColor::GetColor("#92dadd");
+    	const int col_elefake = TColor::GetColor("#bd1f01");
+    	const int col_qcdfake = TColor::GetColor("#3f90da");
+    	const int col_vgamma  = TColor::GetColor("#ffa90e ");
+
+	const int col_TChiWG    = TColor::GetColor("#832db6");
+        const int col_T5Wg  = TColor::GetColor("#e76300");
+        const int col_T5Wg2 = TColor::GetColor("#FFD700"); // T5Wg (1900,100): green, dotted
 
 	// ******** Mt ************************//
 	gStyle->SetOptStat(0);
@@ -303,84 +431,95 @@ const int nSigHTBins= sizeof(sigHTBins)/sizeof(sigHTBins[0]) -1;
 	p_allMt->SetMarkerStyle(20);
 	p_allMt->Draw("P");
 	p_VGMt->SetFillStyle(1001);
-	p_VGMt->SetLineColor(kGreen-9);
-	p_VGMt->SetFillColor(kGreen-9);
+	p_VGMt->SetLineColor(col_vgamma);
+	p_VGMt->SetFillColor(col_vgamma);
 	p_rareMt->SetFillStyle(1001);
-	p_rareMt->SetLineColor(kAzure-9);
-	p_rareMt->SetFillColor(kAzure-9);
+	p_rareMt->SetLineColor(col_ewk);
+	p_rareMt->SetFillColor(col_ewk);
 	p_qcdMt->SetFillStyle(1001);
-	p_qcdMt->SetLineColor(kYellow);
-	p_qcdMt->SetFillColor(kYellow);
+	p_qcdMt->SetLineColor(col_qcdfake);
+	p_qcdMt->SetFillColor(col_qcdfake);
 	p_eleMt->SetFillStyle(1001);
-	p_eleMt->SetLineColor(kMagenta-7);
-	p_eleMt->SetFillColor(kMagenta-7);
+	p_eleMt->SetLineColor(col_elefake);
+	p_eleMt->SetFillColor(col_elefake);
 	p_jetMt->SetFillStyle(1001);
-	p_jetMt->SetLineColor(kOrange-9);
-	p_jetMt->SetFillColor(kOrange-9);
-	p_eleMt->Add(p_rareMt); // ele 2nd
-	p_jetMt->Add(p_eleMt);  // jet 3rd
-	p_qcdMt->Add(p_jetMt);  // qcd 4th
-	p_VGMt->Add(p_qcdMt);   // VG  5th
-	for(int ibin(1); ibin < p_VGMt->GetSize(); ibin++){
-		error_Mt->SetPoint(ibin-1,p_VGMt->GetBinCenter(ibin), p_VGMt->GetBinContent(ibin));
-		float prederror = p_VGMt->GetBinError(ibin);
-//		prederror += p_eleMt->GetBinError(ibin);
-//		prederror += p_jetMt->GetBinError(ibin);
-//		prederror += p_qcdMt->GetBinError(ibin);
-//		prederror += p_rareMt->GetBinError(ibin);
-		error_Mt->SetPointError(ibin-1,(p_VGMt->GetBinLowEdge(ibin+1)-p_VGMt->GetBinLowEdge(ibin))/2,prederror);
-		ratioerror_Mt->SetPoint(ibin-1,p_VGMt->GetBinCenter(ibin), 1); 
-		ratioerror_Mt->SetPointError(ibin-1,(p_VGMt->GetBinLowEdge(ibin+1)-p_VGMt->GetBinLowEdge(ibin))/2, prederror/p_VGMt->GetBinContent(ibin)); 
+	p_jetMt->SetLineColor(col_jetfake);
+	p_jetMt->SetFillColor(col_jetfake);
+	std::vector<StackComponent> mtComponents = {
+		{p_rareMt, "t#bar{t}#gamma / WW#gamma / WZ#gamma"},
+		{p_eleMt, "e#rightarrow#gamma misid."},
+		{p_jetMt, "j#rightarrow#gamma misid."},
+		{p_qcdMt, "Misid. lepton"},
+		{p_VGMt, "W#gamma / Z#gamma"}
+	};
+	auto mtResult = BuildIntegralOrderedStack(mtComponents, "mt_stack", nullptr);
+	std::vector<StackComponent>& mtStack = mtResult.stack;
+	TH1F *p_totalMt = mtResult.total;
+	for(int ibin(1); ibin < p_totalMt->GetSize(); ibin++){
+		error_Mt->SetPoint(ibin-1,p_totalMt->GetBinCenter(ibin), p_totalMt->GetBinContent(ibin));
+		float prederror = p_totalMt->GetBinError(ibin);
+		error_Mt->SetPointError(ibin-1,(p_totalMt->GetBinLowEdge(ibin+1)-p_totalMt->GetBinLowEdge(ibin))/2,prederror);
+		ratioerror_Mt->SetPoint(ibin-1,p_totalMt->GetBinCenter(ibin), 1);
+		ratioerror_Mt->SetPointError(ibin-1,(p_totalMt->GetBinLowEdge(ibin+1)-p_totalMt->GetBinLowEdge(ibin))/2, prederror/p_totalMt->GetBinContent(ibin));
 	}
-	p_VGMt->Draw("hist same");
-	p_qcdMt->Draw("hist same");
-	p_jetMt->Draw("hist same");
-	p_eleMt->Draw("hist same");
-	p_rareMt->Draw("hist same");
+	mtStack[mtStack.size()-1].hist->SetMinimum(0.2);
+
+	for(int idx = mtStack.size()-1; idx >= 0; --idx) mtStack[idx].hist->Draw("hist same");
   	error_Mt->SetFillColor(12);
   	error_Mt->SetFillStyle(3345);
-
         error_Mt->Draw("E2 same");
         p_allMt->Draw("E same");
 
-
-	TLegend *leg_mt =  new TLegend(0.35,0.5,0.9,0.8);
-	leg_mt->SetNColumns(2);
-	leg_mt->SetFillStyle(0);
-	leg_mt->SetBorderSize(0);
-	leg_mt->SetFillColor(0);
-	p_rareMt->SetMarkerSize(0);
-	p_eleMt->SetMarkerSize(0);
-	p_jetMt->SetMarkerSize(0);
-	p_qcdMt->SetMarkerSize(0);
-	p_VGMt->SetMarkerSize(0);
+	// Backgrounds on the left, data/unc./signals on the right; the frame's right edge is at 0.95
+	TLegend *leg_mt  = MakeLegend(0.36, 0.57, 0.64, 0.82);
+	TLegend *leg_sig = MakeLegend(0.65, 0.57, 0.93, 0.82);
+	for(size_t i = 0; i < mtStack.size(); ++i) mtStack[i].hist->SetMarkerSize(0);
 	ratioerror_Mt->SetMarkerSize(0);
 	ratioerror_Mt->SetLineWidth(0);
 
-	leg_mt->AddEntry(p_allMt,"Data","epl");
-	leg_mt->AddEntry(p_rareMt,"t#bar{t}#gamma / WW#gamma / WZ#gamma");
-	leg_mt->AddEntry(p_VGMt, "W#gamma / Z#gamma");
-  	leg_mt->AddEntry(p_t5wg_MET_signal_1700_1000, "T5Wg");
-	leg_mt->AddEntry(p_qcdMt,"Misid. lepton");
-	leg_mt->AddEntry(p_tchiwg_MET_signal_800, "TChiWg");
-	leg_mt->AddEntry(p_jetMt,"j #rightarrow #gamma misid.");
-	leg_mt->AddEntry(ratioerror_Mt, "Unc.");
-	leg_mt->AddEntry(p_eleMt,"e #rightarrow #gamma misid.");
+	p_t5wg_MET_signal_1700_1000->SetLineColor(col_T5Wg);
+  	p_t5wg_MET_signal_1700_1000->SetLineWidth(4);
+  	p_t5wg_MET_signal_1700_1000->SetFillStyle(0);
+        p_tchiwg_MET_signal_800->SetLineColor(col_TChiWG);
+        p_tchiwg_MET_signal_800->SetLineStyle(2);
+        p_tchiwg_MET_signal_800->SetLineWidth(4);
+        p_tchiwg_MET_signal_800->SetFillStyle(0);
+
+	// T5Wg (1900,100): dash-dotted line, different colour (styled on all three observables);
+	// style 3 (dotted) at width 4 fills in and looks solid
+	TH1D* t5wg2_hists[3] = {p_t5wg_MET_signal_1900_100, p_t5wg_HT_signal_1900_100, p_t5wg_PhoEt_signal_1900_100};
+	for(int ih = 0; ih < 3; ++ih){
+		t5wg2_hists[ih]->SetLineColor(col_T5Wg2);
+		t5wg2_hists[ih]->SetLineStyle(4);
+		t5wg2_hists[ih]->SetLineWidth(4);
+		t5wg2_hists[ih]->SetFillStyle(0);
+	}
+
+	for(int idx = mtStack.size()-1; idx >= 0; --idx) leg_mt->AddEntry(mtStack[idx].hist, mtStack[idx].label, "f");
+	leg_sig->AddEntry(p_allMt,"Data","epl");
+	leg_sig->AddEntry(ratioerror_Mt, "Unc.", "f");
+  	leg_sig->AddEntry(p_t5wg_MET_signal_1700_1000, "T5Wg (1700, 1000)", "l");
+	leg_sig->AddEntry(p_t5wg_MET_signal_1900_100,  "T5Wg (1900, 100)",  "l");
+	leg_sig->AddEntry(p_tchiwg_MET_signal_800, "TChiWg (800)", "l");
 
   	TLatex chantex;
   	chantex.SetNDC();
   	chantex.SetTextFont(42);
   	chantex.SetTextSize(0.08);
-        //chantex.DrawLatex(0.2,0.7,"(c)");
   	chantex.SetTextSize(0.05);
-	       if(ichannel == 1) chantex.DrawLatex(0.4,0.85,"e#gamma, M_{T} > 100 GeV, p_{T}^{miss} > 120 GeV");
-        else if(ichannel == 2) chantex.DrawLatex(0.4,0.85,"#mu#gamma, M_{T} > 100 GeV, p_{T}^{miss} > 120 GeV");
+	if(ichannel == 1) chantex.DrawLatex(0.4,0.85,"e#gamma, M_{T} > 100 GeV, p_{T}^{miss} > 120 GeV");
+	else if(ichannel == 2) chantex.DrawLatex(0.4,0.85,"#mu#gamma, M_{T} > 100 GeV, p_{T}^{miss} > 120 GeV");
+	p_allMt->SetMaximum(LogYMaxBelowLegend({p_allMt, p_totalMt}, 0.5, 0.55));
         leg_mt->Draw("same");
+        leg_sig->Draw("same");
 	
 	if(RunYear==2016 and preVFP == 1)       CMS_lumi( mt_pad1,1,1, 11 );
         else if(RunYear==2016 and preVFP == 0)  CMS_lumi( mt_pad1,2,1, 11 );
         else if(RunYear==2017)                  CMS_lumi( mt_pad1,3,1, 11 );
         else if(RunYear==2018)                  CMS_lumi( mt_pad1,4,1, 11 );
+	else if(ichannel == 1 and RunYear==678) CMS_lumi( mt_pad1,6,1, 11 );
+        else if(ichannel == 2 and RunYear==678) CMS_lumi( mt_pad1,7,1, 11 );
+
 
 	c_mt->cd();
 	TPad *mt_pad2 = new TPad("mt_pad2", "mt_pad2", 0, 0, 1, 0.3);
@@ -394,9 +533,10 @@ const int nSigHTBins= sizeof(sigHTBins)/sizeof(sigHTBins[0]) -1;
 	ratio_mt->GetXaxis()->SetRangeUser(0,800);
 	ratio_mt->GetYaxis()->SetRangeUser(0,2);
 	ratio_mt->GetYaxis()->SetNdivisions(504);
-	ratio_mt->Divide(p_VGMt);
+	ratio_mt->Divide(p_totalMt);
 	ratio_mt->SetTitle("");
-	ratio_mt->GetYaxis()->SetTitle("#frac{Data}{Bkg.}");
+	ratio_mt->GetYaxis()->SetTitle("Data / Pred.");
+	ratio_mt->GetXaxis()->SetTitleOffset(1.0);
 	ratio_mt->Draw();
 	ratioerror_Mt->SetFillColor(12);
 	ratioerror_Mt->SetFillStyle(3345);
@@ -416,73 +556,81 @@ const int nSigHTBins= sizeof(sigHTBins)/sizeof(sigHTBins[0]) -1;
 	pt_pad1->cd();  
 	gPad->SetLogy();
 	p_allPhoEt->SetMaximum(50*p_allPhoEt->GetBinContent(p_allPhoEt->GetMaximumBin()));
-	p_allPhoEt->SetMinimum(0.5);
+	p_allPhoEt->SetMinimum(0.05);
 	p_allPhoEt->GetXaxis()->SetRangeUser(35,800);
 	p_allPhoEt->SetLineColor(1);
 	p_allPhoEt->SetMarkerStyle(20);
 	p_allPhoEt->Draw("P");
 	p_VGPhoEt->SetFillStyle(1001);
-	p_VGPhoEt->SetLineColor(kGreen-9);
-	p_VGPhoEt->SetFillColor(kGreen-9);
+	p_VGPhoEt->SetLineColor(col_vgamma);
+	p_VGPhoEt->SetFillColor(col_vgamma);
 	p_rarePhoEt->SetFillStyle(1001);
-	p_rarePhoEt->SetLineColor(kAzure-9);
-	p_rarePhoEt->SetFillColor(kAzure-9);
+	p_rarePhoEt->SetLineColor(col_ewk);
+	p_rarePhoEt->SetFillColor(col_ewk);
 	p_qcdPhoEt->SetFillStyle(1001);
-	p_qcdPhoEt->SetLineColor(kYellow);
-	p_qcdPhoEt->SetFillColor(kYellow);
+	p_qcdPhoEt->SetLineColor(col_qcdfake);
+	p_qcdPhoEt->SetFillColor(col_qcdfake);
 	p_elePhoEt->SetFillStyle(1001);
-	p_elePhoEt->SetLineColor(kMagenta-7);
-	p_elePhoEt->SetFillColor(kMagenta-7);
+	p_elePhoEt->SetLineColor(col_elefake);
+	p_elePhoEt->SetFillColor(col_elefake);
 	p_jetPhoEt->SetFillStyle(1001);
-	p_jetPhoEt->SetLineColor(kOrange-9);
-	p_jetPhoEt->SetFillColor(kOrange-9);
-	p_elePhoEt->Add(p_rarePhoEt); // ele 2nd
-	p_jetPhoEt->Add(p_elePhoEt);  // jet 3rd
-	p_qcdPhoEt->Add(p_jetPhoEt);  // qcd 4th
-	p_VGPhoEt->Add(p_qcdPhoEt);   // VG  5th
-	p_VGPhoEt->Sumw2();
-	for(int ibin(1); ibin < p_VGPhoEt->GetSize(); ibin++){
-		error_PhoEt->SetPoint(ibin-1,p_VGPhoEt->GetBinCenter(ibin), p_VGPhoEt->GetBinContent(ibin));
-		float prederror = p_VGPhoEt->GetBinError(ibin);
-		//prederror += p_elePhoEt->GetBinError(ibin);
-		//prederror += p_jetPhoEt->GetBinError(ibin);
-		//prederror += p_qcdPhoEt->GetBinError(ibin);
-		//prederror += p_rarePhoEt->GetBinError(ibin)*0.6;
-		error_PhoEt->SetPointError(ibin-1,(p_VGPhoEt->GetBinLowEdge(ibin+1)-p_VGPhoEt->GetBinLowEdge(ibin))/2,prederror);
-		std::cout << p_elePhoEt->GetBinError(ibin) << " " << p_jetPhoEt->GetBinError(ibin) << " " << p_qcdPhoEt->GetBinError(ibin) << " " << p_rarePhoEt->GetBinError(ibin)  << std::endl;
-		ratioerror_PhoEt->SetPoint(ibin-1,p_VGPhoEt->GetBinCenter(ibin), 1); 
-		ratioerror_PhoEt->SetPointError(ibin-1,(p_VGPhoEt->GetBinLowEdge(ibin+1)-p_VGPhoEt->GetBinLowEdge(ibin))/2, prederror/p_VGPhoEt->GetBinContent(ibin)); 
+	p_jetPhoEt->SetLineColor(col_jetfake);
+	p_jetPhoEt->SetFillColor(col_jetfake);
+	
+	std::vector<StackComponent> phoEtComponents = {
+		{p_rarePhoEt, "t#bar{t}#gamma / WW#gamma / WZ#gamma"},
+		{p_elePhoEt, "e#rightarrow#gamma misid."},
+		{p_jetPhoEt, "j#rightarrow#gamma misid."},
+		{p_qcdPhoEt, "Misid. lepton"},
+		{p_VGPhoEt, "W#gamma / Z#gamma"}
+	};
+	auto phoEtResult = BuildIntegralOrderedStack(phoEtComponents, "phoet_stack", nullptr);
+	std::vector<StackComponent>& phoEtStack = phoEtResult.stack;
+	TH1F *p_totalPhoEt = phoEtResult.total;
+	p_totalPhoEt->Sumw2();
+	for(int ibin(1); ibin < p_totalPhoEt->GetSize(); ibin++){
+		error_PhoEt->SetPoint(ibin-1,p_totalPhoEt->GetBinCenter(ibin), p_totalPhoEt->GetBinContent(ibin));
+		float prederror = p_totalPhoEt->GetBinError(ibin);
+		error_PhoEt->SetPointError(ibin-1,(p_totalPhoEt->GetBinLowEdge(ibin+1)-p_totalPhoEt->GetBinLowEdge(ibin))/2,prederror);
+		ratioerror_PhoEt->SetPoint(ibin-1,p_totalPhoEt->GetBinCenter(ibin), 1);
+		ratioerror_PhoEt->SetPointError(ibin-1,(p_totalPhoEt->GetBinLowEdge(ibin+1)-p_totalPhoEt->GetBinLowEdge(ibin))/2, prederror/p_totalPhoEt->GetBinContent(ibin));
+
 	}
-	p_VGPhoEt->Draw("hist same");
-	p_qcdPhoEt->Draw("hist same");
-	p_jetPhoEt->Draw("hist same");
-	p_elePhoEt->Draw("hist same");
-	p_rarePhoEt->Draw("hist same");
-  error_PhoEt->SetFillColor(12);
-  error_PhoEt->SetFillStyle(3345);
+	phoEtStack[phoEtStack.size()-1].hist->SetMinimum(0.2);
+
+	for(int idx = phoEtStack.size()-1; idx >= 0; --idx) phoEtStack[idx].hist->Draw("hist same");
+  	error_PhoEt->SetFillColor(12);
+  	error_PhoEt->SetFillStyle(3345);
 	error_PhoEt->Draw("E2 same");
 	p_allPhoEt->Draw("E same");
-  p_t5wg_PhoEt_signal_1700_1000->SetLineColor(9);
+  p_t5wg_PhoEt_signal_1700_1000->SetLineColor(col_T5Wg);
   p_t5wg_PhoEt_signal_1700_1000->SetLineWidth(4);
   p_t5wg_PhoEt_signal_1700_1000->SetFillStyle(0); 
   p_t5wg_PhoEt_signal_1700_1000->Draw("HIST  same");
-	p_tchiwg_PhoEt_signal_800->SetLineColor(28);
+  p_t5wg_PhoEt_signal_1900_100->Draw("HIST  same");
+	p_tchiwg_PhoEt_signal_800->SetLineColor(col_TChiWG);
 	p_tchiwg_PhoEt_signal_800->SetLineStyle(2);
 	p_tchiwg_PhoEt_signal_800->SetLineWidth(4);
 	p_tchiwg_PhoEt_signal_800->SetFillStyle(0); 
 	p_tchiwg_PhoEt_signal_800->Draw("HIST  same");
-  chantex.SetNDC();
-  chantex.SetTextFont(42);
-  chantex.SetTextSize(0.08);    
-	//chantex.DrawLatex(0.2,0.7,"(c)");
-  chantex.SetTextSize(0.05);    
-         if(ichannel == 1) chantex.DrawLatex(0.4,0.85,"e#gamma, M_{T} > 100 GeV, p_{T}^{miss} > 120 GeV");
-        else if(ichannel == 2) chantex.DrawLatex(0.4,0.85,"#mu#gamma, M_{T} > 100 GeV, p_{T}^{miss} > 120 GeV");
+  	chantex.SetNDC();
+  	chantex.SetTextFont(42);
+  	chantex.SetTextSize(0.08);    
+	if(ichannel == 1) chantex.DrawLatex(0.2,0.8,"(c)");
+        else if(ichannel == 2) chantex.DrawLatex(0.2,0.8,"(d)");
+  	chantex.SetTextSize(0.05);    
+	if(ichannel == 1) chantex.DrawLatex(0.4,0.85,"e#gamma, M_{T} > 100 GeV, p_{T}^{miss} > 120 GeV");
+	else if(ichannel == 2) chantex.DrawLatex(0.4,0.85,"#mu#gamma, M_{T} > 100 GeV, p_{T}^{miss} > 120 GeV");
+	p_allPhoEt->SetMaximum(LogYMaxBelowLegend({p_allPhoEt, p_totalPhoEt, p_t5wg_PhoEt_signal_1700_1000, p_t5wg_PhoEt_signal_1900_100, p_tchiwg_PhoEt_signal_800}, 0.05, 0.55));
 	leg_mt->Draw("same");
+	leg_sig->Draw("same");
 	if(RunYear==2016 and preVFP == 1)       CMS_lumi( pt_pad1,1,1, 11 );
         else if(RunYear==2016 and preVFP == 0)  CMS_lumi( pt_pad1,2,1, 11 );
         else if(RunYear==2017)                  CMS_lumi( pt_pad1,3,1, 11 );
         else if(RunYear==2018)                  CMS_lumi( pt_pad1,4,1, 11 );
+	else if(ichannel == 1 and RunYear==678) CMS_lumi( pt_pad1,6,1, 11 );
+	else if(ichannel == 2 and RunYear==678) CMS_lumi( pt_pad1,7,1, 11 );
+
  	gPad->RedrawAxis();
 
 	c_pt->cd();
@@ -492,12 +640,14 @@ const int nSigHTBins= sizeof(sigHTBins)/sizeof(sigHTBins[0]) -1;
 	pt_pad2->cd();
   TLine *flatratio = new TLine(35,1,800,1);
 	TH1F *ratio=(TH1F*)p_allPhoEt->Clone("transfer factor");
-	ratio->GetYaxis()->SetRangeUser(0,2);
+
 	ratio->SetMarkerStyle(20);
 	ratio->SetLineColor(kBlack);
-	ratio->Divide(p_VGPhoEt);
+	ratio->Divide(p_totalPhoEt);
 	ratio->SetTitle("");
-	ratio->GetYaxis()->SetTitle("#frac{Data}{Bkg.}");
+	ratio->GetYaxis()->SetTitle("Data / Pred.");
+	ratio->GetXaxis()->SetTitleOffset(1.0);
+	ratio->GetYaxis()->SetRangeUser(0,2);
 	ratio->GetYaxis()->SetNdivisions(504);
 	ratio->Draw();
 	ratioerror_PhoEt->SetFillColor(12);
@@ -516,75 +666,83 @@ const int nSigHTBins= sizeof(sigHTBins)/sizeof(sigHTBins[0]) -1;
 	setTopPad(met_pad1); 
 	met_pad1->SetTopMargin(0.1);
 	met_pad1->Draw();  
-	met_pad1->cd();  
+	met_pad1->cd();
 	gPad->SetLogy();
+
 	p_allMET->GetYaxis()->SetRangeUser(0.05, 100*p_allMET->GetBinContent(p_allMET->GetMaximumBin()));
-	p_allMET->SetMinimum(0.5);
+	p_allMET->SetMinimum(0.05);
 	p_allMET->GetXaxis()->SetRangeUser(0,600);
 	p_allMET->SetLineColor(1);
 	p_allMET->SetMarkerStyle(20);
 	p_allMET->Draw("P");
 	p_VGMET->SetFillStyle(1001);
-	p_VGMET->SetLineColor(kGreen-9);
-	p_VGMET->SetFillColor(kGreen-9);
+	p_VGMET->SetLineColor(col_vgamma);
+	p_VGMET->SetFillColor(col_vgamma);
 	p_rareMET->SetFillStyle(1001);
-	p_rareMET->SetLineColor(kAzure-9);
-	p_rareMET->SetFillColor(kAzure-9);
+	p_rareMET->SetLineColor(col_ewk);
+	p_rareMET->SetFillColor(col_ewk);
 	p_qcdMET->SetFillStyle(1001);
-	p_qcdMET->SetLineColor(kYellow);
-	p_qcdMET->SetFillColor(kYellow);
+	p_qcdMET->SetLineColor(col_qcdfake);
+	p_qcdMET->SetFillColor(col_qcdfake);
 	p_eleMET->SetFillStyle(1001);
-	p_eleMET->SetLineColor(kMagenta-7);
-	p_eleMET->SetFillColor(kMagenta-7);
+	p_eleMET->SetLineColor(col_elefake);
+	p_eleMET->SetFillColor(col_elefake);
 	p_jetMET->SetFillStyle(1001);
-	p_jetMET->SetLineColor(kOrange-9);
-	p_jetMET->SetFillColor(kOrange-9);
-	p_eleMET->Add(p_rareMET); // ele 2nd
-	p_jetMET->Add(p_eleMET);  // jet 3rd
-	p_qcdMET->Add(p_jetMET);  // qcd 4th
-	p_VGMET->Add(p_qcdMET);   // VG  5th
-	p_VGMET->Sumw2();
-	for(int ibin(1); ibin < p_VGMET->GetSize(); ibin++){
-		float prederror = p_VGMET->GetBinError(ibin);
-	//	prederror += p_eleMET->GetBinError(ibin);
-	//	prederror += p_jetMET->GetBinError(ibin);
-	//	prederror += p_qcdMET->GetBinError(ibin);
-	//	prederror += p_rareMET->GetBinError(ibin);
-		error_MET->SetPoint(ibin-1,p_VGMET->GetBinCenter(ibin), p_VGMET->GetBinContent(ibin));
-		error_MET->SetPointError(ibin-1,(p_VGMET->GetBinLowEdge(ibin+1)-p_VGMET->GetBinLowEdge(ibin))/2,prederror);
-		ratioerror_MET->SetPoint(ibin-1,p_VGMET->GetBinCenter(ibin), 1); 
-		ratioerror_MET->SetPointError(ibin-1,(p_VGMET->GetBinLowEdge(ibin+1)-p_VGMET->GetBinLowEdge(ibin))/2, prederror/p_VGMET->GetBinContent(ibin)); 
+	p_jetMET->SetLineColor(col_jetfake);
+	p_jetMET->SetFillColor(col_jetfake);
+	std::vector<StackComponent> metComponents = {
+		{p_rareMET, "t#bar{t}#gamma / WW#gamma / WZ#gamma"},
+		{p_eleMET, "e#rightarrow#gamma misid."},
+		{p_jetMET, "j#rightarrow#gamma misid."},
+		{p_qcdMET, "Misid. lepton"},
+		{p_VGMET, "W#gamma / Z#gamma"}
+	};
+
+	auto metResult = BuildIntegralOrderedStack(metComponents, "met_stack", nullptr);
+	std::vector<StackComponent>& metStack = metResult.stack;
+	TH1F *p_totalMET = metResult.total;
+	p_totalMET->Sumw2();
+	for(int ibin(1); ibin < p_totalMET->GetSize(); ibin++){
+		float prederror = p_totalMET->GetBinError(ibin);
+		error_MET->SetPoint(ibin-1,p_totalMET->GetBinCenter(ibin), p_totalMET->GetBinContent(ibin));
+		error_MET->SetPointError(ibin-1,(p_totalMET->GetBinLowEdge(ibin+1)-p_totalMET->GetBinLowEdge(ibin))/2,prederror);
+		ratioerror_MET->SetPoint(ibin-1,p_totalMET->GetBinCenter(ibin), 1); 
+		ratioerror_MET->SetPointError(ibin-1,(p_totalMET->GetBinLowEdge(ibin+1)-p_totalMET->GetBinLowEdge(ibin))/2, prederror/p_totalMET->GetBinContent(ibin)); 
 	}
-	p_VGMET->Draw("hist same");
-	p_qcdMET->Draw("hist same");
-	p_jetMET->Draw("hist same");
-	p_eleMET->Draw("hist same");
-	p_rareMET->Draw("hist same");
-  error_MET->SetFillColor(12);
-  error_MET->SetFillStyle(3345);
+	metStack[metStack.size()-1].hist->SetMinimum(0.2);
+
+	for(int idx = metStack.size()-1; idx >= 0; --idx) metStack[idx].hist->Draw("hist same");
+  	error_MET->SetFillColor(12);
+  	error_MET->SetFillStyle(3345);
 	error_MET->Draw("E2 same");
 	p_allMET->Draw("E same");
-  chantex.SetTextSize(0.08);    
-	//chantex.DrawLatex(0.2,0.7,"(a)");
+  	chantex.SetTextSize(0.08);    
+	if(ichannel == 1) chantex.DrawLatex(0.2,0.8,"(a)");
+	else if(ichannel == 2) chantex.DrawLatex(0.2,0.8,"(b)");
 	
-  p_t5wg_MET_signal_1700_1000->SetLineColor(9);
+  p_t5wg_MET_signal_1700_1000->SetLineColor(col_T5Wg);
   p_t5wg_MET_signal_1700_1000->SetLineWidth(4);
   p_t5wg_MET_signal_1700_1000->SetFillStyle(0); 
   p_t5wg_MET_signal_1700_1000->Draw("HIST  same");
-	p_tchiwg_MET_signal_800->SetLineColor(28);
+  p_t5wg_MET_signal_1900_100->Draw("HIST  same");
+	p_tchiwg_MET_signal_800->SetLineColor(col_TChiWG);
 	p_tchiwg_MET_signal_800->SetLineStyle(2);
 	p_tchiwg_MET_signal_800->SetLineWidth(4);
 	p_tchiwg_MET_signal_800->SetFillStyle(0); 
 	p_tchiwg_MET_signal_800->Draw("HIST  same");
+	p_allMET->SetMaximum(LogYMaxBelowLegend({p_allMET, p_totalMET, p_t5wg_MET_signal_1700_1000, p_t5wg_MET_signal_1900_100, p_tchiwg_MET_signal_800}, 0.05, 0.55));
 	leg_mt->Draw("same");
+	leg_sig->Draw("same");
 	if(RunYear==2016 and preVFP == 1)       CMS_lumi( met_pad1,1,1, 11 );
         else if(RunYear==2016 and preVFP == 0)  CMS_lumi( met_pad1,2,1, 11 );
         else if(RunYear==2017)                  CMS_lumi( met_pad1,3,1, 11 );
         else if(RunYear==2018)                  CMS_lumi( met_pad1,4,1, 11 );
-  chantex.SetTextSize(0.05);    
-         if(ichannel == 1) chantex.DrawLatex(0.4,0.85,"e#gamma, M_{T} > 100 GeV");
-        else if(ichannel == 2) chantex.DrawLatex(0.4,0.85,"#mu#gamma, M_{T} > 100 GeV");
+	else if(ichannel == 1 and RunYear==678) CMS_lumi( met_pad1,6,1, 11 );
+	else if(ichannel == 2 and RunYear==678) CMS_lumi( met_pad1,7,1, 11 );
 
+  	chantex.SetTextSize(0.05);    
+	if(ichannel == 1) chantex.DrawLatex(0.4,0.85,"e#gamma, M_{T} > 100 GeV");
+	else if(ichannel == 2) chantex.DrawLatex(0.4,0.85,"#mu#gamma, M_{T} > 100 GeV");
  	gPad->RedrawAxis();
 
 	c_met->cd();
@@ -598,11 +756,13 @@ const int nSigHTBins= sizeof(sigHTBins)/sizeof(sigHTBins[0]) -1;
 	ratio_met->GetYaxis()->SetNdivisions(504);
 	ratio_met->SetLineColor(kBlack);
 	ratio_met->SetMarkerStyle(20);
-	ratio_met->Divide(p_VGMET);
+	ratio_met->Divide(p_totalMET);
 	ratio_met->SetTitle("");
-	ratio_met->GetYaxis()->SetTitle("#frac{Data}{Bkg.}");
-	ratio_met->GetYaxis()->SetRangeUser(-1,3);
+	ratio_met->GetYaxis()->SetTitle("Data / Pred.");
+	ratio_met->GetYaxis()->SetRangeUser(0,2);
 	ratio_met->GetYaxis()->SetNdivisions(504);
+        ratio_met->GetXaxis()->SetTitleOffset(1.0);
+
 	ratio_met->Draw();
 	ratioerror_MET->SetFillColor(12);
 	ratioerror_MET->SetFillStyle(3345);
@@ -630,60 +790,55 @@ const int nSigHTBins= sizeof(sigHTBins)/sizeof(sigHTBins[0]) -1;
 	p_allLepPt->SetMarkerStyle(20);
 	p_allLepPt->Draw("P");
 	p_VGLepPt->SetFillStyle(1001);
-	p_VGLepPt->SetLineColor(kGreen-9);
-	p_VGLepPt->SetFillColor(kGreen-9);
+	p_VGLepPt->SetLineColor(col_vgamma);
+	p_VGLepPt->SetFillColor(col_vgamma);
 	p_rareLepPt->SetFillStyle(1001);
-	p_rareLepPt->SetLineColor(kAzure-9);
-	p_rareLepPt->SetFillColor(kAzure-9);
+	p_rareLepPt->SetLineColor(col_ewk);
+	p_rareLepPt->SetFillColor(col_ewk);
 	p_qcdLepPt->SetFillStyle(1001);
-	p_qcdLepPt->SetLineColor(kYellow);
-	p_qcdLepPt->SetFillColor(kYellow);
+	p_qcdLepPt->SetLineColor(col_qcdfake);
+	p_qcdLepPt->SetFillColor(col_qcdfake);
 	p_eleLepPt->SetFillStyle(1001);
-	p_eleLepPt->SetLineColor(kMagenta-7);
-	p_eleLepPt->SetFillColor(kMagenta-7);
+	p_eleLepPt->SetLineColor(col_elefake);
+	p_eleLepPt->SetFillColor(col_elefake);
 	p_jetLepPt->SetFillStyle(1001);
-	p_jetLepPt->SetLineColor(kOrange-9);
-	p_jetLepPt->SetFillColor(kOrange-9);
-	p_eleLepPt->Add(p_rareLepPt); // ele 2nd
-	p_jetLepPt->Add(p_eleLepPt);  // jet 3rd
-	p_qcdLepPt->Add(p_jetLepPt);  // qcd 4th
-	p_VGLepPt->Add(p_qcdLepPt);   // VG  5th
-	for(int ibin(1); ibin < p_VGLepPt->GetSize(); ibin++){
-		error_LepPt->SetPoint(ibin-1,p_VGLepPt->GetBinCenter(ibin), p_VGLepPt->GetBinContent(ibin));
-		float prederror = p_VGLepPt->GetBinError(ibin);
-//		prederror += p_eleLepPt->GetBinError(ibin);
-//		prederror += p_jetLepPt->GetBinError(ibin);
-//		prederror += p_qcdLepPt->GetBinError(ibin);
-//		prederror += p_rareLepPt->GetBinError(ibin);
-		error_LepPt->SetPointError(ibin-1,(p_VGLepPt->GetBinLowEdge(ibin+1)-p_VGLepPt->GetBinLowEdge(ibin))/2,prederror);
-		ratioerror_LepPt->SetPoint(ibin-1,p_VGLepPt->GetBinCenter(ibin), 1); 
-		ratioerror_LepPt->SetPointError(ibin-1,(p_VGLepPt->GetBinLowEdge(ibin+1)-p_VGLepPt->GetBinLowEdge(ibin))/2, prederror/p_VGLepPt->GetBinContent(ibin)); 
+	p_jetLepPt->SetLineColor(col_jetfake);
+	p_jetLepPt->SetFillColor(col_jetfake);
+	std::vector<StackComponent> lepPtComponents = {
+		{p_rareLepPt, "t#bar{t}#gamma/WW#gamma/WZ#gamma"},
+		{p_eleLepPt, "e->#gamma fake"},
+		{p_jetLepPt, "j->#gamma fake"},
+		{p_qcdLepPt, "l misid."},
+		{p_VGLepPt, "W#gamma/Z#gamma"}
+	};
+	auto lepPtResult = BuildIntegralOrderedStack(lepPtComponents, "leppt_stack", nullptr);
+	std::vector<StackComponent>& lepPtStack = lepPtResult.stack;
+	TH1F *p_totalLepPt = lepPtResult.total;
+	for(int ibin(1); ibin < p_totalLepPt->GetSize(); ibin++){
+		error_LepPt->SetPoint(ibin-1,p_totalLepPt->GetBinCenter(ibin), p_totalLepPt->GetBinContent(ibin));
+		float prederror = p_totalLepPt->GetBinError(ibin);
+		error_LepPt->SetPointError(ibin-1,(p_totalLepPt->GetBinLowEdge(ibin+1)-p_totalLepPt->GetBinLowEdge(ibin))/2,prederror);
+		ratioerror_LepPt->SetPoint(ibin-1,p_totalLepPt->GetBinCenter(ibin), 1); 
+		ratioerror_LepPt->SetPointError(ibin-1,(p_totalLepPt->GetBinLowEdge(ibin+1)-p_totalLepPt->GetBinLowEdge(ibin))/2, prederror/p_totalLepPt->GetBinContent(ibin)); 
 	}
-	p_VGLepPt->Draw("hist same");
-	p_qcdLepPt->Draw("hist same");
-	p_jetLepPt->Draw("hist same");
-	p_eleLepPt->Draw("hist same");
-	p_rareLepPt->Draw("hist same");
+	lepPtStack[lepPtStack.size()-1].hist->SetMinimum(0.2);
+
+	for(int idx = lepPtStack.size()-1; idx >= 0; --idx) lepPtStack[idx].hist->Draw("hist same");
   	error_LepPt->SetFillColor(12);
   	error_LepPt->SetFillStyle(3345);
 	error_LepPt->Draw("E2 same");
         p_allLepPt->Draw("E same");
-/*  	chantex.SetTextSize(0.08);
-        chantex.DrawLatex(0.2,0.7,"(e)");
-  	p_t5wg_HT_signal_1700_1000->SetLineColor(9);
-  	p_t5wg_HT_signal_1700_1000->SetLineWidth(4);
-  	p_t5wg_HT_signal_1700_1000->Draw("same");
-        p_tchiwg_HT_signal_800->SetLineColor(28);
-        p_tchiwg_HT_signal_800->SetLineStyle(2);
-        p_tchiwg_HT_signal_800->SetLineWidth(4);
-        p_tchiwg_HT_signal_800->Draw("same");*/
-
+	p_allLepPt->SetMaximum(LogYMaxBelowLegend({p_allLepPt, p_totalLepPt}, 0.05, 0.55));
         leg_mt->Draw("same");
+        leg_sig->Draw("same");
 
 	if(RunYear==2016 and preVFP == 1)       CMS_lumi( leppt_pad1,1,1, 11 );
         else if(RunYear==2016 and preVFP == 0)  CMS_lumi( leppt_pad1,2,1, 11 );
         else if(RunYear==2017)                  CMS_lumi( leppt_pad1,3,1, 11 );
         else if(RunYear==2018)                  CMS_lumi( leppt_pad1,4,1, 11 );
+	else if(ichannel == 1 and RunYear==678) CMS_lumi( leppt_pad1,6,1, 11 );
+        else if(ichannel == 2 and RunYear==678) CMS_lumi( leppt_pad1,7,1, 11 );
+
 
 	c_leppt->cd();
 	TPad *leppt_pad2 = new TPad("leppt_pad2", "leppt_pad2", 0, 0, 1, 0.3);
@@ -694,11 +849,12 @@ const int nSigHTBins= sizeof(sigHTBins)/sizeof(sigHTBins[0]) -1;
 	TH1F *ratio_leppt=(TH1F*)p_allLepPt->Clone("transfer factor");
 	ratio_leppt->SetMarkerStyle(20);
 	ratio_leppt->SetLineColor(kBlack);
-	ratio_leppt->Divide(p_VGLepPt);
+		ratio_leppt->Divide(p_totalLepPt);
 	ratio_leppt->SetTitle("");
 	ratio_leppt->GetYaxis()->SetRangeUser(0,2);
         ratio_leppt->GetYaxis()->SetNdivisions(504);
-	ratio_leppt->GetYaxis()->SetTitle("#frac{Data}{Bkg.}");
+	ratio_leppt->GetYaxis()->SetTitle("Data / Pred.");
+	ratio_leppt->GetXaxis()->SetTitleOffset(1.0);
 	ratio_leppt->Draw();
 	ratioerror_LepPt->SetFillColor(12);
 	ratioerror_LepPt->SetFillStyle(3345);
@@ -718,67 +874,79 @@ const int nSigHTBins= sizeof(sigHTBins)/sizeof(sigHTBins[0]) -1;
 	HT_pad1->Draw();  
 	HT_pad1->cd();  
 	gPad->SetLogy();
-	p_allHT->SetMinimum(0.5);
-	p_allHT->SetMaximum(100*p_allHT->GetBinContent(p_allHT->GetMaximumBin()));
+	p_allHT->SetMinimum(0.05);
+	p_allHT->SetMaximum(1000*p_allHT->GetBinContent(p_allHT->GetMaximumBin()));
 	p_allHT->SetLineColor(1);
 	p_allHT->SetMarkerStyle(20);
 	p_allHT->Draw("P");
+		//p_VGHT->SetMinimum(0.5);
 	p_VGHT->SetFillStyle(1001);
-	p_VGHT->SetLineColor(kGreen-9);
-	p_VGHT->SetFillColor(kGreen-9);
+	p_VGHT->SetLineColor(col_vgamma);
+	p_VGHT->SetFillColor(col_vgamma);
 	p_rareHT->SetFillStyle(1001);
-	p_rareHT->SetLineColor(kAzure-9);
-	p_rareHT->SetFillColor(kAzure-9);
+	p_rareHT->SetLineColor(col_ewk);
+	p_rareHT->SetFillColor(col_ewk);
 	p_qcdHT->SetFillStyle(1001);
-	p_qcdHT->SetLineColor(kYellow);
-	p_qcdHT->SetFillColor(kYellow);
+	p_qcdHT->SetLineColor(col_qcdfake);
+	p_qcdHT->SetFillColor(col_qcdfake);
 	p_eleHT->SetFillStyle(1001);
-	p_eleHT->SetLineColor(kMagenta-7);
-	p_eleHT->SetFillColor(kMagenta-7);
+	p_eleHT->SetLineColor(col_elefake);
+	p_eleHT->SetFillColor(col_elefake);
 	p_jetHT->SetFillStyle(1001);
-	p_jetHT->SetLineColor(kOrange-9);
-	p_jetHT->SetFillColor(kOrange-9);
-	p_eleHT->Add(p_rareHT); // ele 2nd
-	p_jetHT->Add(p_eleHT);  // jet 3rd
-	p_qcdHT->Add(p_jetHT);  // qcd 4th
-	p_VGHT->Add(p_qcdHT);   // VG  5th
-	for(int ibin(1); ibin < p_VGHT->GetSize(); ibin++){
-		error_HT->SetPoint(ibin-1,p_VGHT->GetBinCenter(ibin), p_VGHT->GetBinContent(ibin));
-		float prederror = p_VGHT->GetBinError(ibin);
-		error_HT->SetPointError(ibin-1,(p_VGHT->GetBinLowEdge(ibin+1)-p_VGHT->GetBinLowEdge(ibin))/2,prederror);
-		ratioerror_HT->SetPoint(ibin-1,p_VGHT->GetBinCenter(ibin), 1); 
-		ratioerror_HT->SetPointError(ibin-1,(p_VGHT->GetBinLowEdge(ibin+1)-p_VGHT->GetBinLowEdge(ibin))/2, prederror/p_VGHT->GetBinContent(ibin)); 
+	p_jetHT->SetLineColor(col_jetfake);
+	p_jetHT->SetFillColor(col_jetfake);
+	
+	std::vector<StackComponent> htComponents = {
+		{p_rareHT, "t#bar{t}#gamma / WW#gamma / WZ#gamma"},
+		{p_eleHT, "e#rightarrow#gamma misid."},
+		{p_jetHT, "j#rightarrow#gamma misid."},
+		{p_qcdHT, "Misid. lepton"},
+		{p_VGHT, "W#gamma / Z#gamma"}
+	};
+	auto htResult = BuildIntegralOrderedStack(htComponents, "ht_stack", nullptr);
+	std::vector<StackComponent>& htStack = htResult.stack;
+	TH1F *p_totalHT = htResult.total;
+	for(int ibin(1); ibin < p_totalHT->GetSize(); ibin++){
+		error_HT->SetPoint(ibin-1,p_totalHT->GetBinCenter(ibin), p_totalHT->GetBinContent(ibin));
+		float prederror = p_totalHT->GetBinError(ibin);
+		error_HT->SetPointError(ibin-1,(p_totalHT->GetBinLowEdge(ibin+1)-p_totalHT->GetBinLowEdge(ibin))/2,prederror);
+		ratioerror_HT->SetPoint(ibin-1,p_totalHT->GetBinCenter(ibin), 1);
+		ratioerror_HT->SetPointError(ibin-1,(p_totalHT->GetBinLowEdge(ibin+1)-p_totalHT->GetBinLowEdge(ibin))/2, prederror/p_totalHT->GetBinContent(ibin));
 	}
-	p_VGHT->Draw("hist same");
-	p_qcdHT->Draw("hist same");
-	p_jetHT->Draw("hist same");
-	p_eleHT->Draw("hist same");
-	p_rareHT->Draw("hist same");
+	htStack[htStack.size()-1].hist->SetMinimum(0.2);
+	for(int idx = htStack.size()-1; idx >= 0; --idx) htStack[idx].hist->Draw("hist same");
 	error_HT->SetFillColor(12);
 	error_HT->SetFillStyle(3345);
 	error_HT->Draw("E2 same");
 	p_allHT->Draw("E same");
   chantex.SetTextSize(0.08);    
-	//chantex.DrawLatex(0.2,0.7,"(e)");
+	if(ichannel == 1) chantex.DrawLatex(0.2,0.8,"(e)");
+        else if(ichannel == 2) chantex.DrawLatex(0.2,0.8,"(f)");
 
-  p_t5wg_HT_signal_1700_1000->SetLineColor(9);
+  p_t5wg_HT_signal_1700_1000->SetLineColor(col_T5Wg);
   p_t5wg_HT_signal_1700_1000->SetLineWidth(4);
   p_t5wg_HT_signal_1700_1000->SetFillStyle(0); 
   p_t5wg_HT_signal_1700_1000->Draw("HIST  same");
-	p_tchiwg_HT_signal_800->SetLineColor(28);
+  p_t5wg_HT_signal_1900_100->Draw("HIST  same");
+	p_tchiwg_HT_signal_800->SetLineColor(col_TChiWG);
 	p_tchiwg_HT_signal_800->SetLineStyle(2);
 	p_tchiwg_HT_signal_800->SetLineWidth(4);
 	p_tchiwg_HT_signal_800->SetFillStyle(0); 
 	p_tchiwg_HT_signal_800->Draw("HIST  same");
 
+	p_allHT->SetMaximum(LogYMaxBelowLegend({p_allHT, p_totalHT, p_t5wg_HT_signal_1700_1000, p_t5wg_HT_signal_1900_100, p_tchiwg_HT_signal_800}, 0.05, 0.55));
 	leg_mt->Draw("same");
+	leg_sig->Draw("same");
 	if(RunYear==2016 and preVFP == 1)       CMS_lumi( HT_pad1,1,1, 11 );
         else if(RunYear==2016 and preVFP == 0)  CMS_lumi( HT_pad1,2,1, 11 );
         else if(RunYear==2017)                  CMS_lumi( HT_pad1,3,1, 11 );
         else if(RunYear==2018)                  CMS_lumi( HT_pad1,4,1, 11 );
-  chantex.SetTextSize(0.05);    
-         if(ichannel == 1) chantex.DrawLatex(0.4,0.85,"e#gamma, M_{T} > 100 GeV, p_{T}^{miss} > 120 GeV");
-        else if(ichannel == 2) chantex.DrawLatex(0.4,0.85,"#mu#gamma, M_{T} > 100 GeV, p_{T}^{miss} > 120 GeV");
+	else if(ichannel == 1 and RunYear==678) CMS_lumi( HT_pad1,6,1, 11 );
+        else if(ichannel == 2 and RunYear==678) CMS_lumi( HT_pad1,7,1, 11 );
+
+  	chantex.SetTextSize(0.05);    
+	if(ichannel == 1) chantex.DrawLatex(0.4,0.85,"e#gamma, M_{T} > 100 GeV, p_{T}^{miss} > 120 GeV");
+	else if(ichannel == 2) chantex.DrawLatex(0.4,0.85,"#mu#gamma, M_{T} > 100 GeV, p_{T}^{miss} > 120 GeV");
  	gPad->RedrawAxis();
 
 
@@ -792,11 +960,12 @@ const int nSigHTBins= sizeof(sigHTBins)/sizeof(sigHTBins[0]) -1;
 	ratio_HT->SetMarkerStyle(20);
 	ratio_HT->SetLineColor(kBlack);
 	ratio_HT->GetXaxis()->SetRangeUser(0,2000);
-	ratio_HT->GetYaxis()->SetRangeUser(0,2);
 	ratio_HT->GetYaxis()->SetNdivisions(504);
-	ratio_HT->Divide(p_VGHT);
+	ratio_HT->Divide(p_totalHT);
 	ratio_HT->SetTitle("");
-	ratio_HT->GetYaxis()->SetTitle("#frac{Data}{Bkg.}");
+	ratio_HT->GetYaxis()->SetTitle("Data / Pred.");
+	ratio_HT->GetXaxis()->SetTitleOffset(1.0);
+	ratio_HT->GetYaxis()->SetRangeUser(0,2);
 	ratio_HT->Draw();
 	ratioerror_HT->SetFillColor(12);
 	ratioerror_HT->SetFillStyle(3345);
@@ -831,6 +1000,9 @@ const int nSigHTBins= sizeof(sigHTBins)/sizeof(sigHTBins[0]) -1;
 	p_t5wg_HT_signal_1700_1000->Write();
 	p_tchiwg_HT_signal_800->Write();
 	p_t5wg_PhoEt_signal_1700_1000->Write();
+	p_t5wg_MET_signal_1900_100->Write();
+	p_t5wg_HT_signal_1900_100->Write();
+	p_t5wg_PhoEt_signal_1900_100->Write();
 	p_tchiwg_PhoEt_signal_800->Write();
 
 	p_VGPhoEt->Write();

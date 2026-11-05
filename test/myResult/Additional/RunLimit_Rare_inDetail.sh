@@ -173,4 +173,4 @@ for RunYear in "${RunYears[@]}"; do
 done
 
 #echo "All tasks completed successfully. do the limit plots.. "
-#cd  /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/HiggsAnalysis/CombinedLimit/tools
+#cd  /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/limits/combine

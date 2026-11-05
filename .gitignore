@@ -7,3 +7,56 @@
 *.tar.gz
 condorSubFile/
 *.log
+# --- added 2026-11-04 (reorganisation) ---
+# edit backups and archives
+*.before_*
+*.zip
+*.tar
+*.pkl
+# run logs and outputs
+logs/
+*.out
+*.err
+combine_logger.out
+# TnP intermediate fit configs/results (final SF_*.root files stay tracked)
+test/ScaleFactor/tnp/results/*/*/fits/
+test/ScaleFactor/tnp/results/*/*/hists/
+test/ScaleFactor/tnp/results/*/*/fitter_*.root
+# limits: run directories and Combine outputs (scripts are tracked)
+limits/*_run_*/
+limits/cardsSplitted/
+limits/DatacardList.txt
+limits/**/higgsCombine*.root
+limits/**/roostats-*.root
+limits/**/log_*.txt
+.nfs*
+__pycache__/
+# limits: outputs written next to the scripts that make them (G7, 2026-11-04)
+limits/combine/*_run_*/
+limits/combine/cardsSplitted*/
+limits/fits/postfit_*/
+limits/fits/scan_*/
+limits/fits/impacts_*/
+limits/fits/unblind_*/
+limits/fits/Signal_*/
+limits/fits/masked_rerun/logs/
+limits/fits/masked_rerun/cardsSplitted_*/
+limits/fits/masked_rerun/T*_masked_*/
+*.jdl
+log_*.txt
+
+# results and review material: local only until SUS-24-011 is public
+**/SR_counts_SUS-24-011_*.txt
+test/myResult/logs/SignalRegionTable_*.tex
+test/myResult/merged_table.tex
+limits/TChiWG/limitvalue_Run2_*.txt
+limits/notes/
+test/notes/review_notes_*.md
+test/notes/CHANGES_*.txt
+test/notes/MethodChanges_slides_*/
+
+# local AI-assistant notes and caches, not part of the repository
+CLAUDE.md
+**/CLAUDE.md
+test/ScaleFactor/tnp/TnP_agent_conversation.txt
+**/.mpl/

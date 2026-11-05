@@ -73,13 +73,11 @@ inline bool isMedium() {
 }
 
 inline bool isTight() {
-   if(((muIDbit_ >> 2)&1) == 1)return true;
-   else return false;
+  if(((muIDbit_ >> 3)&1) == 1)return true;
+  else return false;
 }
 
 bool passSignalSelection();
-bool passSignalSelection_Not_MiniIso();
-bool passSignalSelection_dxy_0p02();
 bool passHLTSelection();
 bool isFakeProxy();
 

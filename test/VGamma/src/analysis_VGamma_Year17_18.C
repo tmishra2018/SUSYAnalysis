@@ -63,17 +63,6 @@ bool nisrMatch(float jetEta, float jetPhi, std::vector<mcData>& genParticles){
 		return matched;
 } 
 		
-bool passFilter(int filter){
-  bool passfilter(true);
-  for(int im(1); im <= 8; im++){
-		if(im != 5){ // no ee Bad Sc filter
-    	if(((filter >> im)&1)!=0){passfilter = false; return passfilter;}
-		}
-	}
-
-  return passfilter;
-}
-
 //int RunYear = 2017;
 bool preVFP = false;
 bool doEB = false;
@@ -673,7 +662,7 @@ if (totalZCandidates > 1)
           h_dReg->Fill(dReg);
 	  if(dReg>0.8){
             	if(((egsignalPho->getP4()+signalEle->getP4()).M() - 91.188) > 10.0){
-              if(passFilter(METFilter)){
+              if(raw.passMETFilter(RunYear, METFilter)){
 
 								hasDoubleEG = true;
 								float deltaPhi = DeltaPhi(signalEle->getPhi(), METPhi);
@@ -789,7 +778,7 @@ if (hasZCandidate) {
 					double dRmg = DeltaR(mgsignalPho->getEta(), mgsignalPho->getPhi(), signalMu->getEta(), signalMu->getPhi());
 					h_dRmg->Fill(dRmg);
 					if(dRmg>0.8){
-						if(passFilter(METFilter)){ 
+						if(raw.passMETFilter(RunYear, METFilter)){ 
 
 						float deltaPhi = DeltaPhi(signalMu->getPhi(), METPhi);
 						float MT = sqrt(2*MET*signalMu->getPt()*(1-std::cos(deltaPhi)));

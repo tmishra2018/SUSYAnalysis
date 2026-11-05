@@ -28,11 +28,13 @@
 #include "../../include/analysis_jet.h"
 #include "../../include/analysis_tools.h"
 #include "../../include/analysis_mcData.h"
+#include "../../src/analysis_ele.cc"  
+#include "../../src/analysis_photon.cc"  
+#include "../../src/analysis_rawData.cc"
 
-bool preVFP=false;
-int RunYear = 2016;
+int RunYear = 2016; bool preVFP = 0;
 
-void analysis_R9(){//main  
+void analysis_R9(){
 
 	gSystem->Load("../../lib/libAnaClasses.so");
 	
@@ -47,7 +49,7 @@ void analysis_R9(){//main
 
 	RunType datatype(MC);
 	TChain* es = new TChain("ggNtuplizer/EventTree");
-	es->Add(Form("/eos/uscms/store/user/lpcsusyphotons/Tribeni/DYJetsToLL/DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
+	es->Add(Form("/eos/uscms/store/user/lpcsusyphotons/SoftPhoton/Tribeni/DYJetsToLL/DYJetsToLL_%d%s.root",RunYear,whichVFP.c_str()));
 
 	TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/Trigger/plot_R9_DY_%d%s.root",RunYear,whichVFP.c_str()),"RECREATE");
 	outputfile->cd();
@@ -129,7 +131,8 @@ void analysis_R9(){//main
 	std::vector<recoEle>   Ele;
 	float MET(0);
 
-	for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
+	for (unsigned ievt(0); ievt<1000000; ++ievt){//loop on entries
+	//for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
 
 		if (ievt%10000==0){
 			std::cout << " -- Processing event " << ievt << std::endl;

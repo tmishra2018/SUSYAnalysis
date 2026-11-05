@@ -1,0 +1,5 @@
+# channel  HT-range  kappa   (CR MET<70, photon pT>200, Run 2: data, pred, data/pred, VG fraction)
+mug  lt100  1.037   # data 1047 pred 1078.4 d/p 0.971 +- 0.030 fVG 0.81
+mug  gt100  1.023   # data 3442 pred 3405.3 d/p 1.011 +- 0.017 fVG 0.74
+eg   lt100  1.479   # data 2126 pred 1707.7 d/p 1.245 +- 0.027 fVG 0.51
+eg   gt100  1.041   # data 3978 pred 3884.6 d/p 1.024 +- 0.016 fVG 0.59

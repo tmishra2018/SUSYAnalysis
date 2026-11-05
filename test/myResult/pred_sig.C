@@ -1,5 +1,7 @@
 // Observed events (data)
 #include "../../include/analysis_commoncode.h"
+#include "invmass_binning.h"
+
 void pred_sig(){
 
 	SetSignalConfig();
@@ -28,6 +30,8 @@ void pred_sig(){
 	TH1D *p_PU = new TH1D("p_PU","",100,0,100);
 	TH1D *p_eventcount = new TH1D("p_eventcount","eventcount",NBIN,0,NBIN);
 	TH1D *p_nJet = new TH1D("p_nJet","p_nJet",10,0,10);
+	// m(lepton,gamma) of the events that fall in a signal-region bin (same selection as p_eventcount)
+	TH1D *p_invmass = new TH1D("p_invmass",";m_{l#gamma} (GeV);Events / bin",nInvMassBins,invMassMin,invMassMax);
 
 	//************ Signal Tree **********************//
 	TChain *sigtree = new TChain("signalTree");
@@ -53,6 +57,7 @@ void pred_sig(){
 	float nJetFloat(0);
         int nJetInt(0);
 	int   nBJet(0);	
+	float invmass(0); // m(lepton,photon) stored in the input tree
 
  	sigtree->SetBranchAddress("run",       &run);
   	sigtree->SetBranchAddress("event",     &event);
@@ -73,6 +78,8 @@ void pred_sig(){
 	if (channelType == 1) sigtree->SetBranchAddress("nJet", &nJetFloat);
         else sigtree->SetBranchAddress("nJet", &nJetInt);
 	sigtree->SetBranchAddress("nBJet",     &nBJet);
+	const char *invmassBranch = sigtree->GetBranch("eg_invmass") ? "eg_invmass" : (sigtree->GetBranch("mg_invmass") ? "mg_invmass" : "invmass");
+	sigtree->SetBranchAddress(invmassBranch, &invmass);
 
 	for (unsigned ievt(0); ievt<sigtree->GetEntries(); ++ievt){
 		sigtree->GetEntry(ievt);
@@ -103,8 +110,11 @@ void pred_sig(){
 
 		int SigBinIndex(-1);
 		SigBinIndex = Bin.findSignalBin(sigMET, HT, phoEt); 
-		if(SigBinIndex >=0)p_eventcount->Fill( SigBinIndex+0.5, 1);
-	}        
+		//if(SigBinIndex >=0){
+			p_eventcount->Fill( SigBinIndex+0.5, 1);
+			p_invmass->Fill( invmass );
+		//}
+	}
 
 	std::ostringstream outputname;
   	outputname << "/uscms_data/d3/tmishra/Output/";
@@ -132,6 +142,7 @@ void pred_sig(){
 	p_dPhiEleMET->Write();
 	p_PU->Write();
 	p_eventcount->Write();
+	p_invmass->Write();
 	p_nJet->Write();
 	for(int ibin(1); ibin <= NBIN; ibin++)std::cout << ibin << " " << "bin " << p_eventcount->GetBinContent(ibin) << std::endl;
 	for(int ibin(1); ibin <= NBIN; ibin++)std::cout << p_eventcount->GetBinContent(ibin) << "  ";

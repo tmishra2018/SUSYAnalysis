@@ -27,6 +27,9 @@ void analysis_rareBkg(){
 	if(channelType==1)outputname << "egamma_rareBkg";
 	else if(channelType==2)outputname << "mg_rareBkg";
 	if(anatype ==0 or anatype ==1)	outputname << "_met" << lowMET <<"_" << highMET << "_pt" << lowPt << "_" << highPt;
+	bool htRestricted = !(lowHT <= 0 && highHT < 0);
+	if((anatype ==0 or anatype ==1) and htRestricted) outputname << "_HT" << lowHT << "_" << highHT;
+	if((anatype ==0 or anatype ==1) and !(lowPhoEt <= 0 && highPhoEt < 0)) outputname << "_pho" << lowPhoEt << "_" << highPhoEt;  // photon-pT split (SF binning study)
 	outputname <<"_" << RunYear<<whichVFP <<".root";
 
 	TFile *outputfile = TFile::Open(outputname.str().c_str(),"RECREATE");
@@ -114,13 +117,13 @@ void analysis_rareBkg(){
 	// background from directly simulations, mctree
   	TChain *mctree = new TChain(chainname.str().c_str(), chainname.str().c_str());
 
-		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_TTGJets_%d%s.root",RunYear,whichVFP.c_str()));
-  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WWG_%d%s.root",RunYear,whichVFP.c_str()));
-  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WZG_%d%s.root",RunYear,whichVFP.c_str()));
-  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WW_%d%s.root",RunYear,whichVFP.c_str()));
-  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_WZ_%d%s.root",RunYear,whichVFP.c_str()));
-  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_ZZ_%d%s.root",RunYear,whichVFP.c_str()));
-  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGammaNEW/resTree_VGamma_TTJets_%d%s.root",RunYear,whichVFP.c_str()));
+		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_TTGJets_%d%s.root",RunYear,whichVFP.c_str()));
+  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WWG_%d%s.root",RunYear,whichVFP.c_str()));
+  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WZG_%d%s.root",RunYear,whichVFP.c_str()));
+  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WW_%d%s.root",RunYear,whichVFP.c_str()));
+  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_WZ_%d%s.root",RunYear,whichVFP.c_str()));
+  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_ZZ_%d%s.root",RunYear,whichVFP.c_str()));
+  		mctree->Add(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_TTJets_%d%s.root",RunYear,whichVFP.c_str()));
 	float crosssection(0);
 	float ntotalevent(0);
 	float PUweight(1);
@@ -165,6 +168,7 @@ void analysis_rareBkg(){
   std::vector<float> *mcPt=0;
   std::vector<int> *mcMomPID=0;
   std::vector<int> *mcStatus=0;
+  bool passHEMVeto_val(true);
 
 	mctree->SetBranchAddress("crosssection",&crosssection);
 	mctree->SetBranchAddress("ntotalevent", &ntotalevent);
@@ -209,9 +213,11 @@ void analysis_rareBkg(){
   mctree->SetBranchAddress("mcPt",      &mcPt);
   mctree->SetBranchAddress("mcMomPID",  &mcMomPID);
   mctree->SetBranchAddress("mcStatus",  &mcStatus);
+  mctree->SetBranchAddress("passHEMVeto",&passHEMVeto_val);
 
 	for(unsigned ievt(0); ievt < mctree->GetEntries(); ievt++){
 		mctree->GetEntry(ievt);
+		if(!passHEMVeto_val)continue; // HEM15/16 veto
 		p_PU->Fill(nVertex,PUweight);
 		double scalefactor(0);
 		double scalefactorup(0);
@@ -257,39 +263,89 @@ void analysis_rareBkg(){
 		if(highMt > 0 && sigMT > highMt)continue;
 		if(lepPt < lowPt)continue;
 		if(highPt > 0 && lepPt > highPt)continue;
-		// different MET, MT, lepton pT range
+		if(HT < lowHT)continue;
+		if(highHT > 0 && HT > highHT)continue;
+		if(phoEt < lowPhoEt)continue;
+		if(highPhoEt > 0 && phoEt > highPhoEt)continue;
+		// different MET, MT, lepton pT, HT range
 		double mindRpho(0.3);
 		int phoIndex(0), anyphoIndex(-1);
+
+		// FIX-1: compute phoCloseT flag for b-quark FSR near a top quark
+		bool phoCloseT(false);
+
 		for(unsigned iMC(0); iMC<mcPID->size(); iMC++){
-			double dR = DeltaR((*mcEta)[iMC], (*mcPhi)[iMC], phoEta,phoPhi);
-			double dE = fabs((*mcPt)[iMC] - phoEt)/phoEt;
-			if(dR < mindRpho){mindRpho=dR; phoIndex=iMC;}
-			if(dR < 0.3 && fabs((*mcPID)[iMC]) == 22)anyphoIndex = iMC;
+			double dR = DeltaR((*mcEta)[iMC], (*mcPhi)[iMC], phoEta, phoPhi);
+			if(dR < mindRpho){ mindRpho = dR; phoIndex = iMC; }
+			if(dR < 0.3 && fabs((*mcPID)[iMC]) == 22) anyphoIndex = iMC;
+			if(dR < 0.3 && fabs((*mcPID)[iMC]) == 5 && fabs((*mcMomPID)[iMC]) == 6)
+				phoCloseT = true;
 		}
-		bool isTruePho(false);
-		// checking dR and momID for true photon identification
+		// FIX-2: use a single resolved index for both isTruePho and isFSRPho
+		// so they always refer to the same MC particle.
+		// Priority: best dR match (phoIndex) if dR < 0.1, else any photon within 0.3
+		int resolvedIndex(-1);
+		bool usedFallback(false);
 		if(mindRpho < 0.1){
-			if((*mcPID)[phoIndex] == 22 && (fabs((*mcMomPID)[phoIndex]) <= 6 || fabs((*mcMomPID)[phoIndex]) == 21 || fabs((*mcMomPID)[phoIndex]) == 999 || fabs((*mcMomPID)[phoIndex])== 11 || fabs((*mcMomPID)[phoIndex])== 13 || fabs((*mcMomPID)[phoIndex])== 15 || fabs((*mcMomPID)[phoIndex])== 23 || fabs((*mcMomPID)[phoIndex])== 24)  )isTruePho = true;
-		}
-		else if(anyphoIndex >= 0){
-			if((*mcPID)[anyphoIndex] == 22 && (fabs((*mcMomPID)[anyphoIndex]) <= 6 || fabs((*mcMomPID)[anyphoIndex]) == 21 || fabs((*mcMomPID)[anyphoIndex]) == 999 || fabs((*mcMomPID)[anyphoIndex])== 11 || fabs((*mcMomPID)[anyphoIndex])== 13 || fabs((*mcMomPID)[anyphoIndex])== 15 || fabs((*mcMomPID)[anyphoIndex])== 23 || fabs((*mcMomPID)[anyphoIndex])== 24)  )isTruePho = true;
+			resolvedIndex = phoIndex;
+		} else if(anyphoIndex >= 0){
+			resolvedIndex = anyphoIndex;
+			usedFallback  = true;
 		}
 
+		bool isTruePho(false);
+		if(resolvedIndex >= 0){
+			if((*mcPID)[resolvedIndex] == 22 &&
+			  (fabs((*mcMomPID)[resolvedIndex]) <= 6  ||
+			   fabs((*mcMomPID)[resolvedIndex]) == 21 ||
+			   fabs((*mcMomPID)[resolvedIndex]) == 999||
+			   fabs((*mcMomPID)[resolvedIndex]) == 11 ||
+			   fabs((*mcMomPID)[resolvedIndex]) == 13 ||
+			   fabs((*mcMomPID)[resolvedIndex]) == 15 ||
+			   fabs((*mcMomPID)[resolvedIndex]) == 23 ||
+			   fabs((*mcMomPID)[resolvedIndex]) == 24 ))
+				isTruePho = true;
+		}
+
+		// FIX-2 (continued): isFSRPho now uses the same resolvedIndex
+		// FIX-1 (continued): b->b+gamma near top is now properly included
 		bool isFSRPho(false);
-		// FSR photon if particles found within dR < 0.3 around photon, and momID is e, mu, tau, W, top
-		if(mindRpho < 0.3){
-			if((*mcPID)[phoIndex] == 22 && (fabs((*mcMomPID)[phoIndex])==11 || fabs((*mcMomPID)[phoIndex]) == 13 ||  fabs((*mcMomPID)[phoIndex]) == 15 || fabs((*mcMomPID)[phoIndex])==24 || fabs((*mcMomPID)[phoIndex])==6 ))isFSRPho = true;
+		if(resolvedIndex >= 0 && mindRpho < 0.3){
+			if((*mcPID)[resolvedIndex] == 22 &&
+			  (fabs((*mcMomPID)[resolvedIndex]) == 11 ||   // FSR from electron
+			   fabs((*mcMomPID)[resolvedIndex]) == 13 ||   // FSR from muon
+			   fabs((*mcMomPID)[resolvedIndex]) == 15 ||   // FSR from tau
+			   fabs((*mcMomPID)[resolvedIndex]) == 24 ||   // FSR from W boson
+			   fabs((*mcMomPID)[resolvedIndex]) == 6  ))   // FSR from top quark
+				isFSRPho = true;
+			// FIX-1: b->b+gamma near a top quark is FSR from the tt system
+			if((*mcPID)[resolvedIndex] == 22 &&
+			   fabs((*mcMomPID)[resolvedIndex]) == 5 && phoCloseT)
+				isFSRPho = true;
 		}
 
-	//	std::cout << "Type " << mcType;
-	//	if(mindRpho < 0.1)std::cout << " " << (*mcPID)[phoIndex] << " " << fabs((*mcMomPID)[phoIndex]);
-	//	else if(anyphoIndex >= 0)std::cout << " " << (*mcPID)[anyphoIndex] << " " << fabs((*mcMomPID)[phoIndex]);
-  //  else std::cout << " no match";
-	//	std::cout << std::endl;
-	//	if(isTruePho)isFake = false;
+		// ----------------------------------------------------------------
+		// FIX-3 + FIX-4: Unified double-counting guard
+		//
+		// The phase space is split as follows:
+		//   V+gamma samples (TTG=6, WWG=7, WZG=8):
+		//     own the ME-photon region  --> accept only NON-FSR true photons
+		//   Inclusive samples (TT=11, WW=12, WZ=13):
+		//     own the FSR-photon region --> accept only FSR true photons
+		//
+		// This makes the two sets mutually exclusive on photon origin.
+		// ----------------------------------------------------------------
 
-		if(!isTruePho)continue;
-		if(mcType >=11 && !isFSRPho)continue; 
+		if(!isTruePho) continue;
+
+		// FIX-4 (was in pred_rareBkg but not here): For inclusive samples,
+		// keep only FSR photons. Hard ME-photon topology goes to V+gamma samples.
+		if(mcType >= 11 && !isFSRPho) continue;
+
+		// FIX-3: Reciprocal veto for V+gamma samples, reject FSR-topology
+		// photons. They are already covered by the inclusive samples above,
+		// so accepting them here would double-count that phase space.
+		if((mcType == 6 || mcType == 7 || mcType == 8) && isFSRPho) continue;
 
 		p_PhoEt->Fill(phoEt, weight);
 		p_PhoEta->Fill(phoEta,weight);
@@ -542,5 +598,3 @@ void analysis_rareBkg(){
 	outputfile->Close();
 
 }
-
-

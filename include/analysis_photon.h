@@ -114,11 +114,6 @@ bool passSigma(int WP);
 bool passChIso(int WP);
 bool passNeuIso(int WP);
 bool passPhoIso(int WP);
-bool passSigmaOLD(int WP);
-bool passChIsoOLD(int WP);
-bool passHoverEOLD(int WP);
-bool passNeuIsoOLD(int WP);
-bool passPhoIsoOLD(int WP);
 
 bool passSignalSelection();
 bool passBasicSelection();

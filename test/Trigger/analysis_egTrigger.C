@@ -53,9 +53,9 @@ void analysis_egTrigger(int RunYear, const char *Era){//main
 	if(useData && RunYear==2018)	datatype = SingleElectron2018;
 
 	TChain* es = new TChain("ggNtuplizer/EventTree");
-	if(!useData) es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/Tribeni/DYJetsToLL/DYJetsToLL_%d%s.root",RunYear,Era));
-	else if(RunYear==2016 || RunYear==2017)  es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/Tribeni/SingleElectron/SingleElectron_%d%s.root",RunYear,Era));
-	else if(RunYear==2018)	es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/Tribeni/DoubleEG/DoubleEG_%d%s.root",RunYear,Era));
+	if(!useData) es->Add(Form("/eos/uscms/store/user/lpcsusyphotons/SoftPhoton/Tribeni/DYJetsToLL/DYJetsToLL_%d%s.root",RunYear,Era));
+	else if(RunYear==2016 || RunYear==2017)  es->Add(Form("/eos/uscms/store/user/lpcsusyphotons/SoftPhoton/Tribeni/SingleElectron/SingleElectron_%d%s.root",RunYear,Era));
+	else if(RunYear==2018)	es->Add(Form("/eos/uscms/store/user/lpcsusyphotons/SoftPhoton/Tribeni/DoubleEG/DoubleEG_%d%s.root",RunYear,Era));
 
 	//TFileCollection fc("dum","","SingelEle16B.txt");
 	//es->AddFileInfoList((TCollection*)fc.GetList());
@@ -144,6 +144,8 @@ void analysis_egTrigger(int RunYear, const char *Era){//main
 	float MET(0);
 
 	
+	const bool applyGolden = (useData);  // golden JSON lumi mask for data
+	if(applyGolden && !loadGolden(RunYear)) return;
 	for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
 
 		if (ievt%1000000==0){
@@ -152,6 +154,7 @@ void analysis_egTrigger(int RunYear, const char *Era){//main
 		}
 
 		raw.GetData(es, ievt);
+		if(applyGolden && !passGolden(raw.run, raw.lumis)) continue;
 		Photon.clear();
 		Muon.clear();
 		Ele.clear();

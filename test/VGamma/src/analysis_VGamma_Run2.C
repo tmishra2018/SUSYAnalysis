@@ -1,4 +1,4 @@
- #include<string>
+#include<string>
  #include<iostream>
  #include<fstream>
  #include<sstream>
@@ -29,9 +29,24 @@
  #include "../../../include/analysis_ele.h"
  #include "../../../include/analysis_mcData.h"
  #include "../../../include/analysis_tools.h"
+
+ // PU helper: get nTrueInt for BX==0
+ float getNTrueInt(std::vector<float>* puTrue, std::vector<int>* puBX) {
+    if (!puTrue || !puBX) return -1.f;
+    for (size_t i = 0; i < puBX->size(); ++i)
+        if ((*puBX)[i] == 0) return (*puTrue)[i];
+    return -1.f;
+ }
  
- double Normalization = 0.98;
- 
+ // Safe lookup from ratio histogram
+ float getPUweight(TH1D* h, float nTrueInt) {
+    if (!h || nTrueInt < 0) return 1.f;
+    int bin = h->FindBin(nTrueInt);
+    bin = std::max(1, std::min(bin, h->GetNbinsX()));
+    float w = h->GetBinContent(bin);
+    return (w > 0) ? w : 1.f;
+ }
+
  bool isHardLepton(int momID){
  		if((fabs(momID) >= 0 && fabs(momID) <= 6) || momID==21 || fabs(momID) == 15 || fabs(momID) == 999 || fabs(momID) == 23 || fabs(momID) == 24)return true;
  		else return false;
@@ -62,27 +77,39 @@
      } // Loop over MC particles
 		return matched;
  } 
- 		
- bool passFilter(int filter){
-   bool passfilter(true);
-   for(int im(1); im <= 8; im++){
- 		if(im != 5){ // no ee Bad Sc filter
-     	if(((filter >> im)&1)!=0){passfilter = false; return passfilter;}
- 		}
- 	}
  
-   return passfilter;
- }
- 
- void analysis_VGamma_Run2(int RunYear, bool preVFP, const char *Sample){//main 
+// WG NLO K-factors as a function of photon pT (GeV)
+// Binning: 0-190: 1.40, 190-250: 1.37, 250-400: 1.29, 400-700: 1.26, 700-inf: 1.15
+// Source: CMS-SMP-16-004, CMS-SMP-22-009
+float getWGKfactor(float phoPt){
+  if     (phoPt <  190.) return 1.40;
+  else if(phoPt <  250.) return 1.37;
+  else if(phoPt <  400.) return 1.29;
+  else if(phoPt <  700.) return 1.26;
+  else                   return 1.15;
+}
+
+bool apply_HEMveto=false;
+
+ // Modes (split running on condor, see condor/submit_skim.py):
+ //   ""    : whole sample in one job (local), output /uscms_data/d3/tmishra/resTree_VGamma_<sample>_<era>.root
+ //   "norm": events [first, last) -> normFile with the signed MC PU histogram and h_count (events, negative genWeight)
+ //   "range": events [first, last), normalisation (ntotalevent, MC PU) from normFile = hadd of all "norm" parts;
+ //           output and log go to the current directory as resTree_VGamma_<sample>_<era>_<first>.{root,log}
+ // VG_XROOTD=1 reads the input via root://cmseos.fnal.gov, VG_PUDIR sets the data PU directory (default ../../PUfiles).
+ void analysis_VGamma_Run2(int RunYear, bool preVFP, const char *Sample, std::string mode = "",
+                           long long first = 0, long long last = -1, const char *normFile = ""){//main 
    
    std::string whichVFP;
    if(RunYear==2016 and preVFP == 1) whichVFP = "preVFP";
    if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
    if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
+   const bool splitRun = (mode == "norm" || mode == "range");
+   const std::string chunkTag = splitRun ? Form("_%lld", first) : "";
  	
    ofstream logfile;
-   logfile.open(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_%s_%d%s.log",Sample,RunYear,whichVFP.c_str()));
+   if(splitRun) logfile.open(Form("resTree_VGamma_%s_%d%s%s%s.log",Sample,RunYear,whichVFP.c_str(),chunkTag.c_str(),mode=="norm"?"_norm":""));
+   else         logfile.open(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_%s_%d%s.log",Sample,RunYear,whichVFP.c_str()));
 
    logfile << "analysis_VGamma_Run2()" << std::endl;
  
@@ -90,23 +117,102 @@
    TChain* es = new TChain("ggNtuplizer/EventTree");
    char* inputfile = new char[300];
  
-   if (strstr(Sample, "QCD_HT"))
-	 sprintf(inputfile, "/eos/uscms/store/user/tmishra/QCD_HT_%d%s/%s_%d%s.root", RunYear, whichVFP.c_str(), Sample, RunYear, whichVFP.c_str());
-	 //sprintf(inputfile, "/eos/uscms/store/user/lpcsusyphotons/SoftPhoton/Tribeni/QCD_HT_%d%s/%s_%d%s.root", RunYear, whichVFP.c_str(), Sample, RunYear, whichVFP.c_str());
-   else if (strstr(Sample, "DYJetsToLL") != NULL or strstr(Sample, "GJets_DoubleEM") or strstr(Sample, "TTJets") != NULL)
+   if (strstr(Sample, "DYJetsToLL") or strstr(Sample, "GJets_DoubleEM") or strstr(Sample, "TTJets") or strstr(Sample, "ZGToLLG") or strstr(Sample, "QCDMuEnriched") or strstr(Sample, "QCD_DoubleEM"))
          sprintf(inputfile,"/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());
    else
          sprintf(inputfile,"/eos/uscms/store/user/tmishra/InputFilesMC/%s/%s_%d%s.root",Sample,Sample,RunYear,whichVFP.c_str());
-   es->Add(inputfile);
+   if(getenv("VG_XROOTD")) es->Add(Form("root://cmseos.fnal.gov/%s", inputfile + strlen("/eos/uscms")));
+   else es->Add(inputfile);
+   if(RunYear==2018) apply_HEMveto=true;
  
+   //if (strstr(Sample, "QCD_HT"))
+   //	 sprintf(inputfile, "/eos/uscms/store/user/tmishra/QCD_HT_%d%s/%s_%d%s.root", RunYear, whichVFP.c_str(), Sample, RunYear, whichVFP.c_str());
    logfile << "VG";
    logfile << "muon MiniIso" << std::endl;
  
    const unsigned nEvts = es->GetEntries();
    logfile << "Total event: " << nEvts << std::endl;
-   
+   if(last < 0 || last > nEvts) last = nEvts;
+   if(!splitRun) first = 0;
+   logfile << "Event range: [" << first << ", " << last << ")" << std::endl;
+
+    // Build MC PU histogram from nTrueInt (BX==0)
+    // NLO samples (ZGToLLG, DYJetsToLL, TTGJets, WWG, WZG, ...) have negative generator weights: each event
+    // counts with the sign of genWeight, normalised to N(+) - N(-) (as ISRReweight/analysis_ISRMC.C).
+    // LO samples have genWeight = 1, so nothing changes for them.
+    TH1D *h_mc_pu = new TH1D("h_mc_pu","MC nTrueInt",200,0,200);
+    h_mc_pu->Sumw2();
+    long long nNeg(0);
+    if(mode == "range"){
+        TFile *fn = TFile::Open(normFile);
+        TH1D *hc = (TH1D*)fn->Get("h_count");
+        if(!hc || (long long)hc->GetBinContent(1) != (long long)nEvts){
+            std::cout << "normalisation file " << normFile << " does not cover the " << nEvts << " events of the sample" << std::endl; throw;
+        }
+        nNeg = (long long)hc->GetBinContent(2);
+        h_mc_pu->Add((TH1D*)fn->Get("h_mc_pu"));
+        fn->Close();
+    }
+    else{
+        // Temporary local branches for the pre-scan
+        std::vector<float> *pt_prescan = nullptr;
+        std::vector<int>   *bx_prescan = nullptr;
+        float genWeight_prescan(1);
+        es->SetBranchStatus("*", 0);         // disable all for speed
+        es->SetBranchStatus("puTrue", 1);
+        es->SetBranchStatus("puBX",   1);
+        es->SetBranchStatus("genWeight", 1);
+        es->SetBranchAddress("puTrue", &pt_prescan);
+        es->SetBranchAddress("puBX",   &bx_prescan);
+        es->SetBranchAddress("genWeight", &genWeight_prescan);
+        std::cout << "Pre-scan: building MC PU histogram..." << std::endl;
+        for(long long iev=first; iev<last; ++iev){
+            es->GetEntry(iev);
+            const float sign = genWeight_prescan < 0 ? -1.f : 1.f;
+            if(sign < 0) nNeg++;
+            float nti = getNTrueInt(pt_prescan, bx_prescan);
+            if(nti>=0) h_mc_pu->Fill(nti, sign);
+        }
+        es->SetBranchStatus("*", 1);  // re-enable all branches
+        std::cout << "MC PU histogram built (" << h_mc_pu->GetEntries() << " entries)." << std::endl;
+    }
+    logfile << "negative genWeight events: " << nNeg << " of " << nEvts << std::endl;
+    if(mode == "norm"){
+        TFile *fn = new TFile(normFile, "RECREATE");
+        h_mc_pu->Write();
+        TH1D *hc = new TH1D("h_count", "bin 1: events, bin 2: negative genWeight", 2, 0, 2);
+        hc->SetBinContent(1, last - first); hc->SetBinContent(2, nNeg); hc->Write();
+        fn->Close(); logfile.close();
+        return;
+    }
+    h_mc_pu->Scale(1.0/h_mc_pu->Integral());
+ 
+    // Load data PU files and build ratio histograms
+    const char *puDir = getenv("VG_PUDIR") ? getenv("VG_PUDIR") : "../../PUfiles";
+    TFile *f_puNom  = TFile::Open(Form("%s/dataPU_%d%s.root",puDir,RunYear,whichVFP.c_str()));
+    TFile *f_puUp   = TFile::Open(Form("%s/dataPU_%d%s_PUUp.root",puDir,RunYear,whichVFP.c_str()));
+    TFile *f_puDown = TFile::Open(Form("%s/dataPU_%d%s_PUDown.root",puDir,RunYear,whichVFP.c_str()));
+
+    TH1D *h_data_nom  = (TH1D*)((TH1D*)f_puNom ->Get("pileup"))->Clone("dn");
+    TH1D *h_data_up   = (TH1D*)((TH1D*)f_puUp  ->Get("pileup"))->Clone("du");
+    TH1D *h_data_down = (TH1D*)((TH1D*)f_puDown->Get("pileup"))->Clone("dd");
+    
+    h_data_nom ->Scale(1.0/h_data_nom ->Integral());
+    h_data_up  ->Scale(1.0/h_data_up  ->Integral());
+    h_data_down->Scale(1.0/h_data_down->Integral());
+ 
+    TH1D *h_puRatio_nom  = (TH1D*)h_data_nom ->Clone("h_puRatio_nom");
+    TH1D *h_puRatio_up   = (TH1D*)h_data_up  ->Clone("h_puRatio_up");
+    TH1D *h_puRatio_down = (TH1D*)h_data_down->Clone("h_puRatio_down");
+    h_puRatio_nom ->Divide(h_mc_pu);
+    h_puRatio_up  ->Divide(h_mc_pu);
+    h_puRatio_down->Divide(h_mc_pu);
+
+
    TFile* outputfile;
-   outputfile = new TFile(Form("/eos/uscms/store/user/tmishra/VGammaNEW_changed_mgtree/resTree_VGamma_%s_%d%s.root",Sample,RunYear,whichVFP.c_str()),"RECREATE");
+   if(splitRun) outputfile = new TFile(Form("resTree_VGamma_%s_%d%s%s.root",Sample,RunYear,whichVFP.c_str(),chunkTag.c_str()),"RECREATE");
+   else         outputfile = new TFile(Form("/uscms_data/d3/tmishra/resTree_VGamma_%s_%d%s.root",Sample,RunYear,whichVFP.c_str()),"RECREATE");
+   //outputfile = new TFile(Form("/eos/uscms/store/user/tmishra/VGamma/resTree_VGamma_%s_%d%s.root",Sample,RunYear,whichVFP.c_str()),"RECREATE");
    outputfile->cd();
 
    int mcType;
@@ -158,6 +264,14 @@
                 std::cout << "ZZ sample !" << std::endl;
                 mcType = MCType::ZZ;
   }
+  else if(strstr(inputfile, "QCD_DoubleEM") != NULL){
+                std::cout << "QCDEM40 sample !" << std::endl;
+                mcType = MCType::QCDEM40;
+  }
+  else if(strstr(inputfile, "QCDMuEnriched") != NULL){
+                std::cout << "QCDMU20 sample !" << std::endl;
+                mcType = MCType::QCDMU20;
+  }
   else if(strstr(inputfile, "WJetsToLNu"))  mcType = MCType::W;
   else if(strstr(inputfile, "GJet"))  mcType = MCType::GJet;
   else if(strstr(inputfile, "QCD_HT50to100"))  mcType = MCType::QCDHT50to100;
@@ -169,20 +283,43 @@
   else if(strstr(inputfile, "QCD_HT1000to1500"))mcType = MCType::QCDHT1000to1500;
   else if(strstr(inputfile, "QCD_HT1500to2000"))mcType = MCType::QCDHT1500to2000;
   else if(strstr(inputfile, "QCD_HT2000toInf")) mcType = MCType::QCDHT2000toInf;
+  
+  // Determine if this is a WG sample (K-factor applies)
+  bool isWGSample = (mcType == MCType::WGJetInclusive ||
+                     mcType == MCType::WGJet40         ||
+                     mcType == MCType::WGJet130);
+
 
    if(datatype == MC && mcType == MCType::NOMC){std::cout << "wrong MC type" << std::endl; throw;} 
    logfile << "mcType" << mcType << std::endl;
    float crosssection = MC_XS[mcType];
    cout<< "crosssection: " << crosssection << endl;
-   float ntotalevent = es->GetEntries();
+   // signed event count; crosssection carries the per-event genWeight sign, so every reader's
+   // lumi*crosssection/ntotalevent is the signed NLO weight without changes to the readers
+   float ntotalevent = double(nEvts) - 2.0*double(nNeg);
+   float genWeight(1);
+   float genWeightSign(1);
 	float PUweight(1);
+	float PUweightUp(1);
+        float PUweightDown(1);
 	float llmass(0);
 	int   nBJet(0);
 	float ISRWeight(1);
 	float pdfWeight(0);
 	std::vector<float> pdfSystWeight;
 	std::vector<float> ScaleSystWeight; 
+	float psWeightFsrUp(1), psWeightFsrDown(1);
+    	float psWeightIsrUp(1), psWeightIsrDown(1);
+	// muR/muF: ratio w.r.t. nominal (1.0 = no variation). See below for per-type logic.
+	// pdfWeightRMS: Hessian quadrature sum sqrt(Σ(w_i/w_0-1)^2) for first 100 eigenvectors.
+	// These replace the old pdfSystWeight and ScaleSystWeight vectors.
+	float muRweightUp(1.f), muRweightDown(1.f);
+	float muFweightUp(1.f), muFweightDown(1.f);
+	float pdfWeightRMS(0.f);
+
  //************ Signal Tree **********************//
+   bool passHEMVeto_eg(true); // true = passes HEM veto (or N/A for this year), false = fails
+   bool passHEMVeto_mg(true);
    TTree *egtree = new TTree("egTree","egTree");
    float eg_phoEt(0);
    float eg_phoEta(0);
@@ -203,6 +340,7 @@
    float eg_nJet(0);
 	int   eg_nISRJet(0);
 	float eg_ISRJetPt(0);
+	float eg_ISRJetPtGen(0);
    float eg_invmass(0);
 	float eg_bosonPt(0);
 	float eg_sigMETJESup(0);
@@ -243,6 +381,18 @@
 	egtree->Branch("trailEta",  &trailEta);
 	egtree->Branch("trailPhi",  &trailPhi);
 	egtree->Branch("PUweight",  &PUweight);
+	egtree->Branch("PUweightUp",   &PUweightUp);
+        egtree->Branch("PUweightDown", &PUweightDown);
+	egtree->Branch("psWeightFsrUp",  &psWeightFsrUp);
+    	egtree->Branch("psWeightFsrDown",&psWeightFsrDown);
+    	egtree->Branch("psWeightIsrUp",  &psWeightIsrUp);
+    	egtree->Branch("psWeightIsrDown",&psWeightIsrDown);
+	// QCD scale and PDF weight branches (scalar, for bin-wise lnN)
+	egtree->Branch("muRweightUp",   &muRweightUp);
+	egtree->Branch("muRweightDown", &muRweightDown);
+	egtree->Branch("muFweightUp",   &muFweightUp);
+	egtree->Branch("muFweightDown", &muFweightDown);
+	egtree->Branch("pdfWeightRMS",  &pdfWeightRMS);
    egtree->Branch("sigMT",     &eg_sigMT);
    egtree->Branch("sigMET",    &eg_sigMET);
    egtree->Branch("sigMETPhi", &eg_sigMETPhi);
@@ -254,6 +404,8 @@
    egtree->Branch("nBJet",     &nBJet);
    egtree->Branch("nISRJet",   &eg_nISRJet);
 	egtree->Branch("ISRJetPt",  &eg_ISRJetPt);
+	egtree->Branch("ISRJetPtGen", &eg_ISRJetPtGen);
+	egtree->Branch("genWeightSign", &genWeightSign);
    egtree->Branch("invmass",   &eg_invmass);
 	egtree->Branch("bosonPt",   &eg_bosonPt);
 	egtree->Branch("sigMETJESup",     &eg_sigMETJESup);
@@ -279,6 +431,7 @@
    egtree->Branch("mcGMomPID", &eg_mcGMomPID);
    egtree->Branch("mcStatus", &eg_mcStatus);
    egtree->Branch("llmass",   &llmass);
+   egtree->Branch("passHEMVeto", &passHEMVeto_eg);
  
    TTree *mgtree = new TTree("mgTree","mgTree");
    float mg_phoEt(0);
@@ -298,6 +451,7 @@
    float mg_nJet(0);
    float mg_nISRJet(0);
 	float mg_ISRJetPt(0);
+	float mg_ISRJetPtGen(0);
 	float mg_bosonPt(0);
 	float mg_sigMETJESup(0);
 	float mg_sigMETJESdo(0);
@@ -320,7 +474,7 @@
    std::vector<int> mg_mcMomPID;
    std::vector<int> mg_mcGMomPID;
 	std::vector<int> mg_mcStatus;
-  
+
 	mgtree->Branch("crosssection",&crosssection);
 	mgtree->Branch("ntotalevent", &ntotalevent);
 	mgtree->Branch("ISRWeight", &ISRWeight);
@@ -334,6 +488,18 @@
    mgtree->Branch("lepEta",    &mg_lepEta);
    mgtree->Branch("lepPhi",    &mg_lepPhi);
 	mgtree->Branch("PUweight",      &PUweight);
+	mgtree->Branch("PUweightUp",     &PUweightUp);
+        mgtree->Branch("PUweightDown",   &PUweightDown);
+	mgtree->Branch("psWeightFsrUp",  &psWeightFsrUp);
+    	mgtree->Branch("psWeightFsrDown",&psWeightFsrDown);
+    	mgtree->Branch("psWeightIsrUp",  &psWeightIsrUp);
+    	mgtree->Branch("psWeightIsrDown",&psWeightIsrDown);
+	// QCD scale and PDF weight branches (scalar, for bin-wise lnN)
+	mgtree->Branch("muRweightUp",   &muRweightUp);
+	mgtree->Branch("muRweightDown", &muRweightDown);
+	mgtree->Branch("muFweightUp",   &muFweightUp);
+	mgtree->Branch("muFweightDown", &muFweightDown);
+	mgtree->Branch("pdfWeightRMS",  &pdfWeightRMS);
    mgtree->Branch("sigMT",     &mg_sigMT);
    mgtree->Branch("sigMET",    &mg_sigMET);
    mgtree->Branch("sigMETPhi", &mg_sigMETPhi);
@@ -346,6 +512,8 @@
    mgtree->Branch("nBJet",     &nBJet);
    mgtree->Branch("nISRJet",   &mg_nISRJet);
 	mgtree->Branch("ISRJetPt",  &mg_ISRJetPt);
+	mgtree->Branch("ISRJetPtGen", &mg_ISRJetPtGen);
+	mgtree->Branch("genWeightSign", &genWeightSign);
 	mgtree->Branch("bosonPt",   &mg_bosonPt);
 	mgtree->Branch("sigMETJESup",     &mg_sigMETJESup);
 	mgtree->Branch("sigMETJESdo",     &mg_sigMETJESdo);
@@ -370,9 +538,11 @@
    mgtree->Branch("mcGMomPID", &mg_mcGMomPID);
    mgtree->Branch("mcStatus", &mg_mcStatus);
    mgtree->Branch("llmass",   &llmass);
+   mgtree->Branch("passHEMVeto", &passHEMVeto_mg);
  
 //*********** histo list **********************//
    rawData raw(es, datatype);
+   es->SetBranchAddress("genWeight", &genWeight);
    std::vector<mcData>  MCData;
    std::vector<recoPhoton> Photon;
    std::vector<recoMuon>   Muon;
@@ -380,55 +550,74 @@
    std::vector<recoJet>   JetCollection;
    float MET(0);
    float METPhi(0);
-	float MET_T1JERUp(0);
-	float MET_T1JERDo(0);
-	float MET_T1JESUp(0);
-	float MET_T1JESDo(0);	
-	float	METPhi_T1JESUp(0);
-	float	METPhi_T1JESDo(0);
-	float	METPhi_T1UESUp(0);
-	float	METPhi_T1UESDo(0);
+   float MET_T1JERUp(0);
+   float MET_T1JERDo(0);
+   float MET_T1JESUp(0);
+   float MET_T1JESDo(0);	
+   float	METPhi_T1JESUp(0);
+   float	METPhi_T1JESDo(0);
+   float	METPhi_T1UESUp(0);
+   float	METPhi_T1UESDo(0);
    int nVtx(0);
    int jetNumber(0);
    int METFilter(0);
-	float ISRJetPt(0);
+   float ISRJetPt(0);
    logfile << "RunType: " << datatype << std::endl;
+   std::cout << "Total evetns : " << nEvts << std::endl;
  
-  std::cout << "Total evetns : " << nEvts << std::endl;
- 
-     for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
+   for (long long ievt(first); ievt<last; ++ievt){//loop on entries
    
        if (ievt%100000==0) std::cout << " -- Processing event " << ievt << std::endl;
  
          raw.GetData(es, ievt);
+         genWeightSign = genWeight < 0 ? -1.f : 1.f;
          MCData.clear();
          Photon.clear();
          Muon.clear();
          Ele.clear();
-				JetCollection.clear();
-         if(datatype == MC)for(int iMC(0); iMC < raw.nMC; iMC++){MCData.push_back(mcData(raw, iMC));}
+	 JetCollection.clear();
+
+	 passHEMVeto_eg = true;
+	 passHEMVeto_mg = true;
+	 if(RunYear==2018){
+	 	passHEMVeto_eg = passHEMVeto(1, raw, fracHEM_eg);
+	 	passHEMVeto_mg = passHEMVeto(1, raw, fracHEM_mg);
+	 }
+
+	 if(datatype == MC)for(int iMC(0); iMC < raw.nMC; iMC++){MCData.push_back(mcData(raw, iMC));}
          for(int iPho(0); iPho < raw.nPho; iPho++){Photon.push_back(recoPhoton(raw, iPho));}
          for(int iMu(0); iMu < raw.nMu; iMu++){Muon.push_back(recoMuon(raw, iMu));}
          for(int iEle(0); iEle < raw.nEle; iEle++){Ele.push_back(recoEle(raw, iEle));}
-				for(int iJet(0); iJet < raw.nJet; iJet++){JetCollection.push_back(recoJet(raw, iJet));}
-         MET = raw.pfMET;
+	 for(int iJet(0); iJet < raw.nJet; iJet++){JetCollection.push_back(recoJet(raw, iJet));}
+         
+	 MET = raw.pfMET;
          METPhi = raw.pfMETPhi;
-				MET_T1JERUp = raw.pfMET_T1JERUp;
-				MET_T1JERDo = raw.pfMET_T1JERDo;
-				MET_T1JESUp = raw.pfMET_T1JESUp;
-				MET_T1JESDo = raw.pfMET_T1JESDo;
-				METPhi_T1JESUp = raw.pfMETPhi_T1JESUp;
-				METPhi_T1JESDo = raw.pfMETPhi_T1JESDo;
-				METPhi_T1UESUp = raw.pfMETPhi_T1UESUp;
-				METPhi_T1UESDo = raw.pfMETPhi_T1UESDo;
+	 MET_T1JERUp = raw.pfMET_T1JERUp;
+	 MET_T1JERDo = raw.pfMET_T1JERDo;
+	 MET_T1JESUp = raw.pfMET_T1JESUp;
+	 MET_T1JESDo = raw.pfMET_T1JESDo;
+	 METPhi_T1JESUp = raw.pfMETPhi_T1JESUp;
+	 METPhi_T1JESDo = raw.pfMETPhi_T1JESDo;
+	 METPhi_T1UESUp = raw.pfMETPhi_T1UESUp;
+         METPhi_T1UESDo = raw.pfMETPhi_T1UESDo;
          METFilter = raw.metFilters;
          nVtx = raw.nVtx;
- 				
- 				
-         if(preVFP==true and RunYear==2016) PUweight = getPUESF16preVFP(nVtx);
-         if(preVFP==false and RunYear==2016) PUweight = getPUESF16(nVtx);
-         if(RunYear==2017) PUweight = getPUESF17(nVtx);
-         if(RunYear==2018) PUweight = getPUESF18(nVtx);
+ 	
+	// PU weights from nTrueInt
+        // raw.puTrue and raw.puBX must be available in analysis_rawData.h
+        float nTrueInt   = getNTrueInt(raw.puTrue, raw.puBX);
+        PUweight         = getPUweight(h_puRatio_nom,  nTrueInt);
+        PUweightUp       = getPUweight(h_puRatio_up,   nTrueInt);   // NEW
+        PUweightDown     = getPUweight(h_puRatio_down, nTrueInt);   // NEW	 
+ 	
+	psWeightFsrDown = raw.psWeightFsrDefDown;
+	psWeightIsrDown	= raw.psWeightIsrDefDown;
+	psWeightFsrUp   = raw.psWeightFsrDefUp;
+	psWeightIsrUp	= raw.psWeightIsrDefUp;
+         //if(preVFP==true and RunYear==2016) PUweight = getPUESF16preVFP(nVtx);
+         //if(preVFP==false and RunYear==2016) PUweight = getPUESF16(nVtx);
+         //if(RunYear==2017) PUweight = getPUESF17(nVtx);
+         //if(RunYear==2018) PUweight = getPUESF18(nVtx);
 
  	
          if(raw.nPho <1)continue;
@@ -450,16 +639,16 @@
 					if(itJet->getPt() < 20)continue;
 					if(itJet->isBJet())nBJet+=1;
 				}
-				//pdfWeight = raw.pdfWeight;
-				pdfWeight = 0; 
-				pdfSystWeight.clear();
-				ScaleSystWeight.clear(); 
-			//	for(unsigned i(0); i < raw.pdfSystWeight->size(); i++){
-			//		pdfSystWeight.push_back( (*raw.pdfSystWeight)[i] );
-			//	}
-			//	for(unsigned i(0); i < raw.genScaleSystWeights->size(); i++){
-			//		ScaleSystWeight.push_back( (*raw.genScaleSystWeights)[i]);
-			//	}
+				pdfWeight = raw.pdfWeight;
+				pdfSystWeight.clear();     // legacy — kept empty
+				ScaleSystWeight.clear();   // legacy — kept empty
+
+				// Read scalar branches written by ggNtuplizer
+				muRweightUp   = raw.muRweightUp;
+				muRweightDown = raw.muRweightDown;
+				muFweightUp   = raw.muFweightUp;
+				muFweightDown = raw.muFweightDown;
+				pdfWeightRMS  = raw.pdfWeightRMS;
 				//process MC first  ****************************/
 				llmass = -1;
 				double WGPt = -1;
@@ -598,8 +787,8 @@
          if(hasegPho && hasEle && (((raw.HLTPho >> 14)&1)==1)){ // Year = 2016 Year = 2017
           double dReg = DeltaR(egsignalPho->getEta(), egsignalPho->getPhi(), signalEle->getEta(), signalEle->getPhi()); 
 	  if(dReg>0.8){
-             if(((egsignalPho->getP4()+signalEle->getP4()).M() - 91.188) > 10.0){
-              if(passFilter(METFilter)){
+	     if (fabs((egsignalPho->getP4() + signalEle->getP4()).M() - 91.188) > 10.0) {
+              if(raw.passMETFilter(RunYear, METFilter)){
 
 								hasDoubleEG = true;
 								float deltaPhi = DeltaPhi(signalEle->getPhi(), METPhi);
@@ -646,6 +835,7 @@
 								eg_HT = 0;
 								eg_HTJESup = 0;
 								eg_HTJESdo = 0;
+								TLorentzVector egISRVec(0,0,0,0);
 								for(std::vector<recoJet>::iterator itJet = JetCollection.begin() ; itJet != JetCollection.end(); ++itJet){
 									if(!itJet->passSignalSelection())continue;
  									
@@ -656,9 +846,12 @@
 									eg_HT += itJet->getPt();
 									eg_HTJESup += itJet->getPt()*(1+itJet->getPtUnc());
 									eg_HTJESdo += itJet->getPt()*(1-itJet->getPtUnc());
+									egISRVec += itJet->getP4();
 								}
-								eg_ISRJetPt = ISRJetPt;	
- 
+								// ISR pT as in the derivation (ISRReweight/analysis_ISRMC.C calcISR); old gen-matched one kept
+								eg_ISRJetPt = egISRVec.Pt();
+								eg_ISRJetPtGen = ISRJetPt;
+								crosssection = genWeightSign*(isWGSample ? getWGKfactor(eg_phoEt)*MC_XS[mcType] : MC_XS[mcType]);
 								if(datatype == MC){
 									eg_mcPID.clear();
 									eg_mcEta.clear();
@@ -692,7 +885,7 @@
        if(hasmgPho && hasMu && passMGHLT && !hasDoubleEG){
  					double dRmg = DeltaR(mgsignalPho->getEta(), mgsignalPho->getPhi(), signalMu->getEta(), signalMu->getPhi());
  					if(dRmg>0.8){
- 						if(passFilter(METFilter)){ 
+ 						if(raw.passMETFilter(RunYear, METFilter)){ 
  
  						float deltaPhi = DeltaPhi(signalMu->getPhi(), METPhi);
  						float MT = sqrt(2*MET*signalMu->getPt()*(1-std::cos(deltaPhi)));
@@ -730,6 +923,7 @@
                                                 mg_HT = 0;
                                                 mg_HTJESup = 0;
                                                 mg_HTJESdo = 0;
+                                                TLorentzVector mgISRVec(0,0,0,0);
                                                 for(std::vector<recoJet>::iterator itJet = JetCollection.begin() ; itJet != JetCollection.end(); ++itJet){
                                                         if(!itJet->passSignalSelection())continue;
                                                         if(!nisrMatch(itJet->getEta(), itJet->getPhi(), MCData))mg_nISRJet += 1;
@@ -739,10 +933,14 @@
                                                         mg_HT += itJet->getPt();
                                                         mg_HTJESup += itJet->getPt()*(1+itJet->getPtUnc());
                                                         mg_HTJESdo += itJet->getPt()*(1-itJet->getPtUnc());
+                                                        mgISRVec += itJet->getP4();
                                                 }
- 						mg_ISRJetPt = ISRJetPt;
- 
- 						if(datatype == MC){
+						// ISR pT as in the derivation (ISRReweight/analysis_ISRMC.C calcISR); old gen-matched one kept
+ 						mg_ISRJetPt = mgISRVec.Pt();
+						mg_ISRJetPtGen = ISRJetPt;
+						crosssection = genWeightSign*(isWGSample ? getWGKfactor(mg_phoEt)*MC_XS[mcType] : MC_XS[mcType]);
+ 						
+						if(datatype == MC){
  						 	mg_mcPID.clear();
  						 	mg_mcEta.clear();
  						 	mg_mcPhi.clear();
@@ -784,9 +982,10 @@ logfile.close();
  int main(int argc, char** argv)
  {
     if(argc < 4){
-      cout << "Usage: ./analysis_VGamma_Run2.exe <RunYear> <preVFP:0|1> <Sample>\n";
+      cout << "Usage: ./analysis_VGamma_Run2.exe <RunYear> <preVFP:0|1> <Sample> [norm|range <first> <last> <normFile>]\n";
       return 1;
     }
-    analysis_VGamma_Run2(atoi(argv[1]), atoi(argv[2]) == 1, argv[3]);
+    if(argc > 7) analysis_VGamma_Run2(atoi(argv[1]), atoi(argv[2]) == 1, argv[3], argv[4], atoll(argv[5]), atoll(argv[6]), argv[7]);
+    else         analysis_VGamma_Run2(atoi(argv[1]), atoi(argv[2]) == 1, argv[3]);
      return 0;
  }

@@ -1,6 +1,6 @@
 # Convert fit_all.py's sf_summary.json into a TH2F "EGamma_SF2D" (x = signed SC eta, y = pt),
 # the layout of sf/R9_SF.root read by include/analysis_scalefactor.h.
-# Run with PyROOT (cmsenv in CMSSW_14_0_7): python3 make_sf_hist.py sf_summary.json SF_R9_2017.root [--cnc]
+# Run with PyROOT (cmsenv in CMSSW_14_1_0_pre4): python3 make_sf_hist.py sf_summary.json SF_R9_2017.root [--cnc]
 import argparse
 import json
 import math

@@ -55,7 +55,8 @@
 #define NTOY 1000
 using namespace RooFit;
 
-int RunYear = 2016; bool ISpreVFP = true;
+// RunYear, ISpreVFP, doEB and processName are set from the command line in main()
+int RunYear = 2017; bool ISpreVFP = false;
 bool doEB = true;
 const char*processName ="DY";
 //const char*processName ="Data";
@@ -66,6 +67,8 @@ enum BinType{
   byVtx = 2,
   byHT  = 3 
 };
+
+bool useCrossBinning = true;
 
 bool isElectron(int PID, int momID){
    bool isEle;
@@ -87,7 +90,7 @@ bool isElectron(int PID, int momID){
   return isEle;
 }
 
-void FitKer(int fitFunc, int inputbintype, int inputfittype, float lowercut, float uppercut, int fitrangelow, int fitrangehigh){
+void FitKer(int fitFunc, int inputbintype, int inputfittype, float lowercut, float uppercut, int fitrangelow, int fitrangehigh, float crossbinlow = -1, float crossbinhigh = -1){
    gSystem->Load("../../../lib/libAnaClasses.so");
    gSystem->Load("../../../lib/libRooFitClasses.so");
 	
@@ -130,6 +133,11 @@ void FitKer(int fitFunc, int inputbintype, int inputfittype, float lowercut, flo
 	configfile.close();
  
   BinType bintype = (BinType)inputbintype;
+
+  // Only meaningful (and only applied) when useCrossBinning is on, a valid
+  // range was passed in, and we are binning by pT or by nVtx.
+  bool applyCrossCut = useCrossBinning && crossbinlow >= 0 && crossbinhigh > crossbinlow &&
+                        (bintype == byPt || bintype == byVtx);
 
 	char lowername[5];
 	if(bintype == byEta)
@@ -181,6 +189,14 @@ else if (bintype == byVtx)
 else if (bintype == byHT)
     cut << "HT>=" << lowercut << " && HT<" << uppercut;
 
+if (applyCrossCut) {
+    cut << " && ";
+    if (bintype == byPt)
+        cut << "nVertex>=" << crossbinlow << " && nVertex<" << crossbinhigh;
+    else if (bintype == byVtx)
+        cut << "probePt>=" << crossbinlow << " && probePt<" << crossbinhigh;
+}
+
 cut << " && ";
 if (inputfittype == 0)
     cut << "vetovalue==0";
@@ -230,6 +246,14 @@ else if (bintype == byVtx)
 else if (bintype == byHT)
     cut_bg << Form("HT >= %.1f && HT < %.1f", lowercut, uppercut);
 
+if (applyCrossCut) {
+    cut_bg << " && ";
+    if (bintype == byPt)
+        cut_bg << Form("nVertex >= %.1f && nVertex < %.1f", crossbinlow, crossbinhigh);
+    else if (bintype == byVtx)
+        cut_bg << Form("probePt >= %.1f && probePt < %.1f", crossbinlow, crossbinhigh);
+}
+
 cut_bg << " && ";
 
 if (inputfittype == 0)
@@ -264,6 +288,7 @@ if (data_bg.numEntries() < 10) {
 		float DY_probePhi=0;
 		bool  DY_vetovalue=0;
 		int   DY_nVertex=0;
+		float DY_PUweight=1;
 		float DY_HT = 0;
 		std::vector<int>   *mcPID=0;
 		std::vector<float> *mcEta=0;
@@ -280,6 +305,13 @@ if (data_bg.numEntries() < 10) {
 		DYtree->SetBranchAddress("probePhi",  &DY_probePhi);
 		DYtree->SetBranchAddress("vetovalue", &DY_vetovalue);
 		DYtree->SetBranchAddress("nVertex",   &DY_nVertex);
+		// true-pileup weight written by ../src/analysis_elefakepho.C (replaces the old nVtx table)
+		if(!DYtree->GetBranch("PUweight")){
+			std::cout << "FitKer: no PUweight branch in plot_elefakepho_DYTnP_dR05_" << RunYear << whichVFP
+			          << ".root -> rerun analysis_elefakepho.exe for DY" << std::endl;
+			return;
+		}
+		DYtree->SetBranchAddress("PUweight",  &DY_PUweight);
 		DYtree->SetBranchAddress("mcPID",			&mcPID);
 		DYtree->SetBranchAddress("mcEta",			&mcEta);
 		DYtree->SetBranchAddress("mcPhi",			&mcPhi);
@@ -312,12 +344,17 @@ if (data_bg.numEntries() < 10) {
 			if(bintype == byPt)keyvariable = DY_probePt;
 			else if(bintype == byEta)keyvariable = fabs(DY_probeEta);
 			else if(bintype == byVtx)keyvariable = DY_nVertex;
-			if(keyvariable >= lowercut && keyvariable < uppercut){
-				double mcPUweight;
-				if(RunYear==2016 and ISpreVFP==true) mcPUweight = getPUESF16preVFP(DY_nVertex);
-				else if(RunYear==2016 and ISpreVFP==false) mcPUweight = getPUESF16(DY_nVertex);
-				else if(RunYear==2017) mcPUweight = getPUESF17(DY_nVertex);
-				else if(RunYear==2018) mcPUweight = getPUESF18(DY_nVertex);
+
+			bool passCrossCut = true;
+			if(applyCrossCut){
+				float crossvariable(0);
+				if(bintype == byPt)crossvariable = DY_nVertex;
+				else if(bintype == byVtx)crossvariable = DY_probePt;
+				passCrossCut = (crossvariable >= crossbinlow && crossvariable < crossbinhigh);
+			}
+
+			if(keyvariable >= lowercut && keyvariable < uppercut && passCrossCut){
+				double mcPUweight = DY_PUweight;
 				DY_PU->Fill(DY_nVertex, mcPUweight);
 				if(isZee){invmass_DYsignal = DY_invmass; h_DYinvmass->Fill(DY_invmass, mcPUweight); }
 				if(isZee)newDYtree->Fill();		
@@ -484,7 +521,12 @@ if (data_bg.numEntries() < 10) {
   if(inputfittype == 0) histname << "den_";
   else if(inputfittype == 1) histname << "num_";
 	histname << fitrangelow << "-" << fitrangehigh << "_"; 
-  histname << lowername << "_" << uppername <<".png";
+  histname << lowername << "_" << uppername;
+  if(applyCrossCut){
+    if(bintype == byPt) histname << "_nvtx" << crossbinlow << "-" << crossbinhigh;
+    else if(bintype == byVtx) histname << "_pt" << crossbinlow << "-" << crossbinhigh;
+  }
+  histname << ".png";
   c_fitMass->SaveAs(histname.str().c_str());
   mass_axis.setRange("signal",80,101);
   RooAbsReal* igx_sig;
@@ -568,7 +610,12 @@ for(int i(0); i<mcstudy->fitParDataSet().sumEntries(); i++){
 
   if(inputfittype == 0) histname << "den_";
   else if(inputfittype == 1) histname << "num_";
-  histname << lowername << "_" << uppername << ".png";
+  histname << lowername << "_" << uppername;
+  if(applyCrossCut){
+    if(bintype == byPt) histname << "_nvtx" << crossbinlow << "-" << crossbinhigh;
+    else if(bintype == byVtx) histname << "_pt" << crossbinlow << "-" << crossbinhigh;
+  }
+  histname << ".png";
   toymc->SaveAs(histname.str().c_str());
 
   histname.str("");
@@ -596,7 +643,12 @@ for(int i(0); i<mcstudy->fitParDataSet().sumEntries(); i++){
 
 	if(inputfittype == 0) textfilename << "-den";
 	else if(inputfittype == 1) textfilename << "-num";
-	textfilename << "-" << lowercut << "-"<< uppercut<< "-" << fitrangelow << "-" << fitrangehigh <<  ".txt";
+	textfilename << "-" << lowercut << "-"<< uppercut<< "-" << fitrangelow << "-" << fitrangehigh;
+	if(applyCrossCut){
+		if(bintype == byPt) textfilename << "-nvtx" << crossbinlow << "-" << crossbinhigh;
+		else if(bintype == byVtx) textfilename << "-pt" << crossbinlow << "-" << crossbinhigh;
+	}
+	textfilename << ".txt";
  
  // if(SaveOutput){
 		ofstream myfile;
@@ -612,9 +664,24 @@ for(int i(0); i<mcstudy->fitParDataSet().sumEntries(); i++){
 int main(int argc, char *argv[])
 {
 using namespace RooFit ;
-    if(argc < 8)
-      std::cout << "You have to provide seven arguments!!\n";
+   // Usage: FitKer.exe year preVFP isData doEB fitFunc bintype fittype low high fitlow fithigh [crosslow crosshigh]
+   if(argc < 12){
+      std::cout << "Usage: " << argv[0] << " year preVFP isData doEB fitFunc bintype fittype low high fitlow fithigh [crosslow crosshigh]\n";
+      return 1;
+   }
    printf("number of arguments: %d\n", argc);
-   FitKer(atoi(argv[1]),atoi(argv[2]),atoi(argv[3]),atof(argv[4]),atof(argv[5]),atoi(argv[6]),atoi(argv[7]));
+
+   RunYear     = atoi(argv[1]);
+   ISpreVFP    = atoi(argv[2]);
+   processName = atoi(argv[3]) ? "Data" : "DY";
+   doEB        = atoi(argv[4]);
+   std::cout << "RunYear " << RunYear << " preVFP " << ISpreVFP << " process " << processName << " doEB " << doEB << std::endl;
+
+   // Optional crossbinlow, crossbinhigh (only used when
+   // useCrossBinning is set to true; otherwise ignored).
+   float crossbinlow  = (argc >= 13) ? atof(argv[12]) : -1;
+   float crossbinhigh = (argc >= 14) ? atof(argv[13]) : -1;
+
+   FitKer(atoi(argv[5]),atoi(argv[6]),atoi(argv[7]),atof(argv[8]),atof(argv[9]),atoi(argv[10]),atoi(argv[11]),crossbinlow,crossbinhigh);
    return 0;
 }

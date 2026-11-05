@@ -17,7 +17,7 @@
     },
     "metadata": {
       "isMC": true,
-      "pileupJSON": "/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/ScaleFactor/tnp/pileup_2018.json"
+      "pileupJSON": "/uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/test/ScaleFactor/tnp/pileup_2018.json"
     }
   }
 }

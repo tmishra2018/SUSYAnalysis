@@ -66,15 +66,15 @@ for RunYear in "${RunYears[@]}"; do
 
         if [ "$RunYear" -eq 2016 ]; then
             root -l -q pred_VGBkg.C++ > "logs/VG_eg_${RunYear}${VFP_string}.log" 
-            root -l -q pred_eleBkg.C++ > "logs/ele_eg_${RunYear}${VFP_string}.log" 
-            root -l -q pred_jetBkg.C++ > "logs/jet_eg_${RunYear}${VFP_string}.log" 
+            root -l -q pred_eleBkg_pT_nVtx.C++ > "logs/ele_eg_${RunYear}${VFP_string}.log" 
+            root -l -q pred_jetBkg_pT_nVtx.C++ > "logs/jet_eg_${RunYear}${VFP_string}.log" 
             root -l -q pred_qcdBkg.C++ > "logs/qcd_eg_${RunYear}${VFP_string}.log" 
             root -l -q pred_rareBkg.C++ > "logs/rare_eg_${RunYear}${VFP_string}.log" 
       	    root -l -q pred_sig.C++ > "logs/data_eg_${RunYear}${VFP_string}.log" 
         else
             root -l -q pred_VGBkg.C++ > "logs/VG_eg_${RunYear}.log" 
-            root -l -q pred_eleBkg.C++ > "logs/ele_eg_${RunYear}.log" 
-            root -l -q pred_jetBkg.C++ > "logs/jet_eg_${RunYear}.log" 
+            root -l -q pred_eleBkg_pT_nVtx.C++ > "logs/ele_eg_${RunYear}.log" 
+            root -l -q pred_jetBkg_pT_nVtx.C++ > "logs/jet_eg_${RunYear}.log" 
             root -l -q pred_qcdBkg.C++ > "logs/qcd_eg_${RunYear}.log" 
             root -l -q pred_rareBkg.C++ > "logs/rare_eg_${RunYear}.log" 
             root -l -q pred_sig.C++ > "logs/data_eg_${RunYear}.log" 
@@ -106,57 +106,39 @@ for RunYear in "${RunYears[@]}"; do
 
         if [ "$RunYear" -eq 2016 ]; then
             root -l -q pred_VGBkg.C++ > "logs/VG_mg_${RunYear}${VFP_string}.log"
-            root -l -q pred_eleBkg.C++ > "logs/ele_mg_${RunYear}${VFP_string}.log" 
-            root -l -q pred_jetBkg.C++ > "logs/jet_mg_${RunYear}${VFP_string}.log" 
+            root -l -q pred_eleBkg_pT_nVtx.C++ > "logs/ele_mg_${RunYear}${VFP_string}.log" 
+            root -l -q pred_jetBkg_pT_nVtx.C++ > "logs/jet_mg_${RunYear}${VFP_string}.log" 
             root -l -q pred_qcdBkg.C++ > "logs/qcd_mg_${RunYear}${VFP_string}.log" 
             root -l -q pred_rareBkg.C++ > "logs/rare_mg_${RunYear}${VFP_string}.log"
       	    root -l -q pred_sig.C++ > "logs/data_mg_${RunYear}${VFP_string}.log"
         else
             root -l -q pred_VGBkg.C++ > "logs/VG_mg_${RunYear}.log" 
-            root -l -q pred_eleBkg.C++ > "logs/ele_mg_${RunYear}.log" 
-            root -l -q pred_jetBkg.C++ > "logs/jet_mg_${RunYear}.log" 
+            root -l -q pred_eleBkg_pT_nVtx.C++ > "logs/ele_mg_${RunYear}.log" 
+            root -l -q pred_jetBkg_pT_nVtx.C++ > "logs/jet_mg_${RunYear}.log" 
             root -l -q pred_qcdBkg.C++ > "logs/qcd_mg_${RunYear}.log" 
             root -l -q pred_rareBkg.C++ > "logs/rare_mg_${RunYear}.log" 
             root -l -q pred_sig.C++ > "logs/data_mg_${RunYear}.log" 
         fi
  	
 	root -l -q Signal-samples/analysis_TChiWG.C++  # Run it here as it takes the values from SigConfig.txt
-
-        if [ "$RunYear" -eq 2016 ]; then
-            rm "logs/eventcount_${RunYear}${VFP_string}.txt"
-            root -l -q "plot_eventct.C+($NBIN)" >> "logs/eventcount_${RunYear}${VFP_string}.txt"
-        else
-            rm "logs/eventcount_${RunYear}.txt"
-            root -l -q "plot_eventct.C+($NBIN)" >> "logs/eventcount_${RunYear}.txt"
-        fi
-
-# ======================================================================================================	
-	
-        python3 createDataCard.py ${NBIN} ${RunYear} ${preVFP}                  # takes input from plot_eventct.C
-        
-	if [ "$RunYear" -eq 2016 ]; then
-		rm /eos/uscms/store/user/tmishra/CombinedLimit/T5WG/cards/cards_${RunYear}${VFP_string}/*
-		rm /eos/uscms/store/user/tmishra/CombinedLimit/T6WG/cards/cards_${RunYear}${VFP_string}/*
-		rm /eos/uscms/store/user/tmishra/CombinedLimit/TChiWG/cards/cards_${RunYear}${VFP_string}/*
-		mkdir -p /eos/uscms/store/user/tmishra/CombinedLimit/T5WG/cards/cards_${RunYear}${VFP_string}
-		mkdir -p /eos/uscms/store/user/tmishra/CombinedLimit/T6WG/cards/cards_${RunYear}${VFP_string}
-		mkdir -p /eos/uscms/store/user/tmishra/CombinedLimit/TChiWG/cards/cards_${RunYear}${VFP_string}
-	else
-		rm /eos/uscms/store/user/tmishra/CombinedLimit/T5WG/cards/cards_${RunYear}/*
-		rm /eos/uscms/store/user/tmishra/CombinedLimit/T6WG/cards/cards_${RunYear}/*
-		rm /eos/uscms/store/user/tmishra/CombinedLimit/TChiWG/cards/cards_${RunYear}/*
-		mkdir -p /eos/uscms/store/user/tmishra/CombinedLimit/T5WG/cards/cards_${RunYear}             
-		mkdir -p /eos/uscms/store/user/tmishra/CombinedLimit/T6WG/cards/cards_${RunYear}             
-		mkdir -p /eos/uscms/store/user/tmishra/CombinedLimit/TChiWG/cards/cards_${RunYear}             
-	fi
-        python3 writeT5WGcard.py ${NBIN} ${RunYear} ${preVFP}                   # takes input from Signal-samples/analysis_TChiWG.C      
-        python3 writeT6WGcard.py ${NBIN} ${RunYear} ${preVFP}                   
-        python3 writeTChiWGcard.py ${NBIN} ${RunYear} ${preVFP}                     
-
     done
 done
 
-echo "All tasks completed successfully. do the limit plots.. "
-cd  /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/HiggsAnalysis/CombinedLimit/tools
+# ttgamma+VVgamma: yield per era x bin fraction from all four eras (needs pred_rareBkg.C of every era)
+python3 factorise_rareBkg.py > logs/factorise_rareBkg.log || { echo "factorise_rareBkg.py failed, see logs/factorise_rareBkg.log"; exit 1; }
+
+for era in "2016 1 preVFP" "2016 0 postVFP" "2017 0 " "2018 0 "; do
+    set -- $era; RunYear=$1; preVFP=$2; VFP_string=${3:-}
+    printf "ichannel 2\nanatype 3\nlowMt 100\nhighMt -1\nlowMET 120\nhighMET -1\nlowPt 0\nhighPt -1\nlepIso 4\nRunYear $RunYear\npreVFP $preVFP\n" > SigConfig.txt
+    rm -f "logs/eventcount_${RunYear}${VFP_string}.txt"
+    root -l -q "plot_eventct.C+($NBIN)" >> "logs/eventcount_${RunYear}${VFP_string}.txt"
+done
+
+#bash ../../limits/datacards/makeCards.sh
+#bash makePlot.sh
+#root -l -b -q 'plotSyst_VGBkg.C("/uscms_data/d3/tmishra/Output/signalTree_egamma_VGBkg_678.root", "/uscms_data/d3/tmishra/Output/signalTree_mg_VGBkg_678.root","2018")'
+
+#echo "All tasks completed successfully. do the limit plots.. "
+#cd  /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/limits/combine
 #cmsenv
 #bash MakeImpactPlot.sh

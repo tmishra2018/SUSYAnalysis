@@ -3,6 +3,7 @@
 #include<fstream>
 #include<sstream>
 #include<algorithm>
+#include<cstdlib>
 
 #include "TFile.h"
 #include "TTree.h"
@@ -44,9 +45,16 @@ int lowMt(0);
 int highMt(-1);
 int lowMET(0);
 int highMET(-1);
+int lowHT(0);
+int highHT(-1);
 int lowPt(25);
 int highPt(-1);
 int lepIso(4);
+int lowPhoEt(0);    // optional photon-pT window (BkgPredConfig keys lowPhoEt/highPhoEt), used for the SF binning study
+int highPhoEt(-1);
+// V+gamma / fake-lepton SFs in the CR/VR/SR: photon-pT binned (VGamma_pho/QCDfake_pho) by default;
+// environment variable SF_BINNING=HT selects the HT-binned factors (VGamma_ht/QCDfake_ht) instead
+bool usePhoPtSF = !(getenv("SF_BINNING") && std::string(getenv("SF_BINNING")) == "HT");
 
 int NBIN(18);
 float METbin1(200), METbin2(400);
@@ -55,50 +63,69 @@ float PHOETbin(200);
 int RunYear(2016);
 bool preVFP(1);
 
-double factor_mgQCD_2016preVFP(0.87261);
-double factorerror_mgQCD_2016preVFP(0.0820623);
-double factor_mgVGamma_2016preVFP(1.35197);
-double factorerror_mgVGamma_2016preVFP(0.107935);
-double factor_egQCD_2016preVFP(0.491149);
-double factorerror_egQCD_2016preVFP(0.12104);
-double factor_egVGamma_2016preVFP(1.42088);
-double factorerror_egVGamma_2016preVFP(0.311331);
 
-double factor_mgQCD_2016postVFP(0.919834);
-double factorerror_mgQCD_2016postVFP(0.173638);
-double factor_mgVGamma_2016postVFP(1.47747);
-double factorerror_mgVGamma_2016postVFP(0.165919);
-double factor_egQCD_2016postVFP(0.674543);
-double factorerror_egQCD_2016postVFP(0.105477);
-double factor_egVGamma_2016postVFP(1.13285);
-double factorerror_egVGamma_2016postVFP(0.334537);
+// inclusive V+gamma / fake-lepton factors (MET 40-70 GeV template fit, 2026-10-31 production): nominal fit and
+// +1 sigma (toy 16-84% spread (+) MINOS, as VGamma/fit/plotVGammaScales.C). Used as the fixed factors / fallback
+// for photon-pT bins without a stable fit (none in the 2026-10-31 production), and with SF_BINNING=HT.
+double factor_mgQCD_2016preVFP(0.889385);
+double factorerror_mgQCD_2016preVFP(0.0351834);
+double factor_mgVGamma_2016preVFP(1.27792);
+double factorerror_mgVGamma_2016preVFP(0.0333102);
+double factor_mgQCD_2016postVFP(0.9233);
+double factorerror_mgQCD_2016postVFP(0.0412466);
+double factor_mgVGamma_2016postVFP(1.30636);
+double factorerror_mgVGamma_2016postVFP(0.0436338);
+double factor_mgQCD_2017(0.952944);
+double factorerror_mgQCD_2017(0.0402262);
+double factor_mgVGamma_2017(1.49174);
+double factorerror_mgVGamma_2017(0.0520737);
+double factor_mgQCD_2018(0.887432);
+double factorerror_mgQCD_2018(0.0318337);
+double factor_mgVGamma_2018(1.33581);
+double factorerror_mgVGamma_2018(0.0374351);
+double factor_egQCD_2016preVFP(0.734165);
+double factorerror_egQCD_2016preVFP(0.0678965);
+double factor_egQCD_2016postVFP(1.03671);
+double factorerror_egQCD_2016postVFP(0.0751351);
+double factor_egVGamma_2016postVFP(1.01211);
+double factorerror_egVGamma_2016postVFP(0.13593);
+double factor_egVGamma_2016preVFP(1.41235);
+double factorerror_egVGamma_2016preVFP(0.121151);
+double factor_egQCD_2017(0.765974);
+double factorerror_egQCD_2017(0.057587);
+double factor_egVGamma_2017(1.17028);
+double factorerror_egVGamma_2017(0.13174);
+double factor_egQCD_2018(0.668626);
+double factorerror_egQCD_2018(0.059795);
+double factor_egVGamma_2018(1.44105);
+double factorerror_egVGamma_2018(0.141647);
 
-double factor_mgQCD_2017(0.915692);
-double factorerror_mgQCD_2017(0.254747);
-double factor_mgVGamma_2017(1.49914);
-double factorerror_mgVGamma_2017(0.238776);
-double factor_egQCD_2017(0.457467);
-double factorerror_egQCD_2017(0.112141);
-double factor_egVGamma_2017(1.18835);
-double factorerror_egVGamma_2017(0.432986);
 
-double factor_mgQCD_2018(0.859031);
-double factorerror_mgQCD_2018(0.128368);
-double factor_mgVGamma_2018(1.36389);
-double factorerror_mgVGamma_2018(0.1488);
-double factor_egQCD_2018(0.411959);
-double factorerror_egQCD_2018(0.0950488);
-double factor_egVGamma_2018(1.53025);
-double factorerror_egVGamma_2018(0.349885);
+
+// SUSYAnalysis area that contains the working directory: walk up until <dir>/include/analysis_commoncode.h exists.
+// Works from any folder inside the area (test/..., limits/...), so a copied or moved area reads its own config files.
+std::string anaBaseDir(){
+	std::string dir = gSystem->WorkingDirectory();
+	while(!dir.empty()){
+		std::ifstream probe((dir + "/include/analysis_commoncode.h").c_str());
+		if(probe.good()) return dir;
+		size_t pos = dir.find_last_of('/');
+		if(pos == std::string::npos) break;
+		dir = dir.substr(0, pos);
+	}
+	std::cerr << "analysis_commoncode.h: no SUSYAnalysis area above " << gSystem->WorkingDirectory() << std::endl;
+	return "";
+}
 
 bool SetRunConfig(){
 	
-	std::ifstream configfile("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/Background/BkgPredConfig.txt");
+	std::ifstream configfile((anaBaseDir() + "/test/Background/BkgPredConfig.txt").c_str());
 	std::string conftype;
 	double confvalue;
 	if(configfile.is_open()){
-  	for(int i(0); i<11; i++){ 
-			configfile >> conftype >> confvalue; 
+  	while(configfile >> conftype >> confvalue){   // 13 standard keys, optionally lowPhoEt/highPhoEt
+			if(conftype == "lowPhoEt")lowPhoEt = confvalue;
+			if(conftype == "highPhoEt")highPhoEt = confvalue;
 			if(conftype.find("ichannel")!=std::string::npos)ichannel = confvalue;
 			if(conftype.find("anatype")!=std::string::npos)anatype = confvalue;
 			if(conftype.find("lowMt")!=std::string::npos)lowMt = confvalue;
@@ -110,6 +137,8 @@ bool SetRunConfig(){
 			if(conftype.find("lepIso")!=std::string::npos)lepIso = confvalue;
 			if(conftype.find("RunYear")!=std::string::npos)RunYear = confvalue;
 			if(conftype.find("preVFP")!=std::string::npos)preVFP = confvalue;
+			if(conftype.find("lowHT")!=std::string::npos)lowHT = confvalue;
+			if(conftype.find("highHT")!=std::string::npos)highHT = confvalue;
 	  }
 	}
 	configfile.close();
@@ -120,7 +149,7 @@ bool SetRunConfig(){
 
 bool SetSignalConfig(){
 	
-	std::ifstream configfile("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/myResult/SigConfig.txt");
+	std::ifstream configfile((anaBaseDir() + "/test/myResult/SigConfig.txt").c_str());
 	std::string conftype;
 	double confvalue;
 	if(configfile.is_open()){
@@ -141,7 +170,7 @@ bool SetSignalConfig(){
 	}
 	configfile.close();
 
-	std::ifstream binfile("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/myResult/binConfig.txt");
+	std::ifstream binfile((anaBaseDir() + "/test/myResult/binConfig.txt").c_str());
 	if(binfile.is_open()){
 		for(int i(0); i<6; i++){
 			binfile >> conftype >> confvalue;
@@ -159,7 +188,6 @@ bool SetSignalConfig(){
 }
 
 double calcToyError(vector<double> & vtoy, bool useGauss, int ic){
-	
 		double syserr(0);
 		double normvalue = vtoy[0];
 		std::sort(vtoy.begin(), vtoy.end());
@@ -169,15 +197,8 @@ double calcToyError(vector<double> & vtoy, bool useGauss, int ic){
 			temphist->Fill(vtoy[it]);
 		}
 		if(useGauss){
-			TCanvas *can=new TCanvas("can","",600,600);
-			can->cd();
-			temphist->Draw();
-			temphist->Fit("gaus");
+			temphist->Fit("gaus","Q0");
 			syserr = temphist->GetFunction("gaus")->GetParameter(2);
-			//std::ostringstream canname;
-			//canname.str("");
-			//canname << ic << ".png";
-			//can->SaveAs(canname.str().c_str());	
 		}
 		else syserr = std::max( fabs(vtoy.front() - normvalue), fabs(vtoy.back() - normvalue));
 		delete temphist;

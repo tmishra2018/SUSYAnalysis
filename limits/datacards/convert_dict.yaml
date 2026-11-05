@@ -1,0 +1,157 @@
+# ============================================================
+# convert_dict.yaml
+# Rename dictionary: old systematic name -> CMS recommended name
+#
+# Used by: python3 systematics/check_names.py
+#   --rename-dict convert_dict.yaml  --year 2018
+#
+# Simple renames:  old_name: new_name
+# Pattern renames: key ending in _pattern, with regex + replace
+# Lumi expansion:  "lumi" is year-aware and expands to 2-3 lines
+#                  depending on which year card is being processed.
+# Lumi 3-parameter scheme (from CMS AN template / reviewer table):
+#   Component                    2016    2017    2018
+#   lumi_13TeV_1516_l  lnN      1.0118    -       -
+#   lumi_13TeV_151617_l lnN     1.0004  1.0055    -
+#   lumi_13TeV_15161718_l lnN   1.0035  1.0061  1.0084
+#
+# Note: 2016preVFP and 2016postVFP both use the 2016 values.
+# ============================================================
+ 
+rename:
+
+  # ---- Jet Energy Scale & Resolution ----------------------
+  jes:    CMS_scale_j
+  JES:    CMS_scale_j
+  jer:    CMS_res_j
+  JER:    CMS_res_j
+  # JES stays fully correlated across years (single total uncertainty, no split sources).
+  # JER is uncorrelated across years (JME): jer_{year} -> CMS_res_j_{year}
+  jer_YEAR_pattern:
+    regex:   "^jer_(\\d{4}(?:preVFP|postVFP)?)$"
+    replace: "CMS_res_j_{1}"
+
+  # ---- Lepton / photon Scale Factors ----------------------
+  # createDataCard.py writes esf_e (e-gamma bins: electron ID/R9/miniIso + e-gamma triggers),
+  # esf_m (mu-gamma bins: muon ID/iso + mu-gamma trigger) and esfpho (photon ID, both channels).
+  esf_e:  CMS_eff_e
+  esf_m:  CMS_eff_m
+  esfpho: CMS_eff_g
+  esf:    CMS_eff_e
+  eSF:    CMS_eff_e
+  electronSF: CMS_eff_e
+  eleSF:  CMS_eff_e
+
+  # ---- normalization uncertainty from the VGamma scale factor fit for VGamma and qcdfakelep ----------------------
+  scale:  CMS_SUS2411_normSF_VGamma
+  # SF fitted separately per year -> uncorrelated: scale_{year} -> CMS_SUS2411_normSF_VGamma_{year}
+  scale_YEAR_pattern:
+    regex:   "^scale_(\\d{4}(?:preVFP|postVFP)?)$"
+    replace: "CMS_SUS2411_normSF_VGamma_{1}"
+
+  # ---- Luminosity (year-aware, 3-parameter scheme) ----------------
+  # Expands the single "lumi" line into 2-3 lines per year.
+  # Names and values from CMS AN template (reviewer table):
+  #   lumi_13TeV_1516_l      : 2016-only component
+  #   lumi_13TeV_151617_l    : 2016+2017 correlated component
+  #   lumi_13TeV_15161718_l  : fully correlated Run2 component
+  lumi:
+    "2016preVFP":
+      - name: lumi_13TeV_1516_l
+        value: "1.0118"
+      - name: lumi_13TeV_151617_l
+        value: "1.0004"
+      - name: lumi_13TeV_15161718_l
+        value: "1.0035"
+    "2016postVFP":
+      - name: lumi_13TeV_1516_l
+        value: "1.0118"
+      - name: lumi_13TeV_151617_l
+        value: "1.0004"
+      - name: lumi_13TeV_15161718_l
+        value: "1.0035"
+    "2017":
+      - name: lumi_13TeV_151617_l
+        value: "1.0055"
+      - name: lumi_13TeV_15161718_l
+        value: "1.0061"
+    "2018":
+      - name: lumi_13TeV_15161718_l
+        value: "1.0084"
+ 
+  # ---- Pileup ---------------------------------------------
+  PU:     CMS_pileup
+  pu:     CMS_pileup
+  pileup: CMS_pileup
+
+  # ---- ISR reweighting (year-dependent, uncorrelated) -----------------
+  # Simple rename keyed by card year — convert_all_cards.py passes year
+  # to build_rename_rules, which selects the right entry
+  isr:
+    "2016preVFP":  CMS_ISR_13TeV_2016preVFP
+    "2016postVFP": CMS_ISR_13TeV_2016postVFP
+    "2017":        CMS_ISR_13TeV_2017
+    "2018":        CMS_ISR_13TeV_2018
+  # LO -> NLO W+gamma ISR pT factor (V+gamma only), correlated across years and channels
+  wgnlo:  CMS_SUS2411_VG_LOtoNLO
+
+  # ---- Signal cross-section / theory ----------------------
+  #xs:     xsec_SUSY
+
+  # ---- Electron-to-photon fake: systematic ----------------
+  e_to_pho_syst: CMS_fake_e_g_syst
+
+  # ---- Electron-to-photon fake: per-bin stat (gmN) --------
+  # Pattern: e_to_pho_{year}_stat{N}  ->  CMS_fake_e_g_stat_bin{N}_{year}
+  # regex group {1}=year, {2}=bin
+  e_to_pho_YEAR_statBIN_pattern:
+    regex:   "^e_to_pho_(\\d{4}(?:preVFP|postVFP)?)_stat(\\d+)$"
+    replace: "CMS_fake_e_g_stat_bin{2}_{1}"
+
+  # ---- Jet-to-photon fake: systematic ---------------------
+  j_to_pho_syst: CMS_fake_j_g_syst
+
+  # ---- Jet-to-photon fake: per-bin stat (gmN, if present) -
+  # Pattern: j_to_pho_{year}_stat{N}  ->  CMS_fake_j_g_stat_bin{N}_{year}
+  j_to_pho_YEAR_statBIN_pattern:
+    regex:   "^j_to_pho_(\\d{4}(?:preVFP|postVFP)?)_stat(\\d+)$"
+    replace: "CMS_fake_j_g_stat_bin{2}_{1}"
+
+  # ---- Jet-to-lepton fake: per-bin stat (gmN) -------------
+  # Pattern: j_to_lep_{year}_stat{N}  ->  CMS_fake_j_l_stat_bin{N}_{year}
+  # regex group {1}=year, {2}=bin
+  j_to_lep_YEAR_statBIN_pattern:
+    regex:   "^j_to_lep_(\\d{4}(?:preVFP|postVFP)?)_stat(\\d+)$"
+    replace: "CMS_fake_j_l_stat_bin{2}_{1}"
+
+  # ---- Rare background MC stat (factorised, factorise_rareBkg.py) ----
+  # bin fraction from all four eras: ttGam_VVGam_stat{N}  ->  CMS_SUS2411_ttGam_VVGam_stat_bin{N}  (no year tag)
+  ttGam_VVGam_statBIN_pattern:
+    regex:   "^ttGam_VVGam_stat(\\d+)$"
+    replace: "CMS_SUS2411_ttGam_VVGam_stat_bin{1}"
+  # era yield per channel: ttGam_VVGam_statN_{ch}_{year}  ->  CMS_SUS2411_ttGam_VVGam_statN_{ch}_{year}
+  ttGam_VVGam_statN_pattern:
+    regex:   "^ttGam_VVGam_statN_(eg|mg)_(\\d{4}(?:preVFP|postVFP)?)$"
+    replace: "CMS_SUS2411_ttGam_VVGam_statN_{1}_{2}"
+
+  # ---- VGamma background MC stat per bin ------------------
+  # Pattern: VG_stat{N}_{year}  ->  CMS_SUS2411_VG_stat_bin{N}_{year}
+  VG_statBIN_pattern:
+    regex:   "^VG_stat(\\d+)_(\\d{4}(?:preVFP|postVFP)?)$"
+    replace: "CMS_SUS2411_VG_stat_bin{1}_{2}"
+
+
+  # ---- QCD scale uncertainties (identity renames) ----------------------
+  # These names are already correct — registered so validator accepts them.
+  QCDscale_VGamma:        QCDscale_VGamma
+  QCDscale_ttGam_VVGam:   QCDscale_ttGam_VVGam
+  # Signal QCD scale QCDscale_{t5wg/t6wg/tchiwg}_M1_M2 matched by
+  # approved_patterns regex — no rename entry needed here.
+
+  # ---- PDF uncertainty (identity rename) --------------------------------
+  # Single pdf_alphas row covers signal + VGamma + rare.
+  pdf_alphas:             pdf_alphas
+
+  # ---- Rare process cross section uncertainty -----------------
+  # Convention: xsec_{process}
+  xsec_ttGam_VVGam:       xsec_ttGam_VVGam

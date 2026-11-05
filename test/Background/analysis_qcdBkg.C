@@ -3,7 +3,6 @@
 #include "../../include/analysis_commoncode.h"
 
 bool useVarSF = false;
-bool useLepScale = true;
 
 void analysis_qcdBkg(){
 
@@ -65,15 +64,6 @@ void analysis_qcdBkg(){
                 	}
 		}
 	}
-	
-	// make this ON when you have to derive the QCD and VGamma scales
-	// reading scale factor from sf files
-	TFile *scaleFile;
-		if(channelType == 1)scaleFile = TFile::Open(Form("/eos/uscms/store/user/tmishra/fakeLep/qcd_eg_scale_%d%s.root",RunYear,whichVFP.c_str()));
-		else if(channelType == 2)scaleFile = TFile::Open(Form("/eos/uscms/store/user/tmishra/fakeLep/qcd_mg_scale_%d%s.root",RunYear,whichVFP.c_str()));
-	TH1D *p_scale = 0;
-	if(channelType == 1)p_scale = (TH1D*)scaleFile->Get("transfer_factor");
-	else if(channelType == 2)p_scale = (TH1D*)scaleFile->Get("transfer_factor");
 	
 	//*********** histo list ********************** 
 	std::ostringstream histname;
@@ -177,6 +167,7 @@ void analysis_qcdBkg(){
   float nJetFloat(0);
   int nJetInt(0);
   int   nBJet(0); 
+  bool  passHEMVeto_val(true);
 
 
   fakeEtree->SetBranchAddress("phoEt",     &phoEt);
@@ -195,12 +186,14 @@ void analysis_qcdBkg(){
   fakeEtree->SetBranchAddress("dRPhoLep",  &dRPhoLep);
   fakeEtree->SetBranchAddress("HT",        &HT);
   fakeEtree->SetBranchAddress("nBJet",     &nBJet);
+  fakeEtree->SetBranchAddress("passHEMVeto",&passHEMVeto_val);
   if (channelType == 1) fakeEtree->SetBranchAddress("nJet", &nJetFloat);
   else fakeEtree->SetBranchAddress("nJet", &nJetInt);
 
 
   for(unsigned ievt(0); ievt < fakeEtree->GetEntries(); ievt++){
 		fakeEtree->GetEntry(ievt);
+		if(!passHEMVeto_val)continue; // HEM15/16 veto
 		double w_qcd = 0; 
 		double w_qcd_up = 0; 
 		double w_qcd_unweight = 0;
@@ -208,15 +201,18 @@ void analysis_qcdBkg(){
 		if(!toDeriveScale and useVarSF){
             		factorQCD   = hQCD->GetBinContent(hQCD->FindBin(lepPt));
             		factorQCDUP = factorQCD + hQCD->GetBinError(hQCD->FindBin(lepPt));}
+		// photon-pT binned fake-lepton factor (default; SF_BINNING=HT keeps the HT-binned/fixed factor); fixed factor for a negative bin
+		if(!toDeriveScale and usePhoPtSF){
+			static TH1D *hQCDpho = nullptr;
+			static double fixQCD = factorQCD, fixQCDUP = factorQCDUP;
+			if(!hQCDpho){ TFile *fpho = TFile::Open(Form("/eos/uscms/store/user/tmishra/VGamma/%d%s/VGammaScaleHist_%s_%d%s.root",RunYear,whichVFP.c_str(),(channelType == 1 ? "eg" : "mg"),RunYear,whichVFP.c_str())); hQCDpho = (TH1D*)fpho->Get("QCDfake_pho"); }
+			int phoBin = hQCDpho->FindBin(std::min<double>(phoEt, hQCDpho->GetXaxis()->GetXmax() - 1e-3));
+			if(hQCDpho->GetBinContent(phoBin) > 0){ factorQCD = hQCDpho->GetBinContent(phoBin); factorQCDUP = factorQCD + hQCDpho->GetBinError(phoBin); }
+			else { factorQCD = fixQCD; factorQCDUP = fixQCDUP; }}
 
-		if (useLepScale){
-			w_qcd = factorQCD*p_scale->GetBinContent(p_scale->FindBin(lepPt));
-			w_qcd_up = factorQCDUP*p_scale->GetBinContent(p_scale->FindBin(lepPt));
-			w_qcd_unweight = factorQCD;}
-		else{
-	    		w_qcd          = factorQCD;
-	    		w_qcd_up       = factorQCDUP;
-	    		w_qcd_unweight = factorQCD;}
+	    	w_qcd          = factorQCD;
+	    	w_qcd_up       = factorQCDUP;
+	    	w_qcd_unweight = factorQCD;
 
 		p_PU->Fill(nVertex);
 		/** cut flow *****/
@@ -227,6 +223,10 @@ void analysis_qcdBkg(){
 		if(highMt > 0 && sigMT > highMt)continue;
 		if(lepPt < lowPt)continue;
 		if(highPt > 0 && lepPt > highPt)continue;
+		if(HT < lowHT)continue;
+                if(highHT > 0 && HT > highHT)continue;
+                if(phoEt < lowPhoEt)continue;
+                if(highPhoEt > 0 && phoEt > highPhoEt)continue;
 		// different MET, MT, lepton pT ranges
 		bool isProxy(false);
 		// lepIso = 4
@@ -443,6 +443,9 @@ void analysis_qcdBkg(){
 	if(channelType==1)outputname << "egamma_qcd";
 	else if(channelType==2)outputname << "mg_qcd";
 	if(anatype ==0 or anatype ==1) outputname << "_met" << lowMET <<"_" << highMET << "_pt" << lowPt << "_" << highPt;
+	bool htRestricted = !(lowHT <= 0 && highHT < 0);
+        if((anatype ==0 or anatype ==1) and htRestricted) outputname << "_HT" << lowHT << "_" << highHT;
+        if((anatype ==0 or anatype ==1) and !(lowPhoEt <= 0 && highPhoEt < 0)) outputname << "_pho" << lowPhoEt << "_" << highPhoEt;  // photon-pT split (SF binning study)
         outputname <<"_" << RunYear<<whichVFP <<".root";
 	
 	TFile *outputfile = TFile::Open(outputname.str().c_str(),"RECREATE");

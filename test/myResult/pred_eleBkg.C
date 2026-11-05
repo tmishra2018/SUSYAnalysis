@@ -15,15 +15,15 @@ void pred_eleBkg(){
         else if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
         else whichVFP = "";
 
-	float correction =1.0;
-	if (RunYear == 2016 and preVFP == 1 and ichannel == 1) correction = 0.948005;
-        else if (RunYear == 2016 and preVFP == 1 and ichannel == 2) correction = 0.900015;
-        else if (RunYear == 2016 and preVFP == 0 and ichannel == 1) correction = 0.775942;
-        else if (RunYear == 2016 and preVFP == 0 and ichannel == 2) correction = 0.730433;
-        else if (RunYear == 2017 and ichannel == 1) correction = 1.39352;
-        else if (RunYear == 2017 and ichannel == 2) correction = 1.03558;
-        else if (RunYear == 2018 and ichannel == 1) correction = 1.35192;
-        else if (RunYear == 2018 and ichannel == 2) correction = 1.20607;
+	        float correction =1.0;
+        if (RunYear == 2016 and preVFP == 1 and ichannel == 1) correction = 0.993453;
+        else if (RunYear == 2016 and preVFP == 1 and ichannel == 2) correction = 0.895519;
+        else if (RunYear == 2016 and preVFP == 0 and ichannel == 1) correction = 0.792134;
+        else if (RunYear == 2016 and preVFP == 0 and ichannel == 2) correction = 0.731495;
+        else if (RunYear == 2017 and ichannel == 1) correction = 1.39138;
+        else if (RunYear == 2017 and ichannel == 2) correction = 1.031;
+        else if (RunYear == 2018 and ichannel == 1) correction = 1.35597;
+        else if (RunYear == 2018 and ichannel == 2) correction = 1.20164;
 
   	/************************************/
 	/*	double normfactor = par[0]; */  

@@ -1,4 +1,4 @@
-	// run by root -l -q "closure_efakepho.C(1,2016,1)"
+// run by root -l -q "closure_efakepho.C(1,2016,1)"
 	// Also check mcfakerate_func()
 
 	#include "../../include/analysis_commoncode.h"
@@ -20,20 +20,11 @@
 
 	void closure_efakepho(int ichannel, int Year, bool ISpreVFP){
 	
-	  float correction;
-	  if (Year == 2016 and ISpreVFP == 1 and ichannel == 1) correction = 0.948005;
-	  else if (Year == 2016 and ISpreVFP == 1 and ichannel == 2) correction = 0.900015;
-	  else if (Year == 2016 and ISpreVFP == 0 and ichannel == 1) correction = 0.775942;
-	  else if (Year == 2016 and ISpreVFP == 0 and ichannel == 2) correction = 0.730433;
-	  else if (Year == 2017 and ichannel == 1) correction = 1.39352;
-	  else if (Year == 2017 and ichannel == 2) correction = 1.03558;
-	  else if (Year == 2018 and ichannel == 1) correction = 1.35192;
-	  else if (Year == 2018 and ichannel == 2) correction = 1.20607;
-	  gROOT->SetBatch(kTRUE);
-	  setTDRStyle();
-	  gStyle->SetTitleXOffset(2.5);
-	  gSystem->Load("../../lib/libAnaClasses.so");
-	  int channelType = ichannel; // eg = 1; mg =2;
+	gROOT->SetBatch(kTRUE);
+	setTDRStyle();
+	gStyle->SetTitleXOffset(2.5);
+	gSystem->Load("../../lib/libAnaClasses.so");
+	int channelType = ichannel; // eg = 1; mg =2;
 
 		std::string whichVFP;
 		if(Year==2016 and ISpreVFP == true) whichVFP = "preVFP";
@@ -64,51 +55,73 @@
 		  }
 		}
 		elefake_file.close();
-		TF3 h_nominal_fakerate("h_nominal_fakerate", mcfakerate_func,10,1000,0,100,0,1.5,7);
-		h_nominal_fakerate.SetParameters(scalefactor*correction, ptslope, ptconstant, ptindex, ptcoeff, vtxconst, vtxslope);
+
+		// toy fake rate byPtVtx estimated from DrellYan -- read ONCE here and stored,
+		// so both passes (uncorrected/corrected) below reuse the same toy values.
+		double toy_scalefactor[NTOY];
+		double toy_ptslope[NTOY];
+		double toy_ptconstant[NTOY];
+		double toy_ptindex[NTOY];
+		double toy_vtxconst[NTOY];
+		double toy_vtxslope[NTOY];
+		std::ifstream elefake_toyfile(Form("/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult%d%s/ToyFakeRate_DrellYan_EB.txt",Year,whichVFP.c_str()));
+		if(elefake_toyfile.is_open()){
+			for(int i(0); i<NTOY; i++){ 
+				elefake_toyfile >> toy_scalefactor[i] >> toy_ptslope[i] >> toy_ptconstant[i] >> toy_ptindex[i] >> toy_vtxconst[i] >> toy_vtxslope[i];
+			}
+		}
+		elefake_toyfile.close();
+
+	// derived correction = p_MET->Integral()/pred_MET->Integral(), computed at the end of the
+	// uncorrected pass (pass==0) and then applied as a scale factor in the corrected pass (pass==1).
+	double derivedCorrection = 1.0;
+
+	// pass 0: uncorrected (bare fake-rate parameters), output files with no suffix
+	// pass 1: corrected  (scalefactor scaled by derivedCorrection), output files suffixed "_corrected"
+	for(int pass(0); pass<2; pass++){
+		bool applyCorrection = (pass==1);
+		double mult = applyCorrection ? derivedCorrection : 1.0;
+		std::string corrSuffix = applyCorrection ? "_corrected" : "";
+
+		std::ostringstream nomfuncname;
+		nomfuncname << "h_nominal_fakerate_pass" << pass;
+		TF3 h_nominal_fakerate(nomfuncname.str().c_str(), mcfakerate_func,10,1000,0,100,0,1.5,7);
+		h_nominal_fakerate.SetParameters(scalefactor*mult, ptslope, ptconstant, ptindex, ptcoeff, vtxconst, vtxslope);
 
 		TF3 *h_toymc_fakerate[NTOY];
 		std::ostringstream funcname;
-		std::ifstream elefake_toyfile(Form("/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult%d%s/ToyFakeRate_DrellYan_EB.txt",Year,whichVFP.c_str()));
-
-	// toy fake rate byPtVtx estimated from DrellYan
-	
-	if(elefake_toyfile.is_open()){
-  	for(int i(0); i<NTOY; i++){ 
-			elefake_toyfile >> scalefactor >> ptslope >> ptconstant >> ptindex >>  vtxconst >> vtxslope;
+		for(int i(0); i<NTOY; i++){ 
 			funcname.str("");
-			funcname << "h_toymc_fakerate_" << i;
+			funcname << "h_toymc_fakerate_pass" << pass << "_" << i;
 			h_toymc_fakerate[i] = new TF3(funcname.str().c_str(), mcfakerate_func,10,1000,0,100,0,1.5,7);
-			h_toymc_fakerate[i]->SetParameters(scalefactor*correction, ptslope, ptconstant, ptindex, 1, vtxconst, vtxslope); 
-	  }
-	}
-	elefake_toyfile.close();
+			h_toymc_fakerate[i]->SetParameters(toy_scalefactor[i]*mult, toy_ptslope[i], toy_ptconstant[i], toy_ptindex[i], 1, toy_vtxconst[i], toy_vtxslope[i]); 
+		}
 
 
 	// Signal Tree //
 	//*********** histo list **********************//
-	TH1D *p_PhoEt = new TH1D("p_PhoEt",";p_{T}^{#gamma} (GeV);Events / bin",nBkgEtBins,bkgEtBins);
-	TH1D *p_LepPt = new TH1D("p_LepPt","",nBkgPtBins,bkgPtBins);
-	TH1D *p_MET = new TH1D("p_MET","; p_{T}^{miss} (GeV);Events / bin",nBkgMETBins, bkgMETBins);
-	TH1D *p_Mt = new TH1D("p_Mt","; M_{T} (GeV);Events / bin",nBkgMtBins,bkgMtBins);
-	TH1D *p_HT = new TH1D("p_HT","; HT (GeV);Events / bin",nBkgHTBins, bkgHTBins); 
-	TH1D *p_dPhiEleMET = new TH1D("p_dPhiEleMET","dPhiEleMET",32,0,3.2); 
-	TH1D *p_PhoEta = new TH1D("p_PhoEta","#gamma #eta; #eta;",60,-3,3);
-	TH1D *p_LepEta = new TH1D("p_LepEta","p_LepEta",60,-3,3);
-	TH1D *p_eventcount = new TH1D("p_eventcount","eventcount",9,0,9);
+	TH1D *p_PhoEt = new TH1D(Form("p_PhoEt_pass%d",pass),";p_{T}^{#gamma} (GeV);Events / bin",nBkgEtBins,bkgEtBins);
+	TH1D *p_LepPt = new TH1D(Form("p_LepPt_pass%d",pass),"",nBkgPtBins,bkgPtBins);
+	TH1D *p_MET = new TH1D(Form("p_MET_pass%d",pass),"; p_{T}^{miss} (GeV);Events / bin",nBkgMETBins, bkgMETBins);
+	TH1D *p_Mt = new TH1D(Form("p_Mt_pass%d",pass),"; M_{T} (GeV);Events / bin",nBkgMtBins,bkgMtBins);
+	TH1D *p_HT = new TH1D(Form("p_HT_pass%d",pass),"; HT (GeV);Events / bin",nBkgHTBins, bkgHTBins); 
+	TH1D *p_dPhiEleMET = new TH1D(Form("p_dPhiEleMET_pass%d",pass),"dPhiEleMET",32,0,3.2); 
+	TH1D *p_PhoEta = new TH1D(Form("p_PhoEta_pass%d",pass),"#gamma #eta; #eta;",60,-3,3);
+	TH1D *p_LepEta = new TH1D(Form("p_LepEta_pass%d",pass),"p_LepEta",60,-3,3);
+	TH1D *p_eventcount = new TH1D(Form("p_eventcount_pass%d",pass),"eventcount",9,0,9);
 //	TH1D *p_nJet = new TH1D("p_nJet","p_nJet",10,0,10);
 	//************ Signal Tree **********************//
 	TChain *sigtree = new TChain("signalTree");
 	// processes contribute to electron fake photon background <= direct signal event
-	if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_DYJetsToLL_%d%s_.root",Year,whichVFP.c_str()));
-	if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_TTJets_%d%s_.root",Year,whichVFP.c_str()));
-	if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WW_%d%s_.root",Year,whichVFP.c_str()));
-	if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WZ_%d%s_.root",Year,whichVFP.c_str()));
+	if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_DYJetsToLL_%d%s.root",Year,whichVFP.c_str()));
+	if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_TTJets_%d%s.root",Year,whichVFP.c_str()));
+	if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WW_%d%s.root",Year,whichVFP.c_str()));
+	if(channelType==1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WZ_%d%s.root",Year,whichVFP.c_str()));
 
-	if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_DYJetsToLL_%d%s_.root",Year,whichVFP.c_str()));
-	if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_TTJets_%d%s_.root",Year,whichVFP.c_str()));
-	if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WW_%d%s_.root",Year,whichVFP.c_str()));
-	if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WZ_%d%s_.root",Year,whichVFP.c_str()));
+	if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_DYJetsToLL_%d%s.root",Year,whichVFP.c_str()));
+	if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_TTJets_%d%s.root",Year,whichVFP.c_str()));
+	if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WW_%d%s.root",Year,whichVFP.c_str()));
+	if(channelType==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WZ_%d%s.root",Year,whichVFP.c_str()));
 
 	float crosssection(0);
 	float ntotalevent(0);
@@ -254,24 +267,24 @@
 	// Fake Tree //
 	//*********** histo list **********************//
 	std::ostringstream histname;
-	TH1D *pred_PhoEt = new TH1D("pred_PhoEt","#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
-	TH1D *pred_LepPt = new TH1D("pred_LepPt","pred_LepPt",nBkgPtBins,bkgPtBins);
-	TH1D *pred_MET = new TH1D("pred_MET","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
-	TH1D *pred_Mt = new TH1D("pred_Mt","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins);
-	TH1D *pred_HT = new TH1D("pred_HT","HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
-	TH1D *pred_PhoEta = new TH1D("pred_PhoEta","#gamma #eta; #eta;",60,-3,3);
-	TH1D *pred_LepEta = new TH1D("pred_LepEta","pred_LepEta",60,-3,3);
-	TH1D *pred_dPhiEleMET = new TH1D("pred_dPhiEleMET","dPhiEleMET",32,0,3.2); 
+	TH1D *pred_PhoEt = new TH1D(Form("pred_PhoEt_pass%d",pass),"#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
+	TH1D *pred_LepPt = new TH1D(Form("pred_LepPt_pass%d",pass),"pred_LepPt",nBkgPtBins,bkgPtBins);
+	TH1D *pred_MET = new TH1D(Form("pred_MET_pass%d",pass),"MET; MET (GeV);",nBkgMETBins, bkgMETBins);
+	TH1D *pred_Mt = new TH1D(Form("pred_Mt_pass%d",pass),"M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins);
+	TH1D *pred_HT = new TH1D(Form("pred_HT_pass%d",pass),"HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
+	TH1D *pred_PhoEta = new TH1D(Form("pred_PhoEta_pass%d",pass),"#gamma #eta; #eta;",60,-3,3);
+	TH1D *pred_LepEta = new TH1D(Form("pred_LepEta_pass%d",pass),"pred_LepEta",60,-3,3);
+	TH1D *pred_dPhiEleMET = new TH1D(Form("pred_dPhiEleMET_pass%d",pass),"dPhiEleMET",32,0,3.2); 
 //	TH1D *pred_nJet = new TH1D("pred_nJet","pred_nJet",10,0,10);
 
-	TH1D *DY_PhoEt = new TH1D("DY_PhoEt","#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
-	TH1D *DY_LepPt = new TH1D("DY_LepPt","DY_LepPt",nBkgPtBins,bkgPtBins);
-	TH1D *DY_MET = new TH1D("DY_MET","MET; MET (GeV);",nBkgMETBins, bkgMETBins);
-	TH1D *DY_Mt = new TH1D("DY_Mt","M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins);
-	TH1D *DY_HT = new TH1D("DY_HT","HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
-	TH1D *DY_PhoEta = new TH1D("DY_PhoEta","#gamma #eta; #eta;",60,-3,3);
-	TH1D *DY_LepEta = new TH1D("DY_LepEta","DY_LepEta",60,-3,3);
-	TH1D *DY_dPhiEleMET = new TH1D("DY_dPhiEleMET","dPhiEleMET",32,0,3.2); 
+	TH1D *DY_PhoEt = new TH1D(Form("DY_PhoEt_pass%d",pass),"#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
+	TH1D *DY_LepPt = new TH1D(Form("DY_LepPt_pass%d",pass),"DY_LepPt",nBkgPtBins,bkgPtBins);
+	TH1D *DY_MET = new TH1D(Form("DY_MET_pass%d",pass),"MET; MET (GeV);",nBkgMETBins, bkgMETBins);
+	TH1D *DY_Mt = new TH1D(Form("DY_Mt_pass%d",pass),"M_{T}; M_{T} (GeV);",nBkgMtBins,bkgMtBins);
+	TH1D *DY_HT = new TH1D(Form("DY_HT_pass%d",pass),"HT; HT (GeV);",nBkgHTBins, bkgHTBins); 
+	TH1D *DY_PhoEta = new TH1D(Form("DY_PhoEta_pass%d",pass),"#gamma #eta; #eta;",60,-3,3);
+	TH1D *DY_LepEta = new TH1D(Form("DY_LepEta_pass%d",pass),"DY_LepEta",60,-3,3);
+	TH1D *DY_dPhiEleMET = new TH1D(Form("DY_dPhiEleMET_pass%d",pass),"dPhiEleMET",32,0,3.2); 
 //	TH1D *DY_nJet = new TH1D("DY_nJet","DY_nJet",10,0,10);
 
 	TH1D *toy_PhoEt[NTOY];
@@ -282,29 +295,29 @@
 	TH1D *toy_dPhiEleMET[NTOY];
 	for(unsigned ih(0); ih < NTOY; ih++){
 		histname.str("");
-		histname << "toy_PhoEt_ " << ih;
+		histname << "toy_PhoEt_pass" << pass << "_" << ih;
 		toy_PhoEt[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),nBkgEtBins,bkgEtBins);
 		histname.str("");
-		histname << "toy_LepPt_" << ih;
+		histname << "toy_LepPt_pass" << pass << "_" << ih;
 		toy_LepPt[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),nBkgPtBins,bkgPtBins);
 		histname.str("");
-		histname << "toy_MET_ " << ih;
+		histname << "toy_MET_pass" << pass << "_" << ih;
 		toy_MET[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),nBkgMETBins, bkgMETBins);
 		histname.str("");
-		histname << "toy_Mt_ " << ih;
+		histname << "toy_Mt_pass" << pass << "_" << ih;
 		toy_Mt[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),nBkgMtBins,bkgMtBins);
 		histname.str("");
-		histname << "toy_HT_ " << ih;
+		histname << "toy_HT_pass" << pass << "_" << ih;
 		toy_HT[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),nBkgHTBins, bkgHTBins);
 		histname.str("");
-		histname << "toy_eledPhiEleMET_" << ih;
+		histname << "toy_eledPhiEleMET_pass" << pass << "_" << ih;
 		toy_dPhiEleMET[ih] = new TH1D(histname.str().c_str(), histname.str().c_str(),32,0,3.2);
 	}
 	//************ Proxy Tree ********************** 
 	TChain *proxytree = new TChain("proxyTree");
 	// DY majorly contribute to electron fake photon background, proxy event
-	if(channelType==1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_DYJetsToLL_%d%s_.root",Year,whichVFP.c_str()));
-	if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_DYJetsToLL_%d%s_.root",Year,whichVFP.c_str()));
+	if(channelType==1)proxytree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_DYJetsToLL_%d%s.root",Year,whichVFP.c_str()));
+	if(channelType==2)proxytree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_DYJetsToLL_%d%s.root",Year,whichVFP.c_str()));
 
 	float proxycrosssection(0);
 	float proxyntotalevent(0);
@@ -354,10 +367,10 @@
 	proxytree->SetBranchAddress("mcGMomPID",   &proxy_mcGMomPID);
 	
 	// ---- Fake-lepton fraction counters for the DY proxy (ele->photon) sample ----
-	double proxy_wele_total   = 0.0;  // sum of ele-fake weights for all proxy events
-	double proxy_wele_fakelep = 0.0;  // sum of ele-fake weights for events with a fake lepton
-	double proxy_n_total      = 0.0;  // unweighted event count (for cross-check)
-	double proxy_n_fakelep    = 0.0;  // unweighted fake-lepton event count
+	//double proxy_wele_total   = 0.0;  // sum of ele-fake weights for all proxy events
+	//double proxy_wele_fakelep = 0.0;  // sum of ele-fake weights for events with a fake lepton
+	//double proxy_n_total      = 0.0;  // unweighted event count (for cross-check)
+	//double proxy_n_fakelep    = 0.0;  // unweighted fake-lepton event count
 
 	cout<<"Year "<<Year<<endl<<endl;
 	for (unsigned ievt(0); ievt<proxytree->GetEntries(); ++ievt){//loop on entries
@@ -400,7 +413,7 @@
 		// A lepton is considered prompt (real) if it MC-matches within dR<0.1
 		// to a generator-level lepton (|PID|=11 or 13) whose mother is a
 		// W (24), Z (23), or tau (15). Otherwise it is a fake lepton.
-		bool isRealLep = false;
+		/*bool isRealLep = false;
 		double lepMindR = 999.0;
 		unsigned lepMatchIdx = 0;
 		for(unsigned iMC(0); iMC < proxy_mcPID->size(); iMC++){
@@ -421,7 +434,7 @@
 		if(isFakeLep){
 			proxy_wele_fakelep += w_ele;
 			proxy_n_fakelep    += 1.0;
-		}
+		}*/
 
 		pred_PhoEt->Fill(proxyphoEt,w_ele);
 		pred_PhoEta->Fill(proxyphoEta, w_ele);
@@ -457,7 +470,7 @@
 	}
 
 	// ---- Print fake-lepton fraction for the DY proxy (ele->photon) sample ----
-	double fakeLepFrac_wele  = (proxy_wele_total  > 0) ? proxy_wele_fakelep / proxy_wele_total  : 0.0;
+	/*double fakeLepFrac_wele  = (proxy_wele_total  > 0) ? proxy_wele_fakelep / proxy_wele_total  : 0.0;
 	double fakeLepFrac_unwtd = (proxy_n_total      > 0) ? proxy_n_fakelep    / proxy_n_total     : 0.0;
 	std::cout << "============================================================" << std::endl;
 	std::cout << " Ele->photon proxy sample (DY): fake-lepton fraction" << std::endl;
@@ -465,18 +478,18 @@
 	          << "  = " << fakeLepFrac_wele*100.0 << " %" << std::endl;
 	std::cout << "  Unweighted: " << proxy_n_fakelep    << " / " << proxy_n_total
 	          << "  = " << fakeLepFrac_unwtd*100.0 << " %" << std::endl;
-	std::cout << "============================================================" << std::endl;
-
+	std::cout << "============================================================" << std::endl;*/
+		
 	//************ Proxy Tree **********************
 	TChain *raretree = new TChain("proxyTree");
 	// TTJets, WW, WZ rarely contribute to electron fake photon background, proxy event
-	if(channelType==1)raretree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_TTJets_%d%s_.root",Year,whichVFP.c_str()));
-	if(channelType==1)raretree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WW_%d%s_.root",Year,whichVFP.c_str()));
-	if(channelType==1)raretree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WZ_%d%s_.root",Year,whichVFP.c_str()));
+	if(channelType==1)raretree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_TTJets_%d%s.root",Year,whichVFP.c_str()));
+	if(channelType==1)raretree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WW_%d%s.root",Year,whichVFP.c_str()));
+	if(channelType==1)raretree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WZ_%d%s.root",Year,whichVFP.c_str()));
 
-	if(channelType==2)raretree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_TTJets_%d%s_.root",Year,whichVFP.c_str()));
-	if(channelType==2)raretree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WW_%d%s_.root",Year,whichVFP.c_str()));
-	if(channelType==2)raretree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WZ_%d%s_.root",Year,whichVFP.c_str()));
+	if(channelType==2)raretree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_TTJets_%d%s.root",Year,whichVFP.c_str()));
+	if(channelType==2)raretree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WW_%d%s.root",Year,whichVFP.c_str()));
+	if(channelType==2)raretree->Add(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_WZ_%d%s.root",Year,whichVFP.c_str()));
 
 	float rarecrosssection(0);
 	float rarentotalevent(0);
@@ -566,7 +579,7 @@
 		w_ele = w_ele*weight;
 
 		// ---- Classify lepton in rare proxy event ----
-		bool isRealLep_rare = false;
+		/*bool isRealLep_rare = false;
 		double lepMindR_rare = 999.0;
 		unsigned lepMatchIdx_rare = 0;
 		for(unsigned iMC(0); iMC < rare_mcPID->size(); iMC++){
@@ -586,7 +599,7 @@
 		if(isFakeLep_rare){
 			rare_wele_fakelep += w_ele;
 			rare_n_fakelep    += 1.0;
-		}
+		}*/
 
 		// predicted electron fake background using proxy events
 		pred_PhoEt->Fill(rarephoEt,w_ele);
@@ -610,8 +623,14 @@
 		}
 	}
 
+	// Derive the correction from the uncorrected pass, then use it in the corrected pass.
+	if(pass==0){
+		derivedCorrection = p_MET->Integral()/pred_MET->Integral();
+		std::cout << "Derived correction (p_MET->Integral()/pred_MET->Integral()) = " << derivedCorrection << std::endl;
+	}
+
 	// ---- Print fake-lepton fraction for the rare proxy (TT/WW/WZ) sample ----
-	double fakeLepFrac_rare_wele  = (rare_wele_total  > 0) ? rare_wele_fakelep / rare_wele_total  : 0.0;
+	/*double fakeLepFrac_rare_wele  = (rare_wele_total  > 0) ? rare_wele_fakelep / rare_wele_total  : 0.0;
 	double fakeLepFrac_rare_unwtd = (rare_n_total      > 0) ? rare_n_fakelep    / rare_n_total     : 0.0;
 	std::cout << "============================================================" << std::endl;
 	std::cout << " Rare proxy sample TT/WW/WZ (ele->photon): fake-lepton fraction" << std::endl;
@@ -634,7 +653,7 @@
 	          << "  = " << fakeLepFrac_combined_wele*100.0 << " %" << std::endl;
 	std::cout << "  Unweighted: " << combined_n_fakelep    << " / " << combined_n_total
 	          << "  = " << fakeLepFrac_combined_unwtd*100.0 << " %" << std::endl;
-	std::cout << "============================================================" << std::endl;
+	std::cout << "============================================================" << std::endl;*/
 
 // total errors in bins of PhoEt, LepPt, MET, Mt, dPhiEleMET, HT
 	std::vector<double> toyvec; 
@@ -710,12 +729,12 @@
 	TGraphErrors *ratioerror_Mt = new TGraphErrors(nBkgMtBins); 
 	TGraphErrors *ratioerror_HT = new TGraphErrors(nBkgHTBins);
 // from signal events
-	TH1F *ratio=(TH1F*)p_PhoEt->Clone("transfer factor");
-	TH1F *ratio_met=(TH1F*)p_MET->Clone("transfer factor");
-	TH1F *ratio_mt=(TH1F*)p_Mt->Clone("transfer factor");
-	TH1F *ratio_HT=(TH1F*)p_HT->Clone("transfer factor");
+	TH1F *ratio=(TH1F*)p_PhoEt->Clone(Form("transfer_factor_PhoEt_pass%d",pass));
+	TH1F *ratio_met=(TH1F*)p_MET->Clone(Form("transfer_factor_MET_pass%d",pass));
+	TH1F *ratio_mt=(TH1F*)p_Mt->Clone(Form("transfer_factor_Mt_pass%d",pass));
+	TH1F *ratio_HT=(TH1F*)p_HT->Clone(Form("transfer_factor_HT_pass%d",pass));
 
-	TCanvas *c_pt = new TCanvas("Photon_Pt", "Photon P_{T}",600,600);  
+	TCanvas *c_pt = new TCanvas(Form("Photon_Pt_pass%d",pass), "Photon P_{T}",600,600);  
 	setCanvas(c_pt); 
 	c_pt->cd();                                                             
 	TPad *pt_pad1 = new TPad("pt_pad1", "pt_pad1", 0, 0.35, 1, 1.0);        
@@ -808,14 +827,19 @@
 	TLine *ratioValue_PhoEt = new TLine(35,p_PhoEt->Integral()/pred_PhoEt->Integral(),200,p_PhoEt->Integral()/pred_PhoEt->Integral());
         ratioValue_PhoEt->SetLineColor(kRed);
         ratioValue_PhoEt->Draw("same");
+
+	TLatex *meanlabel_PhoEt = new TLatex();
+	meanlabel_PhoEt->SetNDC();
+	meanlabel_PhoEt->SetTextSize(0.1);
+	meanlabel_PhoEt->DrawLatexNDC(0.7,0.35,Form("Mean: %.2f",p_PhoEt->Integral()/pred_PhoEt->Integral()));
 	
-	if(channelType==1) c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho_PhotonEt_eg_%d%s.png",Year,whichVFP.c_str()));
-	if(channelType==2) c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho_PhotonEt_mg_%d%s.png",Year,whichVFP.c_str()));
+	if(channelType==1) c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho_PhotonEt_eg_%d%s%s.pdf",Year,whichVFP.c_str(),corrSuffix.c_str()));
+	if(channelType==2) c_pt->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho_PhotonEt_mg_%d%s%s.pdf",Year,whichVFP.c_str(),corrSuffix.c_str()));
 
 
 // similar for other variables
 // ******** MET ************************//
-	TCanvas *c_met = new TCanvas("MET", "MET",600,600);
+	TCanvas *c_met = new TCanvas(Form("MET_pass%d",pass), "MET",600,600);
 	c_met->cd();
 	TPad *met_pad1 = new TPad("met_pad1", "met_pad1", 0, 0.35, 1, 1.0);
 	setTopPad(met_pad1); 
@@ -900,15 +924,20 @@
         ratioValue_met->SetLineColor(kRed);
         ratioValue_met->Draw("same");
 
+	TLatex *meanlabel_met = new TLatex();
+	meanlabel_met->SetNDC();
+	meanlabel_met->SetTextSize(0.1);
+	meanlabel_met->DrawLatexNDC(0.7,0.35,Form("Mean: %.2f",p_MET->Integral()/pred_MET->Integral()));
+
 	TLine *line_met_ratio = new TLine(70,0.4,70,1.7);
 	line_met_ratio->SetLineStyle(2);
 	line_met_ratio->Draw("same");
  	gPad->RedrawAxis();
-	if(channelType==1) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho_MET_eg_%d%s.png",Year,whichVFP.c_str()));
-	if(channelType==2) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho_MET_mg_%d%s.png",Year,whichVFP.c_str()));
+	if(channelType==1) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho_MET_eg_%d%s%s.pdf",Year,whichVFP.c_str(),corrSuffix.c_str()));
+	if(channelType==2) c_met->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho_MET_mg_%d%s%s.pdf",Year,whichVFP.c_str(),corrSuffix.c_str()));
 
 // ******** Mt ************************
-	TCanvas *c_mt = new TCanvas("Mt", "Mt",600,600);
+	TCanvas *c_mt = new TCanvas(Form("Mt_pass%d",pass), "Mt",600,600);
 	c_mt->cd();
 	TPad *mt_pad1 = new TPad("mt_pad1", "mt_pad1", 0, 0.35, 1, 1.0);
 	setTopPad(mt_pad1); 
@@ -979,11 +1008,16 @@
         ratioValue_mt->SetLineColor(kRed);
         ratioValue_mt->Draw("same");
 
-	if(channelType==1) c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho_MT_eg_%d%s.png",Year,whichVFP.c_str()));
-	if(channelType==2) c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho_MT_mg_%d%s.png",Year,whichVFP.c_str()));
+	TLatex *meanlabel_mt = new TLatex();
+	meanlabel_mt->SetNDC();
+	meanlabel_mt->SetTextSize(0.1);
+	meanlabel_mt->DrawLatexNDC(0.7,0.35,Form("Mean: %.2f",p_Mt->Integral()/pred_Mt->Integral()));
+
+	if(channelType==1) c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho_MT_eg_%d%s%s.pdf",Year,whichVFP.c_str(),corrSuffix.c_str()));
+	if(channelType==2) c_mt->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho_MT_mg_%d%s%s.pdf",Year,whichVFP.c_str(),corrSuffix.c_str()));
 
 // ******** HT ************************ 
-	TCanvas *c_HT = new TCanvas("HT", "HT",600,600);
+	TCanvas *c_HT = new TCanvas(Form("HT_pass%d",pass), "HT",600,600);
 	c_HT->cd();
 	TPad *HT_pad1 = new TPad("HT_pad1", "HT_pad1", 0, 0.35, 1, 1.0);
 	setTopPad(HT_pad1); 
@@ -1052,7 +1086,14 @@
 	TLine *ratioValue_ht = new TLine(0,p_HT->Integral()/pred_HT->Integral(),420,p_HT->Integral()/pred_HT->Integral());
         ratioValue_ht->SetLineColor(kRed);
         ratioValue_ht->Draw("same");
-	if(channelType==1) c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho_HT_eg_%d%s.png",Year,whichVFP.c_str()));
-	if(channelType==2) c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho_HT_mg_%d%s.png",Year,whichVFP.c_str()));
+
+	TLatex *meanlabel_ht = new TLatex();
+	meanlabel_ht->SetNDC();
+	meanlabel_ht->SetTextSize(0.07);
+	meanlabel_ht->DrawLatexNDC(0.7,0.35,Form("Mean: %.2f",p_HT->Integral()/pred_HT->Integral()));
+	if(channelType==1) c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho_HT_eg_%d%s%s.pdf",Year,whichVFP.c_str(),corrSuffix.c_str()));
+	if(channelType==2) c_HT->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Closure/closure_elefakepho_HT_mg_%d%s%s.pdf",Year,whichVFP.c_str(),corrSuffix.c_str()));
+
+	} // end of pass loop (pass==0: uncorrected, pass==1: corrected)
 
 }

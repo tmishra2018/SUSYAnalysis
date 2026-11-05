@@ -1,4 +1,4 @@
-ichannel 1
+ichannel 2
 anatype 3
 lowMt 100
 highMt -1

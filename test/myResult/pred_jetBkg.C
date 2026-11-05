@@ -34,15 +34,16 @@ void pred_jetBkg(){
         else whichVFP = "";
 
 	if(RunYear==2016 and preVFP == 1) useGaussFit=true;
-	float correction = 1.0;
-	if (RunYear == 2016 and preVFP == 1 and ichannel == 1) correction = 0.816828;
-        else if (RunYear == 2016 and preVFP == 1 and ichannel == 2) correction = 1.11658;
-        else if (RunYear == 2016 and preVFP == 0 and ichannel == 1) correction = 0.788482;
-        else if (RunYear == 2016 and preVFP == 0 and ichannel == 2) correction = 1.03158;
-        else if (RunYear == 2017 and ichannel == 1) correction = 0.866308;
-        else if (RunYear == 2017 and ichannel == 2) correction = 1.00739;
-        else if (RunYear == 2018 and ichannel == 1) correction = 0.713093;
-        else if (RunYear == 2018 and ichannel == 2) correction = 0.976136;
+
+	       float correction = 1.0;
+        if (RunYear == 2016 and preVFP == 1 and ichannel == 1) correction = 0.822709;
+        else if (RunYear == 2016 and preVFP == 1 and ichannel == 2) correction = 1.11292;
+        else if (RunYear == 2016 and preVFP == 0 and ichannel == 1) correction = 0.697627;
+        else if (RunYear == 2016 and preVFP == 0 and ichannel == 2) correction = 1.02952;
+        else if (RunYear == 2017 and ichannel == 1) correction = 0.796021;
+        else if (RunYear == 2017 and ichannel == 2) correction = 1.00545;
+        else if (RunYear == 2018 and ichannel == 1) correction = 0.673005;
+        else if (RunYear == 2018 and ichannel == 2) correction = 0.974779;
 
 	gRandom = new TRandom3(0);
 	gRandom->SetSeed(0);
@@ -267,12 +268,12 @@ void pred_jetBkg(){
 			double w_jet = fitfunc_num->Eval(35+i)/fitfunc_den->Eval(35+i);
 			double jetfakeerror = sqrt(jetfake_numerror[i]*jetfake_numerror[i] + jetfake_denerror[i]*jetfake_denerror[i]*w_jet*w_jet)/fitfunc_den->Eval(35+i);
 			double sysJetFakePho = jetfakeerror/w_jet;	
-			std::cout << "sys " << sysJetFakePho << " num " << jetfake_numerror[i]/fitfunc_den->Eval(35+i) << "  den " << jetfake_denerror[i]*w_jet/fitfunc_den->Eval(35+i) <<  std::endl;
+			//std::cout << "sys " << sysJetFakePho << " num " << jetfake_numerror[i]/fitfunc_den->Eval(35+i) << "  den " << jetfake_denerror[i]*w_jet/fitfunc_den->Eval(35+i) <<  std::endl;
 		}
 
                 for(unsigned i(0); i<1000; i++){
                         double w_jet = fitfunc_num->Eval(35+i)/fitfunc_den->Eval(35+i);
-                        std::cout << "Et " << 35+i << "  fakerate " << w_jet << std::endl;
+                        //std::cout << "Et " << 35+i << "  fakerate " << w_jet << std::endl;
                 }
 
 	 
@@ -295,11 +296,19 @@ void pred_jetBkg(){
 			double w_jet(0);
 			w_jet = correction*fitfunc_num->Eval(evalphoEt)/fitfunc_den->Eval(evalphoEt);
 
+// Floor at zero to avoid negative weights
+if(w_jet < 0) {
+    std::cout << "WARNING: Negative w_jet = " << w_jet
+              << " at phoEt = " << evalphoEt << ". Setting to 0." << std::endl;
+    w_jet = 0;
+}
 			double jetfakeerror(0);
 			for(int ipt(0); ipt < 264; ipt++){
 				if(evalphoEt >= ipt+35 && evalphoEt < ipt+1+35)
 					jetfakeerror = sqrt(jetfake_numerror[ipt]*jetfake_numerror[ipt] + jetfake_denerror[ipt]*jetfake_denerror[ipt]*w_jet*w_jet)/fitfunc_den->Eval(evalphoEt);}
-			double sysJetFakePho = jetfakeerror/w_jet;	
+			double sysJetFakePho = 0.0;
+			if (w_jet > 1e-10) sysJetFakePho = jetfakeerror / w_jet;
+			else sysJetFakePho = 0.0;
 
 			p_MET->Fill(sigMET,w_jet);
 			p_MET_nom->Fill(sigMET,w_jet);
@@ -341,21 +350,22 @@ void pred_jetBkg(){
 		  		proxy_highEt   += 1;
 		  	}
 			}	
-
 			for(unsigned ih(0); ih<NTOY; ih++){
-				
-				toy_PhoEt[ih]->Fill(phoEt,w_jet*(1+sysJetFakePho*randomweight_jet[ih]));
-				toy_Mt[ih]->Fill(sigMT, w_jet*(1+sysJetFakePho*randomweight_jet[ih]));
-				toy_HT[ih]->Fill(HT, w_jet*(1+sysJetFakePho*randomweight_jet[ih]));
-				toy_LepPt[ih]->Fill(lepPt,w_jet*(1+sysJetFakePho*randomweight_jet[ih]));
-				toy_dPhiEleMET[ih]->Fill(fabs(dPhiLepMET), w_jet*(1+sysJetFakePho*randomweight_jet[ih]));
+				double toy_weight = w_jet * (1 + sysJetFakePho * randomweight_jet[ih]);
+    				if(!std::isfinite(toy_weight)) toy_weight = 0.0;
+				toy_PhoEt[ih]->Fill(phoEt, toy_weight);
+    				toy_Mt[ih]->Fill(sigMT, toy_weight);
+    				toy_HT[ih]->Fill(HT, toy_weight);
+    				toy_LepPt[ih]->Fill(lepPt, toy_weight);
+    				toy_dPhiEleMET[ih]->Fill(fabs(dPhiLepMET), toy_weight);
+
 				if(SigBinIndex >= 0){
-					toy_eventcount[ih]->Fill(SigBinIndex, w_jet*(1+sysJetFakePho*randomweight_jet[ih]));
+					toy_eventcount[ih]->Fill(SigBinIndex, toy_weight);
 					if(phoEt < 200){
-						toy_predict_lowEt[ih] += w_jet*(1+sysJetFakePho*randomweight_jet[ih]);
+						toy_predict_lowEt[ih] += toy_weight;
 					}
 					else{
-						toy_predict_highEt[ih] += w_jet*(1+sysJetFakePho*randomweight_jet[ih]);
+						toy_predict_highEt[ih] += toy_weight;
 					}
 				}
 			}

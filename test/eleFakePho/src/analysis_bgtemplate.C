@@ -48,11 +48,9 @@ void analysis_bgtemplate(int RunYear, const char *Era){//main
   if(RunYear==2018) datatype = SingleMuon2018;
 
 
-    TFile *f = nullptr;
-  if (RunYear == 2016)
-    f = TFile::Open(Form("/eos/uscms/store/user/tmishra/InputFilesDATA/2016/SingleMuon/SingleMuon_%d%s.root", RunYear, Era));
-  else
-    f = TFile::Open(Form("/eos/uscms/store/user/lpcsusyphotons/SoftPhoton/Tribeni/SingleMuon/SingleMuon_%d%s.root", RunYear, Era));
+  // 2016 used /eos/uscms/store/user/tmishra/InputFilesDATA/2016/SingleMuon/, which no longer exists
+  TFile *f = TFile::Open(Form("/eos/uscms/store/user/lpcsusyphotons/SoftPhoton/Tribeni/SingleMuon/SingleMuon_%d%s.root", RunYear, Era));
+  if(!f || f->IsZombie()){ std::cout << "Cannot open SingleMuon_" << RunYear << Era << ".root" << std::endl; return; }
 
   TTree *es =(TTree*)f->Get("ggNtuplizer/EventTree");
   TFile *output = TFile::Open(Form("/eos/uscms/store/user/tmishra/elefakepho/files/plot_bgtemplate_FullEcal_%d%s.root",RunYear,Era),"RECREATE");
@@ -111,10 +109,15 @@ void analysis_bgtemplate(int RunYear, const char *Era){//main
         if (RunYear==2016) pTcut = 30;
         if (RunYear==2017) pTcut = 38;
         if (RunYear==2018) pTcut = 35;
-    
+
+  if(!loadGolden(RunYear)) return;  // golden JSON lumi mask (SingleMuon data)
+  unsigned passGoldenCount(0);
+
 for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
       	if (ievt%100000==0) std::cout << " -- Processing event " << ievt << std::endl;
         raw.GetData(es, ievt);
+        if(!passGolden(raw.run, raw.lumis)) continue;
+        passGoldenCount++;
         Photon.clear();
         Muon.clear();
         Ele.clear();
@@ -130,7 +133,7 @@ for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
 
         tracks = ntrks;
         nVertex = nvtx;
-	if(RunYear==2018 && !passHEMVeto(0,raw)) continue;
+	if(RunYear==2018 && !passHEMVeto(0,raw,0.0)) continue;
 	passHEM++;
 
  	if(RunYear==2017 && !passPixelIssue17(raw)) continue;
@@ -248,6 +251,7 @@ for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
      	}
 
   }//loop on  events
+logfile << "pass golden JSON: " << passGoldenCount << std::endl;
 float percent=100*mtree->GetEntries()/nEvts;
 logfile << "BGTree events: " << mtree->GetEntries() <<"; "<<percent<<"\%"<<std::endl;
 if(RunYear==2018) logfile << "pass HEM cut:  " << passHEM*100/nEvts<<endl;

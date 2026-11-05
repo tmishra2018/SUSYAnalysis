@@ -54,7 +54,8 @@
 #include "TROOT.h"
 
 #define NTOY 1000
-#define NBIN 18
+//#define NBIN 17 // only for 2016 and eg channel
+int NBIN = 18;
 #define REBINSIZE 1
 
 Double_t tmpjetfake_func(Double_t *x, Double_t *par)
@@ -117,23 +118,24 @@ void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 	gStyle->SetErrorX(0.5);
 	gStyle->SetTitleX(0.5);
 	
-	  float correction =1.0;
-	  if (RunYear == 2016 and ISpreVFP == 1 and ichannel == 1) correction = 0.948005;
-          else if (RunYear == 2016 and ISpreVFP == 1 and ichannel == 2) correction = 0.900015;
-          else if (RunYear == 2016 and ISpreVFP == 0 and ichannel == 1) correction = 0.775942;
-          else if (RunYear == 2016 and ISpreVFP == 0 and ichannel == 2) correction = 0.730433;
-          else if (RunYear == 2017 and ichannel == 1) correction = 1.39352;
-          else if (RunYear == 2017 and ichannel == 2) correction = 1.03558;
-          else if (RunYear == 2018 and ichannel == 1) correction = 1.35192;
-          else if (RunYear == 2018 and ichannel == 2) correction = 1.20607;
+	float correction =1.0;
 
+        if (RunYear == 2016 and ISpreVFP == 1 and channel == 1) correction = 1.01941;
+        else if (RunYear == 2016 and ISpreVFP == 1 and channel == 2) correction = 0.884384;
+        else if (RunYear == 2016 and ISpreVFP == 0 and channel == 1) correction = 0.883775;
+        else if (RunYear == 2016 and ISpreVFP == 0 and channel == 2) correction = 0.778507;
+        else if (RunYear == 2017 and channel == 1) correction = 0.986549;
+        else if (RunYear == 2017 and channel == 2) correction = 0.704067;
+        else if (RunYear == 2018 and channel == 1) correction = 0.941385;
+        else if (RunYear == 2018 and channel == 2) correction = 0.811208;
+	
 	std::string whichVFP;
 	if(RunYear==2016 and ISpreVFP == true) whichVFP = "preVFP";
 	if(RunYear==2016 and ISpreVFP == false) whichVFP = "postVFP";
 	if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
 
 	cout<< " RunYear " << RunYear <<  "  "<< whichVFP << "  channel "<< channel <<endl;
-
+	if (RunYear==2016 and ISpreVFP == 0 and channel == 2) NBIN = 17;
 	TChain *sigtree = new TChain("signalTree");
 	if(channel == 1)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str()));
 	else if(channel ==2)sigtree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str()));
@@ -147,7 +149,7 @@ void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 	if(channel == 1) fakerate_filename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<whichVFP<<"/JetFakeRate-DoubleEG-";
         if(channel == 2) fakerate_filename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<<whichVFP<<"/JetFakeRate-MuonEG-";
 
-	if(detType == 1)fakerate_filename << "EB_Mar11.txt";
+	if(detType == 1)fakerate_filename << "EB_new.txt";
 	else if(detType == 2)fakerate_filename << "EE.txt";
 	std::ifstream jetfake_file(fakerate_filename.str().c_str());
 	double PtBin[NBIN];
@@ -288,8 +290,8 @@ void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 
 	TCanvas *c_pt = new TCanvas("Photon_Pt", "Photon P_{T}",800,800);
 	c_pt->cd();
-	TPad *can_pad1 = new TPad("can_pad1", "pad1", 0, 0.05, 1, 1.0);
-	can_pad1->SetBottomMargin(0.1);
+	TPad *can_pad1 = new TPad("can_pad1", "pad1", 0, 0.30, 1, 1.0);
+	can_pad1->SetBottomMargin(0.02);
 	can_pad1->Draw();          
 	can_pad1->cd();          
 
@@ -348,9 +350,9 @@ void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 		double new_control_error = p_controlPhoEt->GetBinError(566); 
 		double new_fakes_error = p_fakesPhoEt->GetBinError(566);
 		new_controlPhoEt->SetPoint(125,600,  new_control_value);
-		new_controlPhoEt->SetPointError(125,5, 5, min(new_control_error, new_control_value-0.001), new_control_error);
+		new_controlPhoEt->SetPointError(125,5, 400, min(new_control_error, new_control_value-0.001), new_control_error);
 		new_fakesPhoEt->SetPoint(125, 600,  new_fakes_value);
-		new_fakesPhoEt->SetPointError(125,5, 5, min(new_fakes_error, new_fakes_value - 0.001), new_fakes_error);
+		new_fakesPhoEt->SetPointError(125,5, 400, min(new_fakes_error, new_fakes_value - 0.001), new_fakes_error);
 	}
 
 	TFile* fout = nullptr;
@@ -382,6 +384,8 @@ void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 	new_dummy->SetMaximum(100000);
 	new_dummy->GetXaxis()->SetTitle("p_{T} (GeV)");
 	new_dummy->GetXaxis()->SetTitleOffset(1.0);
+	new_dummy->GetXaxis()->SetLabelSize(0);
+	new_dummy->GetXaxis()->SetTitleSize(0);
 	new_dummy->Draw();
 	new_controlPhoEt->Draw("P same");
 	new_controlPhoEt->SetLineColor(kBlack);
@@ -405,9 +409,16 @@ void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 
 	//********************   denominator *****************************************************//
 	
-	TF1 *fitfunc_den= new TF1("fitfunc_den", exp2c_func, 20, 600, 6);
-	fitfunc_den->SetParameters(1e4, 1e3, 0.05, 0.01, 1.0);
+	TF1 *fitfunc_den= new TF1("fitfunc_den", exp2c_func, 20, 1000, 6);
+	fitfunc_den->SetParameters(1e4, 1e3, 0.05, 0.01, 1.0, 0.0);
 	new_controlPhoEt->Fit("fitfunc_den","S");
+	if (fitfunc_den->GetParameter(5) < 0) {
+		cout << "[INFO] fitfunc_den offset fit negative (" << fitfunc_den->GetParameter(5)
+		     << "); refitting with offset floored at 0." << endl;
+		fitfunc_den->SetParameter(5, 0.0);
+		fitfunc_den->SetParLimits(5, 0, 100);
+		new_controlPhoEt->Fit("fitfunc_den","S");
+	}
 	TF1 *fitden = new_controlPhoEt->GetFunction("fitfunc_den");
 
 	ofstream myfile;
@@ -491,7 +502,7 @@ void fitJetFunc(int ichannel,int  RunYear,bool ISpreVFP){
 	den_lower->Draw("L same");
 // *************************  Numerator ******************************************************************//
 
-TF1 *fitfunc_num = new TF1("fitfunc_num", exp2c_func, 20, 600, 6);
+TF1 *fitfunc_num = new TF1("fitfunc_num", exp2c_func, 20, 1000, 6);
 
 fitfunc_num->SetParameters(51521, 1.13974, 0.0560658, 0.0200371, 125.136, 0.0970124);
 fitfunc_num->SetParLimits(0, 0, 1e9);      // c1: positive
@@ -501,34 +512,38 @@ fitfunc_num->SetParLimits(3, 0.0001, 1);   // lamda2: decay rate
 fitfunc_num->SetParLimits(4, 0, 300);      // shift
 fitfunc_num->SetParLimits(5, -100, 100);   // offset
 
-//if (ichannel == 1 and RunYear == 2016 and ISpreVFP == 1)	
-//	fitfunc_num->FixParameter(5, 0);
-
-if (ichannel == 2 and RunYear == 2016 and ISpreVFP == 0){	
-	fitfunc_num->FixParameter(2, 0.066);    
-	fitfunc_num->FixParameter(3, 0.02);  
-	fitfunc_num->FixParameter(4, 25.0);    
-	fitfunc_num->FixParameter(5, 0);    
+if (ichannel == 2 and RunYear == 2016 and ISpreVFP == 0){
+	fitfunc_num->SetParameters(51521, 1.13974, 0.066, 0.02, 25.0, 0.0);
+	fitfunc_num->SetParLimits(0, 0,     1e9);    // c1
+	fitfunc_num->SetParLimits(1, 0,     1e5);    // c2
+	fitfunc_num->SetParLimits(2, 0.001, 0.5);    // lamda1: seeded near 0.066, left free
+	fitfunc_num->SetParLimits(3, 0.001, 0.5);    // lamda2: seeded near 0.02, left free
+	fitfunc_num->SetParLimits(4, 0,     300);    // shift: seeded near 25, left free
+	fitfunc_num->SetParLimits(5, -10,   10);     // offset: seeded near 0, left free
 }
-if (ichannel == 1 and RunYear == 2016)
-    fitfunc_num->SetParameters(800, 0.001, 0.056, 0.02, 0.0, 0.0);
+
+
+if (ichannel == 1 && RunYear == 2016 && ISpreVFP == false) {
+    fitfunc_num->SetParameters(18830.0, 497.4, 0.097291, 0.042472, -165.2, 0.0);
+    fitfunc_num->SetParLimits(0, 0,  1e7);       // c1
+    fitfunc_num->SetParLimits(1,   0,  1e5);     // c2
+    fitfunc_num->SetParLimits(2, 0.01, 0.30);    // lamda1
+    fitfunc_num->SetParLimits(3, 0.001, 0.20);   // lamda2
+    fitfunc_num->SetParLimits(4, -300, -160);    // shift: keeps term2 peak <= 40 GeV
+    fitfunc_num->FixParameter(5, 0.0);           // offset fixed to 0
+}
+
+
 if (ichannel == 1 && RunYear == 2016 && ISpreVFP == true) {
-    fitfunc_num->SetParLimits(0, 0, 1e8);
-    fitfunc_num->SetParLimits(1, 0, 1e6);
+    fitfunc_num->SetParameters(9063.0, 1.165, 0.07203, 0.04007, -40.5, 0.0904);
+    fitfunc_num->SetParLimits(0, 0, 1e9);
+    fitfunc_num->SetParLimits(1, 0, 1e5);
     fitfunc_num->SetParLimits(2, 0.001, 0.5);
-    fitfunc_num->SetParLimits(3, 0.0001, 0.1);
-    fitfunc_num->SetParLimits(4, -300, -165); // Force shift+200 < 35 GeV
-    fitfunc_num->FixParameter(5, 0);          // offset=0
+    fitfunc_num->SetParLimits(3, 0.001, 0.5);
+    fitfunc_num->SetParLimits(5, -10, 10);
+    fitfunc_num->FixParameter(4, rden->Parameter(4));
 }
 
-//if (ichannel == 2 and RunYear == 2016 and ISpreVFP == 1){
-//	fitfunc_num->SetParLimits(0, 0, 1e6);
-//	fitfunc_num->SetParLimits(1, 0, 1e3);
-//	fitfunc_num->SetParLimits(2, 0.0001, 0.5);
-//	fitfunc_num->SetParLimits(3, 0.0001, 0.5);
-//	fitfunc_num->SetParLimits(4, 0, 100);
-//	fitfunc_num->SetParLimits(5, -10, 10);
-//}
 
 cout << "[DEBUG] Initial Parameters Set: " << endl;
 for (int i = 0; i < 6; ++i) {
@@ -542,6 +557,13 @@ if (new_fakesPhoEt->Integral() == 0) {
 
 new_fakesPhoEt->Fit("fitfunc_num", "S"); // silent fit, retrieve result below
 TF1 *fitnum = new_fakesPhoEt->GetFunction("fitfunc_num");
+
+if (fitfunc_num->GetParameter(5) < 0) {
+	cout << "[INFO] fitfunc_num offset fit negative (" << fitfunc_num->GetParameter(5)
+	     << "); refitting with offset floored at 0." << endl;
+	fitfunc_num->SetParameter(5, 0.0);
+	fitfunc_num->SetParLimits(5, 0, 100);
+}
 
 TVirtualFitter::SetMaxIterations(1000000);
 
@@ -609,9 +631,9 @@ for(unsigned ibin = 0; ibin < 565; ibin++){
 	float toyptvalue[565][NTOY];
 	float lowtoyptvalue[565];
 	float hightoyptvalue[565];
-for(unsigned ii(0); ii < 565; ii++){
-		lowtoyptvalue[ii] = 100000;
-		hightoyptvalue[ii] = 0;
+	for(unsigned ii(0); ii < 565; ii++){
+		lowtoyptvalue[ii]  = fitfunc_num->Eval(35 + ii);   // seed = nominal fit
+		hightoyptvalue[ii] = fitfunc_num->Eval(35 + ii);   // seed = nominal fit
 	}
 	
 	for(int i(0); i<NTOY; i++){
@@ -641,10 +663,7 @@ for(unsigned ii(0); ii < 565; ii++){
     					exception = true;
     					break; 
 				}
-	//			if (estimated < 0){
-        //				std::cout << "[WARNING] Negative toy value: " << estimated << " at bin " << ibin << ", toy " << i << std::endl;
-        //				estimated = 0;
-    	//			}
+				//if (estimated < 0) estimated = 0.0;
 				toyptvalue[ibin][i] = estimated;
 				if(lowtoyptvalue[ibin] > estimated)lowtoyptvalue[ibin] = estimated;
 				if(hightoyptvalue[ibin]< estimated)hightoyptvalue[ibin] = estimated;
@@ -675,7 +694,92 @@ for(unsigned ii(0); ii < 565; ii++){
         else if(RunYear==2016 and ISpreVFP == 0)  CMS_lumi( can_pad1, 2, ichannel, 11 );
         else if(RunYear==2017)                    CMS_lumi( can_pad1, 3, ichannel, 11 );
         else if(RunYear==2018)                    CMS_lumi( can_pad1, 4, ichannel, 11 );
-	
+
+	// ---------------- Ratio pad: data / fit, with data uncertainties ----------------
+	// Created here (rather than up front) so nothing in between - the mccan/cangaus
+	// canvases, the many ->cd() calls during fitting - can leave it mis-attached.
+	// Point index 0 of new_controlPhoEt/new_fakesPhoEt is never filled (stays at (0,0)),
+	// so start from index 1, matching the real pT range used above.
+	c_pt->cd();
+	TPad *can_pad2 = new TPad("can_pad2", "pad2", 0, 0.0, 1, 0.30);
+	can_pad2->SetTopMargin(0.03);
+	can_pad2->SetBottomMargin(0.35);
+	can_pad2->SetLeftMargin(can_pad1->GetLeftMargin());
+	can_pad2->SetRightMargin(can_pad1->GetRightMargin());
+	can_pad2->SetGridy();
+	can_pad2->Draw();
+	can_pad2->cd();
+
+	TGraphAsymmErrors *ratio_control = new TGraphAsymmErrors(new_controlPhoEt->GetN());
+	TGraphAsymmErrors *ratio_fakes   = new TGraphAsymmErrors(new_fakesPhoEt->GetN());
+
+	for (int ip = 1; ip < new_controlPhoEt->GetN(); ip++) {
+		double x, y;
+		new_controlPhoEt->GetPoint(ip, x, y);
+		double fitval = fitfunc_den->Eval(x);
+		double eylow  = new_controlPhoEt->GetErrorYlow(ip);
+		double eyhigh = new_controlPhoEt->GetErrorYhigh(ip);
+		double rval = (fitval != 0) ? y / fitval : 0;
+		double erl  = (fitval != 0) ? eylow  / fitval : 0;
+		double erh  = (fitval != 0) ? eyhigh / fitval : 0;
+		ratio_control->SetPoint(ip, x, rval);
+		ratio_control->SetPointError(ip, new_controlPhoEt->GetErrorXlow(ip), new_controlPhoEt->GetErrorXhigh(ip), erl, erh);
+	}
+
+	for (int ip = 1; ip < new_fakesPhoEt->GetN(); ip++) {
+		double x, y;
+		new_fakesPhoEt->GetPoint(ip, x, y);
+		double fitval = fitfunc_num->Eval(x);
+		double eylow  = new_fakesPhoEt->GetErrorYlow(ip);
+		double eyhigh = new_fakesPhoEt->GetErrorYhigh(ip);
+		double rval = (fitval != 0) ? y / fitval : 0;
+		double erl  = (fitval != 0) ? eylow  / fitval : 0;
+		double erh  = (fitval != 0) ? eyhigh / fitval : 0;
+		ratio_fakes->SetPoint(ip, x, rval);
+		ratio_fakes->SetPointError(ip, new_fakesPhoEt->GetErrorXlow(ip), new_fakesPhoEt->GetErrorXhigh(ip), erl, erh);
+	}
+
+	TH1D *ratio_dummy = new TH1D("ratio_dummy", ";p_{T} (GeV);Data / Fit", 265, 35, 300);
+	ratio_dummy->SetMinimum(0.0);
+	ratio_dummy->SetMaximum(2.0);
+	ratio_dummy->GetXaxis()->SetTitle("p_{T} (GeV)");
+	ratio_dummy->GetYaxis()->SetTitle("Data / Fit");
+
+	ratio_dummy->GetXaxis()->SetTitleSize(0.11);
+	ratio_dummy->GetXaxis()->SetLabelSize(0.09);
+	ratio_dummy->GetXaxis()->SetTitleOffset(1.1);
+	ratio_dummy->GetXaxis()->SetTitleFont(42);
+	ratio_dummy->GetXaxis()->SetLabelFont(42);
+	ratio_dummy->GetYaxis()->SetTitleSize(0.10);
+	ratio_dummy->GetYaxis()->SetLabelSize(0.08);
+	ratio_dummy->GetYaxis()->SetTitleOffset(0.5);
+	ratio_dummy->GetYaxis()->SetTitleFont(42);
+	ratio_dummy->GetYaxis()->SetLabelFont(42);
+	ratio_dummy->GetYaxis()->SetNdivisions(505);
+	ratio_dummy->Draw("AXIS");
+
+	TLine *unity = new TLine(35, 1, 300, 1);
+	unity->SetLineStyle(2);
+	unity->SetLineColor(kBlack);
+	unity->Draw("same");
+
+	ratio_control->SetLineColor(kBlack);
+	ratio_control->SetMarkerStyle(20);
+	ratio_control->SetMarkerColor(kBlack);
+	ratio_control->Draw("P same");
+
+	ratio_fakes->SetLineColor(kRed);
+	ratio_fakes->SetMarkerStyle(20);
+	ratio_fakes->SetMarkerColor(kRed);
+	ratio_fakes->Draw("P same");
+
+
+	can_pad2->Modified();
+	can_pad2->Update();
+	c_pt->cd();
+	c_pt->Modified();
+	c_pt->Update();
+	// ---------------------------------------------------------------------------------
 	
 	
 	for(unsigned ii(1); ii <= 265; ii++){

@@ -19,14 +19,14 @@ void analysis_jetBkg(){
         if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
 
 	float correction = 1.0;
-        if (RunYear == 2016 and preVFP == 1 and ichannel == 1) correction = 0.816828;
-        else if (RunYear == 2016 and preVFP == 1 and ichannel == 2) correction = 1.11658;
-        else if (RunYear == 2016 and preVFP == 0 and ichannel == 1) correction = 0.788482;
-        else if (RunYear == 2016 and preVFP == 0 and ichannel == 2) correction = 1.03158;
-        else if (RunYear == 2017 and ichannel == 1) correction = 0.866308;
-        else if (RunYear == 2017 and ichannel == 2) correction = 1.00739;
-        else if (RunYear == 2018 and ichannel == 1) correction = 0.713093;
-        else if (RunYear == 2018 and ichannel == 2) correction = 0.976136;
+        if (RunYear == 2016 and preVFP == 1 and ichannel == 1) correction = 0.822709;
+        else if (RunYear == 2016 and preVFP == 1 and ichannel == 2) correction = 1.11292;
+        else if (RunYear == 2016 and preVFP == 0 and ichannel == 1) correction = 0.697627;
+        else if (RunYear == 2016 and preVFP == 0 and ichannel == 2) correction = 1.02952;
+        else if (RunYear == 2017 and ichannel == 1) correction = 0.796021;
+        else if (RunYear == 2017 and ichannel == 2) correction = 1.00545;
+        else if (RunYear == 2018 and ichannel == 1) correction = 0.673005;
+        else if (RunYear == 2018 and ichannel == 2) correction = 0.974779;
 
 	gRandom = new TRandom3(0);
 	gRandom->SetSeed(0);
@@ -189,6 +189,7 @@ void analysis_jetBkg(){
 		float nJetFloat(0);
         	int nJetInt(0);
 		int   nBJet(0);	
+		bool  passHEMVeto_val(true);
 	
 		jettree->SetBranchAddress("phoEt",     &phoEt);
 		jettree->SetBranchAddress("phoEta",    &phoEta);
@@ -205,11 +206,13 @@ void analysis_jetBkg(){
 		jettree->SetBranchAddress("dRPhoLep",  &dRPhoLep);
 		jettree->SetBranchAddress("HT",        &HT);
 		jettree->SetBranchAddress("nBJet",     &nBJet);
+		jettree->SetBranchAddress("passHEMVeto",&passHEMVeto_val);
 		if (channelType == 1) jettree->SetBranchAddress("nJet", &nJetFloat);
         	else jettree->SetBranchAddress("nJet", &nJetInt);
 	 
 		for (unsigned ievt(0); ievt<jettree->GetEntries(); ++ievt){//loop on entries
 			jettree->GetEntry(ievt);
+			if(!passHEMVeto_val)continue; // HEM15/16 veto
 			p_PU->Fill(nVertex);
 			/** cut flow *****/
 			if(phoEt < 35 || fabs(phoEta) > 1.4442)continue;
@@ -219,12 +222,15 @@ void analysis_jetBkg(){
 			if(highMt > 0 && sigMT > highMt)continue;
 			if(lepPt < lowPt)continue;
 			if(highPt > 0 && lepPt > highPt)continue;
+			if(HT < lowHT)continue;
+                	if(highHT > 0 && HT > highHT)continue;
 			// different MET, MT and lepton pT ranges
 			if(phoChIso > 5)continue;
 
 			double w_jet(0);
 			// weight for fake background, central value from function
-			w_jet = correction*fitfunc_num->Eval(phoEt)/fitfunc_den->Eval(phoEt);
+			//w_jet = correction*fitfunc_num->Eval(phoEt)/fitfunc_den->Eval(phoEt);
+			w_jet = fitfunc_num->Eval(phoEt)/fitfunc_den->Eval(phoEt);
 
 			double jetfakeerror(0);
 			for(int ipt(0); ipt < 265; ipt++){
@@ -454,6 +460,8 @@ void analysis_jetBkg(){
 	if(channelType==1)outputname << "egamma_jetbkg";
 	else if(channelType==2)outputname << "mg_jetbkg";
 	if(anatype==0 or anatype==1) outputname << "_met" << lowMET <<"_" << highMET << "_pt" << lowPt << "_" << highPt;
+	bool htRestricted = !(lowHT <= 0 && highHT < 0);
+        if((anatype ==0 or anatype ==1) and htRestricted) outputname << "_HT" << lowHT << "_" << highHT;
 	outputname <<"_" << RunYear<<whichVFP <<".root";
 
 	TFile *outputfile = TFile::Open(outputname.str().c_str(),"RECREATE");
@@ -493,5 +501,3 @@ void analysis_jetBkg(){
 	outputfile->Close();
 
 }
-
-

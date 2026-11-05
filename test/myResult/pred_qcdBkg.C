@@ -1,4 +1,5 @@
 #include "../../include/analysis_commoncode.h"
+#include "invmass_binning.h"
 
 struct runinfo{
 	int runN;
@@ -16,9 +17,9 @@ bool compareByRun(const runinfo &a, const runinfo &b)
 		else return false;
 }
 
-void pred_qcdBkg(){
+bool useVarSF = true;
 
-	bool toDeriveScale(false);
+void pred_qcdBkg(){
 
 	SetSignalConfig();
 	binning Bin(NBIN, METbin1, METbin2, HTbin1, HTbin2, PHOETbin);
@@ -26,68 +27,70 @@ void pred_qcdBkg(){
 
   	gSystem->Load("../../lib/libAnaClasses.so");
 
-  	int channelType = ichannel; // eg = 1; mg =2;
-	double factorQCD(1);
-	double factorQCDUP = 1; 
-
 	std::string whichVFP;
         if(RunYear==2016 and preVFP == 1) whichVFP = "preVFP";
-        else if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
-        else whichVFP = "";
+        if(RunYear==2016 and preVFP == 0) whichVFP = "postVFP";
+        if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
 
-	if((RunYear==2016 and preVFP == 1) or (RunYear==678)){
-		if(channelType == 1){
-			factorQCD = factor_egQCD_2016preVFP;
-			factorQCDUP = factor_egQCD_2016preVFP + factorerror_egQCD_2016preVFP;
-		}
-		else if(channelType == 2){
-			factorQCD = factor_mgQCD_2016preVFP;
-			factorQCDUP = factor_mgQCD_2016preVFP + factorerror_mgQCD_2016preVFP;
-		}
-	}
-	else if(RunYear==2016 and preVFP==0){
-		if(channelType == 1){
-			factorQCD = factor_egQCD_2016postVFP;
-			factorQCDUP = factor_egQCD_2016postVFP + factorerror_egQCD_2016postVFP;
-		}
-		else if(channelType == 2){
-			factorQCD = factor_mgQCD_2016postVFP;
-			factorQCDUP = factor_mgQCD_2016postVFP + factorerror_mgQCD_2016postVFP;
-		}
-	}
-	else if(RunYear==2017){
-		if(channelType == 1){
-			factorQCD = factor_egQCD_2017;
-			factorQCDUP = factor_egQCD_2017 + factorerror_egQCD_2017;
-		}
-		else if(channelType == 2){
-			factorQCD = factor_mgQCD_2017;
-			factorQCDUP = factor_mgQCD_2017 + factorerror_mgQCD_2017;
-		}
-	}
-	else if(RunYear==2018){
-		if(channelType == 1){
-			factorQCD = factor_egQCD_2018;
-			factorQCDUP = factor_egQCD_2018 + factorerror_egQCD_2018;
-		}
-		else if(channelType == 2){
-			factorQCD = factor_mgQCD_2018;
-			factorQCDUP = factor_mgQCD_2018 + factorerror_mgQCD_2018;
-		}
-	}
-	if(anatype == 0){
-		toDeriveScale = true;
-		factorQCD = 1;
-		factorQCDUP = 1;
-	}
+        bool toDeriveScale(false);
+        if(anatype == 0)toDeriveScale = true;
+
+        int channelType = ichannel; // eg = 1; mg =2;
+	
+	double factorQCD = 1;
+        double factorQCDUP = 1;
+	
+	double factorQCD_fixed = 1;
+        double factorQCDUP_fixed = 1;
+
+        TFile *NormFile= nullptr;
+        TH1D *hQCD= nullptr;
+
+        if(!toDeriveScale){
+                if(useVarSF){
+                        if(channelType == 1)NormFile = TFile::Open(Form("/eos/uscms/store/user/tmishra/VGamma/%d%s/VGammaScaleHist_eg_%d%s.root",RunYear,whichVFP.c_str(),RunYear,whichVFP.c_str() ));
+                        else if(channelType == 2)NormFile = TFile::Open(Form("/eos/uscms/store/user/tmishra/VGamma/%d%s/VGammaScaleHist_mg_%d%s.root",RunYear,whichVFP.c_str(),RunYear,whichVFP.c_str()));
+                        hQCD = (TH1D*)NormFile->Get("QCDfake_ht");}
+
+                        if(channelType == 1){
+                                if(RunYear==2016 and preVFP == 1){
+                                        factorQCD = factor_egQCD_2016preVFP;
+                                        factorQCDUP = factor_egQCD_2016preVFP+factorerror_egQCD_2016preVFP;}
+                                if(RunYear==2016 and preVFP == 0){
+                                        factorQCD = factor_egQCD_2016postVFP;
+                                        factorQCDUP = factor_egQCD_2016postVFP+factorerror_egQCD_2016postVFP;}
+                                if(RunYear==2017 and preVFP == 0){
+                                        factorQCD = factor_egQCD_2017;
+                                        factorQCDUP = factor_egQCD_2017+factorerror_egQCD_2017;}
+                                if(RunYear==2018 and preVFP == 0){
+                                        factorQCD = factor_egQCD_2018;
+                                        factorQCDUP = factor_egQCD_2018+factorerror_egQCD_2018;}
+                        }
+                        else if(channelType == 2){
+                                if(RunYear==2016 and preVFP == 1){
+                                        factorQCD = factor_mgQCD_2016preVFP;
+                                        factorQCDUP = factor_mgQCD_2016preVFP+factorerror_mgQCD_2016preVFP;}
+                                if(RunYear==2016 and preVFP == 0){
+                                        factorQCD = factor_mgQCD_2016postVFP;
+                                        factorQCDUP = factor_mgQCD_2016postVFP+factorerror_mgQCD_2016postVFP;}
+                                if(RunYear==2017 and preVFP == 0){
+                                        factorQCD = factor_mgQCD_2017;
+                                        factorQCDUP = factor_mgQCD_2017+factorerror_mgQCD_2017;}
+                                if(RunYear==2018 and preVFP == 0){
+                                        factorQCD = factor_mgQCD_2018;
+                                        factorQCDUP = factor_mgQCD_2018+factorerror_mgQCD_2018;}
+                        }
+			factorQCD_fixed = factorQCD;
+			factorQCDUP_fixed = factorQCDUP;
+        }
 
 	// Corrections on electron proxy sample as described in Section 5.3.3 in AN
-	TFile *scaleFile;
-	if(channelType == 1)scaleFile = TFile::Open(Form("/eos/uscms/store/user/tmishra/fakeLep/qcd_eg_scale_%d%s.root",RunYear,whichVFP.c_str()));
-	else if(channelType == 2)scaleFile = TFile::Open(Form("/eos/uscms/store/user/tmishra/fakeLep/qcd_mg_scale_%d%s.root",RunYear,whichVFP.c_str()));
-	TH1D *p_scale = 0;
-	if(channelType == 1)p_scale = (TH1D*)scaleFile->Get("transfer_factor");
-	else if(channelType == 2)p_scale = (TH1D*)scaleFile->Get("transfer_factor");
+	//TFile *scaleFile;
+	//if(channelType == 1)scaleFile = TFile::Open(Form("/eos/uscms/store/user/tmishra/fakeLep/qcd_eg_scale_%d%s.root",RunYear,whichVFP.c_str()));
+	//else if(channelType == 2)scaleFile = TFile::Open(Form("/eos/uscms/store/user/tmishra/fakeLep/qcd_mg_scale_%d%s.root",RunYear,whichVFP.c_str()));
+	//TH1D *p_scale = 0;
+	//if(channelType == 1)p_scale = (TH1D*)scaleFile->Get("transfer_factor");
+	//else if(channelType == 2)p_scale = (TH1D*)scaleFile->Get("transfer_factor");
 
 	//*********** histo list **********************//
 	std::ostringstream histname;
@@ -170,9 +173,22 @@ void pred_qcdBkg(){
 	TH1D *unweight_HT = new TH1D("unweight_HT","HT; HT (GeV);",nSigHTBins, sigHTBins);
 	TH1D *unweight_dPhiEleMET = new TH1D("unweight_dPhiEleMET","dPhiEleMET",32,0,3.2); 
 	
+	// nominal / norm-up / unweighted yields per mass bin, built exactly like
+	// h_qcdfakelep_norm / _normup / _unweight are for the signal bins
+	const std::string chPrefix = (channelType==1) ? "eg" : "mg";
+	TH1D *h_qcdfakelep_invmass_norm          = new TH1D((chPrefix+"_qcdfakelep_invmass_norm").c_str(),"m_{l#gamma};m_{l#gamma} (GeV);Events / bin",nInvMassBins,invMassMin,invMassMax);
+	TH1D *h_qcdfakelep_invmass_controlsample = new TH1D((chPrefix+"_qcdfakelep_invmass_controlsample").c_str(),"",nInvMassBins,invMassMin,invMassMax);
+	TH1D *h_qcdfakelep_invmass_normup        = new TH1D((chPrefix+"_qcdfakelep_invmass_normup").c_str(),"",nInvMassBins,invMassMin,invMassMax);
+	TH1D *h_qcdfakelep_invmass_unweight      = new TH1D((chPrefix+"_qcdfakelep_invmass_unweight").c_str(),"",nInvMassBins,invMassMin,invMassMax);
+	TH1D *h_qcdfakelep_invmass_syserr_scale    = new TH1D((chPrefix+"_qcdfakelep_invmass_syserr_scale").c_str(),"",nInvMassBins,invMassMin,invMassMax);
+	TH1D *h_qcdfakelep_invmass_syserr_j_to_lep = new TH1D((chPrefix+"_qcdfakelep_invmass_syserr_j_to_lep").c_str(),"",nInvMassBins,invMassMin,invMassMax);
+	h_qcdfakelep_invmass_norm->Sumw2();
+	h_qcdfakelep_invmass_normup->Sumw2();
+	h_qcdfakelep_invmass_unweight->Sumw2();
+
 	std::vector<runinfo> sig_runV;
 	sig_runV.clear();
-	
+
 // ********** fake lepton tree ************** //
        TChain *fakeEtree = new TChain("fakeLepTree","fakeLepTree");
 
@@ -200,7 +216,8 @@ void pred_qcdBkg(){
   float HT(0);
   float nJetFloat(0);
   int nJetInt(0);
-  
+  float invmass(0); // m(lepton,photon) stored in the input tree
+ 
   fakeEtree->SetBranchAddress("run",       &run);	
   fakeEtree->SetBranchAddress("event",     &event);
   fakeEtree->SetBranchAddress("lumis",     &lumis);
@@ -222,7 +239,15 @@ void pred_qcdBkg(){
   fakeEtree->SetBranchAddress("HT",        &HT);
   if (channelType == 1) fakeEtree->SetBranchAddress("nJet", &nJetFloat);
   else fakeEtree->SetBranchAddress("nJet", &nJetInt);
+  const char *invmassBranch = fakeEtree->GetBranch("eg_invmass") ? "eg_invmass" : (fakeEtree->GetBranch("mg_invmass") ? "mg_invmass" : "invmass");
+  fakeEtree->SetBranchAddress(invmassBranch, &invmass);
 
+	// yields with the photon-pT binned fake-lepton factor of bin k (0-100, 100-200, >200 GeV) at its -1 / +1 sigma and
+	// the other bins nominal (createDataCard.py: anticorrelated with the V+gamma factor of the same bin)
+	TH1D *h_qcdfakelep_sfUp[3], *h_qcdfakelep_sfDown[3];
+	for(int k = 0; k < 3; k++){
+		h_qcdfakelep_sfUp[k]   = new TH1D(Form("%s_qcdfakelep_sfUp_pho%d", chPrefix.c_str(), k), "", NBIN, 0, NBIN);
+		h_qcdfakelep_sfDown[k] = new TH1D(Form("%s_qcdfakelep_sfDown_pho%d", chPrefix.c_str(), k), "", NBIN, 0, NBIN);}
 
 	for(unsigned ievt(0); ievt < fakeEtree->GetEntries(); ievt++){
 		fakeEtree->GetEntry(ievt);
@@ -230,6 +255,27 @@ void pred_qcdBkg(){
 		double w_qcd = 1.; 
 		double w_qcd_up = 1.; 
 		double w_qcd_unweight = 1.;
+
+                if(!toDeriveScale and useVarSF){
+                        factorQCD   = hQCD->GetBinContent(hQCD->FindBin(HT));
+                        factorQCDUP = factorQCD + hQCD->GetBinError(hQCD->FindBin(HT));
+			// negative HT-binned factor -> fall back to the !useVarSF (fixed) factors
+			if(factorQCD < 0){
+				factorQCD   = factorQCD_fixed;
+				factorQCDUP = factorQCDUP_fixed;}}
+		// photon-pT binned fake-lepton factor (default; SF_BINNING=HT keeps the HT-binned/fixed factor); fixed factor for a negative bin
+		int kSF = -1;                       // photon-pT SF bin of this event (-1: no binned factor)
+		double sfUpFac = 1., sfDownFac = 1.;  // +1 / -1 sigma factor relative to the nominal
+		if(!toDeriveScale and usePhoPtSF){
+			static TH1D *hQCDpho = nullptr, *hQCDphoDn = nullptr, *hQCDphoUp = nullptr;
+			static double fixQCD = factorQCD_fixed, fixQCDUP = factorQCDUP_fixed;
+			if(!hQCDpho){ TFile *fpho = TFile::Open(Form("/eos/uscms/store/user/tmishra/VGamma/%d%s/VGammaScaleHist_%s_%d%s.root",RunYear,whichVFP.c_str(),(channelType == 1 ? "eg" : "mg"),RunYear,whichVFP.c_str())); hQCDpho = (TH1D*)fpho->Get("QCDfake_pho");
+				hQCDphoDn = (TH1D*)fpho->Get("QCDfake_pho_errDown"); hQCDphoUp = (TH1D*)fpho->Get("QCDfake_pho_errUp");
+				if(!hQCDphoDn || !hQCDphoUp){ cout << "ERROR: QCDfake_pho_errDown/Up missing, rerun plotVGammaScales.C" << endl; return; }}
+			int phoBin = hQCDpho->FindBin(std::min<double>(phoEt, hQCDpho->GetXaxis()->GetXmax() - 1e-3));
+			if(hQCDpho->GetBinContent(phoBin) > 0){ factorQCD = hQCDpho->GetBinContent(phoBin); factorQCDUP = factorQCD + hQCDpho->GetBinError(phoBin);
+				kSF = phoBin - 1; sfUpFac = (factorQCD + hQCDphoUp->GetBinContent(phoBin))/factorQCD; sfDownFac = (factorQCD - hQCDphoDn->GetBinContent(phoBin))/factorQCD; }
+			else { factorQCD = fixQCD; factorQCDUP = fixQCDUP; }}
 
 		// Corrections on lepton proxy sample
 //			w_qcd = factorQCD*p_scale->GetBinContent(p_scale->FindBin(lepPt));
@@ -273,7 +319,7 @@ void pred_qcdBkg(){
 	
 		int SigBinIndex(-1);
 		SigBinIndex = Bin.findSignalBin(sigMET, HT, phoEt); 
-		if(SigBinIndex >=0){
+		//if(SigBinIndex >=0){
 			runinfo sig_runinfo;
 			sig_runinfo.runN = run;
 			sig_runinfo.eventN = event;
@@ -283,8 +329,18 @@ void pred_qcdBkg(){
 			h_qcdfakelep_norm->Fill( SigBinIndex, w_qcd);
 			h_qcdfakelep_controlsample->Fill( SigBinIndex );
 			h_qcdfakelep_normup->Fill( SigBinIndex, w_qcd_up); 
+			for(int k = 0; k < 3; k++){
+				h_qcdfakelep_sfUp[k]->Fill(SigBinIndex,   k == kSF ? w_qcd*sfUpFac   : w_qcd);
+				h_qcdfakelep_sfDown[k]->Fill(SigBinIndex, k == kSF ? w_qcd*sfDownFac : w_qcd);}
 			h_qcdfakelep_unweight->Fill( SigBinIndex, w_qcd_unweight);
-		}
+
+			// same selection (SR bin found) -> fill the m(l,gamma) distribution
+			float m_lg = invmass;
+			h_qcdfakelep_invmass_norm->Fill( m_lg, w_qcd);
+			h_qcdfakelep_invmass_controlsample->Fill( m_lg );
+			h_qcdfakelep_invmass_normup->Fill( m_lg, w_qcd_up);
+			h_qcdfakelep_invmass_unweight->Fill( m_lg, w_qcd_unweight);
+		//}
 
 		normup_PhoEt->Fill(phoEt, w_qcd_up);
 		normup_PhoEta->Fill(phoEta,w_qcd_up);
@@ -375,6 +431,20 @@ void pred_qcdBkg(){
 		} 
 	}	
 
+	// per-mass-bin systematics, same definitions as the signal-bin ones above:
+	//   scale     = |norm-up - norm|      (jet->lepton transfer-factor normalisation error)
+	//   j_to_lep  = |unweighted - norm|   (HT-dependence of the transfer factor)
+	for(int ibin(1); ibin <= nInvMassBins; ibin++){
+		if(h_qcdfakelep_invmass_controlsample->GetBinContent(ibin) > 0){
+			h_qcdfakelep_invmass_syserr_scale->SetBinContent(ibin,    fabs(h_qcdfakelep_invmass_normup->GetBinContent(ibin)   - h_qcdfakelep_invmass_norm->GetBinContent(ibin)));
+			h_qcdfakelep_invmass_syserr_j_to_lep->SetBinContent(ibin, fabs(h_qcdfakelep_invmass_unweight->GetBinContent(ibin) - h_qcdfakelep_invmass_norm->GetBinContent(ibin)));
+		}
+		else{
+			h_qcdfakelep_invmass_syserr_scale->SetBinContent(ibin, -1);
+			h_qcdfakelep_invmass_syserr_j_to_lep->SetBinContent(ibin, -1);
+		}
+	}
+
 	std::ostringstream outputname;
 	outputname << "/uscms_data/d3/tmishra/Output/";
 	switch(anatype){
@@ -411,7 +481,14 @@ void pred_qcdBkg(){
 	h_qcdfakelep_syserr_j_to_lep->Write();  
 	h_qcdfakelep_syserr_xs->Write();        
 	h_qcdfakelep_syserr_lumi->Write();      
-	h_qcdfakelep_syserr_isr->Write();     
+	h_qcdfakelep_syserr_isr->Write();
+	h_qcdfakelep_invmass_norm->Write();
+	h_qcdfakelep_invmass_controlsample->Write();
+	h_qcdfakelep_invmass_normup->Write();
+	h_qcdfakelep_invmass_unweight->Write();
+	h_qcdfakelep_invmass_syserr_scale->Write();
+	h_qcdfakelep_invmass_syserr_j_to_lep->Write();
+	for(int k = 0; k < 3; k++){ h_qcdfakelep_sfUp[k]->Write(); h_qcdfakelep_sfDown[k]->Write(); }
 
 	float binSum=0;
 	for(int ibin(1); ibin < h_qcdfakelep_controlsample->GetSize(); ibin++) binSum= binSum+h_qcdfakelep_norm->GetBinContent(ibin); 

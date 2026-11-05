@@ -2,20 +2,11 @@
 
 bool recoMuon::passSignalSelection(){
   bool passCut(true);
-  if(p4_.Pt() < 20.0){passCut = false; return passCut;} // suggestion from convenors
+  if(p4_.Pt() < 20.0){passCut = false; return passCut;}
   if(fabs(p4_.Eta())>2.40){passCut = false; return passCut;}
   if(!isMedium()){passCut = false; return passCut;}
   if(getMiniIso()>0.2){passCut = false; return passCut;}
   if(fabs(getD0()) > 0.02 || fabs(getDz()) > 0.1){passCut = false; return passCut;} // medium Prompt now, with dxy cut changed
-  else passCut = true;
-  return passCut; 
-}
-bool recoMuon::passSignalSelection_Not_MiniIso(){
-  bool passCut(true);
-  if(p4_.Pt() < 20.0){passCut = false; return passCut;} // suggestion from convenors
-  if(fabs(p4_.Eta())>2.40){passCut = false; return passCut;}
-  if(!isMedium()){passCut = false; return passCut;}
-  if(fabs(getD0()) > 0.02 || fabs(getDz()) > 0.1){passCut = false; return passCut;}
   else passCut = true;
   return passCut; 
 }
@@ -66,9 +57,8 @@ bool recoMuon::passHLTSelection(){
 bool recoMuon::isFakeProxy(){
 	bool passCut(true);
 
-  if(p4_.Pt() < 20.0){passCut = false; return passCut;} // suggestion from convenors
+  if(p4_.Pt() < 20.0){passCut = false; return passCut;}
   if(fabs(p4_.Eta())>2.40){passCut = false; return passCut;}
-  //if(!isMedium()){passCut = false; return passCut;}
   if(!isLoose()){passCut = false; return passCut;}
   if(getD0() > 0.02 || getDz() > 0.1){passCut = false; return passCut;}
   if(isMedium() && getMiniIso() <= 0.2){passCut = false; return passCut;}

@@ -57,8 +57,8 @@ namespace {
 nullptr
     };
     static const char* includePaths[] = {
-"/cvmfs/cms.cern.ch/el9_amd64_gcc12/lcg/root/6.30.03-ca7ca986842b225f6fc22ae84d705ed8/include/",
-"/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/include/",
+"/cvmfs/cms.cern.ch/el9_amd64_gcc12/lcg/root/6.30.07-8b1a11e1ef0e074fdfd44e162b27e71c/include/",
+"/uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/include/",
 nullptr
     };
     static const char* fwdDeclCode = R"DICTFWDDCLS(

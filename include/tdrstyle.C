@@ -14,8 +14,7 @@ float canRight  = 0.04;
 float canTop    = 0.08;
 float canBottom = 0.1;
 
-TString cmsText     = "";
-//TString cmsText     = "CMS";
+TString cmsText     = "CMS";
 float cmsTextFont   = 62;  // default is helvetic-bold
 
 bool writeExtraText = true;
@@ -42,11 +41,11 @@ float extraOverCmsTextSize  = 0.76;
 void 
 CMS_lumi( TPad* pad, int iPeriod, int ichannel, int iPosX )
 {            
-  bool outOfFrame    = false;
-  if( iPosX/10==0 ) 
-    {
-      outOfFrame = true;
-    }
+  bool outOfFrame    = true;
+  //if( iPosX/10==0 ) 
+  //  {
+  //    outOfFrame = true;
+  //  }
   int alignY_=3;
   int alignX_=2;
   if( iPosX/10==0 ) alignX_=1;
@@ -80,11 +79,12 @@ CMS_lumi( TPad* pad, int iPeriod, int ichannel, int iPosX )
   else if (iPeriod == 4)
     lumiText += "59.81 fb^{-1} (13 TeV)";
   else if (iPeriod == 5)				      
-    lumiText += "123.2 (137.6) fb^{-1} (13 TeV)";
+    lumiText += "123 (138) fb^{-1} (13 TeV)";
   else if (iPeriod == 6)				      
-    lumiText += "137.6 fb^{-1} (13 TeV)";
+    lumiText += "138 fb^{-1} (13 TeV)";
+    //lumiText += "137.6 fb^{-1} (13 TeV)";
   else if (iPeriod == 7)				      
-    lumiText += "123.2 fb^{-1} (13 TeV)";
+    lumiText += "123 fb^{-1} (13 TeV)";
   else
     lumiText += "(13 TeV)"; // Fallback for unexpected iPeriod
 

@@ -67,7 +67,7 @@ void analysis_egMC(int RunYear, bool preVFP, const char *Sample){//main
 
   int nTotal(0),npassHLT(0), npassPho(0), npassLep(0), npassdR(0), npassZ(0), npassMETFilter(0);
 
-  TFile* outputfile = new TFile(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_%s_%d%s_.root",Sample,RunYear,whichVFP.c_str()),"RECREATE");
+  TFile* outputfile = new TFile(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_%s_%d%s.root",Sample,RunYear,whichVFP.c_str()),"RECREATE");
   outputfile->cd();
   
   int mcType;

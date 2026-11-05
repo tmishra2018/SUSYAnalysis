@@ -18,14 +18,14 @@ void analysis_eleBkg(){
   	if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
 
 	float correction =1.0;
-        if (RunYear == 2016 and preVFP == 1 and ichannel == 1) correction = 0.948005;
-        else if (RunYear == 2016 and preVFP == 1 and ichannel == 2) correction = 0.900015;
-        else if (RunYear == 2016 and preVFP == 0 and ichannel == 1) correction = 0.775942;
-        else if (RunYear == 2016 and preVFP == 0 and ichannel == 2) correction = 0.730433;
-        else if (RunYear == 2017 and ichannel == 1) correction = 1.39352;
-        else if (RunYear == 2017 and ichannel == 2) correction = 1.03558;
-        else if (RunYear == 2018 and ichannel == 1) correction = 1.35192;
-        else if (RunYear == 2018 and ichannel == 2) correction = 1.20607;
+        if (RunYear == 2016 and preVFP == 1 and ichannel == 1) correction = 0.993453;
+        else if (RunYear == 2016 and preVFP == 1 and ichannel == 2) correction = 0.895519;
+        else if (RunYear == 2016 and preVFP == 0 and ichannel == 1) correction = 0.792134;
+        else if (RunYear == 2016 and preVFP == 0 and ichannel == 2) correction = 0.731495;
+        else if (RunYear == 2017 and ichannel == 1) correction = 1.39138;
+        else if (RunYear == 2017 and ichannel == 2) correction = 1.031;
+        else if (RunYear == 2018 and ichannel == 1) correction = 1.35597;
+        else if (RunYear == 2018 and ichannel == 2) correction = 1.20164;
 
   	/**********************************/
 	/*	double normfactor = par[0]; 	*/  
@@ -81,7 +81,7 @@ void analysis_eleBkg(){
 	}
 	elefake_toyfile.close();
 
-	//*********** histo list **********************//
+	//*********** histo list ********************** 
 	std::ostringstream histname;
 	TH1D *p_PhoEt = new TH1D("p_PhoEt","#gamma E_{T}; E_{T} (GeV)",nBkgEtBins,bkgEtBins);
 	TH1D *p_LepPt = new TH1D("p_LepPt","p_LepPt",nBkgPtBins,bkgPtBins);
@@ -197,7 +197,7 @@ void analysis_eleBkg(){
 	int nJetInt(0);
 
 	int   nBJet(0);	
-
+	bool  passHEMVeto_val(true);
 
 	proxytree->SetBranchAddress("phoEt",     &phoEt);
 	proxytree->SetBranchAddress("phoEta",    &phoEta);
@@ -213,11 +213,13 @@ void analysis_eleBkg(){
 	proxytree->SetBranchAddress("dRPhoLep",  &dRPhoLep);
 	proxytree->SetBranchAddress("HT",        &HT);
 	proxytree->SetBranchAddress("nBJet",     &nBJet);
+	proxytree->SetBranchAddress("passHEMVeto",&passHEMVeto_val);
 	if (channelType == 1) proxytree->SetBranchAddress("nJet", &nJetFloat);
 	else proxytree->SetBranchAddress("nJet", &nJetInt);
 
 	for (unsigned ievt(0); ievt<proxytree->GetEntries(); ++ievt){//loop on entries
 		proxytree->GetEntry(ievt);
+		if(!passHEMVeto_val)continue; // HEM15/16 veto
 		p_PU->Fill(nVertex);
 		/** cut flow *****/
 		if(phoEt < 35 || fabs(phoEta) > 1.4442)continue;
@@ -227,6 +229,8 @@ void analysis_eleBkg(){
 		if(highMt > 0 && sigMT > highMt)continue;
 		if(lepPt < lowPt)continue;
 		if(highPt > 0 && lepPt > highPt)continue;
+		if(HT < lowHT)continue;
+                if(highHT > 0 && HT > highHT)continue;
 		// different MET, MT and lep pT cuts
 		double w_ele = h_nominal_fakerate(phoEt, nVertex, fabs(phoEta));
 		// fake rate weight
@@ -447,6 +451,8 @@ void analysis_eleBkg(){
 	if(channelType==1)outputname << "egamma_eleBkg";
 	else if(channelType==2)outputname << "mg_eleBkg";
 	if(anatype ==0 or anatype ==1)	outputname << "_met" << lowMET <<"_" << highMET << "_pt" << lowPt << "_" << highPt;
+	bool htRestricted = !(lowHT <= 0 && highHT < 0);
+        if((anatype ==0 or anatype ==1) and htRestricted) outputname << "_HT" << lowHT << "_" << highHT;
 	outputname <<"_" << RunYear<<whichVFP <<".root";
 
 	TFile *outputfile = TFile::Open(outputname.str().c_str(),"RECREATE");

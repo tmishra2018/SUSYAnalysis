@@ -26,6 +26,7 @@
 #include "../../include/analysis_commoncode.h"
 // plottype  1 = bkg, 2 = valid
 
+bool doTT = false;
 struct StackComponent {
 	TH1F *hist;
 	TString label;
@@ -49,7 +50,6 @@ std::vector<StackComponent> BuildIntegralOrderedStack(const std::vector<StackCom
 	return cumulative;
 }
 
-bool doTT = false;
 void plot_bkg(int channel,int RunYear,bool preVFP){//main  
 	SetRunConfig();
 	int plottype = anatype;
@@ -368,16 +368,16 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 			htplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_egamma_ht_" << RunYear<<whichVFP <<".png";	
 		}
 		else if(plottype == 2){
-			nJetplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_egamma_nJet_" << RunYear<<whichVFP <<".png";
-			nBJetplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_egamma_nBJet_" << RunYear<<whichVFP <<".png";
-			dPhiplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_egamma_dPhi_" << RunYear<<whichVFP <<".png";
-			etplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_egamma_pt_" << RunYear<<whichVFP <<".png";
-			ptplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_egamma_leppt_" << RunYear<<whichVFP <<".png";		
-			metplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_egamma_met_" << RunYear<<whichVFP <<".png";
-			methtplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_egamma_metht_" << RunYear<<whichVFP <<".png";
-			htmetplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_egamma_htmet_" << RunYear<<whichVFP <<".png";
-			mtplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_egamma_mt_" << RunYear<<whichVFP <<".png";
-			htplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_egamma_ht_" << RunYear<<whichVFP <<".png";	
+			nJetplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_noCorr_egamma_nJet_" << RunYear<<whichVFP <<".png";
+			nBJetplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_noCorr_egamma_nBJet_" << RunYear<<whichVFP <<".png";
+			dPhiplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_noCorr_egamma_dPhi_" << RunYear<<whichVFP <<".png";
+			etplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_noCorr_egamma_pt_" << RunYear<<whichVFP <<".png";
+			ptplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_noCorr_egamma_leppt_" << RunYear<<whichVFP <<".png";		
+			metplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_noCorr_egamma_met_" << RunYear<<whichVFP <<".png";
+			methtplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_noCorr_egamma_metht_" << RunYear<<whichVFP <<".png";
+			htmetplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_noCorr_egamma_htmet_" << RunYear<<whichVFP <<".png";
+			mtplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_noCorr_egamma_mt_" << RunYear<<whichVFP <<".png";
+			htplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_noCorr_egamma_ht_" << RunYear<<whichVFP <<".png";	
 		}
 	   }
 	   else if(channel == 2){
@@ -394,16 +394,16 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 			htplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"BKG_mg_ht_" << RunYear<<whichVFP <<".png";	
 		}
 		else if(plottype == 2){
-			nJetplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_mg_nJet_" << RunYear<<whichVFP <<".png";
-			nBJetplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_mg_nBJet_" << RunYear<<whichVFP <<".png";
-			dPhiplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_mg_dPhi_" << RunYear<<whichVFP <<".png";
-			etplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_mg_pt_" << RunYear<<whichVFP <<".png";
-			ptplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_mg_leppt_" << RunYear<<whichVFP <<".png";	
-			metplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_mg_met_" << RunYear<<whichVFP <<".png";
-			methtplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_mg_metht_" << RunYear<<whichVFP <<".png";
-			htmetplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_mg_htmet_" << RunYear<<whichVFP <<".png";
-			mtplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_mg_mt_" << RunYear<<whichVFP <<".png";
-			htplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_mg_ht_" << RunYear<<whichVFP <<".png";	
+			nJetplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_noCorr_mg_nJet_" << RunYear<<whichVFP <<".png";
+			nBJetplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_noCorr_mg_nBJet_" << RunYear<<whichVFP <<".png";
+			dPhiplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_noCorr_mg_dPhi_" << RunYear<<whichVFP <<".png";
+			etplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_noCorr_mg_pt_" << RunYear<<whichVFP <<".png";
+			ptplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_noCorr_mg_leppt_" << RunYear<<whichVFP <<".png";	
+			metplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_noCorr_mg_met_" << RunYear<<whichVFP <<".png";
+			methtplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_noCorr_mg_metht_" << RunYear<<whichVFP <<".png";
+			htmetplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_noCorr_mg_htmet_" << RunYear<<whichVFP <<".png";
+			mtplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_noCorr_mg_mt_" << RunYear<<whichVFP <<".png";
+			htplot << "/uscms_data/d3/tmishra/Background/plots/"<<RunYear<<whichVFP<<"/"<<whichChannel<<"/"<<"VALID_noCorr_mg_ht_" << RunYear<<whichVFP <<".png";	
 		}
 	   }
 	}
@@ -457,6 +457,7 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 	};
 	std::vector<StackComponent> mtStack = BuildIntegralOrderedStack(mtComponents, "mt_stack");
 	TH1F *p_totalMt = mtStack.back().hist;
+	p_totalMt->Sumw2();
 	for(int ibin(1); ibin < p_totalMt->GetSize(); ibin++){
 		error_Mt->SetPoint(ibin-1,p_totalMt->GetBinCenter(ibin), p_totalMt->GetBinContent(ibin));
 		float prederror = p_totalMt->GetBinError(ibin);
@@ -796,6 +797,7 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 		};
 		std::vector<StackComponent> htStack = BuildIntegralOrderedStack(htComponents, "ht_stack");
 		TH1F *p_totalHT = htStack.back().hist;
+		p_totalHT->Sumw2();
 		for(int ibin(1); ibin < p_totalHT->GetSize(); ibin++){
 			error_HT->SetPoint(ibin-1,p_totalHT->GetBinCenter(ibin), p_totalHT->GetBinContent(ibin));
 			float prederror = p_totalHT->GetBinError(ibin);
@@ -1020,8 +1022,9 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 			{p_qcdHT_MET, "fake lepton"},
 			{p_VGHT_MET, "W#gamma / Z#gamma"}
 		};
-		std::vector<StackComponent> htmetStack = BuildIntegralOrderedStack(htmetComponents, "metht_stack");
+		std::vector<StackComponent> htmetStack = BuildIntegralOrderedStack(htmetComponents, "htmet_stack");
 		TH1F *p_totalHT_MET = htmetStack.back().hist;
+		p_totalHT_MET->Sumw2();
 		for(int ibin(1); ibin < p_totalHT_MET->GetSize(); ibin++){
 			error_HT_MET->SetPoint(ibin-1,p_totalHT_MET->GetBinCenter(ibin), p_totalHT_MET->GetBinContent(ibin));
 			float prederror = p_totalHT_MET->GetBinError(ibin);
@@ -1147,6 +1150,7 @@ void plot_bkg(int channel,int RunYear,bool preVFP){//main
 		};
 		std::vector<StackComponent> lepPtStack = BuildIntegralOrderedStack(lepPtComponents, "leppt_stack");
 		TH1F *p_totalLepPt = lepPtStack.back().hist;
+		p_totalLepPt->Sumw2();
 		for(int ibin(1); ibin < p_totalLepPt->GetSize(); ibin++){
 			error_LepPt->SetPoint(ibin-1,p_totalLepPt->GetBinCenter(ibin), p_totalLepPt->GetBinContent(ibin));
 			float prederror = p_totalLepPt->GetBinError(ibin);

@@ -1,0 +1,313 @@
+# ============================================================
+# syst_SUSxxxx.yaml
+# CMS Recommended Systematics Nomenclature for SUSY analyses
+# Reference: https://cms-analysis.docs.cern.ch/guidelines/systematics/
+#
+# This file defines the expected/approved systematic names per
+# CMS conventions. Used by check_names.py to validate datacards.
+#
+# Run2 luminosity decomposition (CMS lumi POG):
+#   CMS-LUM-17-003 (2016), CMS-LUM-17-004 (2017), CMS-LUM-18-002 (2018)
+#
+#
+##   Component                  2016   2017   2018
+#   lumi_13TeV_1516_l  lnN    1.0118   -      -
+#   lumi_13TeV_151617_l lnN   1.0004  1.0055  -
+#   lumi_13TeV_15161718_l lnN 1.0035  1.0061  1.0084
+#
+# 2016preVFP and 2016postVFP both use the 2016 column values.
+# Same-named nuisances across per-year cards are correlated
+# automatically by combineCards.py.
+# ============================================================
+
+systematics:
+
+  # ----------------------------------------------------------
+  # Jet Energy Scale & Resolution
+  # ----------------------------------------------------------
+  - name: CMS_scale_j
+    description: "Jet energy scale (JES)"
+    type: lnN
+    applies_to: [SUSY, VGamma, ttGam_VVGam]
+    old_names: [jes, JES, jet_scale, jetScale]
+
+  - name: CMS_res_j
+    description: "Jet energy resolution (JER)"
+    type: lnN
+    applies_to: [SUSY, VGamma, ttGam_VVGam]
+    old_names: [jer, JER, jet_res, jetRes]
+
+  # ----------------------------------------------------------
+  # Lepton / Electron efficiency scale factors
+  # ----------------------------------------------------------
+  - name: CMS_eff_e
+    description: "Electron efficiency scale factor (ID/ISO/trigger)"
+    type: lnN
+    applies_to: [SUSY, VGamma, ttGam_VVGam]
+    old_names: [esf, eSF, electronSF, eleSF, ele_sf]
+
+  # ----------------------------------------------------------
+  # Photon efficiency scale factors
+  # ----------------------------------------------------------
+  - name: CMS_eff_g
+    description: "Photon efficiency scale factor"
+    type: lnN
+    applies_to: [SUSY, VGamma, ttGam_VVGam]
+    old_names: [photon_sf, phoSF, pho_eff]
+
+  # ----------------------------------------------------------
+  # normalization uncertainty from the VGamma scale factor fit
+  # applied to VGamma and qcdfakelep
+  # ----------------------------------------------------------
+  - name: CMS_SUS2411_normSF_VGamma
+    description: "QCD renorm/factorization scale for VGamma background"
+    type: lnN
+    applies_to: [VGamma, qcdfakelep]
+    old_names: [scale]
+
+  # ----------------------------------------------------------
+  # Luminosity -- Run2 3-parameter scheme
+  # ----------------------------------------------------------
+
+  - name: lumi_13TeV_15161718_l
+    description: "Lumi uncertainty fully correlated across Run2 (all years)"
+    type: lnN
+    applies_to: [SUSY, ttGam_VVGam]
+    values:
+      2016preVFP:  1.0035
+      2016postVFP: 1.0035
+      2017:        1.0061
+      2018:        1.0084
+    old_names: [lumi, Lumi, LUMI]
+
+  - name: lumi_13TeV_151617_l
+    description: "Lumi uncertainty correlated between 2016 and 2017"
+    type: lnN
+    applies_to: [SUSY, ttGam_VVGam]
+    values:
+      2016preVFP:  1.0004
+      2016postVFP: 1.0004
+      2017:        1.0055
+    old_names: []
+
+  - name: lumi_13TeV_1516_l
+    description: "Lumi uncertainty 2016-only (uncorrelated with 2017/2018)"
+    type: lnN
+    applies_to: [SUSY, ttGam_VVGam]
+    values:
+      2016preVFP:  1.0118
+      2016postVFP: 1.0118
+    old_names: []
+  # ----------------------------------------------------------
+  # Pileup
+  # ----------------------------------------------------------
+  - name: CMS_pileup
+    description: "Pileup reweighting uncertainty"
+    type: lnN
+    applies_to: [SUSY]
+    old_names: [PU, pu, pileup, pile_up, CMS_pu]
+
+  - name: xsec_ttGam_VVGam
+    description: "Cross section uncertainty on rare processes (ttgamma+VVgamma)"
+    type: lnN
+    applies_to: [ttGam_VVGam]
+    old_names: [xsec_ttGam_VVGam]
+  # ----------------------------------------------------------
+  # Signal cross-section (theory)
+  # ----------------------------------------------------------
+  - name: xsec_SUSY
+    description: "SUSY signal cross-section uncertainty (theory)"
+    type: lnN
+    applies_to: [SUSY]
+    old_names: [xs, XS, xsec, sig_xs, signal_xs]
+
+  # ----------------------------------------------------------
+  # Electron-to-photon fake rate
+  # ----------------------------------------------------------
+  - name: CMS_fake_e_g_syst
+    description: "Electron-to-photon fake rate systematic uncertainty"
+    type: lnN
+    applies_to: [elefakepho]
+    old_names: [e_to_pho_syst, eFakePho_syst, efakepho_syst, e2pho_syst]
+
+  - name: "CMS_fake_e_g_stat_binBIN_YEAR"
+    description: "e->g fake rate stat uncertainty per bin per year (pattern entry)"
+    type: gmN
+    applies_to: [elefakepho]
+    old_names:
+      - "e_to_pho_YEAR_statBIN"
+      - "eFakePho_YEAR_statBIN"
+
+  # ----------------------------------------------------------
+  # Jet-to-photon fake rate
+  # ----------------------------------------------------------
+  - name: CMS_fake_j_g_syst
+    description: "Jet-to-photon fake rate systematic uncertainty"
+    type: lnN
+    applies_to: [jetfakepho]
+    old_names: [j_to_pho_syst, jFakePho_syst, jfakepho_syst, j2pho_syst]
+
+  # ----------------------------------------------------------
+  # Jet-to-lepton fake rate: per-bin stat (gmN)
+  # j_to_lep_{year}_stat{N}  ->  CMS_fake_j_l_stat_bin{N}_{year}
+  # Applies to: qcdfakelep background process
+  # ----------------------------------------------------------
+  - name: "CMS_fake_j_l_stat_binBIN_YEAR"
+    description: "j->l fake rate stat uncertainty per bin per year (pattern entry)"
+    type: gmN
+    applies_to: [qcdfakelep]
+    old_names:
+      - "j_to_lep_YEAR_statBIN"
+      - "jToLep_YEAR_statBIN"
+
+  # ----------------------------------------------------------
+  # Rare background MC statistical uncertainty (per bin)
+  # ttGam_VVGam_stat{N}  ->  CMS_SUS2411_ttGam_VVGam_stat_bin{N}
+  # ----------------------------------------------------------
+  - name: "CMS_SUS2411_ttGam_VVGam_stat_binBIN"
+    description: "Rare background MC statistical uncertainty per bin (pattern entry)"
+    type: lnN
+    applies_to: [ttGam_VVGam]
+    old_names:
+      - "ttGam_VVGam_statBIN"
+      - "mcstat_ttGam_VVGam_BIN"
+
+  # ----------------------------------------------------------
+  # VGamma background MC statistical uncertainty (per bin)
+  # VG_stat{N}  ->  CMS_SUS2411_VG_stat_bin{N}
+  # ----------------------------------------------------------
+  - name: "CMS_SUS2411_VG_stat_binBIN"
+    description: "VGamma background MC statistical uncertainty per bin (pattern entry)"
+    type: lnN
+    applies_to: [VGamma]
+    old_names:
+      - "VG_statBIN"
+      - "VGamma_statBIN"
+      - "mcstat_VG_BIN"
+  
+
+    # ----------------------------------------------------------
+  # QCD renormalization/factorization scale uncertainties
+  # Three separate NPs: one per process (signal, VGamma, rare)
+  # ----------------------------------------------------------
+  - name: QCDscale_VGamma
+    description: "QCD renorm/factorization scale for VGamma background"
+    type: lnN
+    applies_to: [VGamma]
+    old_names: [QCDscale_VGamma]
+
+  - name: QCDscale_ttGam_VVGam
+    description: "QCD renorm/factorization scale for rare (ttgamma+VVgamma) background"
+    type: lnN
+    applies_to: [ttGam_VVGam]
+    old_names: [QCDscale_ttGam_VVGam]
+
+  # Signal QCD scale: one NP per mass point, flat 5%
+  # Name pattern: QCDscale_{signal_proc}  e.g. QCDscale_t5wg_1200_450
+  # Registered via approved_patterns (pattern entry — no fixed name here)
+
+  # ----------------------------------------------------------
+  # PDF uncertainty — single NP covering signal + VGamma + rare
+  # Signal: flat 5%; backgrounds: from histogram kappas
+  # ----------------------------------------------------------
+  - name: pdf_alphas
+    description: "PDF+alphaS uncertainty: signal (flat 5%) + VGamma + rare (from histograms)"
+    type: lnN
+    applies_to: [SUSY, VGamma, ttGam_VVGam]
+    old_names: [pdf_alphas, pdf]
+
+  # ----------------------------------------------------------
+  # ISR reweighting (year-dependent, uncorrelated across years)
+  # ----------------------------------------------------------
+  - name: CMS_ISR_13TeV_2016preVFP
+    description: "ISR reweighting uncertainty 2016preVFP"
+    type: lnN
+    applies_to: [SUSY]
+    old_names: [isr]
+
+  - name: CMS_ISR_13TeV_2016postVFP
+    description: "ISR reweighting uncertainty 2016postVFP"
+    type: lnN
+    applies_to: [SUSY]
+    old_names: [isr]
+
+  - name: CMS_ISR_13TeV_2017
+    description: "ISR reweighting uncertainty 2017"
+    type: lnN
+    applies_to: [SUSY]
+    old_names: [isr]
+
+  - name: CMS_ISR_13TeV_2018
+    description: "ISR reweighting uncertainty 2018"
+    type: lnN
+    applies_to: [SUSY]
+    old_names: [isr]
+  # ----------------------------------------------------------
+  # L1 ECAL prefiring (2016 and 2017 only, year-uncorrelated)
+  # Source: NanoAOD L1PreFiringWeight_Nom/Up/Dn branches
+  # Applies to all MC-derived processes: SUSY, VGamma, rare
+  # NOT applied to 2018 (prefiring negligible)
+  # ----------------------------------------------------------
+  - name: CMS_L1prefiring_13TeV_2016preVFP
+    description: "L1 ECAL prefiring uncertainty 2016preVFP"
+    type: lnN
+    applies_to: [SUSY, VGamma, rare]
+    old_names: [L1prefiring_2016preVFP, prefiring_2016preVFP]
+
+  - name: CMS_L1prefiring_13TeV_2016postVFP
+    description: "L1 ECAL prefiring uncertainty 2016postVFP"
+    type: lnN
+    applies_to: [SUSY, VGamma, rare]
+    old_names: [L1prefiring_2016postVFP, prefiring_2016postVFP]
+
+  - name: CMS_L1prefiring_13TeV_2017
+    description: "L1 ECAL prefiring uncertainty 2017"
+    type: lnN
+    applies_to: [SUSY, VGamma, rare]
+    old_names: [L1prefiring_2017, prefiring_2017]
+# ============================================================
+# Approved output patterns (post-rename names accepted by validator)
+# ============================================================
+approved_patterns:
+  - regex: "^lumi_13TeV_(1516_l|151617_l|15161718_l)$"
+    description: "All approved Run2 lumi components"
+
+  - regex: "^(tchiwg)_\\d+_stat\\d+$"
+    description: "Signal MC stattopology-named process (tchiwg)" 
+
+  - regex: "^(t[56]wg)_\\d+_\\d+_stat\\d+$"
+    description: "Signal MC stattopology-named process (t5wg/t6wg)" 
+  
+  - regex: "^CMS_SUS2411_ttGam_VVGam_stat_bin\\d+$"
+    description: "Rare background MC stat per bin (all bins approved)"
+
+  - regex: "^CMS_SUS2411_VG_stat_bin\\d+$"
+    description: "VGamma background MC stat per bin (all bins approved)"
+
+  - regex: "^CMS_fake_e_g_stat_bin\\d+_(2016preVFP|2016postVFP|2016|2017|2018)$"
+    description: "e->g fake stat per bin per year (all approved)"
+
+  - regex: "^CMS_fake_j_g_stat_bin\\d+_(2016preVFP|2016postVFP|2016|2017|2018)$"
+    description: "j->g fake stat per bin per year (all approved)"
+
+  - regex: "^CMS_fake_j_l_stat_bin\\d+_(2016preVFP|2016postVFP|2016|2017|2018)$"
+    description: "j->l fake stat per bin per year (all approved)"
+  - regex: "^CMS_ISR_13TeV_(2016preVFP|2016postVFP|2017|2018)$"
+    description: "ISR reweighting per year (all approved)"
+  - regex: "^CMS_L1prefiring_13TeV_(2016preVFP|2016postVFP|2017)$"
+    description: "L1 prefiring per year (2016 and 2017 only)"
+  
+  - regex: "^QCDscale_VGamma$"
+    description: "QCD scale for VGamma background"
+
+  - regex: "^QCDscale_ttGam_VVGam$"
+    description: "QCD scale for rare (ttgamma+VVgamma) background"
+
+  - regex: "^QCDscale_(t[56]wg|tchiwg)_\\d+_\\d+$"
+    description: "QCD scale for T5WG/T6WG signal per mass point"
+
+  - regex: "^QCDscale_tchiwg_\\d+$"
+    description: "QCD scale for TChiWG signal per mass point"
+
+  - regex: "^pdf_alphas$"
+    description: "PDF+alphaS uncertainty (signal + VGamma + rare combined)"

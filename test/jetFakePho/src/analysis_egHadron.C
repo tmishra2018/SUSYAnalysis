@@ -25,6 +25,7 @@
 #include "../../../include/analysis_photon.h"
 #include "../../../include/analysis_muon.h"
 #include "../../../include/analysis_ele.h"
+#include "../../../include/analysis_jet.h"
 #include "../../../include/analysis_tools.h"
 #include "../../../include/analysis_mcData.h"
 #include "../../../src/analysis_rawData.cc"
@@ -43,7 +44,7 @@ void analysis_egHadron(int RunYear, const char *Era){//main
   if(RunYear==2018) datatype = DoubleEG2018;
 
   TChain* es = new TChain("ggNtuplizer/EventTree");
-  es->Add(Form("/eos/uscms/store/group/lpcsusyhad/Tribeni/DoubleEG/DoubleEG_%d%s.root",RunYear,Era));
+  es->Add(Form("/eos/uscms/store/group/lpcsusyphotons/SoftPhoton/Tribeni/DoubleEG/DoubleEG_%d%s.root",RunYear,Era));
 
   TFile *output = TFile::Open(Form("/eos/uscms/store/user/tmishra/jetfakepho/files/plot_hadron_DoubleEG_%d%s.root",RunYear,Era),"RECREATE");
   output->cd();
@@ -163,12 +164,15 @@ void analysis_egHadron(int RunYear, const char *Era){//main
 	std::cout << "total " << nEvts << std::endl;
 	logfile <<   "total " << nEvts << std::endl;
 
+	const bool applyGolden = (datatype != MC);  // golden JSON lumi mask for data
+	if(applyGolden && !loadGolden(RunYear)) return;
 	for(unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
   
 		if(ievt%10000==0)std::cout << " -- Processing event " << ievt << std::endl;
 		if(ievt%10000==0)logfile << " -- Processing event " << ievt << std::endl;
 
 		raw.GetData(es, ievt);
+		if(applyGolden && !passGolden(raw.run, raw.lumis)) continue;
 		MCData.clear();
 		Photon.clear();
 		Muon.clear();

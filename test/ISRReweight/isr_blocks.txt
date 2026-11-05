@@ -1,0 +1,85 @@
+if(channelType == 1){
+	if(RunYear==2016 && preVFP==1){
+		if(ISRJetPt < 50)reweightF = 1.02164;
+		else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF = 0.964486;
+		else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 1.10058;
+		else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.809766;
+		else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.795802;
+		else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.681508;
+		else if(ISRJetPt >= 300)reweightF = 1.12425;
+		Normalization = 0.989201;
+	}
+	else if(RunYear==2016 && preVFP==0){
+		if(ISRJetPt < 50)reweightF = 0.92813;
+		else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF = 1.01507;
+		else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 1.03074;
+		else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.812674;
+		else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.905019;
+		else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.937368;
+		else if(ISRJetPt >= 300)reweightF = 0.885853;
+		Normalization = 1.06105;
+	}
+	else if(RunYear==2017){
+		if(ISRJetPt < 50)reweightF = 0.80824;
+		else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF = 0.77143;
+		else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.891771;
+		else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.898236;
+		else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 1.12492;
+		else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.943156;
+		else if(ISRJetPt >= 300)reweightF = 0.552922;
+		Normalization = 1.23312;
+	}
+	else if(RunYear==2018){
+		if(ISRJetPt < 50)reweightF = 0.883194;
+		else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF = 0.931125;
+		else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.949823;
+		else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.818615;
+		else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.854429;
+		else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 1.24516;
+		else if(ISRJetPt >= 300)reweightF = 0.850772;
+		Normalization = 1.12;
+	}
+}
+
+else if(channelType == 2){
+	if(RunYear==2016 && preVFP==1){
+		if(ISRJetPt < 50)reweightF = 0.995888;
+		else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF = 1.08304;
+		else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 1.09747;
+		else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 1.08664;
+		else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 1.17574;
+		else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 0.806937;
+		else if(ISRJetPt >= 300)reweightF = 1.12874;
+		Normalization = 0.984708;
+	}
+	else if(RunYear==2016 && preVFP==0){
+		if(ISRJetPt < 50)reweightF = 0.931823;
+		else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF = 1.01419;
+		else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 1.06259;
+		else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.847699;
+		else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.958803;
+		else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 1.24982;
+		else if(ISRJetPt >= 300)reweightF = 0.900651;
+		Normalization = 1.05421;
+	}
+	else if(RunYear==2017){
+		if(ISRJetPt < 50)reweightF = 0.868712;
+		else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF = 0.874605;
+		else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.924282;
+		else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.976312;
+		else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 1.06787;
+		else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 1.22388;
+		else if(ISRJetPt >= 300)reweightF = 0.676038;
+		Normalization = 1.1413;
+	}
+	else if(RunYear==2018){
+		if(ISRJetPt < 50)reweightF = 0.943713;
+		else if(ISRJetPt >= 50 && ISRJetPt < 100)reweightF = 0.958948;
+		else if(ISRJetPt >= 100 && ISRJetPt < 150)reweightF = 0.966778;
+		else if(ISRJetPt >= 150 && ISRJetPt < 200)reweightF = 0.938759;
+		else if(ISRJetPt >= 200 && ISRJetPt < 250)reweightF = 0.96244;
+		else if(ISRJetPt >= 250 && ISRJetPt < 300)reweightF = 1.0375;
+		else if(ISRJetPt >= 300)reweightF = 0.800688;
+		Normalization = 1.05642;
+	}
+}

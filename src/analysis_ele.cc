@@ -1,4 +1,5 @@
 #include "../include/analysis_ele.h"
+// https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2#Offline_selection_criteria_for_V
 
 bool recoEle::passSignalSelection(){
   
@@ -73,36 +74,36 @@ bool recoEle::passBasicID(){
   return passBasic;
 }
 
-
 bool recoEle::isMiniMedium(){
-  bool passMiniMedium(true);
- 
-  if(!isEB() && !isEE()) {passMiniMedium=false; return passMiniMedium; }
+  bool passMiniMedium(false);
+  if(!isEB() && !isEE()) return passMiniMedium;
+  const double esc = Calibp4_.E();
+  const double pt  = Calibp4_.Pt();
+  if(esc <= 0 || pt <= 0) return passMiniMedium;
+  const double absDeta = fabs(getdEtaIn());
+  const double absDphi = fabs(getdPhiIn());
+  const double absEopInv = fabs(getEoverPInv());
   if(isEB()){
-	if(getSigma() > 0.0106) {passMiniMedium=false; return passMiniMedium; }
-	if(fabs(getdEtaIn()) > 0.0032){passMiniMedium=false; return passMiniMedium;}
-	if(fabs(getdPhiIn()) > 0.0547){passMiniMedium=false; return passMiniMedium;}
-	if(getHoverE() > getCutValueHoverE()){passMiniMedium=false; return passMiniMedium;}
-	if(fabs(getEoverPInv()) > 0.184){passMiniMedium=false; return passMiniMedium;}
-//	if(fabs(getD0()) > 0.05){passMiniMedium=false; return passMiniMedium;}
-//	if(fabs(getDz()) > 0.10){passMiniMedium=false; return passMiniMedium; }
-	if(getMissHits() > 1){passMiniMedium=false; return passMiniMedium;}
-	if(getConvVeto() == 0){passMiniMedium=false; return passMiniMedium;}
-	if(getMiniIso() > 0.1){passMiniMedium=false; return passMiniMedium;}
-  }
-  else if(isEE()){
-	if(getSigma() > 0.0387) {passMiniMedium=false; return passMiniMedium; }
-	if(fabs(getdEtaIn()) > 0.00632){passMiniMedium=false; return passMiniMedium;}
-	if(fabs(getdPhiIn()) > 0.0394){passMiniMedium=false; return passMiniMedium;}
-	if(getHoverE() > getCutValueHoverE()){passMiniMedium=false; return passMiniMedium;}
-	if(fabs(getEoverPInv()) > 0.0721){passMiniMedium=false; return passMiniMedium;}
-//	if(fabs(getD0()) > 0.10){passMiniMedium=false; return passMiniMedium;}
-//	if(fabs(getDz()) > 0.20){passMiniMedium=false; return passMiniMedium; }
-	if(getMissHits() > 1){passMiniMedium=false; return passMiniMedium;}
-	if(getConvVeto() == 0){passMiniMedium=false; return passMiniMedium;}
-	if(getMiniIso() > 0.1){passMiniMedium=false; return passMiniMedium;}
-  }
-  return passMiniMedium;
+    	const double hoeMedium = 0.046 + 1.16/esc + 0.0324*getRho()/esc;
+    	passMiniMedium = (getSigma() <= 0.0106 &&
+                      absDeta <= 0.0032 &&
+                      absDphi <= 0.0547 &&
+                      getHoverE() <= hoeMedium &&
+                      getMiniIso() <= 0.1 &&
+                      absEopInv <= 0.184 &&
+                      getMissHits() <= 1 &&
+                      getConvVeto());}
+   else if(isEE()){
+    	const double hoeMedium = 0.0275 + 2.52/esc + 0.183*getRho()/esc;
+    	passMiniMedium = (getSigma() <= 0.0387 &&
+                      absDeta <= 0.00632 &&
+                      absDphi <= 0.0394 &&
+                      getHoverE() <= hoeMedium &&
+                      getMiniIso() <= 0.1 &&
+                      absEopInv <= 0.0721 &&
+                      getMissHits() <= 1 &&
+                      getConvVeto());}
+    return passMiniMedium;
 }
 
 bool recoEle::isMiniLoose(){
@@ -136,78 +137,72 @@ bool recoEle::isMiniLoose(){
   return passMiniLoose;
 }
 
-// mengleis
-bool recoEle::isFakeProxyOLD(){
-        bool passFakeProxy(true);
-
-  if(!isEB() && !isEE()) {passFakeProxy=false; return passFakeProxy; }
-  if(isEB()){
-        if(getHoverE() > 0.253){passFakeProxy=false; return passFakeProxy;}
-        if(fabs(getEoverPInv()) > 0.134){passFakeProxy=false; return passFakeProxy;}
-        if(getMissHits() > 1){passFakeProxy=false; return passFakeProxy;}
-        if(!getConvVeto()){passFakeProxy=false; return passFakeProxy;}
-  }
-  else if(isEE()){
-        if(getHoverE() > 0.0878){passFakeProxy=false; return passFakeProxy;}
-        if(fabs(getEoverPInv()) > 0.13){passFakeProxy=false; return passFakeProxy;}
-        if(getMissHits() > 1){passFakeProxy=false; return passFakeProxy;}
-        if(!getConvVeto()){passFakeProxy=false; return passFakeProxy;}
-  }
-
-  if(isEB()){
-        if(getSigma() > 0.00998 || fabs(getdEtaIn()) > 0.00311 || fabs(getdPhiIn()) > 0.103 || getMiniIso() > 0.1)passFakeProxy=true;
-        else passFakeProxy=false;
-  }
-  else if(isEE()){
-        if(getSigma() > 0.0298 || fabs(getdEtaIn()) > 0.00609 || fabs(getdPhiIn()) > 0.045 || getMiniIso() > 0.1)passFakeProxy=true;
-        else passFakeProxy=false;
-  }
-//Upper bound:  Veto
-  if(isEB()){
-        if(getSigma() > 0.0115 || fabs(getdEtaIn()) > 0.00749 || fabs(getdPhiIn()) > 0.228)passFakeProxy=false;
-  }
-  else if(isEE()){
-        if(getSigma() > 0.037  || fabs(getdEtaIn()) > 0.00895 || fabs(getdPhiIn()) > 0.213)passFakeProxy=false;
-  }
-        return passFakeProxy;
-}
-
 // from https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
-bool recoEle::isFakeProxy(){
-	bool passFakeProxy(true);
+ bool recoEle::isFakeProxy(){
+	bool passFakeProxy(false);
+  	if(!isEB() && !isEE()) return passFakeProxy;
 
-  if(!isEB() && !isEE()) {passFakeProxy=false; return passFakeProxy; }
-  if(isEB()){
-	if(getHoverE() > getCutValueHoverE()){passFakeProxy=false; return passFakeProxy;}  // this cut reduces, ele-fake-photon by 30% wrt 80X old cut 
-	if(fabs(getEoverPInv()) > 0.184){passFakeProxy=false; return passFakeProxy;}
-	if(getMissHits() > 1){passFakeProxy=false; return passFakeProxy;}
-	if(!getConvVeto()){passFakeProxy=false; return passFakeProxy;}
-  }
-  else if(isEE()){
-	if(getHoverE() > getCutValueHoverE()){passFakeProxy=false; return passFakeProxy;}
-	if(fabs(getEoverPInv()) > 0.0721){passFakeProxy=false; return passFakeProxy;}
-	if(getMissHits() > 1){passFakeProxy=false; return passFakeProxy;}
-	if(!getConvVeto()){passFakeProxy=false; return passFakeProxy;}
-  }
-	
-  if(isEB()){
-	if(getSigma() > 0.0106 || fabs(getdEtaIn()) > 0.0032 || fabs(getdPhiIn()) > 0.0547 || getMiniIso() > 0.1)passFakeProxy=true;
-  	else passFakeProxy=false;
-  }
-  else if(isEE()){
-	if(getSigma() > 0.0387 || fabs(getdEtaIn()) > 0.00632 || fabs(getdPhiIn()) > 0.0394 || getMiniIso() > 0.1)passFakeProxy=true;
-  	else passFakeProxy=false;
-  }
+  	const double esc = Calibp4_.E();
+  	const double pt  = Calibp4_.Pt();
+  	if(esc <= 0 || pt <= 0) return passFakeProxy;
 
-//Upper bound:  Veto cuts
-  if(isEB()){
-	if(getSigma() > 0.0126 || fabs(getdEtaIn()) > 0.00463 || fabs(getdPhiIn()) > 0.148)passFakeProxy=false;
-  }
-  else if(isEE()){
-	if(getSigma() > 0.0457  || fabs(getdEtaIn()) > 0.00814 || fabs(getdPhiIn()) > 0.19)passFakeProxy=false;
-  }
-	return passFakeProxy;
-}
+  	const double relIso = getCalibRelIso();
+  	const double absDeta = fabs(getdEtaIn());
+  	const double absDphi = fabs(getdPhiIn());
+  	const double absEopInv = fabs(getEoverPInv());
+
+  	bool passMedium(false);
+  	bool passVeto(false);
+ 
+   	if(isEB()){
+    		const double hoeMedium = 0.046 + 1.16/esc + 0.0324*getRho()/esc;
+    		const double hoeVeto   = 0.05  + 1.16/esc + 0.0324*getRho()/esc;
+
+    		passMedium = (getSigma() <= 0.0106 &&
+                  	absDeta <= 0.0032 &&
+                  	absDphi <= 0.0547 &&
+                  	getHoverE() <= hoeMedium &&
+                  	relIso <= (0.0478 + 0.506/pt) &&
+                  	absEopInv <= 0.184 &&
+                  	getMissHits() <= 1 &&
+                  	getConvVeto());
+
+    		passVeto = (getSigma() <= 0.0126 &&
+                	absDeta <= 0.00463 &&
+                	absDphi <= 0.148 &&
+                	getHoverE() <= hoeVeto &&
+                	relIso <= (0.198 + 0.506/pt) &&
+                	absEopInv <= 0.209 &&
+                	getMissHits() <= 2 &&
+                	getConvVeto());
+   	}
+   	else if(isEE()){
+    			const double hoeMedium = 0.0275 + 2.52/esc + 0.183*getRho()/esc;
+    			const double hoeVeto   = 0.05   + 2.54/esc + 0.183*getRho()/esc;
+
+    			passMedium = (getSigma() <= 0.0387 &&
+                  		absDeta <= 0.00632 &&
+                  		absDphi <= 0.0394 &&
+                  		getHoverE() <= hoeMedium &&
+                  		relIso <= (0.0658 + 0.963/pt) &&
+                  		absEopInv <= 0.0721 &&
+                  		getMissHits() <= 1 &&
+                  		getConvVeto());
+
+    			passVeto = (getSigma() <= 0.0457 &&
+                		absDeta <= 0.00814 &&
+                		absDphi <= 0.19 &&
+                		getHoverE() <= hoeVeto &&
+                		relIso <= (0.203 + 0.963/pt) &&
+                		absEopInv <= 0.132 &&
+                		getMissHits() <= 3 &&
+                		getConvVeto());
+  	}
+
+  	// Fake proxy: fail 94X Medium but remain within 94X Veto envelope.
+  	passFakeProxy = passVeto && !passMedium;
+ 	return passFakeProxy;
+ }
 
 bool recoEle::isLooseFakeProxy(){
 	bool passFakeProxy(true);

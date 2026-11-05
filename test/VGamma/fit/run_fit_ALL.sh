@@ -1,7 +1,19 @@
 #!/bin/bash
 
-export eg=true   
-export mg=true  
+export eg=true
+export mg=true
+
+# FIT_MODE=fast (default): run_toys.C, 100 toys per ROOT session (minutes)
+# FIT_MODE=slow           : one ROOT process per toy (hours), kept for checks:  FIT_MODE=slow bash run_fit_ALL.sh
+FIT_MODE=${FIT_MODE:-fast}
+# inclusive fit (MET 40-70, lepton pT 0-1000): toys 0..999, toy 0 = nominal
+fit_toys(){ # ch RunYear VFP_flag
+  if [ "$FIT_MODE" = slow ]; then
+    for i in {0..999}; do root -b -q "Fitfraction$1.C+($i,40,70,0,1000,4,$2,$3)"; done
+  else
+    for b in {0..9}; do root -b -q "run_toys.C(\"$1\",$((b*100)),$((b*100+99)),$2,$3,-1,-1)"; done
+  fi
+}
 
 output_dir="/eos/uscms/store/user/tmishra/VGamma"
 #/eos/uscms/store/user/tmishra/VGamma/VGamma_scalefactor_*.txt
@@ -31,12 +43,8 @@ for RunYear in "${RunYears[@]}"; do
       echo "Removing old file: $eg_output_file"
       rm -f "$eg_output_file"
 
-      echo "Running Fitfractioneg for RunYear=$RunYear, VFP=$VFP"
-      for i in {0..999}; do
-        root_command="root -b -q \"Fitfractioneg.C+($i,40,70,0,1000,4, $RunYear, $VFP_flag)\""
-        echo "Running: $root_command"
-        eval $root_command
-      done
+      echo "Running Fitfractioneg for RunYear=$RunYear, VFP=$VFP ($FIT_MODE)"
+      fit_toys eg $RunYear $VFP_flag
     fi
 
     if [ "$mg" = true ]; then
@@ -48,12 +56,8 @@ for RunYear in "${RunYears[@]}"; do
       echo "Removing old file: $mg_output_file"
       rm -f "$mg_output_file"
 
-      echo "Running Fitfractionmg for RunYear=$RunYear, VFP=$VFP"
-      for i in {0..999}; do
-        root_command="root -b -q \"Fitfractionmg.C+($i,40,70,0,1000,4, $RunYear, $VFP_flag)\""
-        echo "Running: $root_command"
-        eval $root_command
-      done
+      echo "Running Fitfractionmg for RunYear=$RunYear, VFP=$VFP ($FIT_MODE)"
+      fit_toys mg $RunYear $VFP_flag
     fi
   done
 done

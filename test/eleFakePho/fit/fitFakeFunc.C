@@ -623,7 +623,7 @@ void fitFakeFunc(int RunYear, bool preVFP){//main
 	if(doDrellYan)
 		c_fitMass->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Plots/fit_totalNum_DrellYan_%d%s.png",RunYear,whichVFP.c_str()));
 	else 
-		c_fitMass->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Plots/fit_totalNum_data_%d%s.pdf",RunYear,whichVFP.c_str()));
+		c_fitMass->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Plots/fit_totalNum_data_%d%s.png",RunYear,whichVFP.c_str()));
 	mass_axis.setRange("signal",70,110);
 	RooAbsReal* igx_sig = signalResDY.createIntegral(mass_axis,RooFit::NormSet(mass_axis),RooFit::Range("signal"));
 	std::cout << "num = " <<  igx_sig->getVal()*(nSig.getVal()) << " error = " << igx_sig->getVal()*(nSig.getError()) <<  std::endl;
@@ -654,7 +654,7 @@ void fitFakeFunc(int RunYear, bool preVFP){//main
 	datahist_prednum.plotOn(compare_Frame, RooFit::MarkerColor(kRed));
 	compare_Frame->Draw();
 	if(doDrellYan)cancompare->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Plots/compare_predvsnum_DrellYan_%d%s.png",RunYear,whichVFP.c_str()));
-	else cancompare->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Plots/compare_predvsnum_data_%d%s.pdf",RunYear,whichVFP.c_str()));
+	else cancompare->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Plots/compare_predvsnum_data_%d%s.png",RunYear,whichVFP.c_str()));
  
 //a**************************   Toy MC *********************************a//
  
@@ -814,16 +814,19 @@ void fitFakeFunc(int RunYear, bool preVFP){//main
 		fr_bothcount_pt->SetLineColor(kBlue);
 		fr_bothcount_pt->SetLineWidth(2);
 		fr_bothcount_pt->SetFillColor(0);
+		
 		fr_bothcount_eta->SetMarkerStyle(20);
 		fr_bothcount_eta->SetMarkerColor(kBlue);
 		fr_bothcount_eta->SetLineColor(kBlue);
 		fr_bothcount_eta->SetLineWidth(2);
 		fr_bothcount_eta->SetFillColor(0);
+		
 		fr_bothcount_vtx->SetMarkerStyle(20);
 		fr_bothcount_vtx->SetMarkerColor(kBlue);
 		fr_bothcount_vtx->SetLineColor(kBlue);
 		fr_bothcount_vtx->SetLineWidth(2);
 		fr_bothcount_vtx->SetFillColor(0);
+		
 		fr_pt_ratio->SetMarkerStyle(20);
 		fr_pt_ratio->SetMarkerColor(kBlue);
 		fr_pt_ratio->SetLineColor(kBlue);
@@ -887,7 +890,7 @@ void fitFakeFunc(int RunYear, bool preVFP){//main
 		fr_pt_ratio->Draw("EP same");
 		flatratio_pt->Draw("same");
 		if(doDrellYan)canpt->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Plots/elefake_pt_systematic_DrellYan_%d%s%s.png",RunYear,whichVFP.c_str(),isEB.c_str()));
-		else canpt->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Plots/elefake_pt_systematic_data_%d%s%s.pdf",RunYear,whichVFP.c_str(),isEB.c_str()));
+		else canpt->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Plots/elefake_pt_systematic_data_%d%s%s.png",RunYear,whichVFP.c_str(),isEB.c_str()));
 		  
 		TCanvas *canvtx = new TCanvas("canvtx","",600,600);
 		canvtx->cd();
@@ -930,11 +933,11 @@ void fitFakeFunc(int RunYear, bool preVFP){//main
 		flatratio_vtx->Draw("same");
 		fr_vtx_ratio->Draw("EP same");
 		if(doDrellYan)canvtx->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Plots/elefake_vtx_systematic_DrellYan_%d%s%s.png",RunYear,whichVFP.c_str(),isEB.c_str()));
-		else canvtx->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Plots/elefake_vtx_systematic_data_%d%s%s.pdf",RunYear,whichVFP.c_str(),isEB.c_str()));  
+		else canvtx->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Plots/elefake_vtx_systematic_data_%d%s%s.png",RunYear,whichVFP.c_str(),isEB.c_str()));  
 		
-		TLegend *legEta = new TLegend(0.5,0.7,0.89,0.89);
-		legEta->AddEntry(fr_bothcount_eta, "data");
-		
+		TLegend *legEta = new TLegend(0.5,0.7,0.89,0.79);
+		legEta->AddEntry(fr_bothcount_eta, "Data", "pe");
+
 		TCanvas *caneta = new TCanvas("caneta","",600,600);
 		caneta->cd();
 		TPad *caneta_pad1 = new TPad("caneta_pad1", "pad1", 0, 0.05, 1, 1.0);
@@ -948,7 +951,7 @@ void fitFakeFunc(int RunYear, bool preVFP){//main
 		fr_bothcount_eta->Draw("EPL same");
 		fr_eta_sigmaband->SetFillColor(15);
 		fr_eta_sigmaband->SetFillStyle(3345);
-		fr_eta_sigmaband->Draw("E2 same");
+		//fr_eta_sigmaband->Draw("E2 same");
 		fr_bothcount_eta->Draw("EPL same");
 		legEta->Draw("same");
 		if(RunYear==2016 and preVFP == 1)       CMS_lumi( caneta_pad1, 1, 1, 11 );
@@ -956,12 +959,12 @@ void fitFakeFunc(int RunYear, bool preVFP){//main
         	else if(RunYear==2017)                  CMS_lumi( caneta_pad1, 3, 1, 11 );
         	else if(RunYear==2018)                  CMS_lumi( caneta_pad1, 4, 1, 11 );
 		if(doDrellYan)caneta->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Plots/elefake_eta_systematic_DrellYan_%d%s%s.png",RunYear,whichVFP.c_str(),isEB.c_str()));
-		else caneta->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Plots/elefake_eta_systematic_data_%d%s%s.pdf",RunYear,whichVFP.c_str(),isEB.c_str()));
+		else caneta->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Plots/elefake_eta_systematic_data_%d%s%s.png",RunYear,whichVFP.c_str(),isEB.c_str()));
 	     
 		TCanvas *canscale = new TCanvas("scale","scale",600,600);
 		p_scalefactor->Draw("hist");
 		if(doDrellYan)canscale->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Plots/elefake_scalefactor_DrellYan_%d%s%s.png",RunYear,whichVFP.c_str(),isEB.c_str()));
-		else canscale->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Plots/elefake_scalefactor_data_%d%s%s.pdf",RunYear,whichVFP.c_str(),isEB.c_str()));		
+		else canscale->SaveAs(Form("/eos/uscms/store/user/tmishra/elefakepho/Plots/elefake_scalefactor_data_%d%s%s.png",RunYear,whichVFP.c_str(),isEB.c_str()));		
 
 				resultfile.close();
 				fakeRateFile.close();

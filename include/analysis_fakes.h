@@ -25,7 +25,7 @@
 #include        "/eos/uscms/store/user/tmishra/elefakepho/DrellYanResult2018/result_eta_dependence_DY_EE.txt"
 
 
-std::ifstream configfile("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/myResult/SigConfig.txt");
+std::ifstream configfile("/uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/test/myResult/SigConfig.txt");
 std::string conftype;
 double confvalue;
 

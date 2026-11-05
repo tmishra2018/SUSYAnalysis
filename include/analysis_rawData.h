@@ -86,9 +86,16 @@ enum RunType{
 		tree->SetBranchAddress("mcMomPhi",     &mcMomPhi);
 		tree->SetBranchAddress("genMET",    			&genMET);
 		tree->SetBranchAddress("genMETPhi",    		&genMETPhi);
-	//	tree->SetBranchAddress("pdfWeight",       &pdfWeight);
-	//	tree->SetBranchAddress("pdfSystWeight",   &pdfSystWeight);
-	//	tree->SetBranchAddress("genScaleSystWeights", &genScaleSystWeights);
+		tree->SetBranchAddress("pdfWeight",       &pdfWeight);
+		tree->SetBranchAddress("pdfSystWeight",   &pdfSystWeight);
+		tree->SetBranchAddress("genScaleSystWeights", &genScaleSystWeights);
+		tree->SetBranchAddress("puBX", &puBX);
+   		tree->SetBranchAddress("puTrue", &puTrue);
+   		
+		tree->SetBranchAddress("psWeightIsrDefUp", &psWeightIsrDefUp);
+   		tree->SetBranchAddress("psWeightFsrDefUp", &psWeightFsrDefUp);
+		tree->SetBranchAddress("psWeightIsrDefDown", &psWeightIsrDefDown);
+   		tree->SetBranchAddress("psWeightFsrDefDown", &psWeightFsrDefDown);
     }
       tree->SetBranchAddress("run",			        &run);
       tree->SetBranchAddress("event",			    &event);
@@ -196,9 +203,12 @@ enum RunType{
 			tree->SetBranchAddress("jetJECUnc", &jetJECUnc);
 			tree->SetBranchAddress("jetCSV2BJetTags", &jetCSV2BJetTags);
       tree->SetBranchAddress("L1ECALPrefire", &L1ECALPrefire);
-        
 
-
+      tree->SetBranchAddress("pdfWeightRMS", &pdfWeightRMS);
+      tree->SetBranchAddress("muFweightUp", &muFweightUp);
+      tree->SetBranchAddress("muFweightDown", &muFweightDown);
+      tree->SetBranchAddress("muRweightUp", &muRweightUp);
+      tree->SetBranchAddress("muRweightDown", &muRweightDown);
     }
    
     ~rawData(){
@@ -240,6 +250,13 @@ enum RunType{
 		float			pfMETPhi_T1UESDo = 0;
     Int_t     metFilters=0;
     Double_t  L1ECALPrefire=0;
+    vector<int>     *puBX = 0;
+    vector<float>   *puTrue = 0;
+    float         psWeightIsrDefUp = 0;
+    float         psWeightIsrDefDown = 0;
+    float         psWeightFsrDefUp = 0;
+    float         psWeightFsrDefDown = 0;
+
     Int_t                 nMC =0;
     std::vector<int>      *mcPID =0;
     std::vector<float>    *mcPt =0;
@@ -259,6 +276,12 @@ enum RunType{
 		float                 pdfWeight = 0;
 		std::vector<float>    *pdfSystWeight = 0;
 		std::vector<float>    *genScaleSystWeights = 0;
+	
+    float        muRweightUp = 0;
+    float        muRweightDown = 0;
+    float        muFweightUp = 0;
+    float        muFweightDown = 0;
+    float        pdfWeightRMS = 0;
 
     Int_t          nPho =0;
     vector<float>  *phoE = 0;

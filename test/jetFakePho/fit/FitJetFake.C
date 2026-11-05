@@ -53,7 +53,8 @@
 #include "../../../include/analysis_fakes.h"
 
 bool useMC = true;
-bool doIterate = true;
+bool doIterate = true; // Dont set it false, if some fit fails, then merge few bins for successful fits
+// eg channel for 2016 total 17 bins, else 18 bins taken
 
 float METLOWCUT = 0;
 float METHIGHCUT = 70;
@@ -101,18 +102,19 @@ int FitJetFake(int  RunYear, bool ISpreVFP, int  eventType, float lowercut, floa
 	if(RunYear==2017 or  RunYear == 2018) whichVFP = "";
 
           float correction =1.0;
-	  if (RunYear == 2016 and ISpreVFP == 1 and eventType == 1) correction = 0.948005;
-          else if (RunYear == 2016 and ISpreVFP == 1 and eventType == 2) correction = 0.900015;
-          else if (RunYear == 2016 and ISpreVFP == 0 and eventType == 1) correction = 0.775942;
-          else if (RunYear == 2016 and ISpreVFP == 0 and eventType == 2) correction = 0.730433;
-          else if (RunYear == 2017 and eventType == 1) correction = 1.39352;
-          else if (RunYear == 2017 and eventType == 2) correction = 1.03558;
-          else if (RunYear == 2018 and eventType == 1) correction = 1.35192;
-          else if (RunYear == 2018 and eventType == 2) correction = 1.20607;
+
+	  if (RunYear == 2016 and ISpreVFP == 1 and eventType == 1) correction = 1.01941;
+          else if (RunYear == 2016 and ISpreVFP == 1 and eventType == 2) correction = 0.884384;
+          else if (RunYear == 2016 and ISpreVFP == 0 and eventType == 1) correction = 0.883775;
+          else if (RunYear == 2016 and ISpreVFP == 0 and eventType == 2) correction = 0.778507;
+          else if (RunYear == 2017 and eventType == 1) correction = 0.986549;
+          else if (RunYear == 2017 and eventType == 2) correction = 0.704067;
+          else if (RunYear == 2018 and eventType == 1) correction = 0.941385;
+          else if (RunYear == 2018 and eventType == 2) correction = 0.811208;
 
         // ------------------------------------------------------------------------------------------------------------
 
-	myfilename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<< whichVFP<<"/JetFakeRate-" << outputType << outputDet << "_Mar11.txt";
+	myfilename << "/eos/uscms/store/user/tmishra/jetfakepho/txt"<<RunYear<< whichVFP<<"/JetFakeRate-" << outputType << outputDet << "_new.txt";
 	Hist1Dname << "/eos/uscms/store/user/tmishra/jetfakepho/Plots"<<RunYear<< whichVFP<<"/"<<outputT<<"/frac-" << lowername << "-" << uppername << "-" << outputType << outputDet << ".png";
 	Hist2Dname << "/eos/uscms/store/user/tmishra/jetfakepho/Plots"<<RunYear<< whichVFP<<"/"<<outputT<<"/can2D-" << lowername << "-" << uppername << "-" << outputType << outputDet << ".png";
 	myfile.open(myfilename.str().c_str(), std::ios_base::app | std::ios_base::out);
@@ -127,7 +129,7 @@ int FitJetFake(int  RunYear, bool ISpreVFP, int  eventType, float lowercut, floa
 	
 	switch(eventType){
 		case 1: datatree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_egsignal_DoubleEG_%d%s.root",RunYear,whichVFP.c_str())); break;
-		case 2: datatree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s_Mar11.root",RunYear,whichVFP.c_str())); break;
+		case 2: datatree->Add(Form("/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_mgsignal_MuonEG_%d%s.root",RunYear,whichVFP.c_str())); break;
 		case 3: datatree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_DYJetsToLL_%d.root",RunYear));
 			datatree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_WJetsToLNu_%d.root",RunYear));
 			datatree->Add(Form("/eos/uscms/store/user/tmishra/egMC/resTree_egsignal_QCD_DoubleEM_%d.root",RunYear));

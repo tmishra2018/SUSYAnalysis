@@ -19,7 +19,6 @@ echo 'HTbin2' $HTbin2 >> binConfig.txt
 echo 'PHOETbin' $PHOETbin >> binConfig.txt
 
 RunYears=("2016" "2017" "2018")
-
 for RunYear in "${RunYears[@]}"; do
     if [ "$RunYear" -eq 2016 ]; then
         preVFPs=("0" "1") 
@@ -63,7 +62,7 @@ for RunYear in "${RunYears[@]}"; do
         echo 'RunYear' $RunYear >> SigConfig.txt
         echo 'preVFP' $preVFP >> SigConfig.txt
 
-	root -l -q "plot_newbkg_NoData.C"
+	root -l -b -q "plot_newbkg.C"
 	root -l -q "plot_pie_chart.C(\"$log_file\",\"$RunYear\",\"$VFP_string\")"
 	
 	log_file="../Background/logs/BKG_${RunYear}${VFP_string}.log"
@@ -95,7 +94,7 @@ for RunYear in "${RunYears[@]}"; do
         echo 'RunYear' $RunYear >> SigConfig.txt
         echo 'preVFP' $preVFP >> SigConfig.txt
 	
-	root -l -q "plot_newbkg_NoData.C"
+	root -l -b -q "plot_newbkg.C"
 	root -l -q "plot_pie_chart.C(\"$log_file\",\"$RunYear\",\"$VFP_string\")"
 	
 	log_file="../Background/logs/BKG_${RunYear}${VFP_string}.log"
@@ -104,10 +103,6 @@ for RunYear in "${RunYears[@]}"; do
 	log_file="../Background/logs/VALID_${RunYear}${VFP_string}.log"
 	root -l -q "plot_pie_chart.C(\"$log_file\",\"$RunYear\",\"$VFP_string\")"
 	
-	log_file="logs/eventcount_${RunYear}${VFP_string}.txt"
-	rm -f "$log_file"
-	root -l -q "plot_eventct.C+($NBIN)" >> "logs/eventcount_${RunYear}${VFP_string}.txt"
-	root -l -q "plot_eventct_NoData.C+($NBIN)"
     done
 done
 
@@ -201,7 +196,7 @@ echo 'preVFP' 0 >> SigConfig.txt
 log_file="logs/eventcount_678.txt"
 rm -f "$log_file"
 
-root -l -q "plot_newbkg_NoData.C"
+root -l -b -q "plot_newbkg.C"
 root -l -q "plot_pie_chart.C(\"$log_file\",\"678\",\"\")"
 
 rm -f SigConfig.txt
@@ -219,11 +214,7 @@ echo 'preVFP' 0 >> SigConfig.txt
 
 log_file="logs/eventcount_678.txt"
 rm -f "$log_file"
-
-root -l -q "plot_newbkg_NoData.C"
+root -l -b -q "plot_newbkg.C"
 root -l -q "plot_pie_chart.C(\"$log_file\",\"678\",\"\")"
-
 #########################################################################
-
 root -l -q "plot_eventct.C+($NBIN)" >> "$log_file"
-root -l -q "plot_eventct_NoData.C+($NBIN)"

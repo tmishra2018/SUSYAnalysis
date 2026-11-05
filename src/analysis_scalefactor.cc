@@ -1,4 +1,5 @@
 #include "../include/analysis_scalefactor.h"
+#include <algorithm>
 
 float esfScaleFactor::getElectronESF(float inputpt, float inputeta){
 	
@@ -31,7 +32,7 @@ float esfScaleFactor::getElectronESF(float inputpt, float inputeta){
 	else eleESF = electronIDESF->GetBinContent(etaaxis->FindBin(eta), ptaxis->FindBin(pt));
 	//else eleESF = electronIDESF->GetBinContent(etaaxis->FindBin(eta), ptaxis->FindBin(pt))*electronISOESF->GetBinContent(etaaxis->FindBin(eta), ptaxis->FindBin(pt));
 
-	eleESF = eleESF*getR9ESF(pt, eta);	
+	eleESF = eleESF*getR9ESF(pt, eta)*getMiniIsoESF(pt, eta);
 	
   return eleESF;
 }
@@ -65,6 +66,8 @@ float esfScaleFactor::getPhotonESF(float inputpt, float inputeta){    // new
 		phoESF = photonIDESF->GetBinContent(ptaxis->FindBin(pt), etaaxis->FindBin(eta));
 	}
 	else phoESF = photonIDESF->GetBinContent(etaaxis->FindBin(eta), ptaxis->FindBin(pt));
+
+	phoESF = phoESF*getPhotonR9ESF(inputpt, inputeta);
 		
   return phoESF;
 }
@@ -93,23 +96,10 @@ float esfScaleFactor::getMuonESF(float inputpt, float inputeta){
 	if(etaaxis->GetXmin() > -1.0)eta =fabs(eta);
 	if(fabs(eta) > 2.4) eta = 2.39;
 
+	// medium-ID SF only: the mini-isolation and IP SFs are not applied (Muon POG agreement, AN Sec. 4.3)
 	float muonESF(1);
-	float muonIDESFvalue(1);
-	//float muonISOESFvalue(1), muonIPESFvalue(1);
-	if(ptOnX){
-		muonIDESFvalue = muonIDESF->GetBinContent(ptaxis->FindBin(pt), etaaxis->FindBin(eta));  // new available
-		//muonISOESFvalue= muonISOESF->GetBinContent(ptaxis->FindBin(pt), etaaxis->FindBin(eta));
-		//muonIPESFvalue = muonIPESF->GetBinContent(ptaxis->FindBin(pt), etaaxis->FindBin(eta));
-		//muonESF = muonIDESFvalue*muonISOESFvalue*muonIPESFvalue;
-		muonESF = muonIDESFvalue;
-	}
-	else{
-	 muonIDESFvalue = muonIDESF->GetBinContent(etaaxis->FindBin(eta), ptaxis->FindBin(pt)); // new available
-	 //muonISOESFvalue = muonISOESF->GetBinContent(etaaxis->FindBin(eta), ptaxis->FindBin(pt));
-	 //muonIPESFvalue = muonIPESF->GetBinContent(etaaxis->FindBin(eta), ptaxis->FindBin(pt));
-	 //muonESF = muonIDESFvalue*muonISOESFvalue*muonIPESFvalue;
-	 muonESF = muonIDESFvalue;
-	}
+	if(ptOnX) muonESF = muonIDESF->GetBinContent(ptaxis->FindBin(pt), etaaxis->FindBin(eta));
+	else      muonESF = muonIDESF->GetBinContent(etaaxis->FindBin(eta), ptaxis->FindBin(pt));
 		
   return muonESF;
 }
@@ -219,10 +209,10 @@ float esfScaleFactor::getElectronESFError(float inputpt, float inputeta){
 
 	float eleESFError(1);
 	if(ptOnX){
-		eleESFError = sqrt(pow(electronIDESF->GetBinError(ptaxis->FindBin(pt), etaaxis->FindBin(eta)), 2) + pow(getR9ESFError(pt, eta),2));
+		eleESFError = sqrt(pow(electronIDESF->GetBinError(ptaxis->FindBin(pt), etaaxis->FindBin(eta)), 2) + pow(getR9ESFError(pt, eta),2) + pow(getMiniIsoESFError(pt, eta),2));
 		//eleESFError = sqrt(pow(electronIDESF->GetBinError(ptaxis->FindBin(pt), etaaxis->FindBin(eta)), 2)+ pow(electronISOESF->GetBinError(ptaxis->FindBin(pt), etaaxis->FindBin(eta)), 2) + pow(getR9ESFError(pt, eta),2));
 	}
-	else eleESFError = sqrt(pow( electronIDESF->GetBinError(etaaxis->FindBin(eta), ptaxis->FindBin(pt)), 2) + pow(getR9ESFError(pt, eta),2));
+	else eleESFError = sqrt(pow( electronIDESF->GetBinError(etaaxis->FindBin(eta), ptaxis->FindBin(pt)), 2) + pow(getR9ESFError(pt, eta),2) + pow(getMiniIsoESFError(pt, eta),2));
 	//else eleESFError = sqrt(pow( electronIDESF->GetBinError(etaaxis->FindBin(eta), ptaxis->FindBin(pt)), 2)+ pow(electronISOESF->GetBinError(etaaxis->FindBin(eta), ptaxis->FindBin(pt)),2) + pow(getR9ESFError(pt, eta),2));
 	
 		
@@ -258,6 +248,7 @@ float esfScaleFactor::getPhotonESFError(float inputpt, float inputeta){
 		phoESFError = photonIDESF->GetBinError(ptaxis->FindBin(pt), etaaxis->FindBin(eta));
 	}
 	else phoESFError = photonIDESF->GetBinError(etaaxis->FindBin(eta), ptaxis->FindBin(pt));
+	phoESFError = sqrt(pow(phoESFError, 2) + pow(getPhotonR9ESFError(inputpt, inputeta), 2));
 		
   return phoESFError;
 }
@@ -284,22 +275,12 @@ float esfScaleFactor::getMuonESFError(float inputpt, float inputeta){
 	if(pt > ptaxis->GetXmax())pt = ptaxis->GetXmax() - 1.0;
 	float eta= inputeta;
 	if(etaaxis->GetXmin() > -1.0)eta =fabs(eta);
-	if(fabs(eta) > 2.5) eta = 2.49;
+	if(fabs(eta) > 2.4) eta = 2.39;
 
+	// medium-ID SF error only, consistent with getMuonESF (no mini-isolation/IP SFs applied)
 	float muonESFError(1);
-	float muonIDESFError(1), muonISOESFError(1), muonIPESFError(1);
-	if(ptOnX){
-		muonIDESFError = muonIDESF->GetBinError(ptaxis->FindBin(pt), etaaxis->FindBin(eta));
-		muonISOESFError = muonISOESF->GetBinError(ptaxis->FindBin(pt), etaaxis->FindBin(eta));
-		muonIPESFError = muonIPESF->GetBinError(ptaxis->FindBin(pt), etaaxis->FindBin(eta));
-		muonESFError = sqrt(pow(muonIDESFError,2)+pow(muonISOESFError+muonIPESFError,2));
-	}
-	else{
-	  muonIDESFError = muonIDESF->GetBinError(etaaxis->FindBin(eta), ptaxis->FindBin(pt));
-	  muonISOESFError = muonISOESF->GetBinError(etaaxis->FindBin(eta), ptaxis->FindBin(pt));
-	  muonIPESFError = muonIPESF->GetBinError(etaaxis->FindBin(eta), ptaxis->FindBin(pt));
-		muonESFError = sqrt(pow(muonIDESFError,2)+pow(muonISOESFError+muonIPESFError,2));
-	}
+	if(ptOnX) muonESFError = muonIDESF->GetBinError(ptaxis->FindBin(pt), etaaxis->FindBin(eta));
+	else      muonESFError = muonIDESF->GetBinError(etaaxis->FindBin(eta), ptaxis->FindBin(pt));
 		
   return muonESFError;
 }
@@ -699,67 +680,21 @@ float esfScaleFactor::getFastMuonEGTRGESFError(float pt1, float pt2){
 }
 
 
-float esfScaleFactor::getR9ESF(float inputpt, float inputeta){
-	
-	bool  ptOnX(true);
-	TAxis *ptaxis;
-	TAxis *etaaxis;
-	if(electronR9ESF->GetXaxis()->GetXmax() > 3.0){
-		ptaxis = electronR9ESF->GetXaxis();
-		etaaxis= electronR9ESF->GetYaxis();
-		ptOnX = true;
-	}
-	else{
-		ptaxis = electronR9ESF->GetYaxis();
-		etaaxis= electronR9ESF->GetXaxis();
-		ptOnX = false;
-	}	
-
-	float pt = inputpt;
-	if(pt >= 200)pt = 199;
-	if(pt > ptaxis->GetXmax())pt = ptaxis->GetXmax() - 1.0;
-	float eta= inputeta;
-	if(etaaxis->GetXmin() > -1.0)eta =fabs(eta);
-	if(fabs(eta) > 2.5) eta = 2.49;
-
-	float eleESF(1);
-	if(ptOnX){
-		eleESF = electronR9ESF->GetBinContent(ptaxis->FindBin(pt), etaaxis->FindBin(eta));
-	}
-	else eleESF = electronR9ESF->GetBinContent(etaaxis->FindBin(eta), ptaxis->FindBin(pt));
-		
-  return eleESF;
+// UL TnP maps: X = signed SC eta, Y = pT [25,500]; pT and eta clamped into the map range
+float esfScaleFactor::tnpSFBin(TH2F *h, float inputpt, float inputeta, bool err){
+	TAxis *etaaxis = h->GetXaxis();
+	TAxis *ptaxis  = h->GetYaxis();
+	float pt  = std::min(std::max(inputpt, (float)ptaxis->GetXmin() + 0.1f), (float)ptaxis->GetXmax() - 0.1f);
+	float eta = std::min(std::max(inputeta, (float)etaaxis->GetXmin() + 0.001f), (float)etaaxis->GetXmax() - 0.001f);
+	int bin = h->FindBin(eta, pt);
+	return err ? h->GetBinError(bin) : h->GetBinContent(bin);
 }
 
-float esfScaleFactor::getR9ESFError(float inputpt, float inputeta){
-	
-	bool  ptOnX(true);
-	TAxis *ptaxis;
-	TAxis *etaaxis;
-	if(electronIDESF->GetXaxis()->GetXmax() > 3.0){
-		ptaxis = electronIDESF->GetXaxis();
-		etaaxis= electronIDESF->GetYaxis();
-		ptOnX = true;
-	}
-	else{
-		ptaxis = electronIDESF->GetYaxis();
-		etaaxis= electronIDESF->GetXaxis();
-		ptOnX = false;
-	}	
-
-	float pt = inputpt;
-	if(pt >= 200)pt = 199;
-	if(pt > ptaxis->GetXmax())pt = ptaxis->GetXmax() - 1.0;
-	float eta= inputeta;
-	if(etaaxis->GetXmin() > -1.0)eta =fabs(eta);
-	if(fabs(eta) > 2.5) eta = 2.49;
-
-	float eleR9ESFError(1);
-	if(ptOnX){
-		eleR9ESFError = sqrt(pow(electronR9ESF->GetBinError(ptaxis->FindBin(pt), etaaxis->FindBin(eta)), 2));
-	}
-	else eleR9ESFError = sqrt(pow(electronR9ESF->GetBinError(etaaxis->FindBin(eta), ptaxis->FindBin(pt)), 2));
-		
-  return eleR9ESFError;
-}
+float esfScaleFactor::getR9ESF(float pt, float eta){ return tnpSFBin(electronR9ESF, pt, eta, false); }
+float esfScaleFactor::getR9ESFError(float pt, float eta){ return tnpSFBin(electronR9ESF, pt, eta, true); }
+float esfScaleFactor::getMiniIsoESF(float pt, float eta){ return tnpSFBin(electronMiniIsoESF, pt, eta, false); }
+float esfScaleFactor::getMiniIsoESFError(float pt, float eta){ return tnpSFBin(electronMiniIsoESF, pt, eta, true); }
+float esfScaleFactor::getPhotonR9ESF(float pt, float eta){ return tnpSFBin(photonR9ESF, pt, eta, false); }
+// measured with electrons as photon proxies: the fit errors (< 0.1%) are floored at 0.5%
+float esfScaleFactor::getPhotonR9ESFError(float pt, float eta){ return std::max(tnpSFBin(photonR9ESF, pt, eta, true), 0.005f); }
 

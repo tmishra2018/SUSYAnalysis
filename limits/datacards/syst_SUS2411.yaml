@@ -1,0 +1,238 @@
+# ============================================================
+# systematics.yml
+# Analysis-specific systematics dictionary for check_names.py
+#
+# REQUIRED STRUCTURE:
+#   Each top-level key is either:
+#     - an exact NP name  (e.g.  CMS_pileup)
+#     - a Python regex    (e.g.  CMS_SUS2411_VG_stat_bin[0-9]+)
+#       regex keys must contain at least one of:  *  [  (
+#   Each value must have:
+#     class:        "custom"  for analysis-specific NPs, or a CMS class
+#                   string for NPs that must follow naming conventions
+#                   from systematics_master.yml
+#     description:  non-empty string (required for class: custom)
+#
+# check_names.py logic (find_np):
+#   1. Exact key match → use it
+#   2. For keys containing * [ ( → try re.fullmatch
+#   The "approved_patterns" block in the old file was NEVER read
+#   by check_names.py and has been removed.
+# ============================================================
+
+# ----------------------------------------------------------
+# Jet Energy Scale & Resolution
+# ----------------------------------------------------------
+CMS_scale_j:
+  class: custom
+  description: "Jet energy scale (JES) uncertainty"
+
+CMS_res_j_(2016preVFP|2016postVFP|2017|2018):
+  class: custom
+  description: "Jet energy resolution (JER) uncertainty, uncorrelated across years"
+
+# ----------------------------------------------------------
+# Electron efficiency scale factor
+# ----------------------------------------------------------
+CMS_eff_e:
+  class: custom
+  description: "Electron efficiency scale factor (ID/R9/miniIso and e-gamma triggers)"
+
+CMS_eff_m:
+  class: custom
+  description: "Muon efficiency scale factor (ID/ISO and mu-gamma trigger)"
+
+CMS_eff_g:
+  class: custom
+  description: "Photon ID efficiency scale factor, correlated between the e-gamma and mu-gamma channels"
+
+# ----------------------------------------------------------
+# Pileup
+# ----------------------------------------------------------
+CMS_pileup:
+  class: custom
+  description: "Pileup reweighting uncertainty"
+
+# ----------------------------------------------------------
+# Electron-to-photon and jet-to-photon fake rate systematics
+# ----------------------------------------------------------
+CMS_fake_e_g_syst:
+  class: custom
+  description: "Electron-to-photon fake rate systematic uncertainty"
+
+CMS_fake_j_g_syst:
+  class: custom
+  description: "Jet-to-photon fake rate systematic uncertainty"
+
+# ----------------------------------------------------------
+# VGamma normalisation scale factor uncertainty
+# ----------------------------------------------------------
+CMS_SUS2411_normSF_VGamma_(2016preVFP|2016postVFP|2017|2018):
+  class: custom
+  description: "Normalisation uncertainty from VGamma scale factor fit (applies to VGamma and qcdfakelep), uncorrelated across years"
+
+# ----------------------------------------------------------
+# Luminosity -- Run2 3-parameter scheme
+# ----------------------------------------------------------
+lumi_13TeV_15161718_l:
+  class: custom
+  description: "Luminosity uncertainty fully correlated across Run2 (2016+2017+2018)"
+
+lumi_13TeV_151617_l:
+  class: custom
+  description: "Luminosity uncertainty correlated between 2016 and 2017"
+
+lumi_13TeV_1516_l:
+  class: custom
+  description: "Luminosity uncertainty 2016-only component"
+
+# ----------------------------------------------------------
+# Rare background cross-section
+# ----------------------------------------------------------
+xsec_ttGam_VVGam:
+  class: custom
+  description: "Cross section uncertainty on rare processes (ttgamma+VVgamma), 50%"
+
+# ----------------------------------------------------------
+# QCD renorm/factorization scale -- per process
+# ----------------------------------------------------------
+QCDscale_VGamma:
+  class: custom
+  description: "QCD renorm/factorization scale uncertainty on VGamma background"
+
+QCDscale_ttGam_VVGam:
+  class: custom
+  description: "QCD renorm/factorization scale uncertainty on rare (ttgamma+VVgamma) background"
+
+# Signal QCD scale: one NP per mass point, flat 5%
+# Pattern covers t5wg_MASS1_MASS2, t6wg_MASS1_MASS2
+QCDscale_(t[56]wg)_[0-9]+_[0-9]+:
+  class: custom
+  description: "QCD scale uncertainty on T5WG/T6WG signal (flat 5%), one NP per mass point"
+
+# TChiWG: 1D mass, pattern tchiwg_MASS
+QCDscale_tchiwg_[0-9]+:
+  class: custom
+  description: "QCD scale uncertainty on TChiWG signal (flat 5%), one NP per mass point"
+
+# ----------------------------------------------------------
+# PDF+alphaS -- single row covering signal + VGamma + rare
+# Signal column: flat 5% (PDFS placeholder filled by write*.py)
+# VGamma + rare columns: bin-wise kappas from histograms
+# ----------------------------------------------------------
+pdf_alphas:
+  class: custom
+  description: "PDF+alphaS uncertainty: signal flat 5%, VGamma and rare from histogram kappas"
+
+# ----------------------------------------------------------
+# ISR reweighting -- one NP per year, uncorrelated
+# ----------------------------------------------------------
+CMS_ISR_13TeV_2016preVFP:
+  class: custom
+  description: "ISR reweighting uncertainty 2016preVFP"
+
+CMS_ISR_13TeV_2016postVFP:
+  class: custom
+  description: "ISR reweighting uncertainty 2016postVFP"
+
+CMS_ISR_13TeV_2017:
+  class: custom
+  description: "ISR reweighting uncertainty 2017"
+
+CMS_ISR_13TeV_2018:
+  class: custom
+  description: "ISR reweighting uncertainty 2018"
+
+# ----------------------------------------------------------
+# LO -> NLO W+gamma reweighting (V+gamma only) -- correlated across years and channels
+# ----------------------------------------------------------
+CMS_SUS2411_VG_LOtoNLO:
+  class: custom
+  description: "W+gamma LO-to-NLO ISR pT reweighting"
+
+# ----------------------------------------------------------
+# L1 ECAL prefiring (2016 and 2017 only)
+# ----------------------------------------------------------
+CMS_L1prefiring_13TeV_2016preVFP:
+  class: custom
+  description: "L1 ECAL prefiring uncertainty 2016preVFP"
+
+CMS_L1prefiring_13TeV_2016postVFP:
+  class: custom
+  description: "L1 ECAL prefiring uncertainty 2016postVFP"
+
+CMS_L1prefiring_13TeV_2017:
+  class: custom
+  description: "L1 ECAL prefiring uncertainty 2017"
+
+# ----------------------------------------------------------
+# Signal MC statistical uncertainty -- per bin, per mass point
+# Pattern: t5wg_MASS1_MASS2_statN_YEAR  /  t6wg_MASS1_MASS2_statN_YEAR
+# ----------------------------------------------------------
+(t[56]wg)_[0-9]+_[0-9]+_stat[0-9]+_(2016preVFP|2016postVFP|2017|2018):
+  class: custom
+  description: "Signal MC statistical uncertainty per bin per year (T5WG/T6WG), one NP per bin per mass point"
+
+# TChiWG: tchiwg_MASS_statN_YEAR
+tchiwg_[0-9]+_stat[0-9]+_(2016preVFP|2016postVFP|2017|2018):
+  class: custom
+  description: "Signal MC statistical uncertainty per bin per year (TChiWG), one NP per bin per mass point"
+
+# ----------------------------------------------------------
+# V+gamma / fake-lepton normalisation (dPhi template fit), per year x channel x photon-pT bin; V+gamma and the
+# anticorrelated fake lepton as asymmetric lnN on the same nuisance (createDataCard.py)
+# ----------------------------------------------------------
+CMS_SUS2411_normSF_VGamma_(eg|mg)_pho[0-2]_(2016preVFP|2016postVFP|2017|2018):
+  class: custom
+  description: "V+gamma (and anticorrelated fake-lepton) normalisation from the dPhi template fit, per year, channel and photon-pT bin"
+
+# ----------------------------------------------------------
+# VGamma MC statistical uncertainty -- per bin per year
+# Pattern: CMS_SUS2411_VG_stat_binN_YEAR
+# ----------------------------------------------------------
+CMS_SUS2411_VG_stat_bin[0-9]+_(2016preVFP|2016postVFP|2017|2018):
+  class: custom
+  description: "VGamma background MC statistical uncertainty per search bin per year"
+
+# ----------------------------------------------------------
+# Rare background MC statistical uncertainty, factorised prediction N(era) x f(bin)
+# Pattern: CMS_SUS2411_ttGam_VVGam_stat_binN (f, all eras) and CMS_SUS2411_ttGam_VVGam_statN_CH_YEAR (N)
+# ----------------------------------------------------------
+CMS_SUS2411_ttGam_VVGam_stat_bin[0-9]+:
+  class: custom
+  description: "Rare background (ttgamma+VVgamma) MC statistical uncertainty of the bin fraction (Run 2 MC), per search bin"
+
+CMS_SUS2411_ttGam_VVGam_statN_(eg|mg)_(2016preVFP|2016postVFP|2017|2018):
+  class: custom
+  description: "Rare background (ttgamma+VVgamma) MC statistical uncertainty of the yield per era and channel"
+
+# ----------------------------------------------------------
+# Electron-to-photon fake rate stat uncertainty -- per bin per year (gmN)
+# Pattern: CMS_fake_e_g_stat_binN_YEAR
+# ----------------------------------------------------------
+CMS_fake_e_g_stat_bin[0-9]+_(2016preVFP|2016postVFP|2016|2017|2018):
+  class: custom
+  description: "Electron-to-photon fake rate statistical uncertainty per bin per year (gmN)"
+
+# ----------------------------------------------------------
+# Jet-to-photon fake rate stat uncertainty -- per bin per year (gmN)
+# Pattern: CMS_fake_j_g_stat_binN_YEAR
+# ----------------------------------------------------------
+CMS_fake_j_g_stat_bin[0-9]+_(2016preVFP|2016postVFP|2016|2017|2018):
+  class: custom
+  description: "Jet-to-photon fake rate statistical uncertainty per bin per year (gmN)"
+
+# ----------------------------------------------------------
+# Jet-to-lepton fake rate stat uncertainty -- per bin per year (gmN)
+# Pattern: CMS_fake_j_l_stat_binN_YEAR
+# ----------------------------------------------------------
+CMS_fake_j_l_stat_bin[0-9]+_(2016preVFP|2016postVFP|2016|2017|2018):
+  class: custom
+  description: "Jet-to-lepton fake rate statistical uncertainty per bin per year (gmN)"
+
+# ----------------------------------------------------------
+# V+gamma non-closure at photon pT > 200 GeV (photon-pT binned SFs), from the CR; correlated across years
+# ----------------------------------------------------------
+CMS_SUS2411_VG_nonclosure_(mug|eg)_HT(lt100|gt100):
+  class: custom
+  description: "V+gamma non-closure for photon pT > 200 GeV measured in the CR, per channel and HT range"

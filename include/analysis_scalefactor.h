@@ -26,13 +26,20 @@ class esfScaleFactor{
         	std::string configFilePath;
 
 
-        	if (current_path.find("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/myResult") != std::string::npos) {
-            		configFilePath = "/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/myResult/SigConfig.txt";}
-        	else if (current_path.find("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/Background") != std::string::npos) {
-            		configFilePath = "/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/Background/BkgPredConfig.txt";} 
-        	else if (current_path.find("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/Reweight") != std::string::npos) {
-            		configFilePath = "/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/Background/BkgPredConfig.txt";} 
-		else {	std::cerr << "Error: Unknown execution path!" << std::endl;
+        	// config chosen by the chain directory we run from: only the path suffix is matched, and the
+        	// analysis base directory (anaBase) is taken from the same path, so the area can be copied or moved
+        	std::string anaBase;
+        	const std::pair<std::string,std::string> confs[] = {
+        		{"/test/myResult", "SigConfig.txt"}, {"/test/Background", "BkgPredConfig.txt"}, {"/test/ISRReweight", "ISRConfig.txt"}};
+        	for(const auto &c : confs){
+        		size_t pos = current_path.find(c.first);
+        		if(pos != std::string::npos){
+        			anaBase = current_path.substr(0, pos);
+        			configFilePath = anaBase + c.first + "/" + c.second;
+        			break;
+        		}
+        	}
+		if(configFilePath.empty()){ std::cerr << "Error: Unknown execution path!" << std::endl;
             		return;}
         	std::ifstream configfile(configFilePath);
         	std::string conftype;
@@ -55,45 +62,49 @@ class esfScaleFactor{
 		TFile *muonTRGFile=0;
 		
 		if((RunYear==2016 and preVFP==1) or RunYear==678){
-			electronIDFile = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/SFs/2016preVFP/egammaEffi.txt_Ele_Medium_EGM2D_UL16_preVFP.root");
-			photonIDFile   = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/SFs/2016preVFP/egammaEffi.txt_EGM2D_Pho_Loose_UL16_preVFP.root");
-			muonIDFile     = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/SFs/2016preVFP/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ID.root");
+			electronIDFile = TFile::Open((anaBase + "/SFs/2016preVFP/egammaEffi.txt_Ele_Medium_EGM2D_UL16_preVFP.root").c_str());
+			photonIDFile   = TFile::Open((anaBase + "/SFs/2016preVFP/egammaEffi.txt_EGM2D_Pho_Loose_UL16_preVFP.root").c_str());
+			muonIDFile     = TFile::Open((anaBase + "/SFs/2016preVFP/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ID.root").c_str());
 			photonTRGFile  = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/diphoton_pholeg_2016preVFP.root");
 			electronTRGFile = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/diphoton_eleg_2016preVFP.root");
 			muonTRGFile = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/muonphoton_trigger_2016preVFP.root");
 		}
 		else if(RunYear==2016 and preVFP==0){
 			// pt range 500 GeV and eta range 2.5
-			electronIDFile = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/SFs/2016/egammaEffi.txt_Ele_Medium_EGM2D_UL16_postVFP.root");
+			electronIDFile = TFile::Open((anaBase + "/SFs/2016/egammaEffi.txt_Ele_Medium_EGM2D_UL16_postVFP.root").c_str());
 			// pt range 500 GeV and eta range 2.5
-			photonIDFile   = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/SFs/2016/egammaEffi.txt_EGM2D_Pho_Loose_UL16_postVFP.root");
+			photonIDFile   = TFile::Open((anaBase + "/SFs/2016/egammaEffi.txt_EGM2D_Pho_Loose_UL16_postVFP.root").c_str());
 			// pt range 120 GeV and eta range 2.4
-			muonIDFile     = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/SFs/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ID.root");
+			muonIDFile     = TFile::Open((anaBase + "/SFs/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ID.root").c_str());
 			photonTRGFile  = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/diphoton_pholeg_2016postVFP.root");
 			electronTRGFile = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/diphoton_eleg_2016postVFP.root");
 			muonTRGFile = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/muonphoton_trigger_2016postVFP.root");
 		}
 			
 		else if(RunYear==2017){
-			electronIDFile = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/SFs/2017/egammaEffi.txt_Ele_Medium_EGM2D_UL17.root");
-			photonIDFile   = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/SFs/2017/egammaEffi.txt_EGM2D_PHO_Loose_UL17.root");
-			muonIDFile     = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/SFs/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ID.root");
+			electronIDFile = TFile::Open((anaBase + "/SFs/2017/egammaEffi.txt_Ele_Medium_EGM2D_UL17.root").c_str());
+			photonIDFile   = TFile::Open((anaBase + "/SFs/2017/egammaEffi.txt_EGM2D_PHO_Loose_UL17.root").c_str());
+			muonIDFile     = TFile::Open((anaBase + "/SFs/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ID.root").c_str());
 			photonTRGFile  = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/diphoton_pholeg_2017.root");
 			electronTRGFile = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/diphoton_eleg_2017.root");
-			muonTRGFile = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/muonphoton_trigger_2016postVFP.root");
+			muonTRGFile = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/muonphoton_trigger_2017.root");
 		}
 		else if(RunYear==2018){
-			electronIDFile = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/SFs/2018/egammaEffi.txt_Ele_Medium_EGM2D_UL18.root");
-			photonIDFile   = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/SFs/2018/egammaEffi.txt_EGM2D_Pho_Loose_UL18.root");
-			muonIDFile     = TFile::Open("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/SFs/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root");
+			electronIDFile = TFile::Open((anaBase + "/SFs/2018/egammaEffi.txt_Ele_Medium_EGM2D_UL18.root").c_str());
+			photonIDFile   = TFile::Open((anaBase + "/SFs/2018/egammaEffi.txt_EGM2D_Pho_Loose_UL18.root").c_str());
+			muonIDFile     = TFile::Open((anaBase + "/SFs/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root").c_str());
 			photonTRGFile  = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/diphoton_pholeg_2018.root");
 			electronTRGFile = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/diphoton_eleg_2018.root");
-			muonTRGFile = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/muonphoton_trigger_2016postVFP.root");
+			muonTRGFile = TFile::Open("/eos/uscms/store/user/tmishra/Trigger/files/muonphoton_trigger_2018.root");
 		}
 	
-		TFile *muonIsoFile    = TFile::Open("/uscms/home/mengleis/work/SUSY2016/SUSYAnalysis/sf/TnP_NUM_MiniIsoTight_DENOM_MediumID_VAR_map_pt_eta.root");
-		TFile *muonIPFile     = TFile::Open("/uscms/home/mengleis/work/SUSY2016/SUSYAnalysis/sf/TnP_NUM_TightIP2D_DENOM_MediumID_VAR_map_pt_eta.root");
-		TFile *eleR9File          = TFile::Open("/uscms/home/mengleis/work/SUSY2016/SUSYAnalysis/sf/R9_SF.root");
+		// UL electron R9 and miniIso SFs (egamma-tnp, test/ScaleFactor/tnp)
+		std::string sfTag = ((RunYear==2016 and preVFP==1) or RunYear==678) ? "2016preVFP" : (RunYear==2016 ? "2016postVFP" : std::to_string(RunYear));
+		std::string tnpDir = anaBase + "/test/ScaleFactor/tnp/results/" + sfTag + "/";
+		TFile *eleR9File          = TFile::Open((tnpDir + "SF_R9_" + sfTag + "_hybrid.root").c_str());
+		TFile *eleMiniIsoFile     = TFile::Open((tnpDir + "SF_miniIso_" + sfTag + "_hybrid.root").c_str());
+		// UL photon R9 > 0.5 SF (Z->ee probes reconstructed as photons, tnp/run_phoR9.sh)
+		TFile *phoR9File          = TFile::Open((tnpDir + "SF_phoR9_" + sfTag + "_hybrid.root").c_str());
 		
 		TFile *fastelectronIDFile = TFile::Open("/uscms/home/mengleis/work/SUSY2016/SUSYAnalysis/sf/sf_el_mediumCB.root");
 		TFile *fastelectronIsoFile= TFile::Open("/uscms/home/mengleis/work/SUSY2016/SUSYAnalysis/sf/sf_el_mini01.root");
@@ -118,6 +129,20 @@ class esfScaleFactor{
 			electronR9ESF = (TH2F*)eleR9File->Get("EGamma_SF2D");
 		}
 
+		if(!eleMiniIsoFile || eleMiniIsoFile->IsZombie()){
+			std::cout << "no electron miniIso file" << std::endl;
+		}
+		else{
+			electronMiniIsoESF = (TH2F*)eleMiniIsoFile->Get("EGamma_SF2D");
+		}
+
+		if(!phoR9File || phoR9File->IsZombie()){
+			std::cout << "no photon R9 file" << std::endl;
+		}
+		else{
+			photonR9ESF = (TH2F*)phoR9File->Get("EGamma_SF2D");
+		}
+
 		if(photonIDFile->IsZombie()){
 			std::cout << "no photon ESF file" << std::endl;
 		}
@@ -133,21 +158,6 @@ class esfScaleFactor{
 			muonIDFast   = (TH2F*)fastmuonIDFile->Get("histo2D");
 			muonISOFast  = (TH2F*)fastmuonIsoFile->Get("histo2D");
 			muonIPFast   = (TH2F*)fastmuonIPFile->Get("histo2D");
-		}
-
-		if(muonIsoFile->IsZombie()){
-      std::cout << "no muon Iso ESF file" << std::endl;
-    }
-		else{
-			muonISOESF    = (TH2F*)muonIsoFile->Get("SF");
-			//muonISOESF    = (TH2F*)muonIsoFile->Get("cr");
-		}
-
-		if(muonIPFile->IsZombie()){
-      std::cout << "no muon ESF file" << std::endl;
-    }
-		else{
-			muonIPESF    = (TH2F*)muonIPFile->Get("SF");
 		}
 
 
@@ -206,14 +216,16 @@ class esfScaleFactor{
 	float getFastMuonEGTRGESFError(float pt1, float pt2);
 	float getR9ESF(float pt, float eta);
 	float getR9ESFError(float pt, float eta);
+	float getMiniIsoESF(float pt, float eta);
+	float getMiniIsoESFError(float pt, float eta);
+	float getPhotonR9ESF(float pt, float eta);
+	float getPhotonR9ESFError(float pt, float eta);
 
 	private:
 		TH2F *electronIDESF;
 	//	TH2F *electronISOESF;
 		TH2F *photonIDESF;
 		TH2F *muonIDESF;
-		TH2F *muonISOESF;
-		TH2F *muonIPESF;
 		TH2F *electronIDFast;
 		TH2F *electronISOFast;
 		TH2F *muonIDFast;
@@ -226,6 +238,9 @@ class esfScaleFactor{
 		TH2F *photonTRGEFF;
 		TH2F *muonTRGEFF;
 		TH2F *electronR9ESF;
+		TH2F *electronMiniIsoESF;
+		TH2F *photonR9ESF;
+		float tnpSFBin(TH2F *h, float pt, float eta, bool err);
 };
 
 #endif

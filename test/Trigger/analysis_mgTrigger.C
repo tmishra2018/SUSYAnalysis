@@ -49,7 +49,7 @@ void analysis_mgTrigger(int RunYear, const char *Era){
         if(RunYear==2017)    datatype = SingleMuon2017;
         if(RunYear==2018)    datatype = SingleMuon2018;
 	TChain* es = new TChain("ggNtuplizer/EventTree");
-        es->Add(Form("/eos/uscms/store/user/tmishra/InputFilesDATA/%d/SingleMuon/SingleMuon_%d%s.root",RunYear,RunYear,Era));
+        es->Add(Form("/eos/uscms/store/user/lpcsusyphotons/SoftPhoton/Tribeni/SingleMuon/SingleMuon_%d%s.root",RunYear,Era));
 
 	TFile *outputfile;
         outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/Trigger/files/plot_MuonTrigger_Data_%d%s.root",RunYear,Era),"RECREATE");
@@ -151,11 +151,14 @@ void analysis_mgTrigger(int RunYear, const char *Era){
 	std::vector<recoEle>   Ele;
 	float MET(0);
 
+	const bool applyGolden = (datatype != MC);  // golden JSON lumi mask for data
+	if(applyGolden && !loadGolden(RunYear)) return;
 	for (unsigned ievt(0); ievt<nEvts; ++ievt){//loop on entries
   
 		if(ievt%1000000==0) std::cout << " -- Processing event " << ievt << std::endl;
 
 			raw.GetData(es, ievt);
+			if(applyGolden && !passGolden(raw.run, raw.lumis)) continue;
 			Photon.clear();
 			Muon.clear();
 			Ele.clear();

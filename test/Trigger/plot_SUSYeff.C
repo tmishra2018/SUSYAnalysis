@@ -1,5 +1,5 @@
-#include "../Result/analysis_PU.C"
-#include "../Result/analysis_SUSY.h"
+#include "../legacy/Result/analysis_PU.C"
+#include "../legacy/Result/analysis_SUSY.h"
 void plot_SUSYeff(){//main  
 
   gSystem->Load("/uscms/home/mengleis/work/SUSY2016/SUSYAnalysis/lib/libAnaClasses.so");

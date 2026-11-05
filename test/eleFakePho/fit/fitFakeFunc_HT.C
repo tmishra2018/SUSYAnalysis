@@ -238,11 +238,11 @@ void fitFakeFunc_HT(int RunYear, bool preVFP){//main
 	TGraphErrors *fr_ht_ratio = new TGraphErrors(nHTBins);
 	TGraphErrors *fr_ht_ratioError = new TGraphErrors(nHTBins);
  
- 	int graphPtBins = (int)((MAXPT - MINPT)/0.5);
+	size_t graphPtBins = (size_t)((MAXPT - MINPT)/0.5);
 	int graphHTBins = nHTBins;
  	TGraphErrors *fr_pt_sigmaband = new TGraphErrors(graphPtBins);
 	TGraphErrors *fr_ht_sigmaband = new TGraphErrors(graphHTBins);
- 	TGraphErrors *fr_eta_sigmaband = new TGraphErrors(nEtaBins-1);
+ 	TGraphErrors *fr_eta_sigmaband = new TGraphErrors(nEtaBins);
  
 //************************************ Fill and fit the pt dependence. Calculate ratio ********************************************************** 
 	if(Pt_file.is_open() && Pt_DYfile.is_open() && Pt_Polfile.is_open()){
@@ -491,7 +491,7 @@ void fitFakeFunc_HT(int RunYear, bool preVFP){//main
  	}
 
  	TChain *bgtree = new TChain("BGTree");
- 	bgtree->Add("/uscms_data/d3/mengleis/FullStatusOct/plot_bgtemplate_FullEcal.root");
+	bgtree->Add(Form("/eos/uscms/store/user/tmishra/elefakepho/files/plot_bgtemplate_FullEcal_%d%s.root",RunYear,whichVFP.c_str()));
 	float invmass_bg=0;
 	float probePt_bg=0;
 	float probeEta_bg=0;

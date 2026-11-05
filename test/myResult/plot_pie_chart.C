@@ -39,33 +39,39 @@ map<string, map<string, float>> extractData(const string& filename) {
         return data;
     }
 
+    // Two formats: CR/VR logs (Background/plot_bkg.C: "eg channel :", "elefakePho : 123") and the SR event
+    // count (myResult/plot_eventct.C: "--- e+gamma channel ---", "e->gamma fake  : 123"); the latter labels
+    // are mapped onto the former keys.
+    const vector<pair<string, string>> labelToKey = {
+        {"elefakePho", "elefakePho"}, {"e->gamma fake", "elefakePho"},
+        {"jetfakePho", "jetfakePho"}, {"jet->gamma fake", "jetfakePho"},
+        {"jetfakeLep", "jetfakeLep"}, {"fake lepton", "jetfakeLep"},
+        {"VGamma", "VGamma"}, {"V+gamma", "VGamma"},
+        {"Electroweak", "Electroweak"}};
+
     while (getline(file, line)) {
 
-        if (line.find("eg channel") != string::npos) {
+        if (line.find("eg channel") != string::npos || line.find("e+gamma channel") != string::npos) {
             channel = "eg";
-        } 
-        else if (line.find("mg channel") != string::npos) {
+        }
+        else if (line.find("mg channel") != string::npos || line.find("mu+gamma channel") != string::npos) {
             channel = "mg";
         }
+        if (channel.empty()) continue;
 
-        if (!channel.empty() &&
-            (line.find("elefakePho") != string::npos ||
-             line.find("jetfakePho") != string::npos ||
-             line.find("jetfakeLep") != string::npos ||
-             line.find("VGamma")     != string::npos ||
-             line.find("Electroweak")!= string::npos)) {
+        string key;
+        for (const auto& lk : labelToKey) {
+            if (line.rfind(lk.first, 0) == 0) { key = lk.second; break; }   // label at the start of the line
+        }
+        size_t colon = line.find(':');
+        if (key.empty() || colon == string::npos) continue;
 
-            string key;
-            float value;
-            stringstream ss(line);
+        float value;
+        stringstream ss(line.substr(colon + 1));
+        ss >> value;
 
-            ss >> key;
-            ss.ignore(256, ':');
-            ss >> value;
-
-            if (!ss.fail()) {
-                data[channel][key] = value;
-            }
+        if (!ss.fail()) {
+            data[channel][key] = value;
         }
     }
 

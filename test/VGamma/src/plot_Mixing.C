@@ -1,4 +1,4 @@
-// input from analysis_Mixing.C  look at SUSYAnalysis/test/macro/plot_Mixing.C
+// input from analysis_Mixing.C  look at SUSYAnalysis/test/legacy/macro_old/plot_Mixing.C (older copy)
 #include<string>
 #include<iostream>
 #include<fstream>

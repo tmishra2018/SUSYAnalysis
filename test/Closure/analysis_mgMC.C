@@ -68,7 +68,7 @@ void analysis_mgMC(int RunYear, bool preVFP, const char *Sample){//main
 
   int nTotal(0),npassHLT(0), npassPho(0), npassLep(0), npassdR(0), npassZ(0), npassMETFilter(0);
 
-  TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_%s_%d%s_.root",Sample,RunYear,whichVFP.c_str()),"RECREATE");
+  TFile *outputfile = TFile::Open(Form("/eos/uscms/store/user/tmishra/mgMC/resTree_mgsignal_%s_%d%s.root",Sample,RunYear,whichVFP.c_str()),"RECREATE");
   outputfile->cd();
 
   int mcType;

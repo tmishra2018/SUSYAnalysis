@@ -1,0 +1,11 @@
+#!/bin/bash
+# Phase 2 (2026-10-31): impacts on the new cards, run one after the other from SUSYAnalysis/limits/fits; GOF held back.
+cd /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/limits/fits; source /cvmfs/cms.cern.ch/cmsset_default.sh; cd /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src && eval `scramv1 runtime -sh` 2>/dev/null; cd /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/limits
+stamp(){ date '+%F %T'; }
+echo "[$(stamp)] T5WG 1700/1100 bonly + splusb, 4 eras + Run 2";  bash runImpacts_Run2.sh > /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/limits/fits/phase2_2026-10-31/log_t5wg_bonly_splusb.txt 2>&1
+echo "[$(stamp)] T6WG 1700/1100 bonly + splusb, Run 2";          bash /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/limits/fits/phase2_2026-10-31/impacts_t6wg_bonly_splusb.sh > /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/limits/fits/phase2_2026-10-31/log_t6wg_bonly_splusb.txt 2>&1
+echo "[$(stamp)] T5WG 1700/1100 unblind, Run 2 + 4 eras";       bash /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/limits/fits/phase2_2026-10-31/impacts_t5wg_1700_1100_unblind.sh > /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/limits/fits/phase2_2026-10-31/log_t5wg_1700_1100_unblind.txt 2>&1
+echo "[$(stamp)] T5WG 1700/200 unblind, Run 2";                 bash /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/limits/fits/phase2_2026-10-31/impacts_t5wg_1700_200_unblind.sh > /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/limits/fits/phase2_2026-10-31/log_t5wg_1700_200_unblind.txt 2>&1
+echo "[$(stamp)] T6WG 1700/1100 unblind, Run 2";                bash /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/limits/fits/phase2_2026-10-31/impacts_t6wg_1700_1100_unblind.sh > /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/limits/fits/phase2_2026-10-31/log_t6wg_1700_1100_unblind.txt 2>&1
+echo "[$(stamp)] r scan T5WG 1700/200, Run 2";                  bash /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/limits/fits/phase2_2026-10-31/scan_r_1700_200.sh > /uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/limits/fits/phase2_2026-10-31/log_scan.txt 2>&1
+echo "[$(stamp)] phase 2 (impacts, scan) done"

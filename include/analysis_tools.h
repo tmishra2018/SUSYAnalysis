@@ -782,7 +782,7 @@ inline std::map<int, std::vector<std::pair<int,int> > >& goldenMask(){
   return mask;
 }
 inline bool loadGolden(int year){
-  const char* path = Form("/uscms/homes/t/tmishra/work/CMSSW_14_0_7/src/SUSYAnalysis/test/golden/golden_%d.json", year);
+  const char* path = Form("/uscms/homes/t/tmishra/work/CMSSW_14_1_0_pre4/src/SUSYAnalysis/test/golden/golden_%d.json", year);
   std::ifstream in(path);
   if(!in.is_open()){ std::cerr << "Error: cannot open golden JSON " << path << std::endl; return false; }
   std::stringstream ss; ss << in.rdbuf(); const std::string s = ss.str();

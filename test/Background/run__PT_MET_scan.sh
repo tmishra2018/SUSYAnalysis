@@ -3,11 +3,13 @@ set -e
 
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Mode = "PTSCAN"  → scan photon pT bins, MET fixed to 40–70
-# Mode = "METSCAN" → scan MET sub-bins, photon pT fixed to 0–1000
+# Mode = "PTSCAN"  scan photon pT bins, MET fixed to 40-70, HT fixed (no cut)
+# Mode = "METSCAN" scan MET sub-bins, photon pT fixed to 0-1000, HT fixed (no cut)
+# Mode = "HTSCAN"  scan HT bins, photon pT fixed to 0-1000, MET fixed to 40-70
 
-Mode="PTSCAN"
+#Mode="PTSCAN"
 #Mode="METSCAN"
+Mode="HTSCAN"
 
 ToDeriveScale=true
 
@@ -22,11 +24,20 @@ if [ "$ToDeriveScale" = true ]; then
     echo ">>> Running in PHOTON pT scan mode"
     ranges=("0 70" "70 1000")
     met_bins=("40 70")
+    ht_bins=("0 -1")
 
   elif [ "$Mode" = "METSCAN" ]; then
     echo ">>> Running in MET sub-bin scan mode"
     ranges=("0 1000")
     met_bins=("40 50" "50 60" "60 70")
+    ht_bins=("0 -1")
+
+  elif [ "$Mode" = "HTSCAN" ]; then
+    echo ">>> Running in HT scan mode"
+    ranges=("0 1000")
+    met_bins=("40 70")
+    #ht_bins=("100 3000")
+    ht_bins=("0 100" "100 400" "400 3000")
 
   fi
 
@@ -39,31 +50,35 @@ for range in "${ranges[@]}"; do
     lmet=$(echo "$met" | cut -d' ' -f1)
     hmet=$(echo "$met" | cut -d' ' -f2)
 
-    echo "=============================================="
-    echo " pT = ${lpt}-${hpt} GeV | MET = ${lmet}-${hmet} GeV"
-    echo "=============================================="
+    for ht in "${ht_bins[@]}"; do
+      lht=$(echo "$ht" | cut -d' ' -f1)
+      hht=$(echo "$ht" | cut -d' ' -f2)
 
-    for RunYear in 2016 2017 2018; do
-      for preVFP in 0 1; do
+      echo "=============================================="
+      echo " pT = ${lpt}-${hpt} GeV | MET = ${lmet}-${hmet} GeV | HT = ${lht}-${hht} GeV"
+      echo "=============================================="
 
-        if [ "$RunYear" != "2016" ] && [ "$preVFP" -eq 1 ]; then
-          continue
-        fi
+      for RunYear in 2016 2017 2018; do
+        for preVFP in 0 1; do
 
-        if [ "$RunYear" -eq 2016 ]; then
-          if [ "$preVFP" -eq 1 ]; then
-            VFP_string="preVFP"
-          else
-            VFP_string="postVFP"
+          if [ "$RunYear" != "2016" ] && [ "$preVFP" -eq 1 ]; then
+            continue
           fi
-        else
-          VFP_string=""
-        fi
 
-        for ch in 1 2; do
-          echo "---- RunYear=$RunYear, VFP=$VFP_string, ch=$ch ----"
+          if [ "$RunYear" -eq 2016 ]; then
+            if [ "$preVFP" -eq 1 ]; then
+              VFP_string="preVFP"
+            else
+              VFP_string="postVFP"
+            fi
+          else
+            VFP_string=""
+          fi
 
-          cat > BkgPredConfig.txt <<EOF
+          for ch in 1 2; do
+            echo "---- RunYear=$RunYear, VFP=$VFP_string, ch=$ch, HT=${lht}-${hht} ----"
+
+            cat > BkgPredConfig.txt <<EOF
 ichannel $ch
 anatype $anatype
 lowMt $lmt
@@ -75,16 +90,20 @@ highPt $hpt
 lepIso $iso
 RunYear $RunYear
 preVFP $preVFP
+lowHT $lht
+highHT $hht
 EOF
-	  root -l -q analysis_VGBkg_ISRwt.C++ &
-          root -l -q analysis_eleBkg_HT.C++ &
-          root -l -q analysis_jetBkg_HT.C++ &
-          root -l -q analysis_qcdBkg.C++ &
-          root -l -q analysis_rareBkg.C++ &
-          root -l -q analysis_sig.C++ &
-	  wait
-          echo "All 6 macros finished."
 
+            root -l -q analysis_rareBkg.C++
+            root -l -q analysis_VGBkg.C++  
+            root -l -q analysis_eleBkg_pT_nVtx.C++ 
+            root -l -q analysis_jetBkg_pT_nVtx.C++ 
+            root -l -q analysis_qcdBkg.C++ 
+            root -l -q analysis_sig.C++    
+            wait
+            echo "All 6 macros finished."
+
+          done
         done
       done
     done
