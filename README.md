@@ -37,7 +37,7 @@ Each step uses the outputs of the steps before it.
 | Step | What | Folder | Main command |
 |---|---|---|---|
 | 1 | Object, trigger and pileup corrections | `test/ScaleFactor`, `test/Trigger`, `test/PUfiles` | `tnp/run_sf.sh`, `runEGTrigger.sh`, `makeDataPUDistributions.sh` |
-| 2 | Skims | `test/dataSkim`, `test/VGamma/condor`, `test/myResult/Signal-samples`, `test/Closure` | `run_egmg_parallel.sh`, `submit_skim.py`, `run_Signal.sh` |
+| 2 | Skims | `test/dataSkim`, `test/VGamma/condor`, `test/myResult/Signal-samples`, `test/Closure` | `run_egmg_parallel.sh` (`analysis_{eg,mg}.C`), `submit_skim.py`, `run_Signal.sh` |
 | 3 | e→γ rate | `test/eleFakePho` | `RunFits.sh`, `processEleFake.sh` |
 | 4 | jet→γ rate | `test/jetFakePho` | `run_FitJetFake_pT_nVtx.sh`, `run_fitJetFunc.sh` |
 | 5 | ISR weights | `test/ISRReweight` | `run_all_ISR.sh` |
@@ -159,14 +159,24 @@ bash PUfiles/makeDataPUDistributions.sh
 
 ### Step 2. Skims
 
+**2a. Data signal/control trees**, folder `test/dataSkim/`
+- `analysis_eg.C` (eγ, DoubleEG) and `analysis_mg.C` (μγ, MuonEG) select events from the ntuples of one run period
+  and write `resTree_{egsignal_DoubleEG,mgsignal_MuonEG}_<year><run>.root` to `/eos/uscms/store/user/tmishra/eg_mg_treesData/`.
+```bash
+MAX_JOBS=8 bash run_egmg_parallel.sh     # compiles both macros, runs all years and run periods
+bash merge_egmg_years.sh                 # run periods -> per-era files read by all later steps (DRYRUN=1, BACKUP=1)
+# one run period by hand: ./analysis_eg.exe <year> <run>, e.g. ./analysis_eg.exe 2018 A
+```
+- Output: `/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_{egsignal_DoubleEG,mgsignal_MuonEG}_<era>.root`.
+- `merge_egmg_years.sh` overwrites these per-era files; use `DRYRUN=1` to check first and `BACKUP=1` to keep the old ones.
+
+**2b. Simulation skims**
+
 | Sample | Folder | Commands | Output |
 |---|---|---|---|
-| Data signal/control trees | `test/dataSkim` | `MAX_JOBS=8 bash run_egmg_parallel.sh`, then `bash merge_egmg_years.sh` | `/eos/uscms/store/user/tmishra/eg_mg_treesData/resTree_{egsignal_DoubleEG,mgsignal_MuonEG}_<era>.root` |
 | Vγ MC (condor) | `test/VGamma/condor` | build `../src/analysis_VGamma_Run2_condor.exe`; `python3 submit_skim.py --tag <tag>`, then `bash merge_skim.sh <tag>` | `/eos/.../VGamma/<tag>/`, then copied by hand to `/eos/.../VGamma/` |
 | Signal trees | `test/myResult/Signal-samples` | `bash run_Signal.sh` | `/uscms_data/d3/tmishra/signal_trees/resTree_<model>_<era>.root` |
 | MC for the closure tests | `test/Closure` | `bash Run_MC_all.sh` | `/eos/uscms/store/user/tmishra/{egMC,mgMC}/` |
-
-- `merge_egmg_years.sh` overwrites the per-era files that all later steps read; `DRYRUN=1` and `BACKUP=1` are available.
 
 ### Step 3. e→γ misidentification rate, folder `test/eleFakePho/`
 ```bash

@@ -98,3 +98,5 @@ test/notes/CopyingToAN/20*_.txt
 test/ScaleFactor/*.pdf
 test/ScaleFactor/eff_*_17012.root
 test/legacy/Result/test_T6WG.root
+test/dataSkim/Run_eg.sh
+test/dataSkim/Run_mg.sh
